@@ -34,16 +34,16 @@ Default sweep order
 
 Counters
 --------
-Systematic historical commits reviewed: 1,511 / 4,343
+Systematic historical commits reviewed: 1,876 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 5
-  inherited/pre-SAS defects: 4
+Confirmed defects tracked here: 6
+  inherited/pre-SAS defects: 5
   SAS-specific regressions: 1
-Confirmed defects fixed: 5
+Confirmed defects fixed: 6
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
-Confirmed previously-unfixed defects newly found by the systematic historical sweep: 2 (KI#207, KI#208)
+Confirmed previously-unfixed defects newly found by the systematic historical sweep: 3 (KI#207, KI#208, KI#209)
 Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
 
 Confirmed findings / lineage references
@@ -95,7 +95,18 @@ F005 - KI#208 worst-enemy trade-memory recalculation flag overwritten - FIXED
   The loop used bUpdateWorstEnemyAgain = (eOther == eBestTeam), so a later unrelated team with nonzero memory could overwrite an earlier true back to false. The needed recalculation therefore depended on team iteration order and could commit a stale m_eWorstEnemy.
   The fix makes the flag sticky: once eBestTeam is actually modified, later teams cannot clear the required recalculation.
   AdvCiv practical 2998, SHA 8c36049d43 ("Merge branch 0.99 into master"), carried the same branch change into master; no later historical correction was found and the assignment survived into current SAS.
-  Fixed in the current archaeology-fix commit (expected practical 6165).
+  Fixed in SAS practical 6165, SHA 6b2c738295.
+
+F006 - KI#209 random-leader reassignment state copied from random-civilization state - FIXED
+  Classification: inherited Base AdvCiv bug
+  Discovery route: third previously-unfixed defect found by the systematic newest-to-oldest historical sweep.
+  Introduced in AdvCivPreSAS practical 2532, SHA 60a15e6434:
+    "Handle assignment of random civs and leaders in the DLL"
+  CvInitCore::reassignPlayer saved both bRandomCiv and bRandomLeader from m_abCivChosenRandomly, then later restored bRandomLeader into m_abLeaderChosenRandomly. A slot whose civilization and leader random-choice state differed therefore had its saved leader provenance forced to equal its civilization provenance.
+  The distinction can matter when choices are independent, notably with GAMEOPTION_LEAD_ANY_CIV; wasLeaderRandomlyChosen and the later setup/re-randomization paths use the leader-specific flag.
+  The fix changes the one incorrect read to m_abLeaderChosenRandomly.get(eNewID), preserving both flags independently without changing RNG or assignment policy.
+  No later historical correction was found and the exact typo survived into current SAS.
+  Fixed in the current archaeology-fix commit (expected practical 6166).
 
 Resolved audit candidates
 -------------------------
@@ -116,13 +127,15 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
 Systematic sweep progress
 -------------------------
 AdvCivPreSAS: IN PROGRESS
-  Reviewed: practical 4343 -> 2833 inclusive (1,511 commits).
+  Reviewed: practical 4343 -> 2532 inclusive (1,876 commits).
   First real historical defect encountered in that range: practical 3956, already fixed independently by SAS as KI#92.
   First previously-unfixed surviving defect found by the systematic sweep: practical 2945, now KI#207.
   Second previously-unfixed surviving defect: practical 2833, now KI#208.
+  Third previously-unfixed surviving defect: practical 2532, now KI#209.
   Practical 2944 -> 2834 contained no additional surviving defect after suspicious candidates were traced against current semantics/history.
-  Next: practical 2832, SHA b969497a9b
-  Title: "Make sure unit cycling buttons get updated at turn start"
+  Practical 2832 -> 2533 likewise contained no additional surviving defect after suspicious candidates were traced.
+  Next: practical 2531, SHA 30b804faeb
+  Title: "Misc. refactoring, cleanup"
 
 KMod: WAITING FOR ADVCIV SWEEP
   First planned: practical 1249, SHA d0a60f8b90

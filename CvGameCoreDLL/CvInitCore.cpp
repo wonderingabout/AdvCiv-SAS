@@ -250,7 +250,8 @@ void CvInitCore::reassignPlayer(PlayerTypes eOldID, PlayerTypes eNewID)
 	LeaderHeadTypes eLeader = m_aeLeader.get(eNewID);
 	// <advc.190c>
 	bool bRandomCiv = m_abCivChosenRandomly.get(eNewID);
-	bool bRandomLeader = m_abCivChosenRandomly.get(eNewID);
+	// <!-- custom: Fix inherited Base AdvCiv copy-paste bug: preserve random-leader state independently; see KI#209. (ChatGPT-5.6-Sol) -->
+	bool bRandomLeader = m_abLeaderChosenRandomly.get(eNewID);
 	// </advc.190c>
 	TeamTypes eTeam = m_aeTeam.get(eNewID);
 	HandicapTypes eHandicap = m_aeHandicap.get(eNewID);

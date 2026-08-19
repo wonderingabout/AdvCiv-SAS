@@ -268,6 +268,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [206 - (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#206---fixed-k-mod-bug-ai-random-event-building-change-valuation-missed-percent-normalization-making-building-creation-or-destruction-worth-100-times-the-intended-production-cost-component)\
 [207 - (Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the last](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#207---fixed-base-advciv-bug-uwai-random-team-member-selection-mixed-0-based-random-indexes-with-iterator-positions-biasing-the-first-member-and-excluding-the-last)\
 [208 - (Fixed Base AdvCiv bug) Worst-enemy trade-memory optimization could forget a required recalculation when later teams overwrote its flag](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#208---fixed-base-advciv-bug-worst-enemy-trade-memory-optimization-could-forget-a-required-recalculation-when-later-teams-overwrote-its-flag)\
+[209 - (Fixed Base AdvCiv bug) Player reassignment saved random-leader status from the random-civilization flag, corrupting independent setup state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#209---fixed-base-advciv-bug-player-reassignment-saved-random-leader-status-from-the-random-civilization-flag-corrupting-independent-setup-state)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -7912,3 +7913,29 @@ The lineage is direct. Practical 2833 introduced the faulty assignment on its de
 This is the systematic sweep's second previously-unfixed surviving defect, after KI#207 at practical 2945. The sweep reviewed practical 2944 down through 2833 carefully before stopping here; suspicious-looking changes that did not survive semantic/current-code checks were not counted as findings.
 
 Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
+
+## 209 - (Fixed Base AdvCiv bug) Player reassignment saved random-leader status from the random-civilization flag, corrupting independent setup state
+
+The systematic AdvCiv/K-Mod history archaeology found its third previously-unfixed surviving defect at AdvCiv practical 2532 (`60a15e6434`, "Handle assignment of random civs and leaders in the DLL"). The affected code is `CvInitCore::reassignPlayer`, which temporarily saves the target player slot's setup state, copies another player's state into that slot, and then restores the saved target state into the displaced slot.
+
+Practical 2532 added separate bookkeeping for whether a civilization and leader had originally been chosen randomly, but the save step contained a direct copy/paste error:
+
+```cpp
+bool bRandomCiv = m_abCivChosenRandomly.get(eNewID);
+bool bRandomLeader = m_abCivChosenRandomly.get(eNewID);
+```
+
+The second line reads the civilization-randomness map again instead of `m_abLeaderChosenRandomly`. Later in the same function, `bRandomLeader` is restored through `m_abLeaderChosenRandomly.set(eOldID, bRandomLeader)`, so a reassigned slot whose civilization and leader randomness differ has its saved leader provenance incorrectly forced to equal its civilization provenance.
+
+For example, a manually chosen civilization with a randomly chosen leader has the intended state `randomCiv=false, randomLeader=true`; the old save step turned that into `false, false`. Conversely, a random civilization paired with a manually chosen leader can become `true, true`. Ordinary games where civilization and leader randomness naturally move together can mask the mistake, which helps explain why the typo survived. The distinction matters when those choices are independent, notably with Unrestricted Leaders (`GAMEOPTION_LEAD_ANY_CIV`) or other setup states where only one of the two was randomized.
+
+The bookkeeping is not merely descriptive. `CvInitCore::wasLeaderRandomlyChosen` reads `m_abLeaderChosenRandomly` whenever the civilization-randomness shortcut does not apply, and the result is used by setup synchronization/re-randomization logic such as `setLeaderExternal` and `reRandomizeCivsAndLeaders`. Corrupting the flag can therefore make later setup handling misclassify whether a leader was actually randomized.
+
+The fix is deliberately surgical: save `bRandomLeader` from `m_abLeaderChosenRandomly.get(eNewID)`. Civilization and leader random-choice state are then preserved independently, exactly as the paired restore assignments already imply. No RNG or assignment policy changes.
+
+The lineage is direct. Practical 2532 introduced the incorrect member access in the same patch that added the random civilization/leader bookkeeping to `reassignPlayer`; no later historical correction was found, and the exact line survived into Base AdvCiv and AdvCiv-SAS until this archaeology pass.
+
+This is the systematic sweep's third previously-unfixed surviving defect, after KI#207 at practical 2945 and KI#208 at practical 2833. From practical 2832 down through 2532, 365 additional unique historical commit SHAs were reviewed before stopping here; suspicious-looking changes that did not survive semantic/current-code checks were not counted as findings.
+
+Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
+
