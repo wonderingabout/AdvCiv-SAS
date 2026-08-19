@@ -31,19 +31,22 @@ Default sweep order
 2. KMod newest -> oldest: practical 1249 down to 1.
 3. When a finding points across a lineage boundary, trace that specific code farther immediately rather than waiting for the broad sweep to reach it.
 4. Do not "fix" a merely suspicious historical choice without understanding current semantics and gameplay impact.
+5. After the K-Mod sweep reaches practical 1, run a separate newest-to-oldest systematic sweep over AdvCiv-SAS's own history with the same evidence standard. That future SAS sweep is not included in the current 4,343-commit total.
 
 Counters
 --------
-Systematic historical commits reviewed: 1,906 / 4,343
+Systematic historical commits reviewed: 4,340 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 7
-  inherited/pre-SAS defects: 6
+Confirmed defects tracked here: 8
+  inherited/pre-SAS defects: 7
   SAS-specific regressions: 1
 Confirmed defects fixed: 7
+Confirmed defects with fix prepared, pending user compile/run/commit validation: 1 (KI#211)
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
+Unfinished K-Mod final-block candidates to recheck before closure: 1
 Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
-Confirmed previously-unfixed defects newly found by the systematic historical sweep: 4 (KI#207, KI#208, KI#209, KI#210)
+Confirmed previously-unfixed defects newly found by the systematic historical sweep: 5 (KI#207, KI#208, KI#209, KI#210, KI#211)
 Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
 
 Confirmed findings / lineage references
@@ -117,7 +120,7 @@ F007 - KI#210 vote-selection iterator refactor allowed voting-team self-contact 
   Because isHasMet(self) starts false, the self-pair can call meet(self). CvTeam::makeHasMet checks eOther == getID() only after setting seen/met state, updating tech share and firing the Python firstContact event, so that late guard does not prevent the bogus self-contact state/event.
   The fix skips equal team IDs directly in doVoteSelection before attempting contact, restoring the lost caller invariant without changing generic meet semantics or foreign-team voting contact.
   No later historical correction was found and the iterator loop survived into current SAS.
-  Fixed in the current archaeology-fix commit (expected practical 6167).
+  Fixed in SAS practical 6167, SHA 0e7098a6a6.
 
 Resolved audit candidates
 -------------------------
@@ -135,11 +138,22 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
   The current building formula's important time/utility term already contains production-turn scaling, while projects intentionally use their effective production cost and special strategic multipliers. The buy-unit espionage mission remains disabled.
   Conclusion: the formulas are heterogeneous by design and no current SAS correction is justified merely to make their cost APIs syntactically uniform. Revisit if espionage valuation itself is redesigned, not as an XMLCost bug.
 
+F008 - KI#211 terrain attack sign reversal in unknown-defender AI strength estimates - CONFIRMED / FIX PREPARED
+  Classification: inherited K-Mod/Base AdvCiv bug; exact pre-K-Mod authorship unknown.
+  Discovery route: fifth previously-unfixed defect found by the systematic newest-to-oldest historical sweep, and the first surviving defect found after entering the K-Mod segment.
+  Present in KMod practical 3, SHA 2414225e64 (initial source-bearing K-Mod snapshot, 27 Dec 2010).
+  CvUnit::maxCombatStr has a special pAttacker == this mode for estimating an attacker against an unknown defender. City/hills/feature attack modifiers enter iTempModifier and are reversed at the end, but terrain attack was added directly to iModifier and therefore kept the wrong sign.
+  Live AI_sumStrength/AI_currEffectiveStr callers reach this mode. GroupPathFinder uses the resulting strength in defended-plot attack-ratio/path costing, AI_cityTargetStrengthByPath uses it for reachable city attack strength, and current SAS low-power attacker ordering also calls the same effective-strength mode.
+  Current SAS XML contains 30 unit types with nonzero terrain-attack modifiers. A simple +20% terrain attack case could be estimated as about 83.3% of base rather than the intended 120% before later effective-strength scaling.
+  AdvCiv practical 1733, SHA 0d648df6db, touched/preserved the same asymmetric branch. No later historical correction was found before current SAS.
+  Prepared repair: change only the terrain branch accumulator from iModifier to iTempModifier. Known-defender semantics stay unchanged; unknown-defender mode now reverses terrain attack together with its sibling attack modifiers.
+  User compile/run validation and final SAS commit ID pending. Practical 3 remains OPEN and the sweep must resume there before practical 2.
+
 Systematic sweep progress
 -------------------------
-AdvCivPreSAS: IN PROGRESS
-  Reviewed: practical 4343 -> 2502 inclusive (1,906 commits).
-  First real historical defect encountered in that range: practical 3956, already fixed independently by SAS as KI#92.
+AdvCivPreSAS: COMPLETE
+  Reviewed: practical 4343 -> 1250; all 3,094 archived AdvCivPreSAS commits have been systematically reviewed.
+  First real historical defect encountered: practical 3956, already fixed independently by SAS as KI#92.
   First previously-unfixed surviving defect found by the systematic sweep: practical 2945, now KI#207.
   Second previously-unfixed surviving defect: practical 2833, now KI#208.
   Third previously-unfixed surviving defect: practical 2532, now KI#209.
@@ -147,16 +161,101 @@ AdvCivPreSAS: IN PROGRESS
   Practical 2944 -> 2834 contained no additional surviving defect after suspicious candidates were traced against current semantics/history.
   Practical 2832 -> 2533 likewise contained no additional surviving defect after suspicious candidates were traced.
   Practical 2531 -> 2503 likewise contained no additional surviving defect after suspicious candidates were traced.
-  Next: practical 2501, SHA 1e9857c407
-  Title: "Forest defense hover text no longer leaks info"
+  Practical 2501 -> 1250 contained no additional previously-unfixed surviving defect. Multiple genuine historical bugs were encountered but were already repaired by later AdvCiv commits before current SAS; these were not counted as new findings.
+  Examples include the practical-2379 Free Trade relation-iterator anchor omission later corrected by practical 2492, and practical 1343 dropping several UWAI cache-array = -1 initializers later restored by practical 1395.
+  AdvCivPreSAS systematic result: 4 previously-unfixed surviving defects found and fixed (KI#207 through KI#210).
 
-KMod: WAITING FOR ADVCIV SWEEP
-  First planned: practical 1249, SHA d0a60f8b90
-  Title: "Improved German language text. (by Zholef)"
+KMod: IN PROGRESS
+  Contiguous systematic review completed: practical 1249 -> 4 inclusive (1,246 / 1,249 K-Mod commits).
+  New previously-unfixed surviving K-Mod defects found in this contiguous range so far: 0.
+  The absence of a finding is not treated as a problem; suspicious code is closed only after checking later K-Mod/AdvCiv history and current SAS semantics.
+  Practical 1127 and 1126 introduced espionage/culture AI_commerceWeight caches and were reviewed together as a semantic checkpoint. Human slider changes refresh immediately, Great Works refresh culture weight, AI turn-start refresh is deliberate, and later AdvCiv split espionage calculation to fix the strategy-ordering issue that actually mattered; no additional surviving cache defect was established in current SAS.
+
+  Certified K-Mod checkpoints after practical 1126:
+    C001: practical 1125 -> 926 inclusive (200 unique commits), ending SHA cab7f149ba.
+      No new surviving defect. Notable checks included the practical-1041 World-Wonder filter interaction, which is safe because practical 1030 had already defined BUILDINGFOCUS_WORLDWONDER to imply BUILDINGFOCUS_WONDEROK, plus the already-known KI#205 World-Wonder production-rank lineage at practical 1030.
+    C002: practical 925 -> 726 inclusive (200 unique commits), ending SHA f52e4c54de.
+      No new surviving defect. The practical-861 AI_vassalTrade boolean rewrite was genuinely wrong historically but was later eliminated by AdvCiv relation-filtered iterators; practical-765's partial-air-mission code is safe because selection groups cannot mix unit domains.
+    C003: practical 725 -> 526 inclusive (200 unique commits), ending SHA 843d4fa887.
+      No new surviving defect. Practical 643's Great-Person ternary-precedence bug was later fixed by practical 876; practical 571's coastal-guard calculation received its later practical-616 correction; practical 532's movement-priority rewrite received its missing-return fix at practical 705; the practical 576 -> 579 -> 583 bonus-connection sequence is safe for TechCityTrade=NONE because isHasTech(NO_TECH) deliberately returns true.
+    C004: practical 525 -> 326 inclusive (200 unique commits), ending SHA 0059ba37ac.
+      No new surviving defect. This range independently re-encountered the revealing practical-478 partial event-normalization correction behind already-fixed KI#206; other pathfinder, movement-flag, stranded-unit, disband/hurry, permanent-alliance and attack-stack candidates did not survive later K-Mod/AdvCiv/current-SAS checks.
+    C005: practical 325 -> 126 inclusive (199 unique SHAs; practical 168 and 215 are absent while practical 196 occurs twice), ending SHA 37c76118c0.
+      No new surviving defect. This historically bug-dense range contains later-fixed strength-memory, sea-assault, pathfinder, citizen-assignment, espionage and arithmetic mistakes. Practical 238's `int iExperienceNeeded = iExperienceNeeded = ...` is redundant/ugly rather than a correctness failure and was later cleaned up by practical 434.
+    C006: practical 125 -> 76 inclusive (50 unique commits), ending SHA 6f0a698a53.
+      No new surviving defect. Practical 121's `eNewCivic`/old-array-slot check was re-opened and remains protected by the civic-availability invariant; later K-Mod practical 514 removes that stale guard entirely while relying on the same invariant. Practical 118 genuinely reversed BBAI's bombard-turn scaling (`iBombardTurns - 20`), but practical 137 explicitly restores `20 - iBombardTurns`; current SAS is therefore safe. Other surviving plot-improvement, espionage, limited-building, force-peace, Great-Person and victory-strategy expressions in this range were checked against later K-Mod/AdvCiv changes and current invariants without establishing another live defect.
+    C007: practical 75 -> 26 inclusive (51 unique SHAs because practical 73 occurs twice), ending SHA c5160fe82d.
+      No new surviving defect. Practical 71 introduced an unguarded counterespionage-value division by our espionage points against the target; practical 84 later replaced that formula with a denominator guarded by std::max(1, ...), so current SAS is safe. Practical 66's rewritten AI_corporationValue applied city population/maintenance-modifier scaling to `iMaintenance` only after that value had already been added to `iTempValue`, making the intended city-specific adjustment a no-op; practical 77 superseded the sequence with a different explicit maintenance approximation. Practical 56 introduced a genuine compile-valid shadowing bug in updateGwPercentAnger by redeclaring `int iAngerPercent` inside the positive-GW branch; practical 59 rearranged the code but still retained the shadow, and practical 145 finally removed the inner declaration. Current SAS contains the corrected assignment. The large practical-41 patch was mostly newly imported audio XML; its comparatively small gameplay-code changes, plus the city-site, civic, corporation, building-cache, espionage, defensive-power, global-warming and event changes throughout this checkpoint, were checked against later K-Mod/AdvCiv history and current SAS without establishing another live defect.
+    C008: practical 25 -> 5 inclusive (21 unique SHAs), ending SHA d63edcad21.
+      No new surviving defect. Practical 23 squared a potentially negative global-warming responsibility factor, which could turn a net-negative contribution positive; practical 35 later replaced/clamped that transformation. Practical 13 divided global-warming chance scaling by getMaxTurns(), creating a zero-divisor path when Time Victory was disabled; practical 20 later fixed that case. Practical 9 tried to avoid overflow in ROUND_DIVIDE by using `a / b > 0` as its sign test, but integer truncation misclassifies same-sign fractions with magnitude below 1 (for example 2/3); AdvCiv practical 1968 (`Bugfix in K-Mod's ROUND_DIVIDE`) replaced it with the corrected XOR-sign test used by current SAS. Practical 7 could leave its global-warming terrain selector uninitialized after exhausting the random search; practical 9 fixed that path. Practical 25's experimental KAI_techValue has no live caller in the surviving lineage; practical 27 comments out its declaration and practical 84 removes it. The current AI_civicValue descendant of practical-5 UnhealthyPopulationModifier logic was also checked for a possible zero/negative denominator; current SAS civic XML uses 0 for that modifier, so no current defect is established.
+    C009: practical 4, SHA 593c549b51 (`assets to go with the initial commit`) (1 unique SHA).
+      No new surviving defect. This is the companion assets/Python/XML import for the initial K-Mod source snapshot rather than a normal compact algorithm patch. All 102 imported XML files parse structurally. K-Mod-specific Python/XML customizations and their current descendants were checked separately: the three `Assets/Python/K-Mod/*` utility scripts from this import no longer exist in current SAS; the finance-advisor replacement is initialized through CvScreensInterface.init before use; current SAS's surviving trade-culture city-screen display is additionally gated by USE_KMOD_TRADE_CULTURE. The practical-4 Religion Advisor customization did contain a genuine historical UI defect: its subset selection populated `self.RELIGIONS`, but drawReligionInfo still iterated every religion. K-Mod practical 777 (`Fixed the subset options for BUG religious advisor.`) changes the drawing loop to iterate the selected subset; current SAS no longer contains that old screen implementation. The early environmental-advisor/global-warming assets were heavily revised by the immediately following K-Mod commits; concrete historical GW defects from that sequence are already recorded under C007/C008 and are fixed in current SAS.
+
+  Historical practical-number bookkeeping:
+    Count actual archived SHAs rather than deriving progress from practical-number subtraction. K-Mod contains duplicate practical numbers 73 and 196, while practical 168 and 215 are absent. These irregularities leave the segment total at 1,249 SHAs but make some numeric ranges differ from their apparent size.
+
+  Final K-Mod tail: OPEN / NOT YET CERTIFIED
+    Remaining SHAs: practical 3, 2 and 1 (3 unique SHAs).
+    Next systematic commit for certification: practical 3, SHA 2414225e64
+    Title: "Initial commit. K-Mod, 27/dec/10. We have the environmental advisor and most of the global warming framework, but I haven't yet added iUnhealthyPopulationMod..."
+    Practical 4 is certified separately as C009 above.
+    Practical 3 is the very large initial source-bearing K-Mod commit (about 8.5 MB of diff across roughly 200 source files) and is receiving its own layered audit rather than being treated like a normal small patch. Audit layers include whole-tree compiler-valid foot-gun searches, K-Mod/karadoc-marked regions, later fix commits used as reverse pointers, and current-SAS descendants of suspicious code.
+    Practical 3 exploratory audit status: SUBSTANTIAL PROGRESS, STILL OPEN. This does not advance the certified cursor. No previously-unfixed surviving current-SAS defect is presently established from practical 3, but the commit is not certified yet.
+    The earlier `iIncome` divisor candidate has been re-checked more strongly. Practical 3 computes `iIncome = 1 + GOLD commerce + RESEARCH commerce + max(0, goldPerTurn)`, so the divisor is at least 1 in the introducing code. The modern descendant uses `1 + AI_getAvailableIncome()`; the available-income cache is built from nonnegative available commerce with GPT clamped at zero, and the caller also asserts `iIncome > 0`. Treat this candidate as currently safe unless later practical-3 auditing finds a contradictory path.
+    Whole-tree assignment/condition scans found a genuine historical strategy-hash mutation: `if (iLastStrategyHash &= AI_STRATEGY_DAGGER)` tests with compound assignment and therefore destroys unrelated bits in the saved strategy hash. AdvCiv practical 2179, SHA 3676ec243b, changes this to a non-mutating bit test; current SAS is safe.
+    The same scan independently re-found the old crush-strategy test `m_iStrategyHash & !AI_STRATEGY_ALERT2`, which is always false for a nonzero flag and was later fixed by K-Mod practical 76; current SAS is safe.
+    Two worker-AI comments in practical 3 describe intended changes that the live code had not actually received: a production-rank comparison remained `<` despite a comment saying it had been changed to `<=` (later fixed by K-Mod practical 220, SHA f5e1f06944), and a danger condition remained `if (bDanger ...)` despite a comment saying it had been changed to `if (!bDanger ...)` (later fixed by practical 103, SHA 5750806e12). Current SAS carries the later corrected behavior.
+    Practical 3 also contains a wrong debug assertion bound in `CvGame::getUnitClassCreatedCount`: it checks against `GC.getNumUnitInfos()` rather than the unit-class count. This affects assertion validation rather than the returned array value; the storage/access implementation was later replaced by AdvCiv practical 3746 and current SAS no longer contains that bad assertion.
+    A brace-aware audit of all 903 practical-3 assertion/bounds checks found no hidden family of enum-domain mistakes: the `getUnitClassCreatedCount` mismatch above was the only genuine parameter-domain/bound mismatch; earlier broader scanner hits were neighboring compact functions misattributed by the crude scan.
+    Confirmed surviving current-SAS defect / KI#211 in `CvUnit::maxCombatStr`: in the special `pAttacker == this` mode used to estimate an attacker against an unknown defender, city, hills and feature attack modifiers are accumulated in `iTempModifier` and then sign-reversed with `iModifier -= iTempModifier`. The terrain-attack branch instead wrote its negative attack modifier directly to `iModifier`, so it uniquely bypassed that reversal. Current `CvSelectionGroupAI::AI_sumStrength` and several current `AI_currEffectiveStr(pPlot, unit)` callers deliberately reach this special mode, including current SAS low-power attacker ordering; `GroupPathFinder` uses `AI_sumStrength` for defended-plot attack-ratio/path cost and `AI_cityTargetStrengthByPath` uses it for reachable city attack strength, so the wrong estimate feeds live AI decisions rather than diagnostics only. Current SAS XML contains 30 unit types with nonzero terrain-attack modifiers, including multiple +20% cases. For a unit with only +20% terrain attack, the special estimate applies -20% instead: roughly 83.3% of base strength rather than the intended 120% before later effective-strength scaling. The exact asymmetric line is present in practical 3, is preserved by AdvCiv practical 1733 and survived current SAS; no correcting historical patch was found. The prepared repair accumulates the terrain branch in `iTempModifier`, like the other attack-modifier branches: this leaves known-defender semantics unchanged because the temporary modifier is added normally, while allowing unknown-defender mode to reverse it. User compile/run validation and final SAS commit ID are pending; once validated, resume practical 3 before practical 2.
+    Assignment-looking `if (iSpreadExternalValue = 0)` remains a false positive because it exists only in a commented original-BtS reference block; K-Mod's live replacement already uses `== 0`. The other assignment-in-condition form found in the broad scan, `(pWaterArea = ...) != NULL`, is deliberate pointer assignment/testing.
+    Continue practical 3 before practical 2. Practical 2 (SHA 3e82b5f465) and practical 1 (SHA 7dd0684d35) remain to be inspected rather than assumed metadata-only.
+
+KMod notable checked candidates / historical notes
+---------------------------------------------------
+These checks are preserved so later review does not rediscover the same candidates from scratch. Some were first investigated out of order while orienting in K-Mod history and are now also inside the certified contiguous range through practical 5.
+
+KMod practical 1158 - AI_retreatToCity rewrite ancestry - ALREADY COVERED
+  The retreat rewrite intersects the unsafe-current-city retreat behavior eventually fixed/documented under KI#204. Treat as known lineage, not a new systematic finding.
+
+KMod practical 1099 - OOS checksum player-index shift - NO KI / POSSIBLE DIAGNOSTIC CLEANUP
+  Current SAS can iterate 48 player slots while an old OOS-checksum expression shifts an int by the player index. Indices >= 32 are dubious in portable C/C++, but this value is only a deliberately lossy diagnostic checksum, not simulation/game state. On the target x86/MSVC behavior the practical concern is reduced checksum uniqueness, not gameplay corruption. Do not classify as a gameplay/correctness defect without stronger evidence.
+
+KMod practical 861 - AI_vassalTrade exclusion rewrite - HISTORICAL BUG, CURRENTLY SAFE
+  A rewrite changed the old exclusion of self OR prospective master into an && form that did not preserve the original logic in normal cases. This was a genuine historical bug in that revision, but later AdvCiv refactored the path into relation-filtered enemy iterators and current SAS no longer contains the bad condition.
+
+KMod practical 643 - Great-Person specialist ternary precedence - HISTORICAL BUG, CURRENTLY SAFE
+  The expression around getGreatPeopleRate() used a ternary without the necessary parentheses and therefore parsed differently from the apparent intent. KMod practical 876 later corrected the exact expression; current SAS is safe.
+
+KMod practical 3 - initial source snapshot audit - OPEN / KI#211 FIX PREPARED
+  This giant source-bearing commit is being audited separately and is not yet certified. The current-descendant `iIncome` divisor candidate has been re-proved safe so far because the introducing calculation and modern available-income path keep the denominator positive. Whole-tree condition scans found the genuine `iLastStrategyHash &= AI_STRATEGY_DAGGER` mutation bug, later fixed by AdvCiv practical 2179, and independently re-found the already-fixed crush-strategy `& !AI_STRATEGY_ALERT2` bug. Two worker-AI comment/code mismatches were also genuine historical defects later fixed by K-Mod practical 220 (`<` -> `<=`) and practical 103 (`bDanger` -> `!bDanger`). A brace-aware audit of 903 assertion/bounds checks confirmed that the unit-class-created-count debug assertion was the only real enum-domain/bound mismatch; it was later removed with the storage/access refactor.
+  Confirmed surviving current-SAS defect / KI#211: `CvUnit::maxCombatStr`'s unknown-defender attacker mode reverses city/hills/feature attack modifiers through `iTempModifier`, but the terrain-attack branch added the negative modifier directly to `iModifier` and therefore bypassed the reversal. Live `AI_currEffectiveStr(..., sameUnit, ...)`/`AI_sumStrength` callers reach this mode; `GroupPathFinder` uses that sum in defended-plot path costing and city-target strength logic uses it for reachable attack power. Current SAS has 30 terrain-attack-bearing unit types. The asymmetric line is present in practical 3, preserved by AdvCiv practical 1733 and survived current SAS; no later correction was found. The prepared repair accumulates the terrain branch in `iTempModifier` like its city/hills/feature siblings, preserving known-defender behavior while allowing unknown-defender mode to reverse it. User compile/run validation and final SAS commit ID are pending. Practical 3 remains OPEN after this fix and must resume before practical 2.
+
+KMod practical 3 - corporation external-spread assignment-looking condition - FALSE POSITIVE
+  The alarming `if (iSpreadExternalValue = 0)` is preserved only inside a commented original-BtS reference block. K-Mod's live Unofficial Patch replacement already uses `== 0`; practical 3 therefore documents/fixes the inherited BtS issue rather than introducing a live K-Mod bug.
+
+KMod practical 9 - ROUND_DIVIDE sign test - HISTORICAL BUG, CURRENTLY SAFE
+  Practical 9 replaced the multiplication-based sign test with `a / b > 0` to avoid overflow, but integer truncation makes that test false for same-sign proper fractions such as 2/3. AdvCiv practical 1968, SHA b602f31c7d (`Bugfix in K-Mod's ROUND_DIVIDE`), replaces it with the corrected XOR-sign test; current SAS is safe.
+
+KMod practical 7 - global-warming terrain selector initialization - HISTORICAL BUG, CURRENTLY SAFE
+  The terrain selector could remain uninitialized after exhausting its random-search attempts. Practical 9 fixes the path; current SAS is safe.
+
+KMod practical 13 - global-warming max-turn division - HISTORICAL BUG, CURRENTLY SAFE
+  Chance scaling divided by getMaxTurns(), allowing a zero-divisor path with Time Victory disabled. Practical 20 fixes the case; current SAS is safe.
+
+KMod practical 23 - global-warming responsibility squaring - HISTORICAL BUG, CURRENTLY SAFE
+  A potentially negative responsibility factor was squared, which could turn a net-negative contribution positive. Practical 35 later replaces/clamps the transformation; current SAS is safe.
+
+KMod practical 4 - Religion Advisor subset drawing - HISTORICAL BUG, CURRENTLY SAFE
+  The practical-4 BUG Religion Advisor customization could populate `self.RELIGIONS` with a selected subset but still drew religion buttons by iterating the full `range(gc.getNumReligionInfos())`. K-Mod practical 777 explicitly fixes the subset options by iterating `self.RELIGIONS`; current SAS no longer contains that old screen implementation.
 
 Recording rules
 ---------------
 - Record clean progress as ranges rather than one line per harmless commit.
+- For dense K-Mod/SAS archaeology, persist each completed checkpoint immediately instead of waiting for the whole segment or chat turn to finish. Use roughly 200 commits as a maximum checkpoint size and keep smaller live cursors while working when practical.
+- Tooling/methodology note: this sweep was initially carried out primarily with ChatGPT in an interactive chat/tool environment (among other practical reasons, Codex usage availability was limited at the time). Interactive or otherwise non-persistent environments can sometimes interrupt a long review before a natural stopping point; more persistent coding-agent environments such as Codex or Claude Code may not share the same practical limitation.
+- In an interactive/non-persistent environment, if a large commit or unresolved investigation is still in progress after roughly 20 minutes, save an OPEN checkpoint before continuing: preserve the last certified cursor, current candidate(s), partial findings/dispositions and exact next step. The ~20-minute interval is an empirical safety margin learned during this sweep, not a review-time limit or correctness rule; very large commits may span as many OPEN checkpoints as needed without advancing the certified cursor until the commit is genuinely closed.
+- Never advance the certified cursor past an unfinished checkpoint merely because lower-numbered commits received exploratory spot checks.
 - For every suspect/finding worth preserving, record segment, practical commit number, SHA, title, relevant file/function, classification and final disposition.
 - Keep separate counts for open suspects, confirmed defects, actual fixes, inherited/pre-SAS bugs and SAS-specific regressions.
 - A summary-only or partial archived diff is not automatically "clean"; if its title/path is relevant, inspect adjacent history/current source or obtain fuller source before closing it.

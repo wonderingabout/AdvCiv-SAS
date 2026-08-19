@@ -8240,7 +8240,8 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDet
 		else
 		{
 			iExtraModifier = -pAttacker->terrainAttackModifier(pAttackedPlot->getTerrainType());
-			iModifier += iExtraModifier;
+			// <!-- custom: Keep terrain attack in the reversible attacker-modifier subtotal; see KI#211. (ChatGPT-5.6-Sol) -->
+			iTempModifier += iExtraModifier;
 			if (pCombatDetails != NULL)
 				pCombatDetails->iTerrainAttackModifier = iExtraModifier;
 		}
