@@ -34,16 +34,16 @@ Default sweep order
 
 Counters
 --------
-Systematic historical commits reviewed: 1,876 / 4,343
+Systematic historical commits reviewed: 1,906 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 6
-  inherited/pre-SAS defects: 5
+Confirmed defects tracked here: 7
+  inherited/pre-SAS defects: 6
   SAS-specific regressions: 1
-Confirmed defects fixed: 6
+Confirmed defects fixed: 7
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
-Confirmed previously-unfixed defects newly found by the systematic historical sweep: 3 (KI#207, KI#208, KI#209)
+Confirmed previously-unfixed defects newly found by the systematic historical sweep: 4 (KI#207, KI#208, KI#209, KI#210)
 Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
 
 Confirmed findings / lineage references
@@ -72,7 +72,7 @@ F003 - KI#206 AI random-event building-change percent normalization - FIXED
   Practical 478 is therefore a revealing partial correction, not claimed as the origin of the bug.
   This proves the issue is pre-SAS. The available history does not establish whether the original omission was introduced by K-Mod or inherited from BtS/BBAI before K-Mod practical 3.
   The K-Mod trace was done locally from the light-source ZIP commit-diff archive without Internet lookup.
-  Fixed in the current post-6162 audit commit (expected practical 6163).
+  Fixed in SAS practical 6163, SHA 179e5e1f3e.
 
 F004 - KI#207 UWAI random team-member selection index mismatch - FIXED
   Classification: inherited Base AdvCiv bug
@@ -106,7 +106,18 @@ F006 - KI#209 random-leader reassignment state copied from random-civilization s
   The distinction can matter when choices are independent, notably with GAMEOPTION_LEAD_ANY_CIV; wasLeaderRandomlyChosen and the later setup/re-randomization paths use the leader-specific flag.
   The fix changes the one incorrect read to m_abLeaderChosenRandomly.get(eNewID), preserving both flags independently without changing RNG or assignment policy.
   No later historical correction was found and the exact typo survived into current SAS.
-  Fixed in the current archaeology-fix commit (expected practical 6166).
+  Fixed in SAS practical 6166, SHA eaf4c8ac19.
+
+F007 - KI#210 vote-selection iterator refactor allowed voting-team self-contact - FIXED
+  Classification: inherited Base AdvCiv bug
+  Discovery route: fourth previously-unfixed defect found by the systematic newest-to-oldest historical sweep.
+  Introduced in AdvCivPreSAS practical 2502, SHA cbc25c22bd:
+    "Misc. refactoring"
+  CvGame::doVoteSelection previously iterated unordered team pairs with iTeam2 = iTeam1 + 1. Practical 2502 replaced the inner numeric loop with a fresh full TeamIter but did not restore the self-exclusion, so a voting team could be paired with itself.
+  Because isHasMet(self) starts false, the self-pair can call meet(self). CvTeam::makeHasMet checks eOther == getID() only after setting seen/met state, updating tech share and firing the Python firstContact event, so that late guard does not prevent the bogus self-contact state/event.
+  The fix skips equal team IDs directly in doVoteSelection before attempting contact, restoring the lost caller invariant without changing generic meet semantics or foreign-team voting contact.
+  No later historical correction was found and the iterator loop survived into current SAS.
+  Fixed in the current archaeology-fix commit (expected practical 6167).
 
 Resolved audit candidates
 -------------------------
@@ -127,15 +138,17 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
 Systematic sweep progress
 -------------------------
 AdvCivPreSAS: IN PROGRESS
-  Reviewed: practical 4343 -> 2532 inclusive (1,876 commits).
+  Reviewed: practical 4343 -> 2502 inclusive (1,906 commits).
   First real historical defect encountered in that range: practical 3956, already fixed independently by SAS as KI#92.
   First previously-unfixed surviving defect found by the systematic sweep: practical 2945, now KI#207.
   Second previously-unfixed surviving defect: practical 2833, now KI#208.
   Third previously-unfixed surviving defect: practical 2532, now KI#209.
+  Fourth previously-unfixed surviving defect: practical 2502, now KI#210.
   Practical 2944 -> 2834 contained no additional surviving defect after suspicious candidates were traced against current semantics/history.
   Practical 2832 -> 2533 likewise contained no additional surviving defect after suspicious candidates were traced.
-  Next: practical 2531, SHA 30b804faeb
-  Title: "Misc. refactoring, cleanup"
+  Practical 2531 -> 2503 likewise contained no additional surviving defect after suspicious candidates were traced.
+  Next: practical 2501, SHA 1e9857c407
+  Title: "Forest defense hover text no longer leaks info"
 
 KMod: WAITING FOR ADVCIV SWEEP
   First planned: practical 1249, SHA d0a60f8b90

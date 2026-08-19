@@ -10518,7 +10518,8 @@ void CvGame::doVoteSelection()
 				continue;
 			for (TeamIter<MAJOR_CIV> itTeam2; itTeam2.hasNext(); ++itTeam2)
 			{
-				if (!itTeam2->isVotingMember(eVS))
+				// <!-- custom: Fix inherited Base AdvCiv practical-2502 bug: its iterator refactor lost the old self-exclusion. A voting team could therefore meet itself; see KI#210. (ChatGPT-5.6-Sol) -->
+				if (itTeam2->getID() == itTeam1->getID() || !itTeam2->isVotingMember(eVS))
 					continue;
 				//itTeam1->meet(itTeam2->getID(), true);
 				// <advc.071> Check isHasMet b/c getVoteSourceCity is a bit slow
