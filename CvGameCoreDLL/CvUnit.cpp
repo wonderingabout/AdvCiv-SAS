@@ -8104,7 +8104,8 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDet
 						getAIBarbarianCombatModifier();
 				iModifier += iExtraModifier;
 				if (pCombatDetails != NULL)
-					pCombatDetails->iAIBarbarianCombatModifierTB = iExtraModifier;
+					// <!-- custom: Fix inherited AB/TB CombatDetails copy-paste; see KI#212. (ChatGPT-5.6-Sol) -->
+					pCombatDetails->iAIBarbarianCombatModifierAB = iExtraModifier;
 			}
 			// <advc.313>
 			if (pAttacker->isKnownSeaBarbarian())

@@ -37,16 +37,16 @@ Counters
 --------
 Systematic historical commits reviewed: 4,340 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 8
-  inherited/pre-SAS defects: 7
+Confirmed defects tracked here: 9
+  inherited/pre-SAS defects: 8
   SAS-specific regressions: 1
-Confirmed defects fixed: 7
-Confirmed defects with fix prepared, pending user compile/run/commit validation: 1 (KI#211)
+Confirmed defects fixed: 8
+Confirmed defects with fix prepared, pending user compile/run/commit validation: 1 (KI#212)
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Unfinished K-Mod final-block candidates to recheck before closure: 1
 Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
-Confirmed previously-unfixed defects newly found by the systematic historical sweep: 5 (KI#207, KI#208, KI#209, KI#210, KI#211)
+Confirmed previously-unfixed defects newly found by the systematic historical sweep: 6 (KI#207, KI#208, KI#209, KI#210, KI#211, KI#212)
 Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
 
 Confirmed findings / lineage references
@@ -138,7 +138,7 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
   The current building formula's important time/utility term already contains production-turn scaling, while projects intentionally use their effective production cost and special strategic multipliers. The buy-unit espionage mission remains disabled.
   Conclusion: the formulas are heterogeneous by design and no current SAS correction is justified merely to make their cost APIs syntactically uniform. Revisit if espionage valuation itself is redesigned, not as an XMLCost bug.
 
-F008 - KI#211 terrain attack sign reversal in unknown-defender AI strength estimates - CONFIRMED / FIX PREPARED
+F008 - KI#211 terrain attack sign reversal in unknown-defender AI strength estimates - FIXED
   Classification: inherited K-Mod/Base AdvCiv bug; exact pre-K-Mod authorship unknown.
   Discovery route: fifth previously-unfixed defect found by the systematic newest-to-oldest historical sweep, and the first surviving defect found after entering the K-Mod segment.
   Present in KMod practical 3, SHA 2414225e64 (initial source-bearing K-Mod snapshot, 27 Dec 2010).
@@ -146,8 +146,18 @@ F008 - KI#211 terrain attack sign reversal in unknown-defender AI strength estim
   Live AI_sumStrength/AI_currEffectiveStr callers reach this mode. GroupPathFinder uses the resulting strength in defended-plot attack-ratio/path costing, AI_cityTargetStrengthByPath uses it for reachable city attack strength, and current SAS low-power attacker ordering also calls the same effective-strength mode.
   Current SAS XML contains 30 unit types with nonzero terrain-attack modifiers. A simple +20% terrain attack case could be estimated as about 83.3% of base rather than the intended 120% before later effective-strength scaling.
   AdvCiv practical 1733, SHA 0d648df6db, touched/preserved the same asymmetric branch. No later historical correction was found before current SAS.
-  Prepared repair: change only the terrain branch accumulator from iModifier to iTempModifier. Known-defender semantics stay unchanged; unknown-defender mode now reverses terrain attack together with its sibling attack modifiers.
-  User compile/run validation and final SAS commit ID pending. Practical 3 remains OPEN and the sweep must resume there before practical 2.
+  Fix: change only the terrain branch accumulator from iModifier to iTempModifier. Known-defender semantics stay unchanged; unknown-defender mode now reverses terrain attack together with its sibling attack modifiers.
+  Fixed in SAS practical 6168, SHA cf1272d7fe; user compile/run validation succeeded and CI passed. Practical 3 remains OPEN and the sweep must resume there before practical 2.
+
+
+F009 - KI#212 AI-Barbarian CombatDetails attacker/defender field copy-paste - FIX PREPARED
+  Classification: minor inherited K-Mod/Base AdvCiv semantic/API bug; exact pre-K-Mod authorship unknown.
+  Discovery route: sixth previously-unfixed defect found by the systematic historical sweep, during the continuing deep audit of KMod practical 3.
+  Present in KMod practical 3, SHA 2414225e64, and still present in current SAS.
+  In CvUnit::maxCombatStr, the AI-controlled defender branch for a Barbarian attacker correctly applies the AI-Barbarian strength modifier but stores the reporting value in CombatDetails::iAIBarbarianCombatModifierTB (defender/"This is Barbarian") instead of the corresponding attacker field ...AB. The AB field is separately declared, zeroed, exported to Python and read by CvUtil.py, but was never assigned.
+  Current built-in combat logging masks the defect because TB and AB use the same text key/sign handling, and combat strength itself is already computed correctly before the reporting assignment. The definite impact is therefore minor exposed-data/API semantics rather than combat odds or current AI behavior.
+  Prepared fix: change only the one CombatDetails write from ...TB to ...AB. No strength arithmetic, RNG, handicap value, text key or balance data changes.
+  Awaiting user compile/run/commit validation. Practical 3 remains OPEN and must resume before practical 2.
 
 Systematic sweep progress
 -------------------------
@@ -167,7 +177,7 @@ AdvCivPreSAS: COMPLETE
 
 KMod: IN PROGRESS
   Contiguous systematic review completed: practical 1249 -> 4 inclusive (1,246 / 1,249 K-Mod commits).
-  New previously-unfixed surviving K-Mod defects found in this contiguous range so far: 0.
+  New previously-unfixed surviving K-Mod defects found in the practical-3 OPEN audit so far: 2 (KI#211 fixed; KI#212 fix prepared).
   The absence of a finding is not treated as a problem; suspicious code is closed only after checking later K-Mod/AdvCiv history and current SAS semantics.
   Practical 1127 and 1126 introduced espionage/culture AI_commerceWeight caches and were reviewed together as a semantic checkpoint. Human slider changes refresh immediately, Great Works refresh culture weight, AI turn-start refresh is deliberate, and later AdvCiv split espionage calculation to fix the strategy-ordering issue that actually mattered; no additional surviving cache defect was established in current SAS.
 
@@ -227,9 +237,13 @@ KMod practical 861 - AI_vassalTrade exclusion rewrite - HISTORICAL BUG, CURRENTL
 KMod practical 643 - Great-Person specialist ternary precedence - HISTORICAL BUG, CURRENTLY SAFE
   The expression around getGreatPeopleRate() used a ternary without the necessary parentheses and therefore parsed differently from the apparent intent. KMod practical 876 later corrected the exact expression; current SAS is safe.
 
-KMod practical 3 - initial source snapshot audit - OPEN / KI#211 FIX PREPARED
+KMod practical 3 - initial source snapshot audit - OPEN / KI#211 FIXED / KI#212 FIX PREPARED, AUDIT CONTINUES
   This giant source-bearing commit is being audited separately and is not yet certified. The current-descendant `iIncome` divisor candidate has been re-proved safe so far because the introducing calculation and modern available-income path keep the denominator positive. Whole-tree condition scans found the genuine `iLastStrategyHash &= AI_STRATEGY_DAGGER` mutation bug, later fixed by AdvCiv practical 2179, and independently re-found the already-fixed crush-strategy `& !AI_STRATEGY_ALERT2` bug. Two worker-AI comment/code mismatches were also genuine historical defects later fixed by K-Mod practical 220 (`<` -> `<=`) and practical 103 (`bDanger` -> `!bDanger`). A brace-aware audit of 903 assertion/bounds checks confirmed that the unit-class-created-count debug assertion was the only real enum-domain/bound mismatch; it was later removed with the storage/access refactor.
-  Confirmed surviving current-SAS defect / KI#211: `CvUnit::maxCombatStr`'s unknown-defender attacker mode reverses city/hills/feature attack modifiers through `iTempModifier`, but the terrain-attack branch added the negative modifier directly to `iModifier` and therefore bypassed the reversal. Live `AI_currEffectiveStr(..., sameUnit, ...)`/`AI_sumStrength` callers reach this mode; `GroupPathFinder` uses that sum in defended-plot path costing and city-target strength logic uses it for reachable attack power. Current SAS has 30 terrain-attack-bearing unit types. The asymmetric line is present in practical 3, preserved by AdvCiv practical 1733 and survived current SAS; no later correction was found. The prepared repair accumulates the terrain branch in `iTempModifier` like its city/hills/feature siblings, preserving known-defender behavior while allowing unknown-defender mode to reverse it. User compile/run validation and final SAS commit ID are pending. Practical 3 remains OPEN after this fix and must resume before practical 2.
+  A later reverse-pointer check found another genuine practical-3 maintenance bug: `CvCity::calculateMaintenanceDistance` updated its longest-distance term only for non-government-center cities. With exactly two cities, the non-capital city therefore saw only itself in that term and could get zero distance maintenance. K-Mod practical 1005, SHA 105c7a8c6e, explicitly fixes this by updating the longest-distance term for every city before the government-center test; current SAS retains the correction.
+  Practical 3's Advanced Start tech-value loop also contains a historical variable-target mistake: after computing a local improvement-yield `iTempValue`, the early-era Advanced Start bonus multiplies cumulative `iValue` instead of `iTempValue`. This can repeatedly scale value accumulated from unrelated earlier terms. Later K-Mod tech-value rewrites remove the old branch (it is gone by practical 84, SHA ab84668b30); current SAS no longer contains it.
+  The practical-3 global-warming state additions `m_iGlobalWarmingIndex` and `m_iGwEventTally` were separately checked for reset/read/write symmetry. Both are initialized and serialized in matching order, so no save/OOS defect was found in that state plumbing.
+  Confirmed minor surviving current-SAS defect / KI#212: when the attacker is Barbarian and the defender is AI, `CvUnit::maxCombatStr` stores the correct AI-Barbarian strength modifier in `CombatDetails::iAIBarbarianCombatModifierTB` instead of the corresponding attacker-Barbarian `...AB` field. The same copy-paste is already present in practical 3; current `...AB` is otherwise zeroed, exported to Python and read by `CvUtil.py` but never assigned. AdvCiv's `CombatDetails` comment identifies TB as defender/"This is Barbarian" and AB as "Attacker is Barbarian". Current SAS combat logging masks the error because both fields use the same text key/sign handling, and the actual strength math is already correct, so this is explicitly classified as a minor semantic/API defect rather than gameplay AI weakness. The prepared repair changes only the reporting write from `...TB` to `...AB`; user compile/run/commit validation is pending.
+  Confirmed surviving current-SAS defect / KI#211: `CvUnit::maxCombatStr`'s unknown-defender attacker mode reverses city/hills/feature attack modifiers through `iTempModifier`, but the terrain-attack branch added the negative modifier directly to `iModifier` and therefore bypassed the reversal. Live `AI_currEffectiveStr(..., sameUnit, ...)`/`AI_sumStrength` callers reach this mode; `GroupPathFinder` uses that sum in defended-plot path costing and city-target strength logic uses it for reachable attack power. Current SAS has 30 terrain-attack-bearing unit types. The asymmetric line is present in practical 3, preserved by AdvCiv practical 1733 and survived current SAS; no later correction was found. SAS practical 6168, SHA cf1272d7fe, fixes the terrain branch by accumulating it in `iTempModifier` like its city/hills/feature siblings, preserving known-defender behavior while allowing unknown-defender mode to reverse it. User compile/run validation succeeded and CI passed. Practical 3 remains OPEN after this fix and must resume before practical 2.
 
 KMod practical 3 - corporation external-spread assignment-looking condition - FALSE POSITIVE
   The alarming `if (iSpreadExternalValue = 0)` is preserved only inside a commented original-BtS reference block. K-Mod's live Unofficial Patch replacement already uses `== 0`; practical 3 therefore documents/fixes the inherited BtS issue rather than introducing a live K-Mod bug.
