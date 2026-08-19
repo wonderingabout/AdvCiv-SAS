@@ -269,6 +269,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [207 - (Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the last](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#207---fixed-base-advciv-bug-uwai-random-team-member-selection-mixed-0-based-random-indexes-with-iterator-positions-biasing-the-first-member-and-excluding-the-last)\
 [208 - (Fixed Base AdvCiv bug) Worst-enemy trade-memory optimization could forget a required recalculation when later teams overwrote its flag](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#208---fixed-base-advciv-bug-worst-enemy-trade-memory-optimization-could-forget-a-required-recalculation-when-later-teams-overwrote-its-flag)\
 [209 - (Fixed Base AdvCiv bug) Player reassignment saved random-leader status from the random-civilization flag, corrupting independent setup state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#209---fixed-base-advciv-bug-player-reassignment-saved-random-leader-status-from-the-random-civilization-flag-corrupting-independent-setup-state)\
+[210 - (Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#210---fixed-base-advciv-bug-vote-selection-iterator-refactor-could-pair-a-voting-team-with-itself-creating-bogus-self-first-contact-state)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -7939,3 +7940,20 @@ This is the systematic sweep's third previously-unfixed surviving defect, after 
 
 Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
 
+## 210 - (Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state
+
+The systematic AdvCiv/K-Mod history archaeology found its fourth previously-unfixed surviving defect at AdvCiv practical 2502 (`cbc25c22bd`, "Misc. refactoring"). The affected code is `CvGame::doVoteSelection`, which makes voting members of an active Apostolic Palace or United Nations vote source meet one another before the vote-selection logic continues.
+
+Before practical 2502, the two team loops used numeric indexes and deliberately started the second loop at `iTeam2 = iTeam1 + 1`. That encoded two useful invariants at once: a team could never be paired with itself, and each unordered team pair was considered only once. Practical 2502 replaced both numeric loops with `TeamIter<MAJOR_CIV>`, but the inner iterator starts from the beginning for every outer team and no equivalent self-exclusion was added. The refactor therefore allowed `itTeam1` and `itTeam2` to refer to the same voting team.
+
+This is not harmlessly rejected before state changes. At this point in AdvCiv history, `isHasMet` uses `m_aiHasMetTurn` with an initial value of `-1`, so a team does not begin by counting itself as already met. `doVoteSelection` can therefore call `meet` with the same team on both sides. `CvTeam::makeHasMet` does contain an `eOther == getID()` guard, but that check occurs only after `makeHasSeen`, setting `m_aiHasMetTurn`, `updateTechShare`, and the Python `firstContact` event. Thus the late guard prevents the later ordinary-contact handling but does not prevent the bogus self-contact state/event that already happened. Current AdvCiv-SAS instrumentation could also observe such a call as a self team-meeting record when detailed game-record logging is enabled.
+
+The practical effect is narrower than an ordinary foreign first contact and should not be overstated. Many higher-level team/diplomacy iterators explicitly exclude the same team, so this does not by itself imply broad AI diplomatic corruption. The definite problem is that an AP/UN voting-member pass can mark a team as having seen/met itself and emit a first-contact event for the same team; any less-defensive consumer of that raw state/event can then observe something that should never have existed.
+
+The fix restores the lost caller invariant directly. The inner voting-member loop now skips `itTeam2` when its team ID equals `itTeam1` before attempting any contact. No generic `CvTeam::meet` behavior, vote eligibility, RNG, or ordinary foreign-team contact is changed. Processing foreign pairs twice after the iterator refactor remains harmless here because the first pass establishes contact and the reverse pass then sees `isHasMet` already true.
+
+The lineage is direct. Practical 2502 changed `for (int iTeam2 = iTeam1 + 1; ...)` to a fresh full `TeamIter<MAJOR_CIV>` and simultaneously converted the contact calls to iterator form; no replacement self-check appeared in that patch. No later historical correction was found, and the same loop survived into Base AdvCiv and AdvCiv-SAS until this archaeology pass.
+
+This is the systematic sweep's fourth previously-unfixed surviving defect, after KI#207 at practical 2945, KI#208 at practical 2833, and KI#209 at practical 2532. From practical 2531 down through 2502, 30 additional unique historical commit SHAs were reviewed before stopping here. Suspicious historical changes that were already fixed later or did not survive semantic/current-code checks were not counted as findings.
+
+Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
