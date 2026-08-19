@@ -34,16 +34,16 @@ Default sweep order
 
 Counters
 --------
-Systematic historical commits reviewed: 1,399 / 4,343
+Systematic historical commits reviewed: 1,511 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 4
-  inherited/pre-SAS defects: 3
+Confirmed defects tracked here: 5
+  inherited/pre-SAS defects: 4
   SAS-specific regressions: 1
-Confirmed defects fixed: 4
+Confirmed defects fixed: 5
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
-Confirmed previously-unfixed defects newly found by the systematic historical sweep: 1 (KI#207)
+Confirmed previously-unfixed defects newly found by the systematic historical sweep: 2 (KI#207, KI#208)
 Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
 
 Confirmed findings / lineage references
@@ -84,7 +84,18 @@ F004 - KI#207 UWAI random team-member selection index mismatch - FIXED
   The fix keeps the same one synchronized RNG roll and counts eligible members explicitly with a zero-based index.
   AdvCiv practical 3209 later modernized the RNG helper but preserved the faulty comparison. AgentIterator::nextIndex() already had the relevant semantics before practical 2945, so the defect exists from introduction rather than from a later iterator change.
   The sweep had earlier re-encountered the real ExtraFreeOutsideUnits bug at practical 3956, but SAS had already fixed/documented it as KI#92; KI#207 is therefore the systematic sweep's first previously-unfixed surviving defect.
-  Fixed in the current archaeology-fix commit (expected practical 6165 after the tracked-mirror infrastructure commit).
+  Fixed in SAS practical 6164, SHA d3b1b89822 (the tracked-mirror infrastructure was amended into the same commit).
+
+F005 - KI#208 worst-enemy trade-memory recalculation flag overwritten - FIXED
+  Classification: inherited Base AdvCiv bug
+  Discovery route: second previously-unfixed defect found by the systematic newest-to-oldest historical sweep.
+  Introduced in AdvCivPreSAS practical 2833, SHA 98b7a50fac:
+    "Minor optimization in update of worst enemy"
+  CvTeamAI::AI_updateWorstEnemy tried to avoid an unnecessary second worst-enemy pass by remembering whether trade/grant-memory decay had modified the tentative new worst enemy.
+  The loop used bUpdateWorstEnemyAgain = (eOther == eBestTeam), so a later unrelated team with nonzero memory could overwrite an earlier true back to false. The needed recalculation therefore depended on team iteration order and could commit a stale m_eWorstEnemy.
+  The fix makes the flag sticky: once eBestTeam is actually modified, later teams cannot clear the required recalculation.
+  AdvCiv practical 2998, SHA 8c36049d43 ("Merge branch 0.99 into master"), carried the same branch change into master; no later historical correction was found and the assignment survived into current SAS.
+  Fixed in the current archaeology-fix commit (expected practical 6165).
 
 Resolved audit candidates
 -------------------------
@@ -105,11 +116,13 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
 Systematic sweep progress
 -------------------------
 AdvCivPreSAS: IN PROGRESS
-  Reviewed: practical 4343 -> 2945 inclusive (1,399 commits).
+  Reviewed: practical 4343 -> 2833 inclusive (1,511 commits).
   First real historical defect encountered in that range: practical 3956, already fixed independently by SAS as KI#92.
   First previously-unfixed surviving defect found by the systematic sweep: practical 2945, now KI#207.
-  Next: practical 2944, SHA 24e04be52c
-  Title: "Tweak UWAI prediction about availability of coll. damage units"
+  Second previously-unfixed surviving defect: practical 2833, now KI#208.
+  Practical 2944 -> 2834 contained no additional surviving defect after suspicious candidates were traced against current semantics/history.
+  Next: practical 2832, SHA b969497a9b
+  Title: "Make sure unit cycling buttons get updated at turn start"
 
 KMod: WAITING FOR ADVCIV SWEEP
   First planned: practical 1249, SHA d0a60f8b90
