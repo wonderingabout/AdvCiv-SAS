@@ -1740,6 +1740,8 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_PYLOS</City>
 				<City>TXT_KEY_CITY_NAME_PELLA</City>
 				<City>TXT_KEY_CITY_NAME_NAXOS</City>
+				<!-- advc.001: duplicate -->
+				<!--City>TXT_KEY_CITY_NAME_SICYON</City-->
 				<City>TXT_KEY_CITY_NAME_SMYRNA</City>
 				<City>TXT_KEY_CITY_NAME_LARISSA</City>
 				<City>TXT_KEY_CITY_NAME_APOLLONIA</City>
@@ -3082,6 +3084,8 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_IZMIT</City>
 				<City>TXT_KEY_CITY_NAME_AFYON</City>
 				<City>TXT_KEY_CITY_NAME_BITLIS</City>
+				<!-- advc.001: duplicate -->
+				<!--City>TXT_KEY_CITY_NAME_MARMARIS</City-->
 			</Cities>
 			<Buildings>
 				<Building>

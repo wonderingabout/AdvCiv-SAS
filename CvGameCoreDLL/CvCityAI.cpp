@@ -1566,7 +1566,7 @@ void CvCityAI::AI_chooseProduction()
 		/*	<advc.192> If city keeps growing, but production stays slow,
 			then we should bite the bullet and start a slow culture building
 			rather sooner than later. */
-		if (iBestBuildingValue >= 60 && iCityPopulation > 2 &&
+		if (bCultureBuilding && iBestBuildingValue >= 60 && iCityPopulation > 2 &&
 			AI_isSwiftBorderExpansion(iProductionTurns /
 			std::min(iCityPopulation - 1, 3)))
 		{
@@ -3933,6 +3933,7 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
+	// <advc.107> Respect spending cap unless low on defenders (based on SAS)
 	// <!-- custom: The earlier floating-defender pass respects unit spending, but this late 50% retry did not and could keep topping up peaceful empires far above the generic military budget.
 	// Preserve wartime behavior and severe composition recovery, but for ordinary peaceful shortages require the same +15 spending headroom as the later generic-unit path.
 	// Use the same severe-shortage threshold as floating defender 1 so both passes agree on when deficient army composition is important enough to override spending.
@@ -3943,7 +3944,7 @@ void CvCityAI::AI_chooseProduction()
 	if (bLogDetailedMilitaryProduction && bFloatingDefender2Candidate) logBBAI("MILITARY_PRODUCTION_SPENDING_GATE turn=%d player=%d %S city=%S stage=FLOATING_DEFENDER_2 floatingHave=%d floatingNeed=%d unitSpending=%d maxPlus15=%d spendingAllowed=%d severelyLow=%d landWar=%d",
 		kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iTotalFloatingDefenders, iNeededFloatingDefenders, iUnitSpending, iMaxUnitSpending + 15, bFloatingDefender2SpendingAllowed, bFloatingDefendersSeverelyLow, bLandWar);
 	if (bFloatingDefender2Candidate && bFloatingDefender2SpendingAllowed)
-	{
+	{ // </advc.107>
 		if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
 		{
 			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose floating defender 2", sCityName);
@@ -7271,7 +7272,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)
 	{
 		// <!-- custom: K-Mod 1030 moved the old top-three-production-city World Wonder condition into this early veto but kept the original <= 3 comparison, accidentally rejecting the cities it previously accepted. See KI#205. (ChatGPT-5.6-Sol) -->
-		if (!bWorldWonder || iProductionRank > 3)
+		if (!bWorldWonder || iProductionRank > 3) // advc.001 (from SAS): was <=
 		{
 			/*	Note / TODO: the production condition is from the original BtS code.
 				I intend to remove / change that condition in the future. */

@@ -247,7 +247,7 @@ public:
 	int getStackExperienceToGive(int iNumUnits) const;
 
 	int upgradePrice(UnitTypes eUnit) const;																// Exposed to Python
-	int upgradeXPChange(UnitTypes eUnit) const; // advc.080
+	int upgradeXPChange(UnitTypes eUnit = NO_UNIT) const; // advc.080, advc.131e
 	bool upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount = 0) const;			// Exposed to Python
 	// <!-- custom: Optional known-city flag lets AI routing validate economic eligibility after it has already found a suitable upgrade city, without incorrectly retesting only the nearest city. See KI#188.3.3. (GPT-5.6-Sol) -->
 	bool canUpgrade(UnitTypes eUnit, bool bTestVisible = false, bool bUpgradeCityKnown = false) const;			// Exposed to Python

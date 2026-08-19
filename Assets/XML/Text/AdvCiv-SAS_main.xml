@@ -4049,6 +4049,8 @@ Created as part of AdvCiv-SAS improvements
 		<Italian>Dimmi, [CT_NAME], cosa ha fatto [CT_CIV_SHORT:2] perch&#233; gli dei si siano adirati a tal punto da fornire loro un leader come te?</Italian>
 		<Spanish>Decidnos, [CT_NAME], &#191;qu&#233; ha hecho [CT_CIV_SHORT] para enojar a los dioses y que os convirtieran en su l&#237;der?</Spanish>
 	</TEXT>
+	<!-- advc.005f: This key was named "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED" in Warlords. I don't see how that will "correct" anything. Give it the same name as the Vanilla key instead (which says "think well or we'll re-evaluate our friendship"). There was also "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1" later in this file; I've renamed that one to ..._2. -->
+	<!-- custom: Removed duplicate AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1 block. CIV4DiplomacyInfos references AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED, so reverted the advc.005f change of removing the "_CORRECTED suffix", now present again. This allows to fix the _1 duplicate-tag workflow fail and remove this seemingly unused duplicate. See KI#149. (GPT-5.5) -->
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Tag>
 		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
@@ -4063,6 +4065,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2</Tag>
 		<English>Enter, [CT_NAME]. Please sit. I wonder sometimes ... How can anyone govern a nation that has two hundred and forty-six different kinds of cheese? But enough about my problems. What can I do for you?</English>
 	</TEXT>
+	<!-- advc.005f: was #2 -->
 	<TEXT>
 		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_1</Tag>
 		<English>Greatness is a road leading towards the unknown, mon ami. I am glad we walk it together.</English>

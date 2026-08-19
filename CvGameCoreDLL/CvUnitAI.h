@@ -24,7 +24,7 @@ public:
 	// <!-- custom: Add an optional max price so emergency calls stay uncapped by default, while upgrade-budget code can reject unaffordable candidates without changing the old candidate iteration/random calls for affordable upgrades. See corresponding .cpp function and KI#160. (ChatGPT-5.5 + GPT-5.5) -->
 	bool AI_upgrade(int iMaxUpgradePrice = MAX_INT);
 	void AI_promote();
-
+	scaled AI_upgradePriority() const; // advc.131e
 	int AI_groupFirstVal() const;
 	int AI_groupSecondVal() const;
 

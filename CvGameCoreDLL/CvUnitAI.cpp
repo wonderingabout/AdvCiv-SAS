@@ -1957,9 +1957,9 @@ bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
 	if (!isReadyForUpgrade())
 		return false;
 
-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-	UnitAITypes eUnitAI = AI_getUnitAIType();
-	CvArea* pArea = area();
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	UnitAITypes const eUnitAI = AI_getUnitAIType();
+	CvArea const* pArea = area();
 
 	int iBestValue = kOwner.AI_unitValue(getUnitType(), eUnitAI, pArea) * 100;
 	UnitTypes eBestUnit = NO_UNIT;
@@ -2049,6 +2049,15 @@ void CvUnitAI::AI_promote()
 		promote(eBestPromotion);
 		AI_promote();
 	}
+}
+
+/*	advc.131e: The higher, the greater the priority. Can be negative when
+	a lot of XP will be lost. Most of the prioritization still happens in
+	CvPlayerAI::AI_doTurnUnitsPost; should perhaps move here. */
+scaled CvUnitAI::AI_upgradePriority() const
+{	/*	The post-upgrade XP with extra weight for the (normally non-positive)
+		change upon upgrading */
+	return getExperience() + fixp(1.6) * upgradeXPChange();
 }
 
 // <advc.003u>, advc.003s
@@ -9304,7 +9313,7 @@ void CvUnitAI::AI_greatPersonMove()
 	// 3) Attempt to carry out missions, starting with the highest value.
 
 	CvPlot* pBestPlot = NULL;
-	CvCityAI const* pBestCity = NULL;
+	CvCity const* pBestCity = NULL; // advc.001 (from SAS)
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	MissionAITypes eBestSlowMissionAI = NO_MISSIONAI;

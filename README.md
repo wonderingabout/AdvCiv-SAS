@@ -1,12 +1,12 @@
 # AdvCiv-SAS (Simple Advanced Strategy)
 
-AdvCiv-SAS (Simple Advanced Strategy) ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is a mod based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the [latest AdvCiv](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
+AdvCiv-SAS (Simple Advanced Strategy) ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is a mod based on [AdvCiv 1.14](https://github.com/f1rpo/AdvCiv/tree/1.14), and will/may update whenever there are new changes that are stable.
 
 AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable), and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable), and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
 Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score Tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
@@ -20,7 +20,7 @@ Many practical changes are made, notably moving BBAI logging to SAS defines so t
 
 A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
-All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
 Also most importantly LLMs like GPT Thinking (i.e. ChatGPT), GPT Codex, Claude code, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
 
@@ -130,7 +130,11 @@ About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictu
 
 Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
 
-For offline source/history review (notably with external LLMs), [`LLM_Helpers/make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py) can create a compact light-source archive containing the current review-relevant source/docs plus generated Git/repository snapshot context and useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history (including later upstream AdvCiv commits merged into that branch), without copying `.git` or complete historical source trees. Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
+For offline source/history review (notably with external LLMs), [`LLM_Helpers/make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py) can create a compact light-source archive containing the current review-relevant source/docs plus generated Git/repository snapshot context and useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history (including later upstream AdvCiv commits merged into that branch), without copying `.git` or complete historical source trees.
+
+The tracked-file manifest also records exact current byte sizes, including for tracked binaries intentionally omitted from the light ZIP. A separate `pending_upstream/` snapshot section exposes fetched but not-yet-merged base AdvCiv release history: exact `MERGE_HEAD` while merging, otherwise a SHA-deduplicated union of locally fetched release-like refs, with topic/experimental refs kept separate and explicit-ref overrides available if upstream naming changes. Use `--fetch-upstream` when ZIP generation should first run `git fetch upstream --prune`; normal generation remains network-free. This makes upstream-change and merge-conflict review possible from the ZIP alone without misrepresenting pending commits as current source ancestry.
+
+Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
 
 ## How to play?
 
@@ -138,13 +142,13 @@ If you are a new player or want to play this mod and would like a few instructio
 
 ## Full exhaustive very long and exhaustive changes
 
-If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, it can be viewed for example in this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/34). However it is very lengthy, read below for the main pointers rather.
+If you want to see the full very exhaustive code changes between the current base AdvCiv release and AdvCiv-SAS, it can be viewed in this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/39). However it is very lengthy, read below for the main pointers rather.
 
 As for the changelog between releases of AdvCiv-SAS, see the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) that for each release show the list of changes in git history format since the previous release.
 
 ## Main Changes Guide
 
-I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS latest) with the help of chatgpt and gemini (check if info is accurate); i sometimes edited it. You can view it here [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
+I have written the main changes guide (from base AdvCiv to AdvCiv-SAS latest) with the help of chatgpt and gemini (check if info is accurate); i sometimes edited it. You can view it here [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
 
 ## UI (Main Menu)
 

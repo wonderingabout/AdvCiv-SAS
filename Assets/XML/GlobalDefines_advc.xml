@@ -1309,8 +1309,10 @@ Created as part of AdvCiv-SAS improvements
 
 	<!-- advc.156: When multiple members of a team are researching the same
 		 technology, their research modifiers are increased by this many
-		 percentage points. Recommended: -10 to penalize researching the same
-		 tech; use 0 for BtS behavior.
+		 percentage points. Recommended: 0 for BtS behavior. -10 for a moderate
+		 penalty when researching the same tech. Note, however, that
+		 human players can use a "binary research" scheme to bypass the
+		 penalty while still focusing their research on one tech at a time.
 		 Related: TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER (50) -->
 	<!-- custom: no reason to penalize research if they research the same tech, in fact it could probably and most likely be reduced due to synergies and cooperation in this case, but to simplify it, use/restore the 0 value in Bts behavior if not mistaken from reading base advciv code comment i am still thankful that was there and informative though, was -10 -->
 	<Define>

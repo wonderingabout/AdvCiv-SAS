@@ -28,6 +28,5 @@ __pycache__
 /Logs/
 /Assets/CvGameCoreDLL_d.dll
 /LLM_Helpers/outputs/
-# <!-- custom: current commit's changelog/notes, not needed to be uploaded but useful locally for cumulative change writing or LLM-assistance or such maybe too, same for changelog example, only useful as a changelog for release example, not for actual history which other docs give or handle already. -->
+# <!-- custom: current commit's changelog/notes are temporary local scratch, useful for cumulative change writing or LLM assistance but not repository history. Reusable release changelog examples are tracked instead and can be export-ignored through .gitattributes. (ChatGPT-5.6-Sol) -->
 /changes.md
-/_1_AdvCiv-SAS/Docs/Modding_Ressources/changelog_release_example_6020.txt

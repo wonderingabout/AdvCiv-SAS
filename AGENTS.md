@@ -8,7 +8,7 @@ Created as part of AdvCiv-SAS improvements
 
 ## General information
 
-This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12, for AI helpers. You don't need to look at files mentioned in this sub-section for now, just get aware of their existence if you need them later in our tasks.
+This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv, for AI helpers. You don't need to look at files mentioned in this sub-section for now, just get aware of their existence if you need them later in our tasks.
 
 You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
 
@@ -21,6 +21,8 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
 Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed. Example: moving `BUILDING_IRELAND_SCRIPTORIUM` in `CIV4BuildingInfos.xml` from around the Library area to under the last civ-specific University block makes it seem like generic university, university madrassa, university salon were modified, but they were not and are still the same as before. In this case, let the user handle a separate commit for the move/reorder first, then continue with gameplay/stat edits afterward (then user will ammend commit later after second-step modifications are reviewed).
 
 Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.github/workflows`](/.github/workflows/). These reduce tedium for us as each pushed commit now tells us if some sanity checks PASS or fail. The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size enum/XML alignment, and map-script classification coverage. On your end you generally don't need to update them unless our infrastructure changes, but for details if needed see: [the corresponding README](/.github/workflows/README.md).
+
+Release preparation: when preparing a stable release or substantial release update, use the living [AdvCiv-SAS Release Preparation and Release Checklist](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md). It is intended for both the user and LLM/AI helpers; do not create/push tags or publish release pages unless the user explicitly asks.
 
 ## Information Fetching from other known helpful mods
 

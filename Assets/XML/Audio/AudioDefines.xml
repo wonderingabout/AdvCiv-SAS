@@ -7,6 +7,8 @@
 <!-- custom: replace main menu "opening_menu" music with our own music, see main readme.md's copyright section for info on copyright there or in our mod's relevant places if there is such info -->
 <!-- K-Mod has added SND_SQUISH and SND_THEIRALLIANCE. Note that no comments
 	 are allowed within the SoundDatas element. -->
+<!-- advc.sas: Deleted duplicates: DIPLO_HANNIBAL_EARLY, DIPLO_HANNIBAL_MIDDLE,
+	 DIPLO_HANNIBAL_LATE, DIPLO_WANGKON_EARLY, SND_CBMN_DIE_VOX, SND_COMBAT. -->
 <AudioDefines xmlns="x-schema:AudioDefinesSchema.xml">
 	<SoundDatas>
 		<SoundData>

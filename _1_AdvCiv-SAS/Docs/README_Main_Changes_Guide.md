@@ -1,13 +1,13 @@
 # Main Changes Guide
 
-This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s intentionally practical and a bit verbose so newer players can follow the "what changed" and "why it matters." For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+This guide highlights key differences between AdvCiv-SAS and base AdvCiv. It’s intentionally practical and a bit verbose so newer players can follow the "what changed" and "why it matters." For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
 
 Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
 - **Player-tunable options (SAS defines):** When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from. **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option. Note: after modifying them, restart Civ4 to apply changes.
 - **Scope note:** The long-term goal is to make more gameplay options player-tunable via SAS defines when it is practical. Some changes are still hardcoded (or not worth exposing) due to complexity, risk, or limited value, so not everything is configurable.
 
-Note: The main changes guide serves as an index that covers concisely most AdvCiv-SAS changes since as of now base AdvCiv 1.12, but it may not be exhaustive, see the other AdvCiv-SAS supporting docs or files for further information.
+Note: The main changes guide serves as an index that covers concisely most AdvCiv-SAS changes from base AdvCiv, but it may not be exhaustive, see the other AdvCiv-SAS supporting docs or files for further information.
 
 ## Menu
 

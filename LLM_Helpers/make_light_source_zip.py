@@ -109,6 +109,16 @@ GENERATED_INCREMENTAL_GIT_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/git_log_since_tra
 GENERATED_COMMIT_DIFF_DIR = f"{GENERATED_CONTEXT_DIR}/commit_diffs"
 GENERATED_COMMIT_DIFF_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/INDEX.txt"
 GENERATED_PATH_HISTORY_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/PATH_HISTORY_INDEX.txt"
+# Keep fetched-but-unmerged base AdvCiv release history separate from current-HEAD ancestry so
+# ZIP-only reviewers can inspect upcoming merge changes without mistaking them for current source.
+GENERATED_PENDING_UPSTREAM_DIR = f"{GENERATED_CONTEXT_DIR}/pending_upstream"
+GENERATED_PENDING_UPSTREAM_INDEX_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/INDEX.txt"
+GENERATED_PENDING_UPSTREAM_LOG_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/GIT_LOG.txt"
+GENERATED_PENDING_UPSTREAM_PATH_INDEX_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/PATH_HISTORY_INDEX.txt"
+GENERATED_PENDING_UPSTREAM_REFS_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/UPSTREAM_REFS.txt"
+# Auto-detect ordinary release-style remote refs while deliberately ignoring topic/experimental
+# branches. Explicit --upstream-ref remains the escape hatch if upstream naming ever changes.
+UPSTREAM_RELEASE_REF_RE = re.compile(r"^upstream/(?:(?:v)|(?:release[-/]))?(\d+)\.(\d+)(?:\.(\d+))?$", re.IGNORECASE)
 TRACKED_KMOD_GIT_LOG = "_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt"
 TRACKED_BASE_ADVCIV_GIT_LOG = "_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt"
 TRACKED_ADVCIV_SAS_GIT_LOG = "_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt"
@@ -144,8 +154,14 @@ PRESERVED_LIGHT_SOURCE_TEMP_DIR = "CvGameCoreDLL/Project/temp_files"
 # Other small lone project files are useful enough to keep.
 DLL_PROJECT_SKIP_SUFFIXES = {".sdf"}
 
-# Skip original manuals because converted text copies are easier to grep and enough for compact LLM/code-agent review.
+# Skip original manuals by default because converted text copies are easier to grep for compact LLM/code-agent review.
+# The exact base-AdvCiv manual.odt path is re-added below as a deliberate source-input exception for the repo-local text converter.
 SKIP_FILE_NAMES = {"manual.pdf", "manual.odt"}
+
+# <!-- custom: Keep this one binary office document in the light ZIP because convert_advciv_manual_to_txt.py consumes it directly; do not broaden this into general ODT inclusion. (ChatGPT-5.6-Sol) -->
+LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS = (
+    "_0_Common_Docs/AdvCiv_Base_Doc/manual.odt",
+)
 
 # Do not exclude common readable image files globally.
 # Small previews/screenshots can be useful for LLM review, e.g. GameFont previews.
@@ -207,6 +223,24 @@ def parse_args() -> argparse.Namespace:
             "Default: -1 = every commit reachable from the current HEAD (including K-Mod, pre-SAS AdvCiv and AdvCiv-SAS branch history); "
             "0 disables; positive N keeps only the newest N reachable commits. Rendered commits are cached "
             "locally by immutable Git SHA, so normal reruns only generate new commits."
+        ),
+    )
+    parser.add_argument(
+        "--fetch-upstream",
+        action="store_true",
+        help=(
+            "Run `git fetch upstream --prune` before snapshot generation so pending-upstream context uses fresh remote-tracking refs. "
+            "This is opt-in because ordinary archive creation remains local/network-free by default."
+        ),
+    )
+    parser.add_argument(
+        "--upstream-ref",
+        action="append",
+        default=[],
+        metavar="REF",
+        help=(
+            "Explicit fetched upstream revision/ref to include as pending release context outside an active merge; may be repeated. "
+            "Useful if upstream release naming changes or a nonstandard maintenance branch should be reviewed. During an active merge, exact MERGE_HEAD wins."
         ),
     )
     parser.add_argument(
@@ -309,8 +343,143 @@ def run_git(repo_root: Path, *args: str) -> tuple[str | None, str | None]:
     return result.stdout, None
 
 
+def fetch_upstream_or_fail(repo_root: Path) -> None:
+    """Refresh locally known upstream refs only when the caller explicitly requests network access."""
+    try:
+        result = subprocess.run(
+            ["git", "fetch", "upstream", "--prune"],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as exc:
+        raise SystemExit(f"Unable to run `git fetch upstream --prune`: {exc}")
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or f"git exited with status {result.returncode}"
+        raise SystemExit(f"`git fetch upstream --prune` failed; archive not created so pending-upstream context is not silently stale:\n{detail}")
+    print("Fetched:   upstream --prune")
+
+
+def list_upstream_refs(repo_root: Path) -> tuple[list[tuple[str, str]], str | None]:
+    """Return locally fetched upstream remote-tracking refs as (short-ref, SHA)."""
+    refs_raw, refs_error = run_git(
+        repo_root, "for-each-ref", "--format=%(refname:short)%09%(objectname)", "refs/remotes/upstream/"
+    )
+    refs: list[tuple[str, str]] = []
+    if refs_raw is not None:
+        for line in refs_raw.splitlines():
+            parts = line.split("\t", 1)
+            if len(parts) == 2 and parts[0] and parts[1] and parts[0].strip() != "upstream/HEAD":
+                refs.append((parts[0].strip(), parts[1].strip()))
+    return refs, refs_error
+
+
+def upstream_release_version(ref: str) -> tuple[int, int, int] | None:
+    match = UPSTREAM_RELEASE_REF_RE.fullmatch(ref)
+    if match is None:
+        return None
+    values = [int(value) if value is not None else 0 for value in match.groups()]
+    return values[0], values[1], values[2]
+
+
+def resolve_git_commit(repo_root: Path, revision: str) -> tuple[str | None, str | None]:
+    raw, error = run_git(repo_root, "rev-parse", "--verify", f"{revision}^{{commit}}")
+    return (raw.strip(), None) if raw else (None, error)
+
+
+def git_is_ancestor(repo_root: Path, ancestor: str, descendant: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", ancestor, descendant],
+            cwd=repo_root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
+        )
+    except OSError:
+        return False
+    return result.returncode == 0
+
+
+def detect_pending_upstream_targets(repo_root: Path, explicit_refs: Iterable[str] = ()) -> dict[str, object] | None:
+    """Select exact merge target or a union of fetched release-like refs not yet represented by HEAD."""
+    refs, refs_error = list_upstream_refs(repo_root)
+    ref_sha = {ref: sha for ref, sha in refs}
+    release_refs = sorted(
+        [(upstream_release_version(ref), ref, sha) for ref, sha in refs if upstream_release_version(ref) is not None],
+        key=lambda item: item[0],
+    )
+    ignored_refs = sorted((ref, sha) for ref, sha in refs if upstream_release_version(ref) is None)
+
+    merge_raw, _ = run_git(repo_root, "rev-parse", "-q", "--verify", "MERGE_HEAD")
+    merge_heads = [value.strip() for value in (merge_raw or "").splitlines() if value.strip()]
+    if merge_heads:
+        target_sha = merge_heads[0]
+        matching_refs = [ref for ref, sha in refs if sha.lower() == target_sha.lower()]
+        release_matches = [ref for ref in matching_refs if upstream_release_version(ref) is not None]
+        target_ref = release_matches[0] if release_matches else (matching_refs[0] if matching_refs else "MERGE_HEAD")
+        return {
+            "mode": "merge",
+            "selected_refs": [target_ref],
+            "selected_revisions": [target_sha],
+            "presentation_ref": target_ref,
+            "presentation_sha": target_sha,
+            "selection": "matched current MERGE_HEAD" if matching_refs else "current MERGE_HEAD (no matching fetched upstream ref)",
+            "merge_head": target_sha,
+            "merge_in_progress": "yes",
+            "release_refs": release_refs,
+            "ignored_refs": ignored_refs,
+            "refs_error": refs_error or "",
+        }
+
+    explicit = [value.strip() for value in explicit_refs if value and value.strip()]
+    if explicit:
+        selected_refs: list[str] = []
+        selected_revisions: list[str] = []
+        for ref in explicit:
+            sha, error = resolve_git_commit(repo_root, ref)
+            if sha is None:
+                raise SystemExit(f"Unable to resolve --upstream-ref {ref!r}: {error or 'unknown Git error'}")
+            selected_refs.append(ref)
+            selected_revisions.append(sha)
+        return {
+            "mode": "explicit",
+            "selected_refs": selected_refs,
+            "selected_revisions": selected_revisions,
+            "presentation_ref": selected_refs[-1],
+            "presentation_sha": selected_revisions[-1],
+            "selection": "explicit --upstream-ref override",
+            "merge_head": "",
+            "merge_in_progress": "no",
+            "release_refs": release_refs,
+            "ignored_refs": ignored_refs,
+            "refs_error": refs_error or "",
+        }
+
+    if not release_refs:
+        return None
+    _, presentation_ref, presentation_sha = release_refs[-1]
+    # Use the UNION of all detected release-looking refs. In the ordinary linear case,
+    # older releases contribute no extra commits beyond the newest; if release lines ever
+    # diverge, their otherwise-missed commits remain visible instead of being silently lost.
+    return {
+        "mode": "auto-release-union",
+        "selected_refs": [ref for _, ref, _ in release_refs],
+        "selected_revisions": [sha for _, _, sha in release_refs],
+        "presentation_ref": presentation_ref,
+        "presentation_sha": presentation_sha,
+        "selection": "union of all locally fetched release-like upstream refs; highest version used as presentation target",
+        "merge_head": "",
+        "merge_in_progress": "no",
+        "release_refs": release_refs,
+        "ignored_refs": ignored_refs,
+        "refs_error": refs_error or "",
+    }
+
+
 def build_git_manifest(repo_root: Path) -> str:
-    """Build an archive-only inventory of the local Git tracked file tree."""
+    """Build an archive-only inventory of the local Git tracked file tree with current working-tree byte sizes."""
     tracked_raw, error = run_git(repo_root, "ls-files", "-z")
     if tracked_raw is None:
         return (
@@ -322,25 +491,35 @@ def build_git_manifest(repo_root: Path) -> str:
         )
 
     tracked = sorted(path for path in tracked_raw.split("\0") if path)
+    rows: list[str] = []
+    missing = 0
+    for path in tracked:
+        try:
+            size = (repo_root / path).stat().st_size
+            rows.append(f"{size}\t{path}")
+        except OSError:
+            missing += 1
+            rows.append(f"MISSING\t{path}")
     lines = [
         "# Local Git tracked-file manifest",
         "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
         f"# This helper exists only inside {GENERATED_CONTEXT_DIR}/ in the light-source ZIP; it is not a repository file.",
         "# The light archive intentionally omits many tracked assets/binaries. Use this manifest",
         "# to distinguish 'not included in this ZIP' from 'not present in the local Git repository'.",
+        "# Each row is <current-working-tree-bytes><TAB><canonical-Git-path>; MISSING means the tracked path has no current working-tree file.",
+        "# Exact byte sizes are useful even for intentionally omitted binaries such as CvGameCoreDLL.dll.",
         "# Tracked paths preserve Git's canonical path spelling/casing.",
         "# Untracked paths are intentionally not enumerated; selected untracked source files can",
         "# still be present normally in the ZIP, without exposing unrelated local filenames here.",
         "",
         f"Tracked files: {len(tracked)}",
+        f"Tracked paths missing from working tree: {missing}",
         "",
-        "[TRACKED FILES - git ls-files]",
-        *tracked,
+        "[TRACKED FILES - current bytes + git ls-files path]",
+        *rows,
     ]
     return "\n".join(lines) + "\n"
-
-
-def build_git_repository_state(repo_root: Path, selected_files: Iterable[Path]) -> str:
+def build_git_repository_state(repo_root: Path, selected_files: Iterable[Path], explicit_upstream_refs: Iterable[str] = ()) -> str:
     """Build compact repository, upstream, tracked-worktree, and selected-untracked state."""
     branch_raw, branch_error = run_git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
     head_raw, head_error = run_git(repo_root, "rev-parse", "HEAD")
@@ -353,6 +532,7 @@ def build_git_repository_state(repo_root: Path, selected_files: Iterable[Path]) 
     )
     status_raw, status_error = run_git(repo_root, "status", "--short", "--untracked-files=no")
     tracked_raw, tracked_error = run_git(repo_root, "ls-files", "-z")
+    pending_upstream = detect_pending_upstream_targets(repo_root, explicit_upstream_refs)
 
     if branch_raw is None and head_raw is None and status_raw is None:
         error = branch_error or head_error or status_error or "Git metadata unavailable"
@@ -405,6 +585,18 @@ def build_git_repository_state(repo_root: Path, selected_files: Iterable[Path]) 
             lines.append(f"Ahead/behind upstream: unavailable ({ahead_behind_error})")
     else:
         lines.append(f"Upstream: none ({upstream_error or 'not configured'})")
+
+    if pending_upstream is not None:
+        lines.append(f"Merge in progress: {pending_upstream['merge_in_progress']}")
+        if pending_upstream["merge_head"]:
+            lines.append(f"MERGE_HEAD: {pending_upstream['merge_head']}")
+            lines.append(f"Merge target: {pending_upstream['presentation_ref']} ({pending_upstream['selection']})")
+        else:
+            lines.append(f"Pending upstream presentation target: {pending_upstream['presentation_ref']} ({pending_upstream['selection']})")
+            lines.append(f"Pending upstream selected refs: {', '.join(pending_upstream['selected_refs'])}")
+    else:
+        lines.append("Merge in progress: no")
+        lines.append("Pending upstream release context target: none (no locally fetched release-like upstream ref detected)")
 
     lines.extend(["", "[TRACKED WORKING TREE STATUS - git status --short --untracked-files=no]"])
     if status_raw is not None:
@@ -774,9 +966,13 @@ def prune_superseded_commit_diff_cache_dirs(cache_dir: Path) -> tuple[int, list[
     return removed, errors
 
 
-def parse_commit_history_metadata(repo_root: Path) -> tuple[list[dict[str, str]], str | None]:
-    """Read current-HEAD reachable hashes/parents/titles in one Git process, newest -> oldest."""
-    raw, error = run_git(repo_root, "log", "--no-color", "--format=%H%x1f%P%x1f%s%x1e", "HEAD")
+def parse_commit_history_metadata(repo_root: Path, revision: str = "HEAD", reverse: bool = False) -> tuple[list[dict[str, str]], str | None]:
+    """Read hashes/parents/titles for one revision/range in a single Git process."""
+    args = ["log", "--no-color", "--format=%H%x1f%P%x1f%s%x1e"]
+    if reverse:
+        args.append("--reverse")
+    args.append(revision)
+    raw, error = run_git(repo_root, *args)
     if raw is None:
         return [], error
     commits: list[dict[str, str]] = []
@@ -789,6 +985,27 @@ def parse_commit_history_metadata(repo_root: Path) -> tuple[list[dict[str, str]]
             continue
         full_hash, parents, subject = parts
         commits.append({"hash": full_hash.strip(), "parents": parents.strip(), "subject": subject.strip()})
+    return commits, None
+
+
+def parse_commit_history_metadata_multi(repo_root: Path, revisions: Iterable[str], exclude_revision: str = "HEAD") -> tuple[list[dict[str, str]], str | None]:
+    """Read one deduplicated union of commits reachable from revisions but not from exclude_revision."""
+    revisions = [value for value in revisions if value]
+    if not revisions:
+        return [], None
+    args = ["log", "--no-color", "--reverse", "--topo-order", "--format=%H%x1f%P%x1f%s%x1e", *revisions, f"^{exclude_revision}"]
+    raw, error = run_git(repo_root, *args)
+    if raw is None:
+        return [], error
+    commits: list[dict[str, str]] = []
+    for record in raw.split("\x1e"):
+        record = record.strip("\r\n")
+        if not record:
+            continue
+        parts = record.split("\x1f", 2)
+        if len(parts) == 3:
+            full_hash, parents, subject = parts
+            commits.append({"hash": full_hash.strip(), "parents": parents.strip(), "subject": subject.strip()})
     return commits, None
 
 
@@ -988,6 +1205,246 @@ def build_path_history_index(path_history: dict[str, list[tuple[str, str, str]]]
     return ("\n".join(lines).rstrip() + "\n").encode("utf-8")
 
 
+def render_pending_upstream_diff(
+    repo_root: Path,
+    commit: dict[str, str],
+    presentation_ref: str,
+    available_refs: Iterable[str],
+    sequence: int,
+    total: int,
+) -> tuple[bytes, str]:
+    """Render one fetched-but-unmerged upstream commit with explicitly non-HEAD metadata."""
+    pending_commit = dict(commit)
+    pending_commit["version"] = "0"
+    pending_commit["history_segment_label"] = f"Pending upstream release history ({presentation_ref})"
+    pending_commit["message_location"] = GENERATED_PENDING_UPSTREAM_LOG_NAME
+    rendered, _, coverage = render_commit_diff(repo_root, pending_commit)
+    text = rendered.decode("utf-8", errors="replace")
+    summary_pos = text.find("[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]")
+    if summary_pos < 0:
+        return rendered, coverage
+    parents = [value for value in commit.get("parents", "").split() if value]
+    parent_label = parents[0] if parents else "(root commit)"
+    refs_text = ", ".join(available_refs) or presentation_ref
+    header = [
+        "# AdvCiv-SAS pending upstream release commit diff",
+        GENERATED_HISTORY_EMAIL_PRIVACY_MARKER,
+        f"# Presentation target: {presentation_ref}",
+        f"# Reachable from selected ref(s): {refs_text}",
+        "# IMPORTANT: this commit is fetched upstream context and is NOT reachable from snapshot HEAD yet.",
+        f"# Pending sequence: {sequence} of {total} (oldest -> newest)",
+        f"# Commit: {commit['hash']}",
+        f"# Parent used for diff: {parent_label}",
+        f"# Title: {compact_history_title(commit.get('subject', ''))}",
+        f"# Full commit message/metadata: see {GENERATED_PENDING_UPSTREAM_LOG_NAME}.",
+        "# Diff policy matches reachable commit history, but pending diffs are rendered archive-only and are not stored in the HEAD-history SHA cache.",
+        "# Git textconv/external diff drivers are disabled; generated/binary/noisy or exceptionally huge payloads are summarized.",
+        "",
+        text[summary_pos:].rstrip(),
+    ]
+    return (redact_generated_history_emails("\n".join(header)).rstrip() + "\n").encode("utf-8"), coverage
+
+
+def build_pending_upstream_path_history_index(path_history: dict[str, list[tuple[int, str]]], presentation_ref: str) -> bytes:
+    """Build reverse path navigation for fetched-but-unmerged upstream release commits."""
+    lines = [
+        "# Pending upstream path history index",
+        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
+        f"# Presentation target: {presentation_ref}",
+        "# Scope: union of selected fetched upstream release/override refs, excluding commits already reachable from snapshot HEAD.",
+        "# These commits are context for review/merge work and are NOT current source ancestry yet.",
+        "# Each indented row: <sequence> <short-sha>, oldest -> newest.",
+        "",
+    ]
+    for path in sorted(path_history, key=str.casefold):
+        lines.append(path)
+        for sequence, short_hash in path_history[path]:
+            lines.append(f"  {sequence} {short_hash}")
+        lines.append("")
+    return ("\n".join(lines).rstrip() + "\n").encode("utf-8")
+
+
+def pending_ref_ahead_count(repo_root: Path, revision: str) -> str:
+    raw, error = run_git(repo_root, "rev-list", "--count", f"HEAD..{revision}")
+    return raw.strip() if raw else f"unavailable ({error})"
+
+
+def build_pending_upstream_refs_report(repo_root: Path, target: dict[str, object] | None) -> bytes:
+    """Explain detected release refs, selected refs, and ignored topic/experimental refs."""
+    lines = [
+        "# Locally fetched upstream ref classification",
+        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
+        "# This is discovery/context only. Non-release/topic refs are NOT dumped into pending release diffs by default.",
+        "# Remote-tracking refs can be stale until `git fetch upstream --prune` or `--fetch-upstream` is used.",
+        "# Auto release patterns currently accept upstream/X.Y[.Z], upstream/vX.Y[.Z], upstream/release-X.Y[.Z], and upstream/release/X.Y[.Z].",
+        "# If upstream naming changes or a special maintenance line matters, pass one or more explicit --upstream-ref REF options.",
+        "",
+    ]
+    if target is None:
+        refs, refs_error = list_upstream_refs(repo_root)
+        lines.append("Selected pending refs: (none)")
+        if refs_error:
+            lines.append(f"Ref discovery warning: {refs_error}")
+        lines.append("")
+        lines.append("[LOCALLY FETCHED UPSTREAM REFS]")
+        for ref, sha in refs:
+            lines.append(f"{ref}\t{sha[:10]}\tahead={pending_ref_ahead_count(repo_root, ref)}")
+        return ("\n".join(lines).rstrip() + "\n").encode("utf-8")
+
+    selected_refs = list(target["selected_refs"])
+    presentation_ref = str(target["presentation_ref"])
+    presentation_sha = str(target["presentation_sha"])
+    lines.extend([
+        f"Selection mode: {target['mode']}",
+        f"Selection reason: {target['selection']}",
+        f"Presentation target: {presentation_ref} ({presentation_sha[:10]})",
+        f"Selected pending refs: {', '.join(selected_refs)}",
+        "",
+        "[AUTO-DETECTED RELEASE-LIKE REFS]",
+    ])
+    release_refs = list(target["release_refs"])
+    if release_refs:
+        for version, ref, sha in release_refs:
+            if ref == presentation_ref:
+                relation = "presentation-target"
+            elif git_is_ancestor(repo_root, ref, presentation_ref):
+                relation = "contained-in-presentation-target"
+            else:
+                relation = "divergent-or-not-contained; union preserves any extra commits"
+            selected = "selected" if ref in selected_refs else "not-selected"
+            lines.append(f"{ref}\t{sha[:10]}\tversion={'.'.join(map(str, version))}\tahead={pending_ref_ahead_count(repo_root, ref)}\t{selected}\t{relation}")
+    else:
+        lines.append("(none)")
+
+    lines.extend(["", "[OTHER/TOPIC UPSTREAM REFS - awareness only, not pending release diff input]"])
+    ignored_refs = list(target["ignored_refs"])
+    if ignored_refs:
+        for ref, sha in ignored_refs:
+            selected = "explicitly-selected" if ref in selected_refs else "ignored-by-auto-release-policy"
+            lines.append(f"{ref}\t{sha[:10]}\tahead={pending_ref_ahead_count(repo_root, ref)}\t{selected}")
+    else:
+        lines.append("(none)")
+    return ("\n".join(lines).rstrip() + "\n").encode("utf-8")
+
+
+def build_pending_upstream_context(repo_root: Path, explicit_refs: Iterable[str] = ()) -> tuple[dict[str, bytes | Path], str]:
+    """Expose fetched base-AdvCiv release commits that have not yet entered current HEAD."""
+    target = detect_pending_upstream_targets(repo_root, explicit_refs)
+    generated: dict[str, bytes | Path] = {}
+    generated[GENERATED_PENDING_UPSTREAM_REFS_NAME] = build_pending_upstream_refs_report(repo_root, target)
+    if target is None:
+        text = (
+            "# Pending upstream release commit index\n"
+            "# Generated automatically by LLM_Helpers/make_light_source_zip.py.\n"
+            "# No locally fetched release-like upstream ref was detected. Run `git fetch upstream --prune`, use --fetch-upstream, or pass --upstream-ref REF before relying on this context.\n"
+        )
+        generated[GENERATED_PENDING_UPSTREAM_INDEX_NAME] = text.encode("utf-8")
+        generated[GENERATED_PENDING_UPSTREAM_LOG_NAME] = b"# Pending upstream Git history\n# No selected pending release refs.\n"
+        generated[GENERATED_PENDING_UPSTREAM_PATH_INDEX_NAME] = build_pending_upstream_path_history_index({}, "(none)")
+        return generated, "pending upstream: no fetched release-like ref detected"
+
+    presentation_ref = str(target["presentation_ref"])
+    selected_refs = list(target["selected_refs"])
+    selected_revisions = list(dict.fromkeys(str(value) for value in target["selected_revisions"]))
+    head_raw, head_error = run_git(repo_root, "rev-parse", "HEAD")
+    head = head_raw.strip() if head_raw else "unknown"
+    commits, history_error = parse_commit_history_metadata_multi(repo_root, selected_revisions, "HEAD")
+
+    # One rev-list per selected ref provides compact commit->release membership without
+    # duplicating commits in the union. This remains cheap for normal numbered release sets.
+    membership: dict[str, list[str]] = {}
+    for ref, revision in zip(selected_refs, target["selected_revisions"]):
+        raw, _ = run_git(repo_root, "rev-list", str(revision), "^HEAD")
+        for sha in (raw or "").splitlines():
+            membership.setdefault(sha.strip().lower(), []).append(ref)
+
+    newest_count_raw, _ = run_git(repo_root, "rev-list", "--count", f"HEAD..{target['presentation_sha']}")
+    newest_count = int(newest_count_raw.strip()) if newest_count_raw and newest_count_raw.strip().isdigit() else 0
+    extra_union = max(0, len(commits) - newest_count)
+    selected_text = ", ".join(selected_refs)
+    conceptual_range = f"union({selected_text}) minus HEAD"
+
+    index_lines = [
+        "# Pending upstream release commit index",
+        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
+        "# This folder is deliberately separate from commit_diffs/: its commits are NOT reachable from snapshot HEAD yet.",
+        "# During a merge, exact MERGE_HEAD overrides release discovery so the archive describes the merge actually being resolved.",
+        "# Outside a merge, auto mode unions ALL locally fetched release-like refs and deduplicates by Git SHA.",
+        "# Ordinarily older releases are ancestors of the highest version and add nothing; if release lines diverge, otherwise-missed commits remain included.",
+        "# Topic/experimental refs are awareness-only in UPSTREAM_REFS.txt unless explicitly selected with --upstream-ref.",
+        "# Local remote-tracking refs can be stale until `git fetch upstream --prune` or --fetch-upstream is used.",
+        f"# Snapshot HEAD: {head}",
+        f"# Presentation target: {presentation_ref}",
+        f"# Presentation target SHA: {target['presentation_sha']}",
+        f"# Selected refs: {selected_text}",
+        f"# Target selection: {target['selection']}",
+        f"# Merge in progress: {target['merge_in_progress']}",
+        f"# Conceptual range: {conceptual_range}",
+        f"# Additional union commits not reachable from presentation target: {extra_union}",
+        "# Files are named <sequence>_<short-sha>.diff in chronological/topological oldest -> newest order.",
+        "# Columns: sequence<TAB>short-sha<TAB>coverage<TAB>release-ref-membership<TAB>title-preview",
+        "",
+    ]
+    if head_raw is None:
+        index_lines.append(f"# HEAD warning: {head_error}")
+    if history_error:
+        index_lines.append(f"# History warning: {history_error}")
+
+    total = len(commits)
+    index_lines.append(f"Pending commits (deduplicated union): {total}")
+    if total == 0:
+        index_lines.append("(Snapshot HEAD already contains all commits from every selected pending ref.)")
+        generated[GENERATED_PENDING_UPSTREAM_INDEX_NAME] = ("\n".join(index_lines).rstrip() + "\n").encode("utf-8")
+        generated[GENERATED_PENDING_UPSTREAM_LOG_NAME] = (
+            f"# Pending upstream Git history\n# No commits in {conceptual_range}.\n"
+        ).encode("utf-8")
+        generated[GENERATED_PENDING_UPSTREAM_PATH_INDEX_NAME] = build_pending_upstream_path_history_index({}, presentation_ref)
+        return generated, f"pending upstream: 0 commit(s); presentation={presentation_ref}; selected={len(selected_refs)} ref(s)"
+
+    log_args = [
+        "log", "--reverse", "--topo-order", "--no-patch", "--no-color",
+        "--pretty=format:commit %H%nAuthor: %an <hidden>%nDate:   %ai%n%n%B",
+        *selected_revisions, "^HEAD",
+    ]
+    log_raw, log_error = run_git(repo_root, *log_args)
+    log_lines = [
+        f"# Pending upstream Git history; presentation target {presentation_ref}",
+        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
+        "# These commits are fetched upstream context and are NOT reachable from snapshot HEAD yet.",
+        f"# Snapshot HEAD: {head}",
+        f"# Selected refs: {selected_text}",
+        f"# Conceptual range: {conceptual_range}",
+        "# Order: oldest/topological -> newest. Duplicate commits reachable from multiple release refs appear once. Author email addresses are intentionally hidden.",
+        "",
+    ]
+    if log_raw is None:
+        log_lines.append(f"Unable to generate pending upstream Git log: {log_error}")
+    else:
+        log_lines.append("[PENDING UPSTREAM COMMITS - MESSAGES | OLDEST -> NEWEST]")
+        log_lines.append(redact_generated_history_emails(log_raw.rstrip()))
+    generated[GENERATED_PENDING_UPSTREAM_LOG_NAME] = ("\n".join(log_lines).rstrip() + "\n").encode("utf-8")
+
+    path_history: dict[str, list[tuple[int, str]]] = {}
+    width = max(3, len(str(total)))
+    for sequence, commit in enumerate(commits, 1):
+        commit_refs = membership.get(commit["hash"].lower(), [])
+        value, coverage = render_pending_upstream_diff(repo_root, commit, presentation_ref, commit_refs, sequence, total)
+        short_hash = commit["hash"][:10]
+        rel_name = f"{GENERATED_PENDING_UPSTREAM_DIR}/{sequence:0{width}d}_{short_hash}.diff"
+        generated[rel_name] = value
+        refs_preview = ",".join(commit_refs) if commit_refs else "(selected-union)"
+        index_lines.append(
+            f"{sequence:0{width}d}\t{short_hash}\t{coverage}\t{refs_preview}\t{compact_history_title(commit.get('subject', ''))}"
+        )
+        for path in changed_paths_from_commit_diff(value):
+            path_history.setdefault(path, []).append((sequence, short_hash))
+
+    generated[GENERATED_PENDING_UPSTREAM_INDEX_NAME] = ("\n".join(index_lines).rstrip() + "\n").encode("utf-8")
+    generated[GENERATED_PENDING_UPSTREAM_PATH_INDEX_NAME] = build_pending_upstream_path_history_index(path_history, presentation_ref)
+    return generated, (
+        f"pending upstream: {total} commit(s) union from {len(selected_refs)} selected ref(s); "
+        f"presentation={presentation_ref}; extra-vs-presentation={extra_union}"
+    )
 def assign_dag_practical_versions(commits: list[dict[str, str]]) -> bool:
     """Assign exact `git rev-list --count <commit>` values from the already-read reachable DAG."""
     if not commits:
@@ -1119,10 +1576,12 @@ def build_snapshot_context_readme() -> str:
         "========================================\n\n"
         "This folder is generated only inside the light-source ZIP. It is not part of the repository.\n\n"
         "repo_file_manifest.txt\n"
-        "  Canonical tracked Git paths from git ls-files. This is only the repository file inventory.\n\n"
+        "  Canonical tracked Git paths from git ls-files, each prefixed by its exact current working-tree byte size.\n"
+        "  This includes size context for tracked binaries/assets intentionally omitted from the light ZIP; missing tracked\n"
+        "  working-tree paths are marked MISSING.\n\n"
         "git_repository_state.txt\n"
-        "  Current branch/HEAD, commit count, locally known upstream/ahead-behind state, tracked\n"
-        "  git status --short output, and ZIP-selected files that are not tracked by Git. X is\n"
+        "  Current branch/HEAD, commit count, locally known upstream/ahead-behind state, active MERGE_HEAD/target\n"
+        "  when merging, tracked git status --short output, and ZIP-selected files that are not tracked by Git. X is\n"
         "  staged/index state; Y is unstaged/working-tree state (for example M<space>, <space>M, and MM).\n"
         "  AdvCiv-SAS commonly uses Commit count as its practical version number (for example X in\n"
         "  'requires AdvCiv-SAS X+'); HEAD is the exact source-state identifier.\n\n"
@@ -1154,6 +1613,15 @@ def build_snapshot_context_readme() -> str:
         "\ncommit_diffs/PATH_HISTORY_INDEX.txt\n"
         "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
         "  diffs touched it. Use it to narrow investigation before opening the matching commit diff files.\n"
+        "\npending_upstream/INDEX.txt + GIT_LOG.txt + PATH_HISTORY_INDEX.txt + UPSTREAM_REFS.txt + <sequence>_<short-sha>.diff\n"
+        "  Separate fetched-but-unmerged base-AdvCiv context. During an active merge, exact MERGE_HEAD is authoritative.\n"
+        "  Outside a merge, all locally fetched release-like refs are considered and their HEAD-external commits are\n"
+        "  unioned/deduplicated by SHA; the highest detected version is only a presentation target, so divergent older\n"
+        "  release lines cannot silently lose unique commits. Topic/experimental refs are listed in UPSTREAM_REFS.txt but\n"
+        "  are not treated as releases merely because they are newer; --upstream-ref can explicitly select unusual naming\n"
+        "  or special maintenance lines. These commits are deliberately NOT mixed into commit_diffs/ because they are not\n"
+        "  current-HEAD ancestry. Remote refs can be stale until `git fetch upstream --prune`; use --fetch-upstream when\n"
+        "  archive creation should explicitly refresh upstream first (normal generation remains network-free).\n"
         "\nHistory cache/privacy\n"
         "  Generated history follows the existing anonymized Git-log email policy and also redacts email-shaped strings\n"
         "  embedded in historical patch text. The local cache lives inside Git metadata and is keyed by immutable full\n"
@@ -1163,13 +1631,13 @@ def build_snapshot_context_readme() -> str:
     )
 
 
-def build_generated_context(repo_root: Path, selected_files: Iterable[Path], commit_diff_count: int, write_cache: bool) -> tuple[dict[str, bytes | Path], str]:
+def build_generated_context(repo_root: Path, selected_files: Iterable[Path], commit_diff_count: int, write_cache: bool, explicit_upstream_refs: Iterable[str] = ()) -> tuple[dict[str, bytes | Path], str]:
     """Return every archive-only context file keyed by ZIP-relative path."""
     selected_files = list(selected_files)
     context: dict[str, bytes | Path] = {
         GENERATED_CONTEXT_README_NAME: build_snapshot_context_readme().encode("utf-8"),
         GENERATED_GIT_MANIFEST_NAME: build_git_manifest(repo_root).encode("utf-8"),
-        GENERATED_GIT_STATE_NAME: build_git_repository_state(repo_root, selected_files).encode("utf-8"),
+        GENERATED_GIT_STATE_NAME: build_git_repository_state(repo_root, selected_files, explicit_upstream_refs).encode("utf-8"),
         GENERATED_GIT_IGNORED_TREE_NAME: build_git_ignored_paths_tree(repo_root).encode("utf-8"),
         GENERATED_STAGED_DIFF_NAME: build_git_diff(repo_root, cached=True),
         GENERATED_UNSTAGED_DIFF_NAME: build_git_diff(repo_root, cached=False),
@@ -1177,7 +1645,9 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
     }
     commit_context, commit_diff_summary = build_commit_diff_history_context(repo_root, commit_diff_count, write_cache)
     context.update(commit_context)
-    return context, commit_diff_summary
+    pending_context, pending_summary = build_pending_upstream_context(repo_root, explicit_upstream_refs)
+    context.update(pending_context)
+    return context, f"{commit_diff_summary}; {pending_summary}"
 
 
 def should_skip_dir(path: Path, repo_root: Path) -> bool:
@@ -1267,6 +1737,16 @@ def iter_preserved_temp_files(repo_root: Path) -> Iterator[Path]:
             yield path
 
 
+def iter_exact_file_exceptions(repo_root: Path) -> Iterator[Path]:
+    """Yield narrowly whitelisted files that intentionally bypass ordinary light-ZIP file skips."""
+    for rel in LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS:
+        path = repo_root / rel
+        if path.is_file():
+            yield path
+        else:
+            print(f"Warning: exact light-source file exception missing: {rel}")
+
+
 def collect_files(repo_root: Path) -> list[Path]:
     files: list[Path] = []
     seen: set[str] = set()
@@ -1289,6 +1769,7 @@ def collect_files(repo_root: Path) -> list[Path]:
     add(iter_dll_top_level_files(repo_root))
     add(iter_dll_project_top_level_files(repo_root))
     add(iter_preserved_temp_files(repo_root))
+    add(iter_exact_file_exceptions(repo_root))
 
     for rel_dir in EXTRA_SUBDIRS:
         add(iter_tree_files(repo_root / rel_dir, repo_root))
@@ -1329,12 +1810,14 @@ def main() -> int:
     total_start_time = perf_counter()
     args = parse_args()
     repo_root = find_repo_root(args.repo_root)
+    if args.fetch_upstream:
+        fetch_upstream_or_fail(repo_root)
     mod_name = derive_mod_name(repo_root, args.mod_name)
     prefix = archive_prefix(mod_name, args.prefix)
     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
     files = collect_files(repo_root)
     context_start_time = perf_counter()
-    generated_context, commit_diff_summary = build_generated_context(repo_root, files, args.commit_diff_count, write_cache=not args.dry_run)
+    generated_context, commit_diff_summary = build_generated_context(repo_root, files, args.commit_diff_count, write_cache=not args.dry_run, explicit_upstream_refs=args.upstream_ref)
     context_duration_ms = int((perf_counter() - context_start_time) * 1000)
     total_bytes = sum(path.stat().st_size for path in files) + sum(data.stat().st_size if isinstance(data, Path) else len(data) for data in generated_context.values())
     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"

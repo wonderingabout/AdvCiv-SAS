@@ -1865,7 +1865,6 @@
 		<Italian>[CT_CIV_SHORT:1] sta affrontando una battaglia contro i malvagi, i pagani e i barbari, [CT_NAME]. &#200; ora di mostrare apprezzamento.</Italian>
 		<Spanish>La poderosa [CT_CIV_SHORT] es el frente de batalla contra el mal, los ateos, los infieles y los b&#225;rbaros, [CT_NAME]. Es hora de que nos mostr&#233;is vuestro aprecio. </Spanish>
 	</TEXT>
-	<!-- custom: Removed duplicate AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1 block. CIV4DiplomacyInfos references AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED, so reverted the advc.005f change of removing the "_CORRECTED suffix", now present again. This allows to fix the _1 duplicate-tag workflow fail and remove this semeingly unused duplicate. See KI#149. (GPT-5.5) -->
 	<!-- spelling -->
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_5</Tag>
@@ -1899,6 +1898,7 @@
 		<Italian>Questa non &#232; una semplice richiesta di pagamento di tributi, [CT_NAME]. Diciamo che &#232; un investimento sulla pace nel mondo.</Italian>
 		<Spanish>No cre&#225;is que os estamos exigiendo un tributo, [CT_NAME]. Pensad en ello como en una inversi&#243;n en la paz mundial.</Spanish>
 	</TEXT>
+	<!-- advc.005f: was #1 -->
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1</Tag>
 		<English>These are [OUR_NAME]'s demands, [CT_NAME]. Should you displease me, I will punish you by sending my hosts of brave warriors against you.</English>
@@ -1907,7 +1907,7 @@
 		<Italian>La tua debolezza &#232; imbarazzante, #CT_NAME! Dacci ci&#242; che vogliamo o morirai!</Italian>
 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
 	</TEXT>
-	<!-- custom: now named Moctezuma, not montezuma anymore, otherwise same at least for this part if not for other or maybe not-->
+	<!-- custom: now named Moctezuma, not montezuma anymore, otherwise same at least for this part -->
 	<!-- advc.005h: Repurpose Montezuma's power_weaker #1 -->
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_2</Tag>

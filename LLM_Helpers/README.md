@@ -45,6 +45,8 @@ Always review diffs before committing generated source changes.
   - [`audit_define_keys.py`](#audit_define_keyspy)
   - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
+- [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
+  - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
 - [Source packaging helper](#source-packaging-helper)
   - [`make_light_source_zip.py`](#make_light_source_zippy)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
@@ -899,6 +901,29 @@ This legacy scanner notably helped inspire and calibrate the newer `.github/work
 
 In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
 
+## AdvCiv manual text conversion helper
+
+### `convert_advciv_manual_to_txt.py`
+
+- Converts the tracked base AdvCiv [`manual.odt`](/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt) into [`manual.txt`](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt) for grep, VS Code/global search, LLM ingestion, and other plain-text review.
+- Uses only Python 3's standard library: ODT is a ZIP container and the helper reads its `content.xml` directly. Pandoc, LibreOffice, `odt2txt`, and other external converters are not required.
+- Visual fidelity is deliberately not the goal. The helper preserves normal paragraphs/headings, list headers and bullets/nesting, explicit spaces/tabs/line breaks, and simple/nested tables in a compact searchable representation.
+- Refuses to overwrite `manual.txt` if extraction is suspiciously tiny, to reduce the risk of committing a broken conversion.
+- Defaults to the repository's base-manual paths, so the normal refresh command from the mod root is:
+
+```bash
+python ./LLM_Helpers/convert_advciv_manual_to_txt.py
+```
+
+- After running it, review the generated text and Git diff before committing:
+
+```bash
+git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
+```
+
+- When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
+- Added with help of ChatGPT-5.6-Sol.
+
 ## Source packaging helper
 
 ### `make_light_source_zip.py`
@@ -907,8 +932,8 @@ In short: this script is kept as a historical and practical discovery helper, wh
 - Uses repo-relative archive paths and `ZIP_DEFLATED` compression by default. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review. Use `--compression-level 0` for the old `ZIP_STORED` / no-compression behavior.
 - Compression applies to the whole archive, not only images: JPG/PNG screenshots are already compressed and shrink little, while XML/Python/docs shrink a lot, so whole-ZIP compression is the useful default once selected screenshot folders are included.
 - Adds an archive-only `_SNAPSHOT_CONTEXT/` folder generated automatically from the local Git repository. The neutral name reflects that these files are extra context for the archive snapshot rather than repository files; they can help human reviewers, LLMs, or other tools. It contains:
-  - `repo_file_manifest.txt`: every tracked path from `git ls-files` (including files intentionally omitted from the light ZIP). It is deliberately only the tracked-file inventory, so repository state is not mixed into the end of the tree listing. This lets an external/ZIP-only reviewer distinguish "not included in the light archive" from "not present in the local repository" without copying `.git`. Tracked paths preserve Git's canonical path spelling/casing. Untracked paths are intentionally not enumerated to avoid exposing unrelated local filenames; selected untracked source files can still be included normally by the exporter.
-  - `git_repository_state.txt`: current branch/HEAD, total commit count, locally known upstream plus ahead/behind counts, tracked `git status --short --untracked-files=no` output, and any files already selected for the ZIP that are not tracked by Git. AdvCiv-SAS commonly uses that total commit count as its practical version number in documentation (e.g. the `X` in `requires AdvCiv-SAS X+`), while `HEAD` is the exact source-state identifier. Git short status uses two columns (`X` = index/staged state, `Y` = working-tree/unstaged state), e.g. `M ` for staged modification, ` M` for unstaged modification, and `MM` for a staged file modified again afterward. General untracked paths are still not enumerated. Upstream/ahead-behind values use the locally known upstream ref and can be stale until `git fetch`. This compact state summary is kept separate from the file manifest and from the full diffs.
+  - `repo_file_manifest.txt`: every tracked path from `git ls-files` (including files intentionally omitted from the light ZIP), with the exact current working-tree byte size before each path. This is deliberately only tracked-file inventory/state, so an external/ZIP-only reviewer can distinguish "not included in this light archive" from "not present in the local repository" and can still see useful size clues for omitted binaries such as `Assets/CvGameCoreDLL.dll`. A tracked path missing from the working tree is marked `MISSING`. Tracked paths preserve Git's canonical path spelling/casing. Untracked paths are intentionally not enumerated to avoid exposing unrelated local filenames; selected untracked source files can still be included normally by the exporter.
+  - `git_repository_state.txt`: current branch/HEAD, total commit count, locally known upstream plus ahead/behind counts, active `MERGE_HEAD`/matched merge target when applicable, tracked `git status --short --untracked-files=no` output, and any files already selected for the ZIP that are not tracked by Git. AdvCiv-SAS commonly uses that total commit count as its practical version number in documentation (e.g. the `X` in `requires AdvCiv-SAS X+`), while `HEAD` is the exact source-state identifier. Git short status uses two columns (`X` = index/staged state, `Y` = working-tree/unstaged state), e.g. `M ` for staged modification, ` M` for unstaged modification, and `MM` for a staged file modified again afterward. General untracked paths are still not enumerated. Upstream/ahead-behind values use the locally known upstream ref and can be stale until `git fetch`. This compact state summary is kept separate from the file manifest and from the full diffs.
   - `git_ignored_paths_tree.txt`: compact ASCII tree of paths ignored by Git's effective standard ignore rules. Entire ignored directories can be collapsed to one entry, so it can reveal useful local/generated/build context that is absent from the tracked manifest without exploding into a list of every file underneath those directories. It is separate from `repo_file_manifest.txt` because ignored paths are local repository state, not tracked repository contents.
   - `staged_changes_no_eol.diff`: raw staged tracked changes (`HEAD -> index`) using Git's end-of-line whitespace/CR ignore options so line-ending-only noise does not dominate review. An empty file means there are no staged tracked changes.
   - `unstaged_changes_no_eol.diff`: raw unstaged tracked changes (`index -> working tree`) with the same end-of-line-noise filtering. An empty file means there are no unstaged tracked changes.
@@ -923,7 +948,8 @@ In short: this script is kept as a historical and practical discovery helper, wh
     - Cache persistence: rendered commit files are cached locally inside Git metadata under a cache-format-versioned folder and keyed by the commit's immutable full SHA. Normal reruns reuse old commits and render only genuinely new hashes; amend/force-push/hard-reset needs no arbitrary "refresh last N" logic because rewritten commits automatically have new hashes, while unreachable cached hashes are simply not selected into the current ZIP. The cache persists across Windows/Python restarts, and unchanged SHAs can be reused again if a later reset makes them reachable.
     - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them. The cache needs no `.gitignore` entry and is never included as a repository file. After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
     - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses. Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten. Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
-    - Controls: `--commit-diff-count 0` disables history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
+    - Controls: `--commit-diff-count 0` disables current-HEAD commit-diff history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
+  - `pending_upstream/INDEX.txt`, `GIT_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history. During an active merge, exact `MERGE_HEAD` wins so the ZIP describes the commit actually being merged even if `upstream/*` moves afterward. Outside a merge, automatic discovery considers all locally fetched release-like refs (`upstream/X.Y[.Z]`, `upstream/vX.Y[.Z]`, `upstream/release-X.Y[.Z]`, or `upstream/release/X.Y[.Z]`), exports the deduplicated union of commits reachable from those refs but not from `HEAD`, and uses the highest detected version only as the presentation target. In the normal linear case, older releases add no duplicate commits; if release lines diverge, otherwise-missed commits remain visible. `UPSTREAM_REFS.txt` records what was detected/selected and lists topic or experimental refs only as awareness context rather than silently treating whichever branch was updated most recently as a release. If upstream naming changes or a special maintenance line matters, repeat `--upstream-ref REF` to select explicit revisions; outside a merge these override auto selection, while an active `MERGE_HEAD` remains authoritative. This folder is deliberately separate from `commit_diffs/` because pending upstream commits are review/merge context, not current-HEAD ancestry. Pending diffs use the same compact filtering/privacy policy but are not written into the canonical HEAD-history SHA cache because their archive metadata is range/target-specific and the pending set is normally small.
   - `README.txt`: short explanation of the generated files for ZIP-only reviewers.
   If Git metadata or one of the tracked lineage logs is unavailable, the generated context keeps working where possible and reports the missing classification/message source instead of making archive creation fail.
 - Uses Git's canonical `Assets/Res` casing even if Windows locally displays or accepts `Assets/res`; repository paths are case-sensitive on GitHub/Linux CI, and the generated manifest deliberately preserves the Git spelling.
@@ -932,8 +958,10 @@ In short: this script is kept as a historical and practical discovery helper, wh
 - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
 - Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), [_1_AdvCiv-SAS/SASGameRecord_log](/_1_AdvCiv-SAS/SASGameRecord_log/) full `SASGameRecord` examples, and selected screenshot folders useful for LLM/UI/rendered-map-text review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/SASGameRecord_map_text](/_1_AdvCiv-SAS/Images/SASGameRecord_map_text/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/). The included `SASGameRecord` sample is a useful illustration of what a full `SASGameRecord` log looks like for external LLM analysis/review and development reference, and is cheap enough after compression: the folder is about 19.4 MB raw but compresses to about 2.7 MB at ZIP level 6. The selected screenshot folders similarly provide practical visual reference for understanding/reviewing the mod and for developing or modding UI changes, by showing what the mod actually looks like in advisors, Sevopedia, the main menu, common UI, and rendered `SASGameRecord` map text. The `SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily. Local agentic tools can inspect these folders directly, while external/ZIP-only LLMs depend on the archive contents; including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
 - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
-- Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+- Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, `manual.pdf`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB. The exact base-AdvCiv `_0_Common_Docs/AdvCiv_Base_Doc/manual.odt` is a deliberate exception: it is the canonical input consumed by `convert_advciv_manual_to_txt.py`, so ZIP-only LLM/code-agent handoffs can regenerate/test the tracked `manual.txt`; other files named `manual.odt` remain skipped.
 - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+- Ordinary ZIP creation stays local/network-free. Use `--fetch-upstream` when the handoff should first refresh base AdvCiv with `git fetch upstream --prune`; if that explicit fetch fails, the helper aborts instead of quietly presenting stale refs as fresh. During a merge this does not change the exact pending target because `MERGE_HEAD` remains authoritative.
+- Use one or more `--upstream-ref REF` options when upstream release naming changes or when a nonstandard maintenance line should intentionally be included in pending context; topic/experimental branches are otherwise only listed in `pending_upstream/UPSTREAM_REFS.txt`.
 - Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP. Dry-run can reuse existing commit-diff cache entries but deliberately does not persist newly rendered cache entries.
 - Created/refined with help of ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
 - Commit-diff cache performance: the first run that populates uncached history can take noticeably longer because each missing historical SHA has to be rendered once. Existing SAS SHA caches are reused when extending the default scope into older AdvCiv/K-Mod ancestry, so that first expanded run mainly renders the newly included older commits and upgrades the old SAS cache headers in place. Commit files are then reused by immutable SHA, so ordinary later runs normally render only genuinely new or rewritten commits; in the earlier 1,781-commit SAS-only test, the first population took roughly a couple of minutes while an unchanged all-cache-hit rerun completed in about 5 seconds overall. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require one fresh population.
@@ -946,20 +974,26 @@ Example of creating a light source ZIP in Downloads folder (Git Bash):
 cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
 ```
 
+Same handoff while first refreshing locally known base AdvCiv release refs:
+
+```bash
+python ./LLM_Helpers/make_light_source_zip.py --fetch-upstream --output-dir "C:\Users\PC\Downloads"
+```
+
 Example of output (Git Bash):
 
 ```text
 Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260818T183325.zip
-Files:     1138 selected + 6134 generated snapshot-context files
-Size:      369,579,839 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260819T150843.zip
+Files:     1142 selected + 6174 generated snapshot-context files
+Size:      375,313,820 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-History:   commit diffs: 6125 included (SASBranch:1782,AdvCivPreSAS:3094,KMod:1249), 6125 cache hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519
-Wrote:     7272 file(s)
-ZIP size:  118,503,091 bytes
-Duration:  11,823 ms total (4,173 ms snapshot context; 7,421 ms ZIP write)
+History:   commit diffs: 6127 included (SASBranch:1784,AdvCivPreSAS:3094,KMod:1249), 6127 cache hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519; pending upstream: 34 commit(s) union from 1 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=0
+Wrote:     7316 file(s)
+ZIP size:  121,693,678 bytes
+Duration:  14,031 ms total (6,131 ms snapshot context; 7,664 ms ZIP write)
 ```
 
 ## Workflow rule for timeline tuning

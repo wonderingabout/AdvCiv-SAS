@@ -513,6 +513,16 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 	}
 }
 
+// advc.131e:
+struct DescByExperience
+{
+	bool operator()(CvUnitAI const* pFirst, CvUnitAI const* pSecond) const
+	{
+		if (pFirst->AI_upgradePriority() != pSecond->AI_upgradePriority())
+			return pFirst->AI_upgradePriority() > pSecond->AI_upgradePriority();
+		return pFirst->getID() < pSecond->getID(); // (mustn't let address break ties)
+	}
+};
 
 void CvPlayerAI::AI_doTurnUnitsPost()
 {
@@ -535,7 +545,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	}
 	// BETTER_BTS_AI_MOD, Gold AI, 02/24/10, jdog5000: START
 	//bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
-	int iStartingGold = getGold();
+	int const iStartingGold = getGold();
 	/* BBAI code
 	int iTargetGold = AI_goldTarget();
 	int iUpgradeBudget = (AI_getGoldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
@@ -556,14 +566,13 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		int iMaxBudget = AI_goldTarget(true);
 		iUpgradeBudget = std::min(iMaxBudget, getGold() * iMaxBudget /
 				std::max(1, AI_goldTarget(false)));
-	}
-	// K-Mod end
+	} // K-Mod end
 
 	// Always willing to upgrade 1 unit if we have the money
-	iUpgradeBudget = std::max(iUpgradeBudget,1);
+	iUpgradeBudget = std::max(iUpgradeBudget, 1);
 	// BETTER_BTS_AI_MOD: END
 
-	// <!-- custom: Upgrade spending logs showed overspending and peacetime upgrades leaving 1-10 gold, but the old aggregate line did not identify which upgrade pass or unit caused it. Add diagnostics for budget context, per-pass spending, and per-upgrade spend details; follow-up logs showed pass 3 normal upgrades were the main culprit, so cap non-emergency upgrade prices against the remaining budget below. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
+	// <!-- custom: Upgrade spending logs showed overspending and peacetime upgrades leaving 1-10 gold, but the old aggregate line did not identify which upgrade pass or unit caused it. Add diagnostics for budget context, per-pass spending, and per-upgrade spend details; follow-up logs showed the normal-upgrade pass was the main culprit, so cap non-emergency upgrade prices against the remaining budget below. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
 	bool const bUpgradeFinancialTroubleStart = AI_isFinancialTrouble();
 	bool const bLogUpgradeDiagnostics = (gPlayerLogLevel > 2);
 	int iUpgradeLogWars = 0;
@@ -583,23 +592,36 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	}
 
 	CvPlot const* pLastUpgradePlot = NULL;
-	for (int iPass = 0; iPass < 4; iPass++)
+	// <advc.131e>
+	std::vector<CvUnitAI*> apUnitsByExp;
+	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+		apUnitsByExp.push_back(pLoopUnit);
+	std::sort(apUnitsByExp.begin(), apUnitsByExp.end(), DescByExperience());
+	for (int iPass = 0; iPass < 5; iPass++) // Case inserted for upgrade discounts
 	{
 		char const* szPassName = "";
 		switch (iPass)
 		{
 		case 0: szPassName = "impassable"; break;
 		case 1: szPassName = "city_defender_or_danger"; break;
-		case 2: szPassName = "transport_or_escort_sea"; break;
-		case 3: szPassName = "normal"; break;
+		case 2: szPassName = "discounted"; break;
+		case 3: szPassName = "transport_or_escort_sea"; break;
+		case 4: szPassName = "normal"; break;
 		default: FAssert(false); break;
 		}
+		// BBAI check moved up to save time. Discounted/free upgrades still get a chance when the normal budget is spent.
+		if (iPass >= 3 && iStartingGold - getGold() >= iUpgradeBudget)
+			break; // </advc.131e>
 		int const iPassGoldBefore = getGold();
 		int iPassEligibleUnits = 0;
 		int iPassUpgradedUnits = 0;
 		int iPassSkippedBudget = 0;
-		FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+		//FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+		// <advc.131e>
+		for (std::vector<CvUnitAI*>::iterator itUnit = apUnitsByExp.begin();
+			itUnit != apUnitsByExp.end(); /* Increment later; may want to erase. */)
 		{
+			CvUnitAI* pLoopUnit = *itUnit; // </advc.131e>
 			bool bNoDisband = false;
 			bool bValid = false;
 			bool bSkippedBudget = false;
@@ -635,7 +657,12 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 				}
 				break;
 			}
+			// <advc.131e>
 			case 2:
+				if (pLoopUnit->getUpgradeDiscount() >= 40)
+					bValid = true;
+				break; // </advc.131e>
+			case 3:
 				/*if (pLoopUnit->cargoSpace() > 0)
 					bValid = true;*/ // BtS
 				// Only normal transports
@@ -653,9 +680,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 				}
 
 				break;
-			case 3:
+			case 4:
 				//bValid = true; // BtS
-				// <!-- custom: Diagnostics showed pass 3 normal upgrades caused most budget overspending and low-gold peacetime upgrades, while pass 1 defender/danger upgrades were mostly not the culprit. In financial trouble outside focus-war, skip normal upgrades and keep gold for economy/emergencies. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
+				// <!-- custom: Diagnostics showed normal upgrades caused most budget overspending and low-gold peacetime upgrades, while defender/danger upgrades were mostly not the culprit. In financial trouble outside focus-war, skip normal upgrades and keep gold for economy/emergencies. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
 				bValid = (!bUpgradeFinancialTroubleStart || bUpgradeFocusWar) && iStartingGold - getGold() < iUpgradeBudget;
 				bSkippedBudget = !bValid;
 				break;
@@ -667,8 +694,13 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 			if (bSkippedBudget)
 				iPassSkippedBudget++;
 			if (!bValid)
+			{
+				++itUnit; // advc.131e
 				continue;
+			}
 			iPassEligibleUnits++;
+			// advc.131e: One upgrade attempt per unit suffices
+			itUnit = apUnitsByExp.erase(itUnit);
 
 			bool bKilled = false;
 			if (!bNoDisband)
@@ -676,7 +708,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 				//if (pLoopUnit->canFight()) // BtS
 				// K-Mod - bug fix for the rare case of a barb city spawning on top of an animal
 				if (pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT &&
-					!pLoopUnit->isFound()) // advc: Future-proof; from DoC.
+					!pLoopUnit->isFound() && // advc: Future-proof; from DoC.
+					/*	advc.131e: Will otherwise need to remove cargo from apUnitsByExp.
+						But probably a bad idea to scrap transports with cargo anyway. */
+					!pLoopUnit->hasCargo())
 				{
 					int iExp = pLoopUnit->getExperience();
 					CvCityAI const* pPlotCity = pLoopUnit->getPlot().AI_getPlotCity();
@@ -731,7 +766,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 			}
 			if (!bKilled)
 			{
-				// <!-- custom: Passes 2 and 3 were budget-gated only by "spent so far < budget", so one expensive normal upgrade could overshoot the remaining budget and leave the AI almost broke. Keep emergency pass 0/1 upgrades uncapped, but make transport/escort and normal upgrades fit within the remaining budget. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
+				// <!-- custom: The old non-emergency passes were budget-gated only by "spent so far < budget", so one expensive upgrade could overshoot the remaining budget and leave the AI almost broke. Keep emergency pass 0/1 upgrades uncapped, but make discounted, transport/escort and normal upgrades fit within the remaining budget. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
 				int const iMaxUpgradePrice = (iPass >= 2 ? std::max(0, iUpgradeBudget - (iStartingGold - getGold())) : MAX_INT);
 				if (bLogUpgradeDiagnostics)
 				{
@@ -7938,8 +7973,11 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool b
 			and some of the new code (isPeaceDealPossible) is expensive. */
 		if (gDLL->getDiplomacyPlayer() == getID())
 			return true;
-		if (GET_TEAM(ePlayer).isAlwaysWar() || GET_TEAM(getTeam()).isAlwaysWar())
+		if (TEAMID(ePlayer) != getTeam() &&
+			(GET_TEAM(ePlayer).isAlwaysWar() || GET_TEAM(getTeam()).isAlwaysWar()))
+		{
 			return false;
+		}
 	} // </advc.104i>
 
 	// <advc.003n> In particular, don't call AI_surrenderTrade on non-major civs.
@@ -15625,7 +15663,7 @@ int CvPlayerAI::AI_totalWaterAreaUnitAIs(CvArea const& kArea, std::vector<UnitAI
 	for(size_t i = 0; i < aeUnitAI.size(); i++)
 		iCount += AI_totalAreaUnitAIs(kArea, aeUnitAI[i]);
 	// </advc.081>
-	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+	for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kOwner = *it;
 		// <advc.opt> No need to go through cities that our ships can't enter
@@ -15635,7 +15673,7 @@ int CvPlayerAI::AI_totalWaterAreaUnitAIs(CvArea const& kArea, std::vector<UnitAI
 		{
 			if (pLoopCity->waterArea() != &kArea)
 				continue;
-			for(size_t j = 0; j < aeUnitAI.size(); j++) // advc.081
+			for (size_t j = 0; j < aeUnitAI.size(); j++) // advc.081
 			{
 				iCount += pLoopCity->getPlot().plotCount(PUF_isUnitAIType,
 						aeUnitAI[j], -1, getID()); // advc.081

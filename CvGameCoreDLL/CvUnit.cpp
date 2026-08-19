@@ -2154,22 +2154,20 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
 	if (!GC.getGame().isFinalInitialized())
 		return;
 	int iMode = BUGOption::getValue("MainInterface__FoundingBorder", 2);
-	if(BUGOption::isEnabled("MainInterface__FoundingYields", false) && iMode == 1)
-		return; // BtS behavior
 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_FOUNDING_BORDER);
-	if(bForceClear || iMode <= 0 || !isFound())
+	if (bForceClear || iMode <= 0 || !isFound())
 		return;
 	FOR_EACH_UNIT_IN(pUnit, *getGroup())
 	{
-		if(pUnit == NULL || (pUnit->IsSelected() && !pUnit->isFound()))
+		if (pUnit->IsSelected() && !pUnit->isFound())
 			return;
 	}
 	CvPlot* pGoToPlot = gDLL->UI().getGotoPlot();
 	CvPlot* pCenter;
-	if(pGoToPlot == NULL)
+	if (pGoToPlot == NULL)
 		pCenter = plot();
 	else pCenter = pGoToPlot;
-	if(pCenter == NULL || !pCenter->isRevealed(TEAMID(getOwner())) ||
+	if (pCenter == NULL || !pCenter->isRevealed(TEAMID(getOwner())) ||
 		(!atPlot(pCenter) && !canMoveInto(*pCenter)) || !canFound(pCenter))
 	{
 		return;
@@ -7278,7 +7276,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	return std::max(0, iPrice); // advc.mnai: max (future-proofing)
 }
 
-// advc.080: Based on code cut from CvUnit::upgrade. The param is (so far) unused.
+// advc.080, 131e: Based on code cut from CvUnit::upgrade. The param is (so far) unused.
 int CvUnit::upgradeXPChange(UnitTypes eUnit) const
 {
 	if(getLeaderUnitType() != NO_UNIT)
