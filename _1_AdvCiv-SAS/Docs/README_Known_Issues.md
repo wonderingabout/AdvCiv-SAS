@@ -271,6 +271,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [209 - (Fixed Base AdvCiv bug) Player reassignment saved random-leader status from the random-civilization flag, corrupting independent setup state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#209---fixed-base-advciv-bug-player-reassignment-saved-random-leader-status-from-the-random-civilization-flag-corrupting-independent-setup-state)\
 [210 - (Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#210---fixed-base-advciv-bug-vote-selection-iterator-refactor-could-pair-a-voting-team-with-itself-creating-bogus-self-first-contact-state)\
 [211 - (Fixed inherited K-Mod/Base AdvCiv bug) Terrain attack bonuses were reversed in AI attacker-strength estimates against unknown defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#211---fixed-inherited-k-modbase-advciv-bug-terrain-attack-bonuses-were-reversed-in-ai-attacker-strength-estimates-against-unknown-defenders)\
+[212 - (Fixed minor inherited K-Mod/Base AdvCiv bug) AI Barbarian attacker CombatDetails were written to the defender-barbarian field](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#212---fixed-minor-inherited-k-modbase-advciv-bug-ai-barbarian-attacker-combatdetails-were-written-to-the-defender-barbarian-field)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -7988,3 +7989,26 @@ The surrounding practical-3 audit was intentionally not declared complete merely
 
 Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
 
+## 212 - (Fixed minor inherited K-Mod/Base AdvCiv bug) AI Barbarian attacker CombatDetails were written to the defender-barbarian field
+
+The continuing deep audit of K-Mod practical 3 (`2414225e64`, the initial source-bearing K-Mod snapshot) found a second surviving defect in the same `CvUnit::maxCombatStr` combat-details plumbing as KI#211. This one is deliberately classified as minor: the combat-strength arithmetic is correct, and the current built-in combat log happens to mask the wrong field assignment, but the `CombatDetails` structure exposed to Python reports the attacker/defender side incorrectly for one AI-versus-Barbarian case.
+
+`CombatDetails` carries separate fields for Barbarian modifiers on the unit being evaluated (`...TB`, interpreted by AdvCiv's own struct comment as “This is Barbarian”) and on the attacking unit (`...AB`, “Attacker is Barbarian”). The ordinary human-handicap paths respect that split: when the defender itself is Barbarian, `iBarbarianCombatModifierTB` is populated; when the attacker is Barbarian, `iBarbarianCombatModifierAB` is populated. The corresponding AI fields are likewise separately declared and exported to Python as `iAIBarbarianCombatModifierTB` and `iAIBarbarianCombatModifierAB`.
+
+The AI-attacker branch contained a copy/paste mismatch. When `pAttacker->isBarbarian()` is true and the defender is AI-controlled, the function correctly computes the AI-vs-Barbarian modifier and applies it to `iModifier`, but then stored the reporting value in the defender-side field:
+
+```cpp
+pCombatDetails->iAIBarbarianCombatModifierTB = iExtraModifier;
+```
+
+The semantically corresponding attacker-side field `iAIBarbarianCombatModifierAB` is reset to zero with the rest of `CombatDetails`, exported through `CyStructsInterface1.cpp`, and read by Python, but current `maxCombatStr` never assigned it. Meanwhile `...TB` was assigned by both the genuine defender-Barbarian AI branch and this attacker-Barbarian AI branch. The exposed data contract therefore could not distinguish the two cases even though the structure explicitly provides separate fields for them.
+
+The current built-in combat log makes the defect easy to miss. `Assets/Python/CvUtil.py::combatDetailMessageBuilder` reads both `iAIBarbarianCombatModifierTB` and `iAIBarbarianCombatModifierAB` using the same `TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT` text key and the same sign handling. Consequently, moving the value from the wrong TB field to the correct AB field does not change the ordinary visible combat-log line. The underlying strength calculation also never depended on the `CombatDetails` field: it had already added the same `iExtraModifier` to `iModifier`. The definite impact is therefore semantic/API correctness for Python or other consumers that inspect the fields separately, rather than changed combat odds or current AI behavior.
+
+The faulty assignment is already present in K-Mod practical 3 and was preserved through later K-Mod/AdvCiv edits of the same block, including AdvCiv practical 2662 and the later formatting/Barbarian-combat changes that still retained the same `...TB` write. It survives in current AdvCiv-SAS. As with KI#211, practical 3 is an initial source snapshot rather than proof of line authorship, so the available history establishes that the defect is inherited from the earliest available K-Mod source boundary but does not establish whether K-Mod itself introduced it or inherited it from earlier BtS/BBAI/Unofficial Patch ancestry.
+
+The repair changes only that reporting assignment to `iAIBarbarianCombatModifierAB`, with a short SAS comment identifying the inherited AB/TB copy/paste. No strength arithmetic, handicap value, RNG, combat rule, text key or balance parameter changes. The built-in combat log remains visually equivalent, while the exported `CombatDetails` fields now match their documented attacker/defender semantics.
+
+The systematic practical-3 audit remains OPEN after this minor defect is fixed. Finding KI#212 does not certify practical 3 or advance the historical commit counter; the audit resumes inside practical 3 before practical 2.
+
+Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
