@@ -2543,9 +2543,13 @@ PlayerTypes CvTeam::getRandomMemberAlive(bool bHuman) const
 	int iValid = (bHuman ? PlayerIter<HUMAN,MEMBER_OF>::count(getID()) :
 			getAliveCount());
 	int iIndex = SyncRandNum(iValid);
+	// <!-- custom: Fix inherited AdvCiv practical 2945 bug: the random index is 0-based, while nextIndex() reports the next iterator position and also counts ineligible members. Compare against our own eligible-member index instead. See KI#207. (ChatGPT-5.6-Sol) -->
+	int iValidIndex = 0;
 	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
 	{
-		if ((!bHuman || itMember->isHuman()) && itMember.nextIndex() >= iIndex)
+		if (bHuman && !itMember->isHuman())
+			continue;
+		if (iValidIndex++ == iIndex)
 			return itMember->getID();
 	}
 	FErrorMsg("Team not alive?");

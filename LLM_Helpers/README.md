@@ -47,8 +47,9 @@ Always review diffs before committing generated source changes.
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
 - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
-- [Source packaging helper](#source-packaging-helper)
+- [Source packaging and tracked-history helpers](#source-packaging-and-tracked-history-helpers)
   - [`make_light_source_zip.py`](#make_light_source_zippy)
+  - [`sync_tracked_commit_diffs.py`](#sync_tracked_commit_diffspy)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
@@ -924,7 +925,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
 - When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
 - Added with help of ChatGPT-5.6-Sol.
 
-## Source packaging helper
+## Source packaging and tracked-history helpers
 
 ### `make_light_source_zip.py`
 
@@ -949,6 +950,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
     - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them. The cache needs no `.gitignore` entry and is never included as a repository file. After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
     - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses. Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten. Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
     - Controls: `--commit-diff-count 0` disables current-HEAD commit-diff history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
+    - Tracked mirror/self-recursion guard: the same history is also made available to normal clones and code agents under [`LLM_Helpers/commit_diffs/`](/LLM_Helpers/commit_diffs/). That tracked generated directory is deliberately excluded from every historical patch, from ordinary light-ZIP tree selection, and from the archive's raw staged/unstaged review diffs; `git_repository_state.txt` still reports its tracked status. The light ZIP regenerates its own fresh `_SNAPSHOT_CONTEXT/commit_diffs/` copy instead. This prevents archive-refresh commits from embedding copies of old archived diffs inside new archived diffs or dominating a handoff's working-tree patch.
   - `pending_upstream/INDEX.txt`, `GIT_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history. During an active merge, exact `MERGE_HEAD` wins so the ZIP describes the commit actually being merged even if `upstream/*` moves afterward. Outside a merge, automatic discovery considers all locally fetched release-like refs (`upstream/X.Y[.Z]`, `upstream/vX.Y[.Z]`, `upstream/release-X.Y[.Z]`, or `upstream/release/X.Y[.Z]`), exports the deduplicated union of commits reachable from those refs but not from `HEAD`, and uses the highest detected version only as the presentation target. In the normal linear case, older releases add no duplicate commits; if release lines diverge, otherwise-missed commits remain visible. `UPSTREAM_REFS.txt` records what was detected/selected and lists topic or experimental refs only as awareness context rather than silently treating whichever branch was updated most recently as a release. If upstream naming changes or a special maintenance line matters, repeat `--upstream-ref REF` to select explicit revisions; outside a merge these override auto selection, while an active `MERGE_HEAD` remains authoritative. This folder is deliberately separate from `commit_diffs/` because pending upstream commits are review/merge context, not current-HEAD ancestry. Pending diffs use the same compact filtering/privacy policy but are not written into the canonical HEAD-history SHA cache because their archive metadata is range/target-specific and the pending set is normally small.
   - `README.txt`: short explanation of the generated files for ZIP-only reviewers.
   If Git metadata or one of the tracked lineage logs is unavailable, the generated context keeps working where possible and reports the missing classification/message source instead of making archive creation fail.
@@ -964,7 +966,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
 - Use one or more `--upstream-ref REF` options when upstream release naming changes or when a nonstandard maintenance line should intentionally be included in pending context; topic/experimental branches are otherwise only listed in `pending_upstream/UPSTREAM_REFS.txt`.
 - Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP. Dry-run can reuse existing commit-diff cache entries but deliberately does not persist newly rendered cache entries.
 - Created/refined with help of ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
-- Commit-diff cache performance: the first run that populates uncached history can take noticeably longer because each missing historical SHA has to be rendered once. Existing SAS SHA caches are reused when extending the default scope into older AdvCiv/K-Mod ancestry, so that first expanded run mainly renders the newly included older commits and upgrades the old SAS cache headers in place. Commit files are then reused by immutable SHA, so ordinary later runs normally render only genuinely new or rewritten commits; in the earlier 1,781-commit SAS-only test, the first population took roughly a couple of minutes while an unchanged all-cache-hit rerun completed in about 5 seconds overall. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require one fresh population.
+- Commit-diff reuse/performance: the private SHA cache inside `.git` is checked first, then the tracked `LLM_Helpers/commit_diffs/` mirror is used as a read-only secondary cache, and Git renders a commit only when neither contains a valid entry for the current filtering policy. This keeps normal local reruns fast while also preventing a fresh clone from rerendering thousands of already-tracked historical patches merely because its private cache starts empty. Newly created/rewritten commits that have not reached the tracked mirror are still rendered once into the private cache. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require fresh rendering for entries that no longer validate.
 
 Tools like here WizTree helped find which folders/files are heavy to exclude.
 
@@ -990,11 +992,30 @@ Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260819T150843.zip
 Files:     1142 selected + 6174 generated snapshot-context files
 Size:      375,313,820 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-History:   commit diffs: 6127 included (SASBranch:1784,AdvCivPreSAS:3094,KMod:1249), 6127 cache hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519; pending upstream: 34 commit(s) union from 1 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=0
+History:   commit diffs: 6127 included (SASBranch:1784,AdvCivPreSAS:3094,KMod:1249), 6127 private-cache hit(s), 0 tracked-mirror hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519; pending upstream: 34 commit(s) union from 1 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=0
 Wrote:     7316 file(s)
 ZIP size:  121,693,678 bytes
 Duration:  14,031 ms total (6,131 ms snapshot context; 7,664 ms ZIP write)
 ```
+
+
+### `sync_tracked_commit_diffs.py`
+
+- Synchronizes the greppable repository mirror under `LLM_Helpers/commit_diffs/` from the current committed Git ancestry.
+- Reuses `make_light_source_zip.py` directly rather than maintaining a second history parser/filter: segmentation, practical counts, privacy redaction, patch-size limits, `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and commit reuse policy therefore stay identical. The renderer checks the private `.git` SHA cache first and this tracked mirror second before asking Git to render a missing commit.
+- Removes stale generated commit files after rewritten/amended history while preserving the directory's explanatory `README.txt`.
+- `--dry-run` reports additions/updates/removals without writing either the tracked mirror or history cache.
+- The mirror is intentionally `export-ignore`; it exists for clones, IDE grep, Codex, and LLM archaeology rather than player archives.
+- The mirror can naturally lag by the commit that records a synchronization because a commit cannot contain a diff of its own future SHA. This is expected; current Git is authoritative, and the light-source ZIP always generates its own fresh history directly from the current HEAD.
+- Historical rendering excludes `LLM_Helpers/commit_diffs/**`, which is essential: otherwise refreshing the mirror would recursively make future commit diffs contain older diff files.
+
+From the repository root:
+
+```bash
+python LLM_Helpers/sync_tracked_commit_diffs.py
+python LLM_Helpers/sync_tracked_commit_diffs.py --dry-run
+```
+
 
 ## Workflow rule for timeline tuning
 

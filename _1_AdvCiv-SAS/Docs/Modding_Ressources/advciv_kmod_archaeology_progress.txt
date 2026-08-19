@@ -6,14 +6,16 @@ Purpose
 -------
 Systematically review the historical AdvCiv and then K-Mod commit diffs for inherited bugs, regressions, suspicious behavior changes, and useful fixes that may still matter to AdvCiv-SAS.
 
-Primary source
---------------
-The light-source ZIP's generated:
-  _SNAPSHOT_CONTEXT/commit_diffs/INDEX.txt
-  _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
-  _SNAPSHOT_CONTEXT/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
+Primary sources
+---------------
+For an ordinary clone/Codex/IDE session, use the tracked greppable mirror:
+  LLM_Helpers/commit_diffs/INDEX.txt
+  LLM_Helpers/commit_diffs/PATH_HISTORY_INDEX.txt
+  LLM_Helpers/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
 
-The progress file itself is tracked so a future clone/LLM can resume the audit, but is export-ignored from player/release archives. The generated commit-diff archive does not need to be tracked in Git.
+For a light-source handoff, `_SNAPSHOT_CONTEXT/commit_diffs/` is generated fresh from that snapshot's current Git ancestry with the same renderer/filtering policy. Current source and Git remain authoritative; the tracked mirror can lag HEAD until `python LLM_Helpers/sync_tracked_commit_diffs.py` is run.
+
+Both this progress file and the tracked commit-diff mirror are kept in Git for future clone/LLM archaeology but export-ignored from player/release archives. The tracked mirror is excluded from its own generated historical patches to prevent recursive history-of-history growth.
 
 History inventory at tracker creation
 -------------------------------------
@@ -32,15 +34,16 @@ Default sweep order
 
 Counters
 --------
-Systematic historical commits reviewed: 0 / 4,343
+Systematic historical commits reviewed: 1,399 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 3
-  inherited/pre-SAS defects: 2
+Confirmed defects tracked here: 4
+  inherited/pre-SAS defects: 3
   SAS-specific regressions: 1
-Confirmed defects fixed: 3
+Confirmed defects fixed: 4
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
+Confirmed previously-unfixed defects newly found by the systematic historical sweep: 1 (KI#207)
 Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
 
 Confirmed findings / lineage references
@@ -71,6 +74,18 @@ F003 - KI#206 AI random-event building-change percent normalization - FIXED
   The K-Mod trace was done locally from the light-source ZIP commit-diff archive without Internet lookup.
   Fixed in the current post-6162 audit commit (expected practical 6163).
 
+F004 - KI#207 UWAI random team-member selection index mismatch - FIXED
+  Classification: inherited Base AdvCiv bug
+  Discovery route: first previously-unfixed defect found by the systematic newest-to-oldest historical sweep.
+  Introduced in AdvCivPreSAS practical 2945, SHA f016996eb6:
+    "Let UWAI negotiate with a random team member"
+  CvTeam::getRandomMemberAlive generated a 0-based random eligible-member index but compared it with MemberIter::nextIndex(), whose current-element-visible value starts at 1 and whose sequence includes ineligible AI members during human-only selection.
+  For three all-AI members the old distribution was 2/3, 1/3, 0 rather than 1/3 each; for two members it was 100%, 0%. Mixed human/AI teams additionally compared a human-only random range against all-member iterator positions.
+  The fix keeps the same one synchronized RNG roll and counts eligible members explicitly with a zero-based index.
+  AdvCiv practical 3209 later modernized the RNG helper but preserved the faulty comparison. AgentIterator::nextIndex() already had the relevant semantics before practical 2945, so the defect exists from introduction rather than from a later iterator change.
+  The sweep had earlier re-encountered the real ExtraFreeOutsideUnits bug at practical 3956, but SAS had already fixed/documented it as KI#92; KI#207 is therefore the systematic sweep's first previously-unfixed surviving defect.
+  Fixed in the current archaeology-fix commit (expected practical 6165 after the tracked-mirror infrastructure commit).
+
 Resolved audit candidates
 -------------------------
 S001 - CvUnit::gift / AI_processPeacetimeGrantValue game-speed semantics - NO FIX
@@ -89,9 +104,12 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
 
 Systematic sweep progress
 -------------------------
-AdvCivPreSAS: NOT STARTED
-  Next: practical 4343, SHA 9679091523
-  Title: "Standalone bugfix for Tectonics' improperly disabled climate menu"
+AdvCivPreSAS: IN PROGRESS
+  Reviewed: practical 4343 -> 2945 inclusive (1,399 commits).
+  First real historical defect encountered in that range: practical 3956, already fixed independently by SAS as KI#92.
+  First previously-unfixed surviving defect found by the systematic sweep: practical 2945, now KI#207.
+  Next: practical 2944, SHA 24e04be52c
+  Title: "Tweak UWAI prediction about availability of coll. damage units"
 
 KMod: WAITING FOR ADVCIV SWEEP
   First planned: practical 1249, SHA d0a60f8b90

@@ -48,6 +48,10 @@
 # <!-- custom: Keep the AdvCiv/K-Mod archaeology progress tracked so future clones and LLM/AI helpers can resume the systematic history audit, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
 /_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt  export-ignore
 
+# <!-- custom: Keep the greppable historical commit-diff mirror in Git for clones/Codex/LLM archaeology, but never ship it in player archives. Historical *.diff payloads are generated reference data, so suppress ordinary Git textual diff/whitespace treatment for those files. (ChatGPT-5.6-Sol) -->
+/LLM_Helpers/commit_diffs/        export-ignore
+/LLM_Helpers/commit_diffs/*.diff -diff
+
 # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
 /.github/             export-ignore
 /.gitattributes       export-ignore
