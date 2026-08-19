@@ -1,0 +1,107 @@
+AdvCiv / K-Mod historical bug archaeology progress
+Created 2026-08-19
+Maintained by wonderingabout + LLM/AI helpers
+
+Purpose
+-------
+Systematically review the historical AdvCiv and then K-Mod commit diffs for inherited bugs, regressions, suspicious behavior changes, and useful fixes that may still matter to AdvCiv-SAS.
+
+Primary source
+--------------
+The light-source ZIP's generated:
+  _SNAPSHOT_CONTEXT/commit_diffs/INDEX.txt
+  _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+  _SNAPSHOT_CONTEXT/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
+
+The progress file itself is tracked so a future clone/LLM can resume the audit, but is export-ignored from player/release archives. The generated commit-diff archive does not need to be tracked in Git.
+
+History inventory at tracker creation
+-------------------------------------
+AdvCivPreSAS: 3,094 commits, practical 4343 -> 1250
+  full=2,737, partial=202, summary-only=155
+KMod: 1,249 commits, practical 1249 -> 1
+  full=1,249
+Total historical commits in planned systematic sweep: 4,343
+
+Default sweep order
+-------------------
+1. AdvCivPreSAS newest -> oldest: practical 4343 down to 1250.
+2. KMod newest -> oldest: practical 1249 down to 1.
+3. When a finding points across a lineage boundary, trace that specific code farther immediately rather than waiting for the broad sweep to reach it.
+4. Do not "fix" a merely suspicious historical choice without understanding current semantics and gameplay impact.
+
+Counters
+--------
+Systematic historical commits reviewed: 0 / 4,343
+Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
+Confirmed defects tracked here: 3
+  inherited/pre-SAS defects: 2
+  SAS-specific regressions: 1
+Confirmed defects fixed: 3
+Resolved non-defect/currently-safe audit candidates: 2
+Open current-tree suspects awaiting archaeology/semantic decision: 0
+Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
+Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
+
+Confirmed findings / lineage references
+---------------------------------------
+F001 - KI#205 K-Mod World-Wonder production-rank bug - FIXED
+  Classification: inherited K-Mod/Base AdvCiv bug
+  Historical origin traced to KMod practical 1030, SHA 418581f6bd:
+    "Made some large style adjustments to CvCityAI::AI_buildingValue"
+  The World-Wonder focus gate used the inverted production-rank condition and rejected the strongest production cities.
+  Fixed in SAS practical 6127, SHA 8951d71560.
+
+F002 - KI#205 cheap-Wonder game-speed cap regression - FIXED
+  Classification: AdvCiv-SAS regression
+  Regression traced to SAS practical 5477, SHA b33174f828.
+  The cheap-Wonder gate compared effective getProductionNeeded(Building) against a Normal-speed/raw-style cap without scaling the cap by ConstructPercent.
+  Fixed in SAS practical 6127, SHA 8951d71560.
+
+F003 - KI#206 AI random-event building-change percent normalization - FIXED
+  Classification: inherited K-Mod/Base AdvCiv bug
+  Discovery route: found by ChatGPT-5.6-Sol in the current-tree XML/raw-cost semantic audit after KI#205, before the systematic historical sweep started.
+  Current Base AdvCiv 1.14 still multiplies iBuildingValue by ConstructPercent without the required /100.
+  KMod practical 3, SHA 2414225e64 (initial source-bearing K-Mod commit, 27 Dec 2010), already contains the missing normalization in AI_eventValue.
+  KMod practical 478, SHA bfc3c3cca7:
+    "Added some missing components to the AI's evaluation of event options."
+  added /=100 to both analogous unit-event paths but left the building-event path unnormalized.
+  Practical 478 is therefore a revealing partial correction, not claimed as the origin of the bug.
+  This proves the issue is pre-SAS. The available history does not establish whether the original omission was introduced by K-Mod or inherited from BtS/BBAI before K-Mod practical 3.
+  The K-Mod trace was done locally from the light-source ZIP commit-diff archive without Internet lookup.
+  Fixed in the current post-6162 audit commit (expected practical 6163).
+
+Resolved audit candidates
+-------------------------
+S001 - CvUnit::gift / AI_processPeacetimeGrantValue game-speed semantics - NO FIX
+  Classification: currently safe under AdvCiv-SAS game-speed data; no SAS defect found.
+  Unit gifts feed raw XML unit cost into a common peacetime trade/grant normalization path that divides by ResearchPercent.
+  Every current SAS game speed uses the same TrainPercent and ResearchPercent (and also the same ConstructPercent and BuildPercent): 33, 50, 67, 100, 150, 200, 300 and 400 respectively across the eight speeds.
+  Therefore the production-vs-research percentage distinction does not create game-speed drift in current SAS. Revisit only if those speed percentages are deliberately decoupled in the future.
+
+S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
+  Classification: inherited K-Mod rough valuation design; mixed cost APIs alone do not establish a bug.
+  KMod practical 161, SHA f9e8a3c4ce, deliberately increased project-destruction valuation while retaining getProductionNeeded(Project).
+  KMod practical 960, SHA c4a6ecbc7a, deliberately rewrote destroy-building valuation around raw building cost plus production turns and AI_buildingValue.
+  KMod practical 973, SHA 2bbcecb994, refined that formula again and explicitly described AI_espionageVal as a rough commerce-value heuristic; it also replaced the disabled buy-unit mission's relative AI_unitValue component with raw unit production cost.
+  The current building formula's important time/utility term already contains production-turn scaling, while projects intentionally use their effective production cost and special strategic multipliers. The buy-unit espionage mission remains disabled.
+  Conclusion: the formulas are heterogeneous by design and no current SAS correction is justified merely to make their cost APIs syntactically uniform. Revisit if espionage valuation itself is redesigned, not as an XMLCost bug.
+
+Systematic sweep progress
+-------------------------
+AdvCivPreSAS: NOT STARTED
+  Next: practical 4343, SHA 9679091523
+  Title: "Standalone bugfix for Tectonics' improperly disabled climate menu"
+
+KMod: WAITING FOR ADVCIV SWEEP
+  First planned: practical 1249, SHA d0a60f8b90
+  Title: "Improved German language text. (by Zholef)"
+
+Recording rules
+---------------
+- Record clean progress as ranges rather than one line per harmless commit.
+- For every suspect/finding worth preserving, record segment, practical commit number, SHA, title, relevant file/function, classification and final disposition.
+- Keep separate counts for open suspects, confirmed defects, actual fixes, inherited/pre-SAS bugs and SAS-specific regressions.
+- A summary-only or partial archived diff is not automatically "clean"; if its title/path is relevant, inspect adjacent history/current source or obtain fuller source before closing it.
+- Update Known Issues only for findings that deserve durable player/developer documentation; this tracker can hold weaker suspects and dead ends.
+- Prefer accuracy over finding a bug in every commit. Most commits should be harmless.

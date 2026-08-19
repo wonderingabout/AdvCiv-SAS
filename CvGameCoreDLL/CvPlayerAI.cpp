@@ -25370,6 +25370,8 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 
 				iBuildingValue *= GC.getInfo(kGame.getGameSpeedType()).
 						getConstructPercent();
+				// <!-- custom: Fix inherited K-Mod/Base AdvCiv bug: ConstructPercent is a percentage, so normalize after applying it. Without /100, building-change event value is 100x too large. See KI#206. (ChatGPT-5.6-Sol) -->
+				iBuildingValue /= 100;
 				iValue += kEvent.getBuildingChange() * iBuildingValue;
 			}
 		}

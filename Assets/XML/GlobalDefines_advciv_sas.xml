@@ -1808,10 +1808,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 5 becomes about 10 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. (GPT-5.6 Thinking) -->
+	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 6 becomes about 12 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. See KI#198.2. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
-		<iDefineIntVal>5</iDefineIntVal>
+		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: Population tolerance for preferring a currently stagnant city over the largest eligible same-area city when a slow AI city delegates a non-combat food-production unit. The comparison is strict: 3 lets a stagnant population-8 city beat a population-10 city, but not population 7. Cities already training a food-production unit count as stagnant, intentionally allowing an efficient large city to produce several Workers or similar units in sequence. If no stagnant city is this close to the largest candidate, highest population wins. 0 disables the stagnant-city preference. (GPT-5.6 Thinking) -->
 	<Define>
