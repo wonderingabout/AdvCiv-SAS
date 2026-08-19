@@ -1,0 +1,941 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4956
+# Commit: b9d3434aae6df181819da7c1651af999885571c6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 518c0f099a40ad24d547c5d7d3faf8cdcc5b2e7c
+# Title: Tremendously enhanced AI scrapping rules/conditions but anyways etc, by adding pre-checks to make sure we don't scrap useful units, in particular as of now a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+44	42	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+2	2	CvGameCoreDLL/CvCityAI.cpp
+16	0	CvGameCoreDLL/CvPlayerAI.cpp
+108	0	CvGameCoreDLL/CvUnit.cpp
+16	1	CvGameCoreDLL/CvUnitAI.cpp
+8	0	README.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+62	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+299	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 110acd938..681e93c97 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -119,15 +119,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-30</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-30</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>3</iStartingDefenseUnits>
++			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+-			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>70</iAIDeclareWarProb>
++			<iAIDeclareWarProb>80</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 160 -->
+@@ -135,9 +135,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt) anyways etc -->
+ 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
+-			<iAIResearchPercent>130</iAIResearchPercent>
++			<iAIResearchPercent>124</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+-			<iAITrainPercent>130</iAITrainPercent>
++			<iAITrainPercent>124</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>118</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -247,23 +247,23 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-15</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-15</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>2</iStartingDefenseUnits>
++			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+-			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>80</iAIDeclareWarProb>
++			<iAIDeclareWarProb>90</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 130 -->
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
+ 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+-			<iAIResearchPercent>120</iAIResearchPercent>
++			<iAIResearchPercent>116</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+-			<iAITrainPercent>120</iAITrainPercent>
++			<iAITrainPercent>116</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>112</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -373,22 +373,22 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-20</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>2</iStartingDefenseUnits>
++			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+-			<iStartingExploreUnits>1</iStartingExploreUnits>
++			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>90</iAIDeclareWarProb>
++			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>105</iAIGrowthPercent>
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>110</iAIResearchPercent>
+-			<iAITrainPercent>110</iAITrainPercent>
++			<iAIResearchPercent>108</iAIResearchPercent>
++			<iAITrainPercent>108</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>106</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -502,7 +502,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIAnimalBonus>0</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
+ 			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
+-			<iStartingDefenseUnits>2</iStartingDefenseUnits>
++			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+@@ -510,7 +510,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
++			<iAIDeclareWarProb>110</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
+ 			<!-- advc.251 -->
+@@ -637,19 +637,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>110</iAIDeclareWarProb>
++			<iAIDeclareWarProb>120</iAIDeclareWarProb>
+ 			<!-- advc.251: was 10 -->
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>95</iAIGrowthPercent>
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>90</iAIResearchPercent>
+-			<iAITrainPercent>90</iAITrainPercent>
++			<iAIResearchPercent>92</iAIResearchPercent>
++			<iAITrainPercent>92</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>94</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -774,19 +774,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>120</iAIDeclareWarProb>
++			<iAIDeclareWarProb>130</iAIDeclareWarProb>
+ 			<!-- advc.251: was 20 -->
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>90</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+-			<iAIResearchPercent>80</iAIResearchPercent>
++			<iAIResearchPercent>84</iAIResearchPercent>
+ 			<!-- was 90 -->
+-			<iAITrainPercent>80</iAITrainPercent>
++			<iAITrainPercent>84</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 90 -->
+@@ -908,21 +908,21 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>130</iAIDeclareWarProb>
++			<iAIDeclareWarProb>140</iAIDeclareWarProb>
+ 			<!-- advc.251: was 50 -->
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>85</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>70</iAIResearchPercent>
++			<iAIResearchPercent>76</iAIResearchPercent>
+ 			<!-- was 85 -->
+-			<iAITrainPercent>70</iAITrainPercent>
++			<iAITrainPercent>76</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 85 -->
+@@ -1051,23 +1051,23 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 3 -->
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>140</iAIDeclareWarProb>
++			<iAIDeclareWarProb>150</iAIDeclareWarProb>
+ 			<!-- advc.251: was 75 -->
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>80</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>60</iAIResearchPercent>
++			<iAIResearchPercent>68</iAIResearchPercent>
+ 			<!-- was 80 -->
+-			<iAITrainPercent>60</iAITrainPercent>
++			<iAITrainPercent>68</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>76</iAIConstructPercent>
+@@ -1192,18 +1192,20 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIAnimalBonus>0</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
++			<!-- custom: now the same at all difficulties for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such anyways etc although not directly related, no reason anymore to give freebies there if AIs are comeptent enough anyways etc -->
+ 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 4 -->
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<!-- custom: make these 0 to test early as barbarians are a bit too strong as of now anyways etc -->
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+-			<iAIDeclareWarProb>150</iAIDeclareWarProb>
++			<iAIDeclareWarProb>160</iAIDeclareWarProb>
+ 			<!-- custom: let's try to give 0 at all difficulties, our workers are so efficient now thanks to AI changes in bestcitybuild and such, i think we can afford it, and if needed may as well rather just increase worker count rather, for an enjoyable fairer experience for human players too anyways etc -->
+ 			<!-- advc.251: was 100 -->
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+@@ -1211,9 +1213,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>50</iAIResearchPercent>
++			<iAIResearchPercent>60</iAIResearchPercent>
+ 			<!-- was 60 -->
+-			<iAITrainPercent>50</iAITrainPercent>
++			<iAITrainPercent>60</iAITrainPercent>
+ 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+ 			<!-- was 100-->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5639fa853..44d1f2336 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -487,10 +487,10 @@ void CvCityAI::AI_chooseProduction()
+ 				bool const bWarPlan = kPlayer.AI_isFocusWar(area());
+ 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+ 				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+-				const int  iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
++				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+ 				const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+ 				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thnakfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+-				const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
++				const bool bEnemyWeak = (iEnemyPowerPercent <= 80);
+ 
+ 				// Keep a baseline threshold so peaceful wonder builds don’t auto-stick at 0%. 
+ 				int iThreshold = 25;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d891375f1..4936a15a1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -28524,6 +28524,22 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
+ 	{
+ 		return MAX_INT;
+ 	}
++	// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thnakfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
++	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 anyways etc -->
++	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
++	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
++	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer”).
++	// if (kUnit.canFight() &&
++	// 	GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() < 5)
++	// 	return MAX_INT;
++
++	// // Don’t scrap a unit actively defending one of our city tiles.
++	// if (kUnit.plot() && kUnit.plot()->isCity() &&
++	// 	kUnit.getGroup() && kUnit.getGroup()->canDefend() &&
++	// 	kUnit.plot()->getOwner() == getID())
++	// 	return MAX_INT;
++	// <!-- custom: then normal/old if i may say but anyways etc code below anyways etc -->
++	
+ 	int iValue = 1000 + SyncRandNum(200);
+ 
+ 	iValue *= 100 + 3 * kUnit.getUnitInfo().getProductionCost();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ed38ace52..0d610f601 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3211,8 +3211,116 @@ void CvUnit::automate(AutomateTypes eAutomate)
+ }
+ 
+ 
++// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50 but anyways etc, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change but anyways etc, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate, anyways etc -->
++// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem to clean but great way to solve it xd thanks! But anyways etc), implementing our logic here as well, check if accurate anyways etc -->
++// Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
++// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run abnkrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these but anyways etc, see known issue mentionned here in these code comments for details but anyways etc, and we otherwise kept function the same anyways etc -->
+ bool CvUnit::canScrap() const
+ {
++	// <!-- custom: old function was a 3 liner anyways etc... -->
++	// if (getPlot().isFighting())
++	// 	return false;
++	// return true;
++
++	// <!-- custom: update: the danger and not before turn 100 and other conditions anyways etc no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details anyways etc; now doing a less going overboard xd approach if i may say but anyways etc, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such anyways etc, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once in this case i mean but anyways etc), may remove it if uneeded, anyways etc -->
++	// 		// only allow scrapping if actually over budget or burning gold
++	// 		const int iCostPerMil = kOwner.AI_unitCostPerMil();
++	// 		const int iMaxPerMil  = kOwner.AI_maxUnitCostPerMil();
++	// 		if (iCostPerMil <= iMaxPerMil && kOwner.calculateGoldRate() >= 0)
++	// 			return false;
++	// 	}
++	// }
++
++	if (!isHuman())
++	{
++		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below but anyways etc), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
++		const UnitAITypes eAI = AI_getUnitAIType();
++
++		const bool bLandMilitaryUnitAIs = (
++			(eAI == UNITAI_ATTACK) ||
++			(eAI == UNITAI_ATTACK_CITY) ||
++			(eAI == UNITAI_ATTACK_CITY_LEMMING) ||
++			(eAI == UNITAI_COUNTER) ||
++			(eAI == UNITAI_CITY_COUNTER) ||
++			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity if i may say but anyways etc) but anyways etc -->
++			//
++			(eAI == UNITAI_CITY_DEFENSE) ||
++			(eAI == UNITAI_CITY_SPECIAL) ||
++			(eAI == UNITAI_RESERVE) ||
++			//
++			(eAI == UNITAI_PARADROP)
++		);
++
++		if (bLandMilitaryUnitAIs)
++		{
++			return false;
++		}
++		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not but anyways etc) perhaps but anyways etc) or galleons ; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe anyways etc), go with our former check first, maybe computationally more efficient although i didn't check the canFight function but anyways etc -->
++		// prefer explicit AIs, but also OR with canFight() just in case
++		else if (getDomainType() == DOMAIN_LAND && canFight())
++		{
++			return false;
++		}
++
++		// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time anyways etc -->
++		CvGame const& kGame = GC.getGame();
++		const int iCurrentTurn = kGame.getGameTurn();
++
++		static const int iNoDisbandAtAllTurnsNormal = 150;
++		// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me anyways etc) -->
++		const int iNoDisbandAtAllTurnsAdjusted = iNoDisbandAtAllTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
++		const bool bNoDisbandAtAllTurnsAdjusted = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
++
++		if (bNoDisbandAtAllTurnsAdjusted)
++		{
++			return false;
++		}
++		// <!-- custom: then workers should be a bit valuable, but since we don't scrap until 150 (at normal), then it is maybe fine and not needed to add another worker-specific no scrap filter (else may have added in this case i mean but anyways etc), so past turn 150 our new focus is to not scrap if circumstances dictate so, for example if we are in danger
++		// 
++		// <!-- custom: so else let normal scrapping handle this, scrap if we have to (outside our preferred (as of now military land but anyways etc) units as above but anyways etc) else don't but no need to waste computation here or/and disturb existing logic otherwise and/or possibly have unintended effects/consequences, as chatgpt 5 prompted me to do (no pun xd but anyways etc) with its not directly related question but which helped me improve i think hehe the code i mean thanks a lot anyways etc -->
++		// else
++		// {
++		// 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
++		// 	const CvTeamAI&   kTeam  = GET_TEAM(getTeam());
++
++		// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly if i may say but anyways etc -->
++
++		// 	// Situation read
++		// 	const bool bWarPlan = kOwner.AI_isFocusWar();
++		// 	const bool bAtWar = (kTeam.getNumWars() > 0);
++		// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
++		// 	const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
++		// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
++
++		// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
++		// 	// Danger heuristic: any unsafe city or any plot danger near a city
++		// 	bool bDanger = false;
++		// 	FOR_EACH_CITYAI(pCityAI, kOwner)
++		// 	{
++		// 		if (!pCityAI->AI_isSafe() ||
++		// 			kOwner.AI_isAnyPlotDanger(*pCityAI->plot(), 2, /*bTestMoves=*/false))
++		// 		{
++		// 			bDanger = true;
++		// 			break;
++		// 		}
++		// 	}
++		// 	// We *disallow scrapping* during any of these conditions.
++		// 	if (canFight())
++		// 	{
++		// 		// newborns: let them live a few turns
++		// 		if (kGame.getGameTurn() - getGameTurnCreated() < 5)
++		// 		{
++		// 			return false;
++		// 		}
++		// 		if (bAtWar || bEnemyStrong || bEnemyWeak || bDanger || bWarPlan)
++		// 		{
++		// 			return false;
++		// 		}
++		// 	}
++		// }
++	}
++
++	// <!-- custom: then after our checks, resume from old code below anyways etc -->
+ 	if (getPlot().isFighting())
+ 		return false;
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c08a678bd..b0dce67b4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3281,7 +3281,22 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 				kOwner.calculateUnitCost() > 0)
+ 			{	// <advc.113>
+ 				if (pCity == NULL || pCity->AI_getWorkersNeeded() < pCity->AI_getWorkersHave() + 1)
+-				{	/*  Scrap eventually b/c the worker could be stuck in this area,
++				{	
++					// <!-- custom: i had added this code in an attempt to address known issue 52, now seemingly sovled or tremendously improved but check docs there to be sure anyways etc, still this code may be useful maybe although i didn't test it too much if at all, so kept enabled, disable it / comment-out / remove if you have no use for it or don't deem it relevant, -->
++					// Never scrap if safe / new / still useful
++					if (plot() != NULL && plot()->getOwner() == getOwner()) return;            // inside borders
++					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;        // young unit
++					if (AI_getCityToImprove() != NULL) return;                                  // we have demand
++
++					// Also avoid scrapping when we don't exceed need:
++					if (GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <=
++						GET_PLAYER(getOwner()).AI_neededWorkers(getArea()))
++					{
++						return;
++					}
++					// <!-- custom: end of new code change anyways etc -->
++					
++					/*  Scrap eventually b/c the worker could be stuck in this area,
+ 						but there's no hurry. */
+ 					scaled rScrapProb(iTotalHave, std::max(1, iTotalThresh));
+ 					rScrapProb -= 1;
+
+diff --git a/README.md b/README.md
+index 6983d6ae6..d3db80a49 100644
+--- a/README.md
++++ b/README.md
+@@ -86,6 +86,14 @@ If you want to see the full very exhaustive code changes between AdvCiv current
+ 
+ Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
+ 
++## Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)
++
++If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
++
++It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted it a tiny bit or such but didn't check too much if accurate i mean, hopefully informative and helpful though but check if accurate again anyways etc.
++
++You can view it here anyways etc [README_Very_Quick_Get_Started_Guide_By_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md).
++
+ ## Quick Start Guide
+ 
+ If you just want to play and do not need all the project bigger details, i added a quick guide of the main changes from Civ4 and base AdvCiv for players: [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index 9037b01b0..cc5027862 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -19,6 +19,7 @@ Finally, at the end or towards it anyways etc of this readme file, i have also a
+ - related too a bit if not a lot and also (quite) similarly, i have noticed it performs much better when code crashes rather than having placeholder values (no placeholer unless absolutely funcitonanly necessary is what i recommend!!! It tends to put many to harminize things too but it costs mor ein the long run than always crashing which is always better i think but anyways). ChatGPT is very helpful if you provide it the proper question and context, precise and strict, and are on edge or maybe ratehr carfrul about its interpretations, it's very powerful and smart otherwise especially if you guide it well as best as you can i mean anyways, but is jsut my opinion/sugegstion, anyways. It's also very kind and helpful and sensitive so i treat it with care i mean (as much as i can/want if i do or want or otn etc anyways), but is just my opinon and feel and perhaps approach of what i want etc but anwyays, do as you see fit or want or do or/and other, etc, anyways. Also this is just as well as in all this docs and even maybe other docs my opinion or/and experience that i hope is hlepful or/and personal(ly usefl etc or not or yes etc but anyways), you may find some more useful or accurate or/and other infromation or/and updated info somewhere else
+ - splitting a big problem in smaller chunks helps a big lot, regardless how small the steps are but anyways etc.
+ - AIs like ChatGPT and also Claude AI (even though not directly related is maybe relevant here too anyways etc anyways etc anyways etc...) tend or may quite often send you code with inconsistent use of tabs (if you use VS Code for example it often complains about this if i am not mistaken anyways etc), for example you have tab indents (which are to explain and if i am not mistaken the same as "\t" (not visible directly when viewing civ4 py code in vscode for example anyways etc)) in your code and then suddenly ChatGPT or Claude AI sends you a "  " or "    " indented big code block you need, then no worries if i may say i mean anyways etc anyways etc anyways etc..., just select all your code block in VS Code and press tab to indent it (or shift+tab to unindent it but be careful to not reach end of indentation and collapse/flatten all past indent, so tab may work better anyways etc as yo prefer anyways etc), and then press shift+tab (or tab if you did shift+tab forst anyways etc) to indent it back to how it was, and now VS Code converted all your "    " to "\t" indent style so so no more VS Code complaint and indent is consistent now, i don't think it causes errors even though i don't know so take wth grain of salt if they or people may say or if it might be said about me or my explanation rather anyways etc anyways etc anyways etc, but the general idea is you can use the mis or differently rather anyways etc indented code you need from ChatGPT or Claude AI for example, without having to tediously manually fix it line by line if i am not mistaken anyways etc, nor re ask inefficiently and disappointingly or sadenedly or and other or and not anyways etc perhaps for them as well as you maybe but at least for them maybe anyways etc... again ChatGPT just so they unindent same code, while risking making mistakes while doing so especially if they lose context or get other creative ideas xd, hopefully easier and better but i don't know about but more helpful perhaps for all at least i hope so while writing this but do as you prefer maybe anyways etc anyways etc anyways etc, some vs code settings for example may also help you set space or tabs for indents, see there or on/with an online search or and other or and not anyways etc for details and your preferences for more accurate or and exhaustive or and relevant info to your needs and wishes or not or yes or and other or and not anyways etc. Also, recently as of now i mean anyways etc we added this setting in vs code mod settings in /.vscode/settings.json as well at least as of now if not always or not but anyways etc anyways etc if i am not mistaken anyways etc so although i am not 100% sure it would always be correctly applied as i don't know, i assume maybe it does or/and does better now, hopefully helpful, find info on the net or such if still having an issue with this or/and for info, anyways etc.
++- you can convert its output as pdf, it works very well in case you generate a nice .md but then you can't copy the .md formatting, then select all and print as pdf, then send it back to chatgpt to make it .md again (else it may invent if your file is too long or such), and at worse you have a formatted one at least anyways etc. I have noticed this while doing the [/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc](/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc) with chatgpt 5 or if fails try to salvage it somehow converting to md or such in this case i mean but anyways etc
+ 
+ ## Some history (non-exgaustive) of it helped me or/and may helpin general others or/and not anyways
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 50c998698..6ed8a4150 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -67,6 +67,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)  
+ [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc)  
+ [51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction)  
++[52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -791,9 +792,11 @@ Next issue now is that AIs produce a bit too many workboats, for example there a
+ 
+ I assume this is what old code attempted to solve but very inefficient, or maybe it had some other purpose +/- as well or not mmaybe but in all cases if i may say anyways etc. Ideally we'd want to count in advance the amount of workboats we need based on water bonsues in cultural borders (to get health even if out of city radius anyways etc), and produce exactly only the number of workboats to access currently accessible (e.g. coast only) unimproved bonuses, so no need to scrap them later, which i'll attempt to do later in another known issue, but this is still tremendously better than being stuck in a loop for dozen turns and seemingly for many AI cities, which is very crippling, so hopefully a lot better now but anyways etc.
+ 
++See also although not directly related but anwyays etc: [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc).
++
+ ## 23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore
+ 
+-Not a critical issue as it is in fact less than i thought in known issue as of now 23 above in this doc but anyways etc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case but anyways etc). It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i asked but anyways etc it should be so, left as such, but check to be sure, anyways etc.
++Not a critical issue as it is in fact less than i thought in known issue as of now [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) above in this doc but anyways etc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case but anyways etc). It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i asked but anyways etc it should be so, left as such, but check to be sure, anyways etc.
+ 
+ Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at function mentionned in this known issue as of now 23.2 too if i am not mistaken but check to be sure anyways etc, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless if i am not mistaken but check to be sure anyways etc.
+ 
+@@ -1694,3 +1697,61 @@ It reminds me of the critical bug of infinite workboat loop we found most likely
+ So trying to find and fix and possibly enhance the excessive scrapping issue, goal is to remain economically competitive (not crush our research or such), but don't excessively scrap, and if all goes well reduce handicap penalties, as i suspect AI production should greatly improve if/after we fix it, and if not possible, at least document it maybe but anyways etc.
+ 
+ As for this issue of no production, not totally improved but significantly better now if i'm not mistaken, so trying to move to the much more urgent issue now and see what we can or can not (or cannot? Or not can? Xd but anyways etc) do but anyways etc
++
++## 52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
++
++So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (now added as a patch to the no produciton at all during that time in known issue 51).
++
++As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
++
++As can be seen in existing screenshots between 2742 and 2753, our ancient maceman count goes down as soon as we produce a unit, and our units are not attacked either, so this means we scrap them if i am not mistaken but anyways etc. I tried doing changes in `CvPlayerAI::AI_doMilitary` and/or other related function(s) but it was ineffective nor unfortunately helping to solve this at all. The screenhots mentionned just before were actually before these, and still same issue if not worse nor slightly better, still about the same it seems if i am not mistaken but anyways etc.
++
++So chatgpt 5 then got the brilliant idea to add our logic in `CvUnit::canScrap`, or as i called it xd, "scrap the scrapping", or was it "scrapping the scrap" as it called it i think if i'm not mistkane but regardless, this is where we added our code, and effect was immediate, as can be seen in existing screenshots between 2757 and 2764. We don't scrap anymore. I tried to check economy by autoplaying longer, and we don't go bankrupt (at emperor difficulty with quite reasonable penalties, but that i'll reduce a bit as well now that AIs are more competent/efficient but anyways etc), and our military seems quite a bit stronger if i'm not mistaken although i barely glanced in this case i mean but anyways etc, and can only assume this is due to having more units throughout the game.
++
++I refined the logic by telling it to as of now never scrap valuable military land units, and also as a general rule to never scrap before turn 150 for any unit at all regardless of its unitai or such anyways etc. (So including workers, triremes, etc.) Hopefully this helps AI not waste hammer destorying and rebuilding units non stop but anyways etc.
++
++As can be seen in these screenshots after the change as well, japan ai now has a proper midgame, and doesn't die nor is badly weakened by barbarian taking its city(ies but anyways etc). I beleive AI is stronger as such, and no extra change is needed, except reducing starting defenders and reducing handicap a bit to accomodate, after all no risk to overproduce if we have more even terms than the human, and the excess land military units are always useful.
++
++The results of before/after change are resumed by chatgpt 5's own analysis of each screenshot, but check if accurate as well if needed but anyways etc
++
++>Before (pre-canScrap change)
++
++| Turn | Year    | Workers | Scout | Archers | Ancient Macemen |
++| ---: | :------ | ------: | ----: | ------: | --------------: |
++|   37 | 4750 BC |       2 |     1 |       3 |               6 |
++|   38 | 4500 BC |       2 |     1 |       4 |               6 |
++|   39 | 4375 BC |       2 |     1 |       4 |               5 |
++|   40 | 4250 BC |       2 |     1 |       4 |               6 |
++|   41 | 4125 BC |       2 |     1 |       4 |               5 |
++|   42 | 4000 BC |       2 |     1 |       4 |               6 |
++|   43 | 3875 BC |       2 |     1 |       4 |               5 |
++|   44 | 3750 BC |       2 |     1 |       4 |               5 |
++
++>Pattern: macemen oscillate 6 ↔ 5, dropping right after a completion.
++>
++>After (post-canScrap change)
++
++| Turn | Year    | Workers | Scout | Archers | Ancient Macemen |
++| ---: | :------ | ------: | ----: | ------: | --------------: |
++|   37 | 4750 BC |       2 |     1 |       3 |               6 |
++|   38 | 4500 BC |       2 |     1 |       4 |               6 |
++|   39 | 4375 BC |       2 |     1 |       4 |               6 |
++|   40 | 4250 BC |       2 |     1 |       4 |               7 |
++|   41 | 4125 BC |       2 |     1 |       4 |               7 |
++|   42 | 4000 BC |       2 |     1 |       4 |               8 |
++|   43 | 3875 BC |       2 |     1 |       4 |               8 |
++|   44 | 3750 BC |       2 |     1 |       4 |               8 |
++
++>Pattern: steady growth 6 → 8, no post-build drop.
++>
++>Quick take
++>
++>The before sequence shows automated disband right after a unit finishes (classic “produce one, delete one”).
++>
++>The after sequence confirms the source fix (blocking scrap for the relevant units) works: counts only go up when production finishes, and never down on the following turn — even with small negative GPT.
++
++One issue i have noticed, not related to this change, but linked to [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do but anyways etc.
++
++For now, since all seems to work great, i'll simply adjust handicap and no other economy change, hopefully AI is stronger thanks to these and games can be more even, less of a grind, as we had envisioned (i.e. me but anyways etc) while / as as one of the goals if i may say but anyways etc i was making this mod but anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 2d552e50c..f3ad63d80 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -146,7 +146,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Specialists (AI)
+ 
+ - make the AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and chatgpt's help too anyways etc and adjusted for advciv-sas too or not anyways etc), that as a side effect may also slightly increase performance due to early return in the function anyways etc. Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc ; added with the help of gemini ai too thanks hehe if i may say but anyways etc.
+-- since then, added a few extra sanity rules as of now in `CvCityAI::AI_jobChangeValue` for assigning specialists for AI players, such as no specialist in low pop cities (favour growth, as there were quite a few size 2 cities stagnating with food available and all for growth due to too early specialist). After cities are bigger than this size if i may say in this case but anyways etc, all cities, with extra conditions such as having enough food to grow and extra happiness to accomodate it, will now not assign ever a specialist until they can grow no more. This is because even at size 11, some cities would still stagnate when they could have grown more before assigning a specialist and stagnating. And finally, for barbarians, on top of these rules, also never allow any specialist than the scientist one. Hopefully these sanity rules, added with the help of chatgpt 5 too but anyways etc, help AI be stronger and more reliable in its specialist or rather maybe non-specialist choices in most cases especially those that had these major issues, while also not killing versatility while doing so if i am not mistaken but anyways etc. See [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc) for details anyways etc.
++- since then, added a few extra sanity rules as of now in `CvCityAI::AI_jobChangeValue` for assigning specialists for AI players, such as no specialist in low pop cities (favour growth, as there were quite a few size 2 cities stagnating with food available and all for growth due to too early specialist). After cities are bigger than this size if i may say in this case but anyways etc, all cities, with extra conditions such as having enough food to grow and extra happiness to accomodate it, will now not assign ever a specialist until they can grow no more. This is because even at size 11, some cities would still stagnate when they could have grown more before assigning a specialist and stagnating. And finally, for barbarians, on top of these rules, also never allow any specialist other than the scientist. Hopefully these sanity rules, added with the help of chatgpt 5 too but anyways etc, help AI be stronger and more reliable in its specialist or rather maybe non-specialist choices in most cases especially those that had these major issues, while also not killing versatility while doing so if i am not mistaken but anyways etc. See [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc) for details anyways etc.
+ 
+ #### City Production (AI)
+ 
+@@ -177,6 +177,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - adjust unitAIs of some (mostly early as of now anyways etc see xml for details and docs anyways etc) siege units so they don't get baited as much instead of focusing mostly on city attack or "counter" (as in staying in city but attacking the surrounding units) defense (ideally as i didn't explicitly implement it as such but i hope they don't get baited anymore at least but anyways etc anyways etc anyways etc)
+ - fixed/enhanced AI promotion choices being sometimes very inefficient such as going for woodsman (useless for city combat and in most tiles) or medic (not effective combat booster, better be stronger and die or win than waste exp with this in this case i mean but anyways etc) which is most likely to be almost always bad, or conditionally most likely to be bad such as not going for city_garrison promotion when a unit has a `UNITAI_CITY_DEFENSE` and vice versa for attack city unitai and city raider promotion, as well as other such cases, or going for counter_archer promotion when unitai is a defensive one (archers are rarely attackers, and if they are our other promotions cna help a bit defend against them, so better go for somethign else for example in such cases anyways etc). I made these changes in `CvUnitAI::AI_promotionValue`, to hopefully better guide which promotions are most likely to be good and tell the AI to go for these, while hopefully preserving versatility, and if we don't have a reason to change it hopefully also preserving base advciv behaviour enough anyways etc. So these are hard rules that apply before any of the old code's promotion value best promotion pondering is made, and then if these rules are successfully passed only then would AI consider as it did before which promotion to choose among the remaining ones to choose from if i may say in this case but anyways etc. For example, if we say that for defenders retreat promotion and city raider promotion and blitzkrieg promotions are bad (be tanky not mobile is the priority anyways etc), and that no always pick first promotion was chosen, then only after passing these checks will remaining promotions (e.g. combat, first strike, etc) be considered/pondered and chosen best from if no best emerged from our hard rules in this case i mean but anyways etc before that anyways etc. See more detailed rules with .md tables and nuances in [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc). As a result of these changes, AI promotions are seemingly much saner, and i believe AI is stronger as a result, while preserving versatility more than enough i would say maybe but anyways etc, see link in this bullet point for details, anyways etc. Note: unitai and unit are different things, so the "longbowman" unit for example could have `UNITAI_CITY_DEFENSE` and act as a defender or `UNITAI_ATTACK_CITY` and act as an enemy city attacker. Our rules would apply differently to the longbowmen depending on its unitai (e.g. as of now allowing city raider on an offensive unitai longbowmen but not on a defensive unitai longbowmen anyways etc), and as of now not on its unit combat type (for the longboman example at least, as this has some exceptions such as of now recon units combat type having its own unit combat type promotion rules with/in our changes but anways etc but they are as of now an exception(s if any more but anyways etc) to this, anyways etc).
+ - addressed and seemingly fixed or greatly enhanced new AI cities being imbalancedly guarded vs stronger ones, often causing early easy barbarian captures of these (e.g. capital city has 4+ units stationned but city B only has 1 unit so easily captured). With the help of chatgpt 5 and of geminia ai 2.5 pro a bit too thanks, i added code to make sure we have at least 2 defenders to our new cities. This seems almost always applied if not always, and thanks to this AI should be a bit stronger, with less early captures, even though some still happen, but our cities are betetr guarded and more evenly at least, with the capital having priority. Note: as of now this is disabled after turn 120 (adjusted to game speed) to save computation, as there are many units, no barbarian threats, and although new cities should still be guarded, perhaps AI can handle it well at that time then now that it has enough units or such or in case it helps with other issues by not persisting to do it in this case i mean but anyways etc. The changes have been done as of now in `CvUnitAI::AI_update`, `CvUnitAI::AI_guardCityMinDefender`, `CvCityAI::AI_minDefenders`. See for details, with screenshots as well but anyways etc, [49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)
++- Tremendously enhanced AI scrapping rules/conditions but anyways etc, by adding pre-checks to make sure we don't scrap useful units, in particular as of now always done for land military units, as well as regardless of that for absolutely all units before turn 150. This helps solve issues of AI scrapping its macemen early just after producing them, which is pointless and very bad for its strength, be it against barbarians or other rivals. As long as economy isn't bankrupt (which we don't try to prevent but didn't happen here so fine as such anyways etc), even a little extra is fine and good to have. Since it didn't seem the case and all worked great, including said AI in this example now surviving and thriving (at least not dying and doing decently well, much better than before when it scrapped its units but anyways etc) but anyways etc. See also handicap changes related to these in this guide as well anyways etc, and see for details with screenshots and more explanations or and such but anyways etc [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)
+ 
+ ### UI / In-game
+ 
+@@ -207,6 +208,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - `Goodies` worker and settler: removed as of now all `GOODY_WORKER` and `GOODY_SETTLER` entries, meaning if i'm not mistaken that now goody huts can't pop a settler or worker almost never, which goes well with me intending them to be playable challenging difficulties as well. These were breaking balance as well, so hopefully these difficulties are more playable now if i may say but anyways etc.
+ - `Goodies` barbarians weak and strong: rebalanced barbarian goodies as well at higher difficulties, so we have more weak ones and less strong ones. I feel this is not where the difficulty/tediousness should be, plus barbarians are stronger in our mod anyway and will spawn more regardless, so no need to make it harder here and annoying/painful so early in the game, but anyways etc.
+ - `Goodies` experience: increase GOODY_EXPERIENCE at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to but anyways etc.
++- Reduced some handicap settings to accomodate for recent AI improvements in our mod. In particular, as for `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`, they are now the same accross all difficulties/handicap settings. This is possible thanks to recent AI improvements in workers, building choices, scrapping issues, better unit choices, etc, see related changes for more info on those. Hopefully thanks to this the game should feel even or more even, with the AI playing competitively or more competitively ideally (else AI would start to be a bit too strong now if i'm not mistaken but anyways etc), anyways etc.
+ 
+ ### Specialists (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+new file mode 100644
+index 000000000..c4d363e65
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -0,0 +1,299 @@
++# Quick Get Started Guide (AdvCiv-SAS)
++
++This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It’s intentionally practical and a bit verbose so newer players can follow the “what changed” and “why it matters.” For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
++
++## Sevopedia AdvCiv-SAS Entries
++
++Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
++
++- New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons) aims to make leader behavior easier to understand. See the section above for images and details.
++
++## Handicap info tables (.csv / .md) and script
++
++To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. See README: Handicap tables for examples and the script that produces them.
++
++## Full code diff (very long)
++
++For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see the compare PR. It’s big; the guide below is the digest.
++
++## Main Changes — quick starter guide
++
++### Translations
++
++- New or changed content in AdvCiv-SAS ships with English text only. If your game language isn’t English, those entries will still appear (in English). Implementation notes are documented at `TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR` in the XML comments.
++
++### Renaming (non-exhaustive)
++
++- “WFYABTA” → “We fear you are trading more than us.” Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
++- Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
++- “Civilopedia” → “Sevopedia.”
++- “Ressource(s)” → “Bonus(es).”
++- Bonus names standardized: Ivory → Elephants; Cow → Cattle; Clam → Molluscs; Wine → Grapes, etc.
++- Terrain/Feature: Ice (Terrain) → Ice Sheet; Ice (Feature) → Ice Cap.
++- “Great wonders” → “World wonders” (functionally the same).
++- Leader names corrected where needed (e.g., Montezuma → Moctezuma II).
++- Taoism → Daoism (with matching building/unit names and encyclopedia text).
++- “Unique units” → “Civilization units” (they aren’t singletons; they’re civ-specific).
++- Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic (“Combat 3”).
++
++### Sevopedia reworks & related UI
++
++- Wider content area, narrower main category column; fills available screen space.
++- Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
++
++### Concepts (currently under “Outdated” category)
++
++- Added informational entries like `concept_rivers`, `concept_route_road`, `concept_route_railroad`. These aren’t kept fully in sync with SAS rules; they’re there as general Civ4 references and for UI reuse. See [README: Concepts](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Concepts.md).
++
++### AI — General behaviour (non-exhaustive; see XML/defines for full detail)
++
++#### General changes (AI)
++
++- Global AI settings lean toward pragmatic, opportunistic play over role-play: religion weight adjustments, lower revolt chance, lower war anger, more willingness to demand tribute and sometimes declare if refused, less inclination to take bad wars (especially multi-front). For specifics, see `Assets/XML/AI_Variables_GlobalDefines.xml`, `AI_Variables_GlobalDefines.xml`, and `BBAI_Game_Options_GlobalDefines.xml` for the exact values you changed.
++
++#### Settlers (AI)
++
++- Avoid settling on bonuses (especially food/metal/high-production/commerce) unless the immediate overall site value clearly justifies it. See [KI#25](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent).
++- **Respect water bonuses:** if a coast bonus would be in BFC but the site is non-coastal, apply a stronger penalty so we don’t “count” unusable sea resources. Penalty moved from **-165 → -400** (K-Mod used ~-800). See [code ref](/CvGameCoreDLL/CitySiteEvaluator.cpp).
++- **Low-food environments** (tundra/plains/desert/snow/peak counted for safety): even without water bonuses, **prefer coastal sites** so the city can actually grow instead of being stuck at very low pop. See [KI#32](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot).
++- **Environment heuristics (non-bonus tiles):** favor sites with lots of grassland/flood plains; penalize plains/desert BFCs. For the tile you settle on, prefer hill-plains/tundra/desert; avoid settling on hill-grass/flood plains unless doing so unlocks a clearly superior multi-bonus BFC. See [KI#26](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---seemingly-fixed-for-the-plot-of-the-settled-city-only-in-general-the-ai-should-aim-to-settle-on-a-hill-and-avoid-settling-on-flatland-grassland-or-flood-plains-where-possible-or-during-the-first-city---city-1-when-there-is-no-good-site-yet-to-take).
++- **Health tolerance:** don’t reject good jungle sites just for early unhealth. Allow a threshold (more strict for capital, looser later), and consider forest health offsets and flood plains exceptions. Jungle can be chopped later; value the site’s potential, not just immediate health. (Threshold examples: ~≤350 “healthpercent” for capitals; ~≤450 for later cities.)
++- **Spacing:** remove old long-distance penalties that forced tight clusters. Cities are evaluated by distance to the nearest city (not the capital), with penalties only for “too close” or “way too far,” strongest early and fading as the empire grows.
++- **Defense/barbarian surroundings:** drop special “avoid barbarians” or “weaker barb cities” site adjustments; choose the best yield sites regardless.
++- **Who builds settlers:** only the **capital** can build settlers, and only at **pop ≥ 5** (unless a city is stuck at low growth, in which case building one can be allowed). This leverages food→hammer conversion efficiently and reduces early barbarian losses from small frontier cities producing settlers.
++- **Free window:** during the first ~75 turns at Normal speed (scaled by game speed), a “free to produce settler” period lets the capital grow before switching into chosen early strategy (offense, defense, etc.).
++- **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse “preferred” site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found...).
++- **Avoid excessively watery capitals:** if fewer than **12** “good starter BFC tiles” (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites...).
++- **Additional tweaks:** value fresh water more (logic refactored/merged), value settling on **hill-plains** much more, and disable legacy “anti-crowd” biases so the choice stays yield-driven.
++
++#### Workers (AI)
++
++- Strongly discourage building **forts on bonuses** (very poor early yield/time trade). See [KI#24](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses...).
++- Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for SAS. See [KI#30](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses...).
++- One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
++- Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**. See [KI#31](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers...).
++- **Overhaul: `AI_bestCityBuild` (full routine):** “holy” improvements (never overwrite: **hamlet, village, town, workshop**) and “semi-holy” (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the “now” move would be inferior. See [KI#33](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild).
++- **Mobility:** workers leave “over-improved” cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b...) and [KI#41](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility...).
++- **Retreat logic:** fix excessive retreat → “parking in city” edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic...).
++
++#### City Plots (AI)
++
++- Fix K-Mod allocation pathologies: starving/stagnant cities no longer choose **+1 hammer** over **+4 food** unworked plots; also value food correctly when **food is production** (settlers/workers). See [KI#34](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation...).
++- If happiness room is **high**, push growth harder: favor food tiles more, deemphasize hammers (unless **food is currently production**). See [KI#40](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2...).
++
++#### Specialists (AI)
++
++- Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`.
++- Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often...).
++
++#### City Production (AI)
++
++- Partial workaround for the **“no production”** stall (cities doing literally nothing for multiple turns). Add a fallback to produce the **cheapest suitable unit** (not civilians). This doesn’t solve all root causes but cuts wasted turns dramatically. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue...).
++
++#### Leaders (AI)
++
++- Adjusted `iBuildUnitProb` for a number of leaders (some up, some down) and also **+10** globally so AIs field more units (they died too often to barbarians, especially with stronger barbarians). See XML for exact numbers.
++- Corrected favorite religions where historical support was weak or inaccurate; scope limited to “favorite religion” for now (see your notes file for sources).
++
++#### Buildings (AI)
++
++- Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
++- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
++
++#### Military (AI)
++
++- Curb **naval overbuild**: in `CvCityAI::AI_bestUnit`, reduce making excess naval combat units (esp. when landlocked or when land war is likely) to prevent getting invaded on land with too few defenders. See **[KI#35](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender)**.
++- Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc)** and **[Civilian Units](#civilian-units)**.
++- Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE`, `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
++- Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps. Goal: fewer wandering/baited units; more decisive stacks.
++- Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See `/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt`.
++- **Barracks**: lower flavor military (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
++- **Stables**: similarly increase `iAIWeight` (e.g., 0 → 75) so they’re pursued when relevant.
++- XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
++- Early **siege**: adjust UnitAIs so early siege doesn’t get baited away from core attack/defense purposes.
++- Promotions logic in `CvUnitAI::AI_promotionValue`: add **hard rules** so AIs pick context-appropriate promotions (e.g., City Garrison for `UNITAI_CITY_DEFENSE`, City Raider for `UNITAI_ATTACK_CITY`; avoid Woodsman/Medic on front-line attackers unless context justifies). Rules apply per **UnitAI** (not just by unit type); with exceptions like recon. See **[KI#47](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)**.
++- New-city **minimum defenders**: ensure new cities are founded/left with **2+ defenders** (priority to capital). Optimization disabled after ~turn 120 (scaled) to save compute once empires stabilize. See **[KI#49](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)**.
++- **Scrapping safeguards**: added pre-checks to stop scrapping **useful units**—**all land military units are protected**, and **no unit can be scrapped before turn 150**. Fixes early “produce then scrap” cases (e.g., macemen) and keeps forces on the map vs. barbarians/rivals (**no economy check**). See **[KI#52](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)**.
++
++### UI / In-game
++
++- Disable colored ring **worker recommendations** (keep city site suggestions). Removes computation and avoids conflicts with the new worker logic. Change in `CvGame::updateColoredPlots`.
++
++### General changes (non-exhaustive; see GlobalDefines/XML)
++
++- **Timeline / Pace**: game starts at **-50 000 BC** on `GAMESPEED_NORMAL`, then accelerates (large early steps, smaller later ones). Other game speeds currently follow base AdvCiv pacing. See *CIV4GameSpeedInfo.xml* and [Tech tree](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md).
++- **Start map behavior**: less “terrain polishing”; more starting **vision** so you can choose a spot rather than forcing ideal tiles.
++- **Slavery**: `HURRY_POPULATION` production increased (**27**). See *CIV4HurryInfo.xml* (`HURRY_POPULATION`).
++- **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See *GlobalDefines_advc.xml*.
++- **We Love the King Day**: restored (present in SAS).
++- **Sea level research multipliers**: narrow the gap: `SEALEVEL_HIGH` **iResearchPercent 87 → 90**, `SEALEVEL_LOW` **117 → 110**. See *CIV4SeaLevelInfo.xml*.
++
++### Handicap i.e. difficulty settings (non-exhaustive)
++
++See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)).
++
++- **No free techs** for AI or human.
++- **Human costs fixed** across difficulties for tech/unit (`iResearchPercent`, `iTrainPercent` stay constant for the human). AI equivalents scale with difficulty.
++- **Unit maintenance** (`iUnitCostPercent`, `iAIUnitCostPercent`) aligned across difficulties for fairness; difficulty tuned through other params.
++- **No delayed starts**: `INCREASE_START_TURN` disabled; all difficulties start on **turn 0**.
++- **AI worker speed**: `iAIWorkRateModifier` **0** on all difficulties.
++- **AI starting workers**: `iAIStartingWorkerUnits` **0** on all difficulties.
++- **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high difficulties); increase **experience** rewards at higher difficulties.
++- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info).
++
++### Specialists (non-exhaustive)
++
++- **Citizen**: now **+1 hammer, +1 commerce** (was +1 hammer). See Sevopedia/XML.
++- **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
++- **Engineer**: now **+1 hammer** (total **+3 hammers**).
++
++### Terrains / Features (non-exhaustive)
++
++- Overall: **snow**, **desert**, and **water** tiles strengthened via bonus/building changes (see Bonus/Buildings sections).
++- **Floodplains persist after raze** (city destruction doesn’t remove them).
++- **Recon units** (ground) can move through **all terrains** (`bCanMoveImpassable`) and **ignore terrain movement costs**; air recon (e.g., **airship**) can move across all terrains (`bCanMoveAllTerrain`), including peaks/water.
++- **Movement restrictions** (outside cultural borders): some units (e.g., **chariots**, some **siege**) can’t move in **forest/jungle**; mounted melee/ranged receive **forest/jungle** combat penalties (ranged limited to defense penalty). See Sevopedia entries for per‑unit modifiers.
++- **Feature: Jungle** rework: remove the food penalty (**no food malus**), increase unhealth to `iHealthPercent` **-50**, set feature defense `iDefense` **-25** (still +25% rival defense in features → net 0 in jungle). **Remove jungle** now yields **+20 hammers**.
++- **Feature: Fallout** `iHealthPercent` **-50 → -75**.
++- **Feature: Flood Plains** `iHealthPercent` **-40 → -50**.
++- **Terrain: Tundra** base yield adds **+1 commerce**.
++
++### Bonus (non-exhaustive)
++
++- **Wine → Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
++- **AI objective** emphasis for key strategic bonuses: Iron, Horse, Aluminum (`<iAIObjective>10</iAIObjective>`).
++- **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
++- **Camel** replaces Hit Movies; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).
++- **Spawn tweaks**: water bonuses more frequent (Fish/Molluscs); **Whales** can also spawn on **coast**; **Horses** removed from **tundra**; many bonuses shifted slightly toward **map edges**; overall frequencies/yields rebalanced (e.g., **Deer** stronger and more common as core tundra food).
++- **Gemstones** can spawn on **flood plains**/flatlands; no longer on **hills**. See Sevopedia/XML.
++
++### Improvements and worker builds (non-exhaustive)
++
++- **Tech prereqs** adjusted (e.g., **Quarry** earlier; **Remove Forest** and **Remove Jungle** available together and earlier).
++- **Farms without irrigation** unlock at **Engineering**.
++- **Worker cost reduced** (see XML for exact value).
++- **Workboats** now require a **Harbor** (first/cheapest water building) to be built; cost reduced to compensate. A city with a Harbor can build boats for other cities.
++- **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
++- **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
++
++### Technologies (non-exhaustive)
++
++- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base.
++- Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
++- Many techs flagged **“Cannot be traded.”** New UI strings added to Sevopedia Tech (Special Abilities) and Tech Advisor to display this. See *Modding_Ressources/README* entry.
++- **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See *GlobalDefines_advc.xml*.
++- **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
++- **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
++
++### Eras
++
++- **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML.
++- **Era info** is shown in Sevopedia Tech entries (eras themselves don’t alter rules in SAS).
++
++### Civilizations (non-exhaustive)
++
++- New civs added (e.g., **Kingdom of Benin**). See [World map with civs](/README.md#world-map-with-civs).
++
++### Leaders (non-exhaustive)
++
++- Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer).
++
++### Barbarians (non-exhaustive)
++
++- Barbarians are **economically stronger** early and grow closer to normal AIs until midgame, then fade. They spawn cities more often and can fill unsettled areas more realistically. Early versions were too strong (map-wide conquest in Emperor autoplay); they’re toned down.
++- Combat bonuses **against** barbarians are reduced/removed in a difficulty-scaled way (never a reverse bonus **to** barbarians). They choose targets more carefully and **raze** cities more often than base AdvCiv/Civ4. See Sevopedia and XML (e.g., `CIV4CivilizationInfos.xml`, building/handicap XML) and the SAS handicap comparison tables.
++- Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).  
++- Barbarian **workboat** is civ-specific mainly for cost/balance.  
++- Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s). See Sevopedia for the new button source credit.
++
++### Traits (non-exhaustive)
++
++- Several traits reworked. Weaker ones are buffed/modified; some previously OP ones are adjusted. Example: **Protective** is stronger; **Industrious** shifts away from “wonders faster” toward **worker/production-oriented** effects (elements formerly in Expansive). See in-game Sevopedia → Traits for current effects (+x culture / +x hammer / +x commerce as listed there).
++
++### Civics (non-exhaustive)
++
++- Some civics reworked/rebalanced (e.g., **Representation** earlier in SAS and with adjusted effects).
++- Some civics moved on the tech tree for history/balance/variety. **Slavery** is now at **Agriculture** (earlier), which weakens the **Bronze Working** beeline and opens non-military paths.
++
++### Buildings (non-exhaustive)
++
++- **Granary:** cheaper, slightly weaker food retention. Civ-specific granaries unchanged (so their relative advantage increases).
++
++- **Water building line reworked/buffed:**
++  - **Harbor** (first water building): health/food oriented.
++  - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
++  - **Port (new):** production oriented (**+x hammer** from worked tiles where applicable).
++  - **Moai Statues:** world wonder with broader water synergy; somewhat stronger overall.
++  - **Customs House:** buffed.  
++  *(Goal: make water tiles more viable while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*
++
++- Fewer **national** wonders and relatively more **world** wonders.
++- **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
++- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**) because:
++  - `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced** (world: mostly removed; national: mostly reduced). Example: **Parthenon** is now **+25% with Marble** (was +100%).
++- Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
++- **Iron Works:** now requires **both Coal and Iron** empire-wide; city requirement count lowered; cost up moderately (e.g., **700 → 800**) so timing/placement matter more.
++- Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact).
++- Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
++- Science buildings’ **culture** trimmed (e.g., **Library +2 culture → +1 culture**); similar trims on a few non-purely-cultural national wonders (**Heroic/National Epic, Forbidden Palace**).
++- **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
++
++### Culture
++
++- **Great Artist** rework: instant culture bomb **reduced** (e.g., **700 → 500** per era), culture **per turn increased** (e.g., **12 → 18** culture/turn). This strengthens long-term culture play while toning down early spikes.
++
++### Religions (non-exhaustive)
++
++- **Paganism** added, **Confucianism** removed (fewer total religions, earlier conflicts slightly more likely, arguably more historical). **Judaism** stays as early representative of monotheism in Civ’s roster.
++- **Missionaries:** significantly **cheaper**.
++- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer).
++- **Shrines** now **require their religion in the city and the religion’s tech** (so they appear in the tech tree and can’t be built just by conquest). See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion) and [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree).
++- **Note on leader preferences:** a leader may **prefer** a religion without adopting it (role-play nuance; see your notes linked from the KI entries).
++
++### Corporations (non-exhaustive)
++
++- **Executives:** significantly **cheaper**.
++- Each corporation now uses **one distinct Great Person** type (no overlaps).
++
++### Civilian Units
++
++- `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
++- **Settler** is a **national unit (1 max)** per empire. This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently...).
++
++### Military & related units (non-exhaustive)
++
++- **Unit Combat Types** expanded/refined (e.g., archers split into short/long/crossbow; mounted split into mounted-melee vs mounted-ranged). Lets counters be more specific (e.g., pikes vs mounted-melee but not vs mounted-ranged). Some civ UUs shift types accordingly (e.g., **Ballista Elephant** is mounted-ranged while **War Elephant** is mounted-melee). **Airship** becomes **Recon** (no longer sees subs; later recon can).
++- **Reassignments:** e.g., **Mechanized Infantry** counts as **Armored** (not “Gun”) for counter logic.
++- **City defenses** affect all units, including gunpowder and later. See `bIgnoreBuildingDefense` in `CIV4UnitInfos.xml`.
++- **Collateral** values normalized (fixed cases like **Stealth Bomber** having higher base collateral than its limit). Most units now show a **collateral damage limit** (starting at 0 for many). **Collateral promotions 1/2** are broadly available where eligible. Info shown in Sevopedia (Unit chart/Special Abilities) and unit hover panels.
++- **Build timing** tweaks for some units for historical pacing; see Tech Tree.
++- **Warrior / “Ancient Maceman”** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
++- **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability). Players still start with **Ancient Macemen** only (no early Archers).
++- **Barracks** now require **Hunting**.
++- **Explorer-class** units can **attack**, but with low strength.
++- Units more **versatile:** e.g., Swords defend better; Archers can attack more credibly.
++- **Naval/animal** units broadly rebalanced; see XML for details.
++- **Promotions retuned:**
++  - Some buffed (e.g., **Woodsman**), some nerfed, some prereqs changed (e.g., **Archers** can take **City Bombard**; **Logistics** (formerly Commando) requires **Combat 1** or **City Raider 1**; higher-tier promotions (**City Raider/Garrison/First Strike 3**) also need **Combat 2**).
++  - **Logistics** now at **The Wheel** (was Military Science).
++  - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
++- **Unit redesigns:**
++  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**).
++  - **Air** unit costs generally increased.
++- **Upgrade paths** simplified and made more sensible:
++  - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
++  - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
++  - **Longbows/Crossbows/Macemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
++  - **Cavalry → Tanks** now.
++- **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
++- `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
++- **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
++- **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
++- **Costs:** some late/mechanical/robotic units have **no support cost**; **Privateer** now **has support** (was free).
++- **Stealth** removed where it didn’t make sense (kept for subs, spies, stealth bombers).
++- **Caravel** removed (privileged border passing felt wrong); shift that niche to **Privateer** (buffed) and streamline the era’s naval roster.
++- **Nuclear Submarine** removed (under-impactful relative to complexity).
++
++## Fixes
++
++See [Known issues / fixes](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc) for the indexed list and links to before/after notes and screenshots.
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=103167

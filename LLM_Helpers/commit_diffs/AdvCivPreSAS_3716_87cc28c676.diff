@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3716
+# Commit: 87cc28c676ef45e4be289326ffb4865229d3158d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d20c96971da7dcc4e56b36da7500ffba8ae63704
+# Title: Fractal maps: choose smarter internal dimensions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	5	Assets/Python/CvMapGeneratorUtil.py
+29	11	CvGameCoreDLL/CvFractal.cpp
+19	14	CvGameCoreDLL/CvFractal.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index e167e3956..63c27c894 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -81,8 +81,15 @@ class ExplicitFractal:
+ 
+ 
+ class FractalWorld:
+-	def __init__(self, fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP,
+-				 fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
++	def __init__(self,
++				 # <advc.137> Don't use those defaults b/c they're hardcoded in the EXE
++				 # (as 7 and 6 respectively).
++				 # Instead, let the DLL decide. Note that Oasis and RandomScriptMap
++				 # still use the EXE's defaults. Well, the DLL will check for those
++				 # defaults and may overwrite them, so it doesn't ultimately matter.
++				 fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
++				 fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
++				 # </advc.137>
+ 		self.gc = CyGlobalContext()
+ 		self.map = self.gc.getMap()
+ 		self.iNumPlotsX = self.map.getGridWidth()
+@@ -315,8 +322,11 @@ class FractalWorld:
+ cardinal_directions = (1,0), (0,1), (-1,0), (0, -1)
+ 	
+ class HintedWorld(FractalWorld):
+-	def __init__(self, w=16, h=8, fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP, 
++	def __init__(self, w=16, h=8,
++				 # advc.137 (note): Changing these to -1 would break Inland_Sea
++				 fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP,
+ 				 fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
++				 # </advc.137>
+ 		FractalWorld.__init__(self, fracXExp, fracYExp)
+ 		
+ 		self.plotsPerBlockX = self.iNumPlotsX/w
+@@ -731,8 +741,11 @@ controlling function and must be customized for each applicable map script.
+ # Use GeneratePlotsByRegion to organize your fractal layers.
+ 
+ class MultilayeredFractal:
+-	def __init__(self, fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP, 
+-				 fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
++	def __init__(self,
++				 # <advc.137>
++				 fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
++				 fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
++				 # </advc.137>
+ 		self.gc = CyGlobalContext()
+ 		self.map = self.gc.getMap()
+ 		self.iW = self.map.getGridWidth()
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index 2cd31e2e9..9734f9c3f 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -2,7 +2,7 @@
+ #include "CvFractal.h"
+ 
+ 
+-#define FLOAT_PRECISION		(1000)
++#define FLOAT_PRECISION 1024 // advc.opt: was 1000
+ 
+ 
+ CvFractal::CvFractal()
+@@ -47,15 +47,15 @@ void CvFractal::fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
+ 			(Flags)iFlags, pRifts, iFracXExp, iFracYExp);
+ }
+ 
+-// pbyHints should be a 1d array of bytes representing a 2d array
+-//	with width = 2^(iFracXExp - minExp + iGrain) + (GC.getMap().isWrapX() ? 0 : 1)
+-//	and height = 2^(iFracYExp - minExp + iGrain) + (GC.getMap().isWrapY() ? 0 : 1)
+-// where minExp = std::min(iFracXExp, iFracYExp)
+-// Note above that an extra value is required in a dimension in which the map does not wrap.
+-
++/*	pbyHints should be a 1d array of bytes representing a 2d array
++	with width = 2^(iFracXExp - minExp + iGrain) + (GC.getMap().isWrapX() ? 0 : 1)
++	and height = 2^(iFracYExp - minExp + iGrain) + (GC.getMap().isWrapY() ? 0 : 1)
++	where minExp = std::min(iFracXExp, iFracYExp)
++	Note above that an extra value is required in a dimension
++	in which the map does not wrap. */
+ void CvFractal::fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
+ 	byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts,
+-	int iFracXExp/*=7*/, int iFracYExp/*=6*/)
++	int iFracXExp, int iFracYExp)
+ {
+ 	Flags eFlagsNonPolar = ((Flags)iFlags) & (~FRAC_POLAR);
+ 	fracInitInternal(iNewXs, iNewYs, iGrain, random, pbyHints, iHintsLength,
+@@ -70,11 +70,29 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
+ 
+ 	reset();
+ 
+-	if (iFracXExp < 0)
++	bool bDefaultInternalDims = true; // advc.137
++	if (iFracXExp < 0 /* advc.137: */ || iFracXExp == DEFAULT_FRAC_X_EXP)
+ 		iFracXExp = DEFAULT_FRAC_X_EXP;
+-	if (iFracYExp < 0)
++	else bDefaultInternalDims = false; // advc.137
++	if (iFracYExp < 0 /* advc.137: */ || iFracYExp == DEFAULT_FRAC_Y_EXP)
+ 		iFracYExp = DEFAULT_FRAC_Y_EXP;
+-
++	else bDefaultInternalDims = false; // advc.137
++	/*	iFracXExp should be 8 or less
++		iFracYExp should be one less than iFracXExp for Civ3 worlds */
++	// <advc.137> I think this should depend on the ratio of iNewXs to iNewYs
++	if (bDefaultInternalDims && 2 * iNewXs < 3 * iNewYs && pbyHints == NULL)
++	{
++		iFracYExp++;
++		if (2 * iNewXs < iNewYs)
++			iFracXExp--;
++		// Akin to what RandomScriptMap's R_MultilayeredFractal does
++		if (iNewXs >= 90 && iNewYs >= 70)
++		{
++			iFracXExp++;
++			iFracYExp++;
++		}
++		FAssert(iFracXExp <= 8 && iFracYExp <= 8 && abs(iFracXExp - iFracYExp) <= 1);
++	} // </advc.137>
+ 	m_iFracXExp = iFracXExp;
+ 	m_iFracYExp = iFracYExp;
+ 	m_iFracX = 1 << iFracXExp;
+
+diff --git a/CvGameCoreDLL/CvFractal.h b/CvGameCoreDLL/CvFractal.h
+index 6e9762c21..6ec7ae614 100644
+--- a/CvGameCoreDLL/CvFractal.h
++++ b/CvGameCoreDLL/CvFractal.h
+@@ -27,20 +27,25 @@ public:
+ 		// <avdc.enum> Move ..._EXP out and give the enum bitwise operators (see end of file)
+ 	};
+ 	static int const DEFAULT_FRAC_X_EXP = 7;
+-	static int const DEFAULT_FRAC_Y_EXP = 6; // </advc.enum>
+-
+-	//  Smoothness varies with 2^grain.
+-	//  Totally random is grain = min (iFracXExp, iFracYExp).
+-	//  As smooth as possible is grain = 0;
+-
+-	// iFracXExp should be 8 or less
+-	// iFracYExp should be one less than iFracXExp for Civ3 worlds
+-
+-	DllExport void fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random, int iFlags, CvFractal* pRifts=NULL, int iFracXExp=DEFAULT_FRAC_X_EXP, int iFracYExp=DEFAULT_FRAC_Y_EXP);	// Exposed to Python
+-	DllExport void fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& random, byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts, int iFracXExp=DEFAULT_FRAC_X_EXP, int iFracYExp=DEFAULT_FRAC_Y_EXP); // Exposed to Python
+-
+-	DllExport int getHeight(int x, int y);																					// Exposed to Python
+-	DllExport int getHeightFromPercent(int iPercent);																			// Exposed to Python
++	static int const DEFAULT_FRAC_Y_EXP = 6;
++	// </advc.enum>
++
++	/*	Smoothness varies with 2^grain.
++		Totally random is grain=min{iFracXExp,iFracYExp}.
++		As smooth as possible is grain=0. */
++	DllExport void fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random,		// Exposed to Python
++			int iFlags, CvFractal* pRifts=NULL,
++			// <advc.137> Let fracInitInternal work this out
++			int iFracXExp = /*DEFAULT_FRAC_X_EXP*/-1,
++			int iFracYExp = /*DEFAULT_FRAC_Y_EXP*/-1); // </advc.137>
++	DllExport void fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& random,	// Exposed to Python
++			byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts,
++			// <advc.137>
++			int iFracXExp = /*DEFAULT_FRAC_X_EXP*/-1,
++			int iFracYExp = /*DEFAULT_FRAC_Y_EXP*/-1); // </advc.137>
++
++	DllExport int getHeight(int x, int y);												// Exposed to Python
++	DllExport int getHeightFromPercent(int iPercent);									// Exposed to Python
+ 
+ 	void reset();
+ 	DllExport CvFractal();
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7137

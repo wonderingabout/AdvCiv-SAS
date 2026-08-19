@@ -1,0 +1,276 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5667
+# Commit: af7f9f3532ebe2e3920b6002a8e688987a4cd7c3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: be1f2fad485ce99e03f19cbd7735916b009b7395
+# Title: avoid scoreboard vertical overflow, and add +/- scroll buttons
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	Assets/Python/BUG/Scoreboard.py
+110	31	Assets/Python/Screens/CvMainInterface.py
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index ebe8bd8ee..68cb13998 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -450,7 +450,7 @@ class Scoreboard:
+ 
+ 	
+ 		
+-	def draw(self, screen):
++	def draw(self, screen, iScrollOffset=0, iMaxRows=None):
+ 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
+ 		#
+ 		timer = BugUtil.Timer("scores")
+@@ -458,6 +458,10 @@ class Scoreboard:
+ 		self.assignRanks()
+ 		self.gatherVassals()
+ 		self.sort()
++		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
++		if iMaxRows is not None:
++			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))
++			self._playerScores = self._playerScores[iScrollOffset : iScrollOffset + iMaxRows]
+ 		# <advc.092> "Default" choices added
+ 		bScaleHUD = BugCore.game.MainInterface.isEnlargeHUD()
+ 		if ScoreOpt.isRowHeightDefault():
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 9a46194f3..7d8a9eebd 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -669,6 +669,8 @@ class CvMainInterface:
+ 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
+ 		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
+ 		self.bSASLastCommerceRectsCityScreen = None
++		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
++		self.iScoreScrollOffset = 0
+ 
+ 
+ 
+@@ -964,6 +966,10 @@ class CvMainInterface:
+ 		gSetSquare("TurnLogButton", "Top",
+ 				iTurnLogBtnMargin, gRect("AdvisorButtons").y() - 1,
+ 				gRect("AdvisorButtons").height())
++		# <!-- custom: score-scroll button placeholder rects; actual position is set at runtime in updateScoreStrings via moveItem because GlobeToggle.y() is still 0 at init time. (Claude code Sonnet 4.6) -->
++		iSScrollBtnSz = BTNSZ(20)
++		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		if self.bScaleHUD:
+ 			# To make room for the Turn Log, whose (default) position I can't change.
+ 			gRect("TurnLogButton").move(6, -3)
+@@ -2350,6 +2356,13 @@ class CvMainInterface:
+ 		self.addStackedBar("NationalityBar", WidgetTypes.WIDGET_HELP_NATIONALITY)
+ 		screen.hide("NationalityBar")
+ 
++		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
++		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS,
++				WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.hide("ScoreScrollUp")
++		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS,
++				WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.hide("ScoreScrollDown")
+ 		self.setStyledButton("CityScrollMinus", ButtonStyles.BUTTON_STYLE_ARROW_LEFT,
+ 				WidgetTypes.WIDGET_CITY_SCROLL, -1)
+ 		screen.hide("CityScrollMinus")
+@@ -7159,13 +7172,14 @@ class CvMainInterface:
+ 	# with BUG code from Scoreboard.draw.
+ 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
+ 		iRMargin = gRect("Top").xRight() - gPoint("ScoreTextLowerRight").x()
+-		iBMargin = gRect("GlobeToggle").y() - gPoint("ScoreTextLowerRight").y()
+-		# These are bigger inner margins than I thought should be needed. Strange.
++		# <!-- custom: fixed symmetric panel margin matching original (3*iBMargin/2 with iBMargin=VSPACE(6)) so text is always centered; no longer derived from iBMargin which blows up when iScoreBottom moves. (Claude code Sonnet 4.6) -->
++		iSidePad = VSPACE(9)
++		iScoreBottomY = gPoint("ScoreTextLowerRight").y()
+ 		self.screen.setPanelSize("ScoreBackground",
+ 				gRect("Top").xRight() - iTextWidth - 2 * iRMargin,
+-				gRect("GlobeToggle").y() - iTextHeight - (5 * iBMargin) / 2,
++				iScoreBottomY - iTextHeight - iSidePad,
+ 				iTextWidth + (7 * iRMargin) / 4,
+-				iTextHeight + 3 * iBMargin)
++				iTextHeight + 2 * iSidePad)
+ 
+ 	def updateScoreStrings(self, bOnlyBackgr = False): # advc.004z: new param
+ 		screen = self.screen
+@@ -7173,6 +7187,8 @@ class CvMainInterface:
+ 		if not bOnlyBackgr:
+ 			self.hideScoreStrings() # </advc.004z>
+ 		screen.hide("ScoreBackground")
++		screen.hide("ScoreScrollUp")
++		screen.hide("ScoreScrollDown")
+ 		eUIVis = CyInterface().getShowInterface()
+ 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or
+ 				eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
+@@ -7194,9 +7210,20 @@ class CvMainInterface:
+ 		iCount = 0
+ 		iBtnHeight = VLEN(22)
+ 		# <advc.092> The Scoreboard module will use this too
++		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. (Claude code Sonnet 4.6) -->
++		# <!-- custom: buttons sit just above GlobeToggle; iScoreBottom is panel text-bottom = buttons_y - gap - iSidePad, so panel is exactly symmetric (9px each side) matching original. (Claude code Sonnet 4.6) -->
++		iSScrollBtnSz = gRect("ScoreScrollUp").width()
++		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz  # buttons flush above GlobeToggle
++		iScoreBottom = iSScrollY - VSPACE(2) - VSPACE(9)  # 2px gap + 9px panel bottom margin
+ 		gSetPoint("ScoreTextLowerRight", PointLayout(
+ 				gRect("MiniMap").xRight(),
+-				gRect("GlobeToggle").y() - VSPACE(6))) # </advc.092>
++				iScoreBottom)) # </advc.092>
++		iScoreTopMin = gRect("AdvisorButtons").yBottom()
++		iAvailH = iScoreBottom - iScoreTopMin
++		iMaxRows = max(1, iAvailH // iBtnHeight)
++		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
++		screen.moveItem("ScoreScrollUp", gPoint("ScoreTextLowerRight").x() - 2 * iSScrollBtnSz - HSPACE(1), iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDown", gPoint("ScoreTextLowerRight").x() - iSScrollBtnSz, iSScrollY, -0.3)
+ # BUG - Align Icons - start
+ 		bAlignIcons = ScoreOpt.isAlignIcons()
+ 		if bAlignIcons:
+@@ -7234,38 +7261,81 @@ class CvMainInterface:
+ 						szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
+ # BUG - Align Icons - start
+ 						if not bAlignIcons:
+-							if CyInterface().determineWidth(szBuffer) > iWidth:
+-								iWidth = CyInterface().determineWidth(szBuffer)
+-							szName = "ScoreText" + str(ePlayer)
+-# BUG - Dead Civs - start
+-							# Don't try to contact dead civs
+-							if gc.getPlayer(ePlayer).isAlive():
+-								iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
+-								eContactPlayer = ePlayer
+-							else:
+-								iWidgetType = WidgetTypes.WIDGET_GENERAL
+-								eContactPlayer = -1
+-							yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
+-							screen.setText(szName, "Background",
+-									szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
+-									gPoint("ScoreTextLowerRight").x(),
+-									yCoord - iCount * iBtnHeight,
+-									-0.3, FontTypes.SMALL_FONT,
+-									iWidgetType, eContactPlayer, -1)
+-# BUG - Dead Civs - end
+-							screen.show(szName)
+-							CyInterface().checkFlashReset(ePlayer)
+ 							iCount += 1
+ # BUG - Align Icons - end
+ 					j = j - 1
+ 			i = i - 1
+-
+-# BUG - Align Icons - start
+-		if bAlignIcons:
+-			scores.draw(screen)
+-		else:
++		# <!-- custom: for the non-BUG path, iTotalCount is now in iCount; reset iCount for the drawing pass below. -->
++		if not bAlignIcons:
++			iTotalCount = iCount
++			iCount = 0
++			# Clamp scroll offset
++			if iTotalCount <= iMaxRows:
++				self.iScoreScrollOffset = 0
++			else:
++				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
++			# Second pass: draw only the visible window
++			i = gc.getMAX_CIV_TEAMS() - 1
++			iValidIdx = 0
++			while i > -1:
++				eTeam = gc.getGame().getRankTeam(i)
++				if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
++					j = gc.getMAX_CIV_PLAYERS() - 1
++					while j > -1:
++						ePlayer = gc.getGame().getRankPlayer(j)
++						if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
++								gc.getPlayer(ePlayer).getTeam() == eTeam):
++							if iValidIdx >= self.iScoreScrollOffset and iValidIdx < self.iScoreScrollOffset + iMaxRows:
++								szBuffer = SAS_FONT_TAG_LABEL
++								szBuffer += self.playerScoreString(ePlayer, None, False)
++								szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
++								if CyInterface().determineWidth(szBuffer) > iWidth:
++									iWidth = CyInterface().determineWidth(szBuffer)
++								szName = "ScoreText" + str(ePlayer)
++# BUG - Dead Civs - start
++								if gc.getPlayer(ePlayer).isAlive():
++									iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
++									eContactPlayer = ePlayer
++								else:
++									iWidgetType = WidgetTypes.WIDGET_GENERAL
++									eContactPlayer = -1
++								yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
++								screen.setText(szName, "Background",
++										szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
++										gPoint("ScoreTextLowerRight").x(),
++										yCoord - iCount * iBtnHeight,
++										-0.3, FontTypes.SMALL_FONT,
++										iWidgetType, eContactPlayer, -1)
++# BUG - Dead Civs - end
++								screen.show(szName)
++								CyInterface().checkFlashReset(ePlayer)
++								iCount += 1
++							iValidIdx += 1
++						j = j - 1
++				i = i - 1
+ 			self.updateScoreBackgrSize(iWidth, iBtnHeight * iCount) # advc.092
++			iTotalCount = iValidIdx  # actual total (may differ from pre-count if filters changed)
++		else:
++			# BUG aligned path: let Scoreboard.draw handle slicing
++			if scores is not None:
++				iTotalCount = len(scores._playerScores)
++			else:
++				iTotalCount = 0
++			# Clamp scroll offset against the pre-sort count (sort may truncate via maxPlayers)
++			# draw() will re-clamp after sort; this is a best-effort pre-clamp.
++			if iTotalCount <= iMaxRows:
++				self.iScoreScrollOffset = 0
++			else:
++				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
++# BUG - Align Icons - start
++			scores.draw(screen, self.iScoreScrollOffset, iMaxRows)
+ # BUG - Align Icons - end
++		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
++		if iTotalCount > iMaxRows:
++			if self.iScoreScrollOffset < iTotalCount - iMaxRows:
++				screen.show("ScoreScrollUp")
++			if self.iScoreScrollOffset > 0:
++				screen.show("ScoreScrollDown")
+ 
+ 	# <advc> Body cut from updateScoreStrings in order to reduce indentation
+ 	def playerScoreString(self, ePlayer, scores, bAlignIcons):
+@@ -8008,6 +8078,15 @@ class CvMainInterface:
+ 						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
+ 					self.iCityBuildBarPinnedRow += 1
+ 					return 0
++				# <!-- custom: score scroll buttons; + scrolls down (more lower-ranked), - scrolls back up (toward rank 1). (Claude code Sonnet 4.6) -->
++				elif fn == "ScoreScrollUp":
++					self.iScoreScrollOffset += 1
++					self.updateScoreStrings()
++					return 1
++				elif fn == "ScoreScrollDown":
++					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
++					self.updateScoreStrings()
++					return 1
+ 				elif fn.startswith("BuildFilter"):
+ 					iNewFilter = inputClass.getData1()
+ 					if iNewFilter != self.iBuildingFilter:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4cbef7a1f..d1b4ecefc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -350,6 +350,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
++- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) buttons scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ 
+ ### General changes
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=16468

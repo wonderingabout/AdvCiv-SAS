@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4712
+# Commit: 6985294c5d36ce852d81a50a20a530e152399106
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e5ede647e18a4fa2ef725572d22e05ceb7368de8
+# Title: rename "0_BtS Rules Changes" to "0_BtS Rules Changes (Outdated)" it is outdated anyway (so) better make it clear(er) to the user at least for civ4 i mean. Bu...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+9	1	Assets/XML/Text/CIV4GameText_Custom.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index ed36011ce..e79e24067 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -64,7 +64,11 @@ AI_HEADER_ATTITUDE_MODIFIERS = "Attitude Modifiers"
+ AI_HEADER_TRADE_THRESHOLDS = "Trade Thresholds"
+ 
+ 
+-
++# <!-- custom: at which index we skip line in the AI_HEADER_AGGREGATES category,
++# between its subcategories, for example afetr the 6th element power tracker
++# currently we would skip lines here before displaying Peaceful in the next
++# category, for visual clarity
++# -->
+ AI_AGGREGATE_CATEGORY_BREAKS = [6, 13]
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index b576918d7..e1d57a286 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -5,12 +5,20 @@
+ 	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
+ 	<!-- custom: the other conceptinfo entries have been moved to file
+ 	with similar filename than in civ4 bts -->
++
++
++
++	<!-- custom: rename "BtS Rules Changes" to
++	"0_BtS Rules Changes (Outdated)", really important to not confuse the
++	user/player about how this data is unrelated to us, but they may still
++	want to access it, espcially if they ar ein knowledge of that/aware of
++	that, as they prefer maybe or not etc but etc anyways" -->
+ 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
+ 		 names can be displayed despite the increased font size.
+ 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
+-		<English>0_BtS Rules Changes</English>
++		<English>0_BtS Rules Changes (Outdated)</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1895

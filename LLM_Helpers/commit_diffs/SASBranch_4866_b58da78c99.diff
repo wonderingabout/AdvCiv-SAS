@@ -1,0 +1,1394 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4866
+# Commit: b58da78c9943ed2ab99e87f57d1685b98655a0ec
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d4e9766e553e995fd6e2e4408478813e8d8d0ee3
+# Title: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED, update the button of some unit combat types (import from other mods directly or manually if i may...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds
+-	-	Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds
+-	-	Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds
+-	-	Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds
+12	3	Assets/Config/Unit Naming.xml
+-	-	Assets/CvGameCoreDLL.dll
+8	3	Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
+23	5	Assets/Python/CvAdvisorUtils.py
+17	5	Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+10	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+10	2	Assets/XML/Events/CIV4EventInfos.xml
+47	36	Assets/XML/Text/BUG_Unit Naming Options.xml
+24	0	Assets/XML/Text/CIV4GameText_Custom.xml
+12	0	Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+5	1	Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+99	43	Assets/XML/Units/CIV4PromotionInfos.xml
+112	46	Assets/XML/Units/CIV4UnitInfos.xml
+2	1	CvGameCoreDLL/CvEnums.h
+9	5	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CyEnumsInterface.cpp
+1	0	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds
+new file mode 100644
+index 000000000..b2cfd0113
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds
+new file mode 100644
+index 000000000..f66c5be4a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds
+new file mode 100644
+index 000000000..e7b7ac026
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds
+new file mode 100644
+index 000000000..002904577
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds differ
+
+diff --git a/Assets/Config/Unit Naming.xml b/Assets/Config/Unit Naming.xml
+index ea39d6210..8578399fa 100644
+--- a/Assets/Config/Unit Naming.xml	
++++ b/Assets/Config/Unit Naming.xml	
+@@ -5,6 +5,7 @@
+ 
+ 	Copyright (c) 2008 The BUG Mod.
+ -->
++<!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
+ <mod id="UnitNaming" 
+ 	 name="Unit Naming" 
+ 	 author="Ruff_Hi" 
+@@ -24,9 +25,15 @@
+ 
+ 			<option id="Combat_None" key="CombatNone" 
+ 					type="string" default="DEFAULT"/>
+-			<option id="Combat_AIR" key="CombatAIR" 
++			<option id="Combat_AIR_BOMBER" key="CombatAIRBOMBER" 
+ 					type="string" default="DEFAULT"/>
+-			<option id="Combat_ARCHER" key="CombatARCHER" 
++			<option id="Combat_AIR_FIGHTER" key="CombatAIRFIGHTER" 
++					type="string" default="DEFAULT"/>
++			<option id="Combat_ARCHER_BOW_SHORT" key="CombatARCHERBOWSHORT" 
++					type="string" default="DEFAULT"/>
++			<option id="Combat_ARCHER_BOW_LONG" key="CombatARCHERBOWLONG" 
++					type="string" default="DEFAULT"/>
++			<option id="Combat_ARCHER_CROSSBOW" key="CombatARCHERCROSSBOW" 
+ 					type="string" default="DEFAULT"/>
+ 			<option id="Combat_ARMOR" key="CombatARMOR" 
+ 					type="string" default="DEFAULT"/>
+@@ -36,7 +43,9 @@
+ 					type="string" default="DEFAULT"/>
+ 			<option id="Combat_MELEE" key="CombatMELEE" 
+ 					type="string" default="DEFAULT"/>
+-			<option id="Combat_MOUNTED" key="CombatMOUNTED" 
++			<option id="Combat_MOUNTED_MELEE" key="CombatMOUNTEDMELEE" 
++					type="string" default="DEFAULT"/>
++			<option id="Combat_MOUNTED_RANGED" key="CombatMOUNTEDRANGED" 
+ 					type="string" default="DEFAULT"/>
+ 			<option id="Combat_NAVAL" key="CombatNAVAL" 
+ 					type="string" default="DEFAULT"/>
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py b/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
+index 54e3532c6..1ea9f869d 100644
+--- a/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py
+@@ -25,15 +25,20 @@ class BugUnitNameOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		#self.addCheckbox(screen, center, "MiscHover__UpdateUnitNameOnUpgrade")
+ 		self.addCheckbox(screen, right, "UnitNaming__UseAdvanced")
+ 
++		# <!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
+ 		columnL, columnR = self.addTwoColumnLayout(screen, column, "UnitNaming")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Default")
+-		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_AIR")
+-		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_ARCHER")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_AIR_BOMBER")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_AIR_FIGHTER")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_ARCHER_BOW_SHORT")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_ARCHER_BOW_LONG")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_ARCHER_CROSSBOW")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_ARMOR")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_GUN")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_HELICOPTER")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_MELEE")
+-		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_MOUNTED")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_MOUNTED_MELEE")
++		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_MOUNTED_RANGED")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_NAVAL")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_None")
+ 		self.addTextEdit(screen, columnL, columnR, "UnitNaming__Combat_RECON")
+
+diff --git a/Assets/Python/CvAdvisorUtils.py b/Assets/Python/CvAdvisorUtils.py
+index ba3a57f7b..cc27f7500 100644
+--- a/Assets/Python/CvAdvisorUtils.py
++++ b/Assets/Python/CvAdvisorUtils.py
+@@ -117,18 +117,36 @@ def unitBuiltFeats(pCity, pUnit):
+ 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
+ 				popupInfo.addPopup(pCity.getOwner())
+ 	
+-	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED)):
++	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED")):
++		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE")):
+ 		
+-			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED, True)
++			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE, True)
+ 			
+ 			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+-				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED)
++				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE)
+ 				popupInfo.setData2(pCity.getID())
+-				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MOUNTED", (pUnit.getNameKey(), pCity.getNameKey(), )))
++				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_MELEE", (pUnit.getNameKey(), pCity.getNameKey(), )))
++				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
++				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
++				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
++				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
++				popupInfo.addPopup(pCity.getOwner())
++
++	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED)):
++
++		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED")):
++		
++			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED, True)
++			
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++				popupInfo = CyPopupInfo()
++				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
++				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED)
++				popupInfo.setData2(pCity.getID())
++				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_RANGED", (pUnit.getNameKey(), pCity.getNameKey(), )))
+ 				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
+ 				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
+ 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+index 03950daa8..d1b4991a6 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+@@ -28,24 +28,35 @@ or/and modify existing ones, for example, archery units would become:
+ 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Description>
+ 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+ 		</UnitCombatInfo>
++		<!-- custom: art import from FFH2 mod's UNITCOMBAT_ARCHER 's button anyways etc -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_ARCHER_BOW_LONG</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Description>
+-			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
++			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds</Button>
+ 		</UnitCombatInfo>
++		<!-- custom: art import from c2c mod's PROMOTION_ARROW_BARRAGE1 's button quite similarly anyways etc anyways etc anyways etc -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_ARCHER_CROSSBOW</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Description>
+-			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
++			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds</Button>
+ 		</UnitCombatInfo>
+ 
+ 
+ 
++		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc ; as for the button art import anyways etc from ri mod anyways etc -->
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
++			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
++			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds</Button>
++		</UnitCombatInfo>
+ 		<UnitCombatInfo>
+-			<Type>UNITCOMBAT_MOUNTED</Type>
+-			<Description>TXT_KEY_UNITCOMBAT_MOUNTED</Description>
++			<Type>UNITCOMBAT_MOUNTED_RANGED</Type>
++			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_RANGED</Description>
+ 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
+ 		</UnitCombatInfo>
++
++
++
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_MELEE</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_MELEE</Description>
+@@ -79,10 +90,11 @@ or/and modify existing ones, for example, archery units would become:
+ 
+ 
+ 
++		<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas anyways etc) anyways etc -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_AIR_BOMBER</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Description>
+-			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,15</Button>
++			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds</Button>
+ 		</UnitCombatInfo>
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_AIR_FIGHTER</Type>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 31a493a19..f094a8f89 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2590,7 +2590,11 @@
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences>
+ 				<UnitCombatFreeExperience>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iExperience>2</iExperience>
++				</UnitCombatFreeExperience>
++				<UnitCombatFreeExperience>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iExperience>2</iExperience>
+ 				</UnitCombatFreeExperience>
+ 			</UnitCombatFreeExperiences>
+@@ -2763,7 +2767,11 @@
+ 			<!-- custom: reduce it/this, give instead miltiary production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
+ 			<UnitCombatFreeExperiences>
+ 				<UnitCombatFreeExperience>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iExperience>3</iExperience>
++				</UnitCombatFreeExperience>
++				<UnitCombatFreeExperience>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iExperience>3</iExperience>
+ 				</UnitCombatFreeExperience>
+ 			</UnitCombatFreeExperiences>
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index 1221f9d1d..822608f40 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -9834,7 +9834,11 @@
+ 			<UnitName/>
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+-					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
++					<UnitCombat>UNITCOMBAT_MOUNTED_MELEE</UnitCombat>
++					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
++				</UnitCombatPromotion>
++				<UnitCombatPromotion>
++					<UnitCombat>UNITCOMBAT_MOUNTED_RANGED</UnitCombat>
+ 					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+@@ -16256,7 +16260,11 @@
+ 			<UnitName/>
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+-					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
++					<UnitCombat>UNITCOMBAT_MOUNTED_MELEE</UnitCombat>
++					<UnitPromotion>PROMOTION_SENTRY</UnitPromotion>
++				</UnitCombatPromotion>
++				<UnitCombatPromotion>
++					<UnitCombat>UNITCOMBAT_MOUNTED_RANGED</UnitCombat>
+ 					<UnitPromotion>PROMOTION_SENTRY</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+
+diff --git a/Assets/XML/Text/BUG_Unit Naming Options.xml b/Assets/XML/Text/BUG_Unit Naming Options.xml
+index d21284b4a..9ec3f3aff 100644
+--- a/Assets/XML/Text/BUG_Unit Naming Options.xml	
++++ b/Assets/XML/Text/BUG_Unit Naming Options.xml	
+@@ -56,37 +56,47 @@
+ 		<Italian>Inserisci la tua convenzione di denominazione personalizzata[NEWLINE][BOLD]Codici generici[\BOLD][NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]civ4[COLOR_REVERT] - usa i nomi standard di Civ4:BtS;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]rd[COLOR_REVERT] - nome casuale[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]rc[COLOR_REVERT] - nome casuale relativo alla Civilt�[NEWLINE][BOLD]Codici informativi[\BOLD][NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]ct[COLOR_REVERT] - Citt� dove l'Unit� � stata costruita (ad es. Boston)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cv[COLOR_REVERT] - aggettivo della Civilt� che ha costruito l'Unit� (ad es. Americano)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]ut[COLOR_REVERT] - tipo di Unit� (ad es. Arciere)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cb[COLOR_REVERT] - tipologia di combattimento dell'Unit� (ad es. A distanza)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]dm[COLOR_REVERT] - dominio dell'Unit� (ad esempio Acqua)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]ld[COLOR_REVERT] - leader che ha costruito l'Unit� (ad esempio Roosevelt)[NEWLINE][BOLD]Codici di conteggio[\BOLD][NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][a][COLOR_REVERT] - conta su tutte le Unit�[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][u][COLOR_REVERT] - conta su tutte le Unit� dello stesso tipo[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][c][COLOR_REVERT] - conta su tutte le Unit� prodotte nella stessa Citt�[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][t][COLOR_REVERT] - conta su tutte le Unit� dello stesso tipo e prodotte nella stessa Citt�[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][b][COLOR_REVERT] - conta su tutte le Unit� della stessa tipologia di combattimento[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][d][COLOR_REVERT] - conta su tutte le Unit� dello stesso dominio [NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]tt1[f][x:y][COLOR_REVERT] - conta fino ad un numero casuale scelto fra x ed y[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]tt1[f][x][COLOR_REVERT] - conta a partire da x, incrementandosi di 1 ogni volta che il codice tt1 viene resettato[NEWLINE][NEWLINE]* f in [f] � uno fra s (assente), A (lettera maiuscola), a (lettera minuscola), p (lettera fonetica), g (lettera greca), n (numero cardinale), o (numero ordinale), r (numero romano).[NEWLINE]Vedi il file di aiuto per maggiori dettagli.</Italian>
+ 		<Spanish>Permite introducir una convenci�n de nombrado personalizada (ver fichero de ayuda para m�s informaci�n). Los nombres pueden construirse a partir de texto plano y c�digos de formato que aparecen entre ^.[NEWLINE][ICON_BULLET]Por ejemplo: "^cv^ ^ut^ de ^ct^" --> "Arquero Americano de Boston"[NEWLINE][BOLD]C�digos generales[\BOLD][NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]civ4[COLOR_REVERT] - Usar nombres de Civilization IV[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]rd[COLOR_REVERT] - Nombre Aleatorio[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]rc[COLOR_REVERT] - Nombre aleatorio relativo a la civilizaci�n[NEWLINE][BOLD]C�digos de Informaci�n de unidad[\BOLD][NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]ct[COLOR_REVERT] - Ciudad de construcci�n de la unidad[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cv[COLOR_REVERT] - Civilizaci�n que construy� la unidad[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]ut[COLOR_REVERT] - Tipo de unidad[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cb[COLOR_REVERT] - Tipo de combate[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]dm[COLOR_REVERT] - Domino (agua, etc)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]ld[COLOR_REVERT] - L�der que construy� la unidad[NEWLINE][BOLD]Counting Codes[\BOLD][NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][a][COLOR_REVERT] - Contador de todas las unidades[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][u][COLOR_REVERT] - Contador por tipo de unidad[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][c][COLOR_REVERT] - Contador por ciudad[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][t][COLOR_REVERT] - Contador por combinaci�n unidad/ciudad[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][b][COLOR_REVERT] - Contador por tipo de combate[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]cnt[f][d][COLOR_REVERT] - Contador por dominio[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]tt1[f][x:y][COLOR_REVERT] - Contar hasta un n�mero escogido entre x e y[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]tt1[f][x][COLOR_REVERT] - Contar desde x, incrementando cada vez que el c�digo tt1 es reiniciado[NEWLINE][NEWLINE]* f en [f] es uno de s, A, a, p, g, n, o, r (ver fichero de ayuda)</Spanish>
+ 	</TEXT>
++	<!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_TEXT</Tag>
+-		<English>Naming Convention: Combat[AIR]</English>
+-		<French>Convention des Noms: Combat[AIR]</French>
+-		<German>Benennungsregel: Kampf[LUFT]</German>
+-		<Italian>- per le Unit� di Combattimento Aereo</Italian>
+-		<Spanish>Convenci�n de Nombrado (Aire)</Spanish>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_BOMBER_TEXT</Tag>
++		<English>Naming Convention: Combat[AIR_BOMBER]</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_HOVER</Tag>
+-		<English>Enter the user defined naming convention for combat units 'AIR'.</English>
+-		<French>Entrez la convention des noms pour les unit�s 'AIR'.</French>
+-		<German>Eingabe der benutzerdefinierten Benennungsregel f�r Lufteinheiten</German>
+-		<Italian>Inserisci la tua convenzione di denominazione personalizzata per le Unit� di Combattimento Aereo ('Combat[AIR]').</Italian>
+-		<Spanish>Introducir la convenci�n de nombrado para unidades a�reas.</Spanish>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_BOMBER_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'AIR_BOMBER'.</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_TEXT</Tag>
+-		<English>Naming Convention: Combat[ARCHER]</English>
+-		<French>Convention des Noms: Combat[ARCHER]</French>
+-		<German>Benennungsregel: Kampf[BOGENSCH�TZEN]</German>
+-		<Italian>- per le Unit� di Combattimento a Distanza</Italian>
+-		<Spanish>Convenci�n de Nombrado (Arquer�a)</Spanish>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_FIGHTER_TEXT</Tag>
++		<English>Naming Convention: Combat[AIR_FIGHTER]</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_HOVER</Tag>
+-		<English>Enter the user defined naming convention for combat units 'ARCHER'.</English>
+-		<French>Entrez la convention des noms pour les unit�s 'ARCHER'.</French>
+-		<German>Eingabe der benutzerdefinierten Benennungsregel f�r Bogensch�tzeneinheiten</German>
+-		<Italian>Inserisci la tua convenzione di denominazione personalizzata per le Unit� di Combattimento a Distanza ('Combat[ARCHER]').</Italian>
+-		<Spanish>Introducir la convenci�n de nombrado para unidades de arquer�a.</Spanish>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_FIGHTER_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'AIR_FIGHTER'.</English>
++	</TEXT>
++	<!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_SHORT_TEXT</Tag>
++		<English>Naming Convention: Combat[ARCHER_BOW_SHORT]</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_SHORT_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'ARCHER_BOW_SHORT'.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_LONG_TEXT</Tag>
++		<English>Naming Convention: Combat[ARCHER_BOW_LONG]</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_LONG_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'ARCHER_BOW_LONG'.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_CROSSBOW_TEXT</Tag>
++		<English>Naming Convention: Combat[ARCHER_CROSSBOW]</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_CROSSBOW_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'ARCHER_CROSSBOW'.</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARMOR_TEXT</Tag>
+@@ -152,21 +162,22 @@
+ 		<Italian>Inserisci la tua convenzione di denominazione personalizzata per le Unit� di Combattimento Ravvicinato ('Combat[MELEE]').</Italian>
+ 		<Spanish>Introducir la convenci�n de nombrado para unidades cuerpo a cuerpo.</Spanish>
+ 	</TEXT>
++	<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_MELEE_TEXT</Tag>
++		<English>Naming Convention: Combat[MOUNTED MELEE]</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_MELEE_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'MOUNTED MELEE'.</English>
++	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_TEXT</Tag>
+-		<English>Naming Convention: Combat[MOUNTED]</English>
+-		<French>Convention des Noms: Combat[MOUNTED]</French>
+-		<German>Benennungsregel: Kampf[BERITTEN]</German>
+-		<Italian>- per le Unit� di Combattimento a Cavallo</Italian>
+-		<Spanish>Convenci�n de Nombrado (Montada)</Spanish>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_TEXT</Tag>
++		<English>Naming Convention: Combat[MOUNTED RANGED]</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_HOVER</Tag>
+-		<English>Enter the user defined naming convention for combat units 'MOUNTED'.</English>
+-		<French>Entrez la convention des noms pour les unit�s 'MOUNTED'.</French>
+-		<German>Eingabe der benutzerdefinierten Benennungsregel f�r Berittene Einheiten</German>
+-		<Italian>Inserisci la tua convenzione di denominazione personalizzata per le Unit� di Combattimento a Cavallo ('Combat[MOUNTED]').</Italian>
+-		<Spanish>Introducir la convenci�n de nombrado para unidades montadas.</Spanish>
++		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_HOVER</Tag>
++		<English>Enter the user defined naming convention for combat units 'MOUNTED RANGED'.</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_NAVAL_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 29169d3a2..6f401168e 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -293,4 +293,28 @@
+ 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
+ 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
++		<English>Congratulations, you have trained your first Archery (Bow, Short) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
++		<English>Congratulations, you have trained your first Archery (Bow, Long) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
++		<English>Congratulations, you have trained your first Archery (Crossbow) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_MELEE</Tag>
++		<English>Congratulations, you have trained your first Mounted (Melee) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_RANGED</Tag>
++		<English>Congratulations, you have trained your first Mounted (Ranged) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+index 2ffe5bd94..9bb22637c 100644
+--- a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+@@ -32,6 +32,18 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ 
+ 
+ 
++	<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Tag>
++		<English>Mounted (Melee)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_MOUNTED_RANGED</Tag>
++		<English>Mounted (Ranged)</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with these 2 separate terms, see RFC DOC custom's XML files,
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\RFC_DOC_Civilopedia_Lengthy_Custom.xml
+ 	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments) for details. -->
+
+diff --git a/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt b/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+index fec5cd3c8..9bac4d06f 100644
+--- a/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
++++ b/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+@@ -39,7 +39,11 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 9f2aef403..6c9295a7a 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -97,7 +97,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -208,7 +212,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -319,7 +327,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -427,7 +439,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -531,7 +547,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -638,7 +658,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -815,6 +839,7 @@
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
++			<!-- custom: only for MOUNTED_RANGED as MOUNTED_MELEE can't do anything offensively against fun units if i am not mistaken (even defensively at best they can onyl defend and not die if i am not mistaken anyways etc anyways etc anyways etc) -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+@@ -833,7 +858,7 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -921,7 +946,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -988,7 +1017,11 @@
+ 			<FeatureDefenses/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -1355,7 +1388,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1449,7 +1486,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1540,7 +1581,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1631,7 +1676,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1722,7 +1771,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1814,7 +1867,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2945,14 +3002,9 @@
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo replace with mounted (camel archers and crossbows and
+-				gunners (all) and horse archers and crossbows), only it is not elephants
+-				but not elephants too, even though they are heavy, they could easily be
+-				dodged, their power was most in dissuasion if i am not mistaken, interesting
+-				also to have them have different stats/abilities than the other mounted
+-				units for strategical different purposes, anyways,  -->
++				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: todo replace with war boats and war boats (and submarines too
+@@ -3069,14 +3121,9 @@
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo replace with mounted (camel archers and crossbows and
+-				gunners (all) and horse archers and crossbows), only it is not elephants
+-				but not elephants too, even though they are heavy, they could easily be
+-				dodged, their power was most in dissuasion if i am not mistaken, interesting
+-				also to have them have different stats/abilities than the other mounted
+-				units for strategical different purposes, anyways,  -->
++				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: todo replace with war boats and war boats (and submarines too
+@@ -3178,16 +3225,9 @@
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo replace with mounted (camel archers and crossbows and
+-				gunners (all) and horse archers and crossbows), only it is not elephants
+-				but not elephants too, even though they are heavy, they could easily be
+-				dodged, their power was most in dissuasion if i am not mistaken, interesting
+-				also to have them have different stats/abilities than the other mounted
+-				units for strategical different purposes, anyways,
+-				
+-				todo remove elephants from here and mounted offense units -->
++				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: todo replace with war boats and war boats (and submarines too
+@@ -3742,7 +3782,7 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<!-- custom: was UNITCOMBAT_MOUNTED 10 -->
++			<!-- custom: was "MOUNTED" 10 -->
+ 			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+@@ -3945,7 +3985,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4024,7 +4068,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4104,7 +4152,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4626,7 +4678,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 9cd891e6f..a84a44749 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7517,13 +7517,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
++			<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
+ 			<UnitCombatDefenders>
+ 				<UnitCombatDefender>
+ 					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 			</UnitCombatDefenders>
+@@ -7638,7 +7639,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -7749,7 +7750,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 			</UnitCombatDefenders>
+@@ -7879,7 +7880,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -7991,7 +7992,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 			</UnitCombatDefenders>
+@@ -8102,7 +8103,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -8443,7 +8444,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 			</UnitCombatDefenders>
+@@ -8558,10 +8559,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MOUNTED 100 -->
++			<!-- custom: was "MOUNTED" 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>75</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -8669,7 +8670,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+ 					<bUnitCombatDefender>1</bUnitCombatDefender>
+ 				</UnitCombatDefender>
+ 			</UnitCombatDefenders>
+@@ -8797,10 +8798,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MOUNTED 100 and UNITCOMBAT_MELEE 100 -->
++			<!-- custom: was "MOUNTED" 100 and UNITCOMBAT_MELEE 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>75</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -11302,9 +11303,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: was "MOUNTED" 25 and UNITCOMBAT_GUN 25 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -11501,9 +11507,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: was "MOUNTED" 25 and UNITCOMBAT_GUN 25 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -11705,9 +11716,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: was "MOUNTED" 25 but now these are split so adjust accordingly anyways etc if i may say and if i am not mistaken in doing so at least i want so but anyways etc anyways etc anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -13279,7 +13295,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -13430,14 +13446,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
++			<!-- custom: was UNITCLASS_AXEMAN 100 -->
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
+-					<iUnitClassMod>100</iUnitClassMod>
++					<iUnitClassMod>75</iUnitClassMod>
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -13478,7 +13501,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -13630,14 +13653,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
++			<!-- custom: was UNITCLASS_AXEMAN 100 -->
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
+-					<iUnitClassMod>100</iUnitClassMod>
++					<iUnitClassMod>75</iUnitClassMod>
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -13678,7 +13708,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -13876,7 +13906,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<!-- custom: note: is mounted_melee unlike the generic unit anyways etc -->
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -14088,7 +14119,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<!-- custom: note: is mounted_melee unlike the generic unit anyways etc -->
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -14245,7 +14277,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -14287,7 +14325,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -14504,7 +14542,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -14651,7 +14689,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -14695,7 +14733,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<!-- custom: note: is mounted_ranged unlike the generic unit that is mounted_melee anyways etc -->
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -14752,7 +14791,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets>
+ 				<UnitCombatTarget>
+-					<UnitCombatTargetType>UNITCOMBAT_MOUNTED</UnitCombatTargetType>
++					<UnitCombatTargetType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatTargetType>
+ 					<bUnitCombatTarget>1</bUnitCombatTarget>
+ 				</UnitCombatTarget>
+ 			</UnitCombatTargets>
+@@ -14848,7 +14887,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -14892,7 +14931,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -15050,7 +15089,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -15091,7 +15136,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -15249,7 +15294,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -15290,7 +15341,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -15466,7 +15517,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -15508,7 +15565,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<!-- custom: note: is mounted_ranged unlike the generic unit that is mounted_melee anyways etc -->
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -15731,7 +15789,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -15931,7 +15989,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -16146,7 +16204,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -16353,7 +16411,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -16572,7 +16630,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -16772,7 +16830,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -16933,7 +16991,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -18550,7 +18612,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 0e9a6d8e2..03632b09a 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1270,7 +1270,8 @@ ENUM_START(Feat, FEAT)
+ 	FEAT_UNITCOMBAT_ARCHER_BOW_SHORT,
+ 	FEAT_UNITCOMBAT_ARCHER_BOW_LONG,
+ 	FEAT_UNITCOMBAT_ARCHER_CROSSBOW,
+-	FEAT_UNITCOMBAT_MOUNTED,
++	FEAT_UNITCOMBAT_MOUNTED_MELEE,
++	FEAT_UNITCOMBAT_MOUNTED_RANGED,
+ 	FEAT_UNITCOMBAT_MELEE,
+ 	FEAT_UNITCOMBAT_SIEGE,
+ 	FEAT_UNITCOMBAT_GUN,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 21877eb8c..57065f499 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7731,10 +7731,14 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
+ 		if (eAndTech == NO_TECH)
+ 			iUnitEra = -1;
+ 		// Mounted units only in open terrain
+-		static UnitCombatTypes const eMounted = (UnitCombatTypes)
+-				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED");
+-		bool const bMounted = (kUnit.getUnitCombatType() == eMounted);
+-		if (bMounted)
++		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
++		static UnitCombatTypes const eMountedMelee = (UnitCombatTypes)
++				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
++		static UnitCombatTypes const eMountedRanged = (UnitCombatTypes)
++				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
++		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
++		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
++		if (bMountedMelee || bMountedRanged)
+ 		{
+ 			if (kPlot.isWater() || kPlot.defenseModifier(NO_TEAM, true) > 0)
+ 				continue;
+@@ -7758,7 +7762,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
+ 				become available. The game era is usually already Classical
+ 				when Archers become available. */
+ 			(!bAnyExpensiveTech || iUnitEra + 1 >= getCurrentEra())) ||
+-			bMounted) // To make up for the terrain restriction
++			bMountedMelee || bMountedRanged) // To make up for the terrain restriction
+ 		{
+ 			iDieSides = (iDieSides * rNoBonusReqDieSidesMult).uround();
+ 		} // </advc.301>
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index c949530eb..6f1fa749d 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1494,7 +1494,8 @@ void CyEnumsPythonInterface()
+ 		.value("FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
+ 		.value("FEAT_UNITCOMBAT_ARCHER_BOW_LONG", FEAT_UNITCOMBAT_ARCHER_BOW_LONG)
+ 		.value("FEAT_UNITCOMBAT_ARCHER_CROSSBOW", FEAT_UNITCOMBAT_ARCHER_CROSSBOW)
+-		.value("FEAT_UNITCOMBAT_MOUNTED", FEAT_UNITCOMBAT_MOUNTED)
++		.value("FEAT_UNITCOMBAT_MOUNTED_MELEE", FEAT_UNITCOMBAT_MOUNTED_MELEE)
++		.value("FEAT_UNITCOMBAT_MOUNTED_RANGED", FEAT_UNITCOMBAT_MOUNTED_RANGED)
+ 		.value("FEAT_UNITCOMBAT_MELEE", FEAT_UNITCOMBAT_MELEE)
+ 		.value("FEAT_UNITCOMBAT_SIEGE", FEAT_UNITCOMBAT_SIEGE)
+ 		.value("FEAT_UNITCOMBAT_GUN", FEAT_UNITCOMBAT_GUN)
+
+diff --git a/README.md b/README.md
+index 1b8227ff2..6365a9bee 100644
+--- a/README.md
++++ b/README.md
+@@ -257,6 +257,7 @@ too too, thanks,
+ - Realism Invictus (also know as RI): i took quite a lot content from there, thanks, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc...
+ - Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc), thanks
+ - Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks
++- Chronicles of Mankind (which i may call COM anyways etc) from which i took for example the air_bombers of advciv-sas button, from their rom_promotion_atlas2.dds atlas that i found in their UNITCOMBAT_BOMBERS, thanks
+ - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
+ 
+ todo add quote
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index c961477f6..05b8d027c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -177,7 +177,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ ### Military (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - on that note, unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc.
+-- there are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc)
++- there are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc). This also changes warfare tactics and such, for example also anyways etc, mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). But it applies regardless in all tiles even if roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarify info about it in sevopedia unit, and add this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+index 964978567..572fa58d4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=22 omittedFiles=1 embeddedPatchBytes=71791

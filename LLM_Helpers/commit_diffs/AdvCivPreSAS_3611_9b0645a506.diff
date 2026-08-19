@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3611
+# Commit: 9b0645a506531f298185dc61073b6b43b0e71f21
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e69a19fcd96885dff069414cc3107b7bab54db90
+# Title: Add Civ4HurryInfos.xml from the base game
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	0	Assets/XML/GameInfo/CIV4HurryInfo.xml
+ create mode 100644 Assets/XML/GameInfo/CIV4HurryInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HurryInfo.xml b/Assets/XML/GameInfo/CIV4HurryInfo.xml
+new file mode 100644
+index 000000000..ceb269b7c
+--- /dev/null
++++ b/Assets/XML/GameInfo/CIV4HurryInfo.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Civ4HurryInfo - This structure describes the name for each multiplayer option. -->
++<Civ4HurryInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<HurryInfos>
++		<HurryInfo>
++			<Type>HURRY_POPULATION</Type>
++			<Description>TXT_KEY_HURRY_POPULATION</Description>
++			<iGoldPerProduction>0</iGoldPerProduction>
++			<iProductionPerPopulation>30</iProductionPerPopulation>
++			<bAnger>1</bAnger>
++			<Button>Art/Interface/MainScreen/CityScreen/hurry_slavery.dds</Button>
++		</HurryInfo>
++		<HurryInfo>
++			<Type>HURRY_GOLD</Type>
++			<Description>TXT_KEY_HURRY_GOLD</Description>
++			<iGoldPerProduction>3</iGoldPerProduction>
++			<iProductionPerPopulation>0</iProductionPerPopulation>
++			<bAnger>0</bAnger>
++			<Button>Art/Interface/MainScreen/CityScreen/hurry_commerce.dds</Button>
++		</HurryInfo>
++	</HurryInfos>
++</Civ4HurryInfo>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1256

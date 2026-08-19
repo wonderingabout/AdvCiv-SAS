@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2352
+# Commit: 8e77b38c5ea90e41a1db9cd7dedca01da3120035
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e7bc25956227a2e564ae8066f5e158f0ad4fbb5f
+# Title: A few more minor refactoring changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/BUG/BugEventManager.py
+1	1	Assets/Python/BUG/PlayerUtil.py
+4	3	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/UWAI.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 273cfe096..da0a43317 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -426,7 +426,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 	# right after loading a game. Still fires when Python modules
+ 	# are reloaded, which causes (harmless) exceptions in Civ4lerts.
+ 	# Tbd.: BugEventManager should somehow detect during initialization
+-	# whether it's the game is starting or if modules are being reloaded.
++	# whether the game is starting or if modules are being reloaded.
+ 	# In the latter case, resetActiveTurnAfterLoad needs to be called
+ 	# instead of resetActiveTurn.
+ 	def resetActiveTurnAfterLoad(self, argsList=None):
+
+diff --git a/Assets/Python/BUG/PlayerUtil.py b/Assets/Python/BUG/PlayerUtil.py
+index 1c651320e..3b9ed898f 100644
+--- a/Assets/Python/BUG/PlayerUtil.py
++++ b/Assets/Python/BUG/PlayerUtil.py
+@@ -2,7 +2,7 @@
+ ##
+ ## Utilities for dealing with Players and their Teams, Cities and Units.
+ ##
+-## All functions in thie module that take a playerOrID or teamOrID as their
++## All functions in this module that take a playerOrID or teamOrID as their
+ ## parameter will accept either the CyPlayer/CyTeam object or its ID.
+ ## Many of them will probably also accept a PyPlayer/PyTeam wrapper, but I
+ ## recommend that you use getCy() on the object instead.
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7f082a53b..82ec2b505 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -567,7 +567,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	if (m_eID != NO_PLAYER)
+ 		m_ePersonalityType = GC.getInitCore().getLeader(m_eID); //??? Is this repeated data???
+ 	else m_ePersonalityType = NO_LEADER;
+-	m_eCurrentEra = ((EraTypes)0);  //??? Is this repeated data???
++	m_eCurrentEra = (EraTypes)0;  //??? Is this repeated data???
+ 	m_eLastStateReligion = NO_RELIGION;
+ 	m_eParent = NO_PLAYER;
+ 
+@@ -21427,8 +21427,9 @@ void CvPlayer::markTradeOffers(CLinkList<TradeData>& ourInventory, const CLinkLi
+ 			}
+ 		}
+ 		FAssertMsg(pInvNode != NULL ||
+-				// advc.134a: I guess it's OK that capitulation isn't part of the inventory
+-				pOfferNode->m_data.m_eItemType == TRADE_SURRENDER,
++				// <advc.134a> I guess it's OK that these aren't part of the inventory
++				pOfferNode->m_data.m_eItemType == TRADE_SURRENDER ||
++				pOfferNode->m_data.m_eItemType == TRADE_PEACE_TREATY, // </advc.134a>
+ 				"failed to find offered item in inventory");
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 26d4a4344..8868725aa 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3224,10 +3224,10 @@ void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit,
+ 
+ bool CvSelectionGroup::isAmphibPlot(const CvPlot* pPlot) const
+ {
+-	bool bFriendlyCity = true; // K-Mod. I've renamed this from bFriendly, because it was confusing me.
+ 	CvUnit* pUnit = getHeadUnit();
+-	if (pUnit != NULL)
+-		bFriendlyCity = pPlot->isFriendlyCity(*pUnit, true);
++	// K-Mod. I've renamed this from bFriendly, because it was confusing me.
++	bool const bFriendlyCity = (pUnit == NULL ? true :
++			pPlot->isFriendlyCity(*pUnit, true));
+ 
+ 	//return ((getDomainType() == DOMAIN_SEA) && pPlot->isCoastalLand() && !bFriendlyCity && !canMoveAllTerrain());
+ 	// BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1ce9aaa54..4c6780d7a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -9901,7 +9901,7 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI,
+ 				{
+ 					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eLoopDirection);
+ 					if (pAdjacentPlot == NULL || !pAdjacentPlot->isWater())
+-							continue;
++						continue;
+ 					//if (pBestUnit->generatePath(pAdjacentPlot, 0, true, &iPathTurns, iMaxTransportPath))
+ 					if (temp_finder.GeneratePath(pAdjacentPlot)) // K-Mod
+ 					{
+
+diff --git a/CvGameCoreDLL/UWAI.h b/CvGameCoreDLL/UWAI.h
+index 05d5f4086..8daf537bf 100644
+--- a/CvGameCoreDLL/UWAI.h
++++ b/CvGameCoreDLL/UWAI.h
+@@ -36,7 +36,7 @@ public:
+ 	/*  true if UWAI fully enabled, making all decisions, otherwise false.
+ 		If inBackground is set, then true if UWAI is running only in the background,
+ 		but false if UWAI fully enabled or fully disabled. */
+-	bool isEnabled(bool inBackground = false) const;
++	bool isEnabled(bool inBackground = false) const; // Exposed to Python via CyGame::useKModAI
+ 	void setUseKModAI(bool b);
+ 	void setInBackground(bool b);
+ 	void read(FDataStreamBase* stream);
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=4714

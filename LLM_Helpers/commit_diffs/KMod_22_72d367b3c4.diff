@@ -1,0 +1,189 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 22
+# Commit: 72d367b3c4eec1c30a83f7ca40f6828f01bc76e2
+# History segment: K-Mod history
+# Parent used for diff: 49ef4110a71b70a4223eeb3fd3a934f6366caa9d
+# Title: Previous version was not released as 0.92, because some problems were found.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	Assets/Python/Contrib/Civ4lerts.py
+17	15	Assets/Python/Screens/EconomicsAdvisor.py
+6	4	Assets/readme.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index f1d18e01a..452599ba5 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -817,10 +817,18 @@ class RefusesToTalk(AbstractStatefulAlert):
+ 	def __init__(self, eventManager):
+ 		AbstractStatefulAlert.__init__(self, eventManager)
+ 		eventManager.addEventHandler("BeginActivePlayerTurn", self.onBeginActivePlayerTurn)
+-		eventManager.addEventHandler("changeWar", self.onChangeWar)
+-		eventManager.addEventHandler("cityRazed", self.onCityRazed)
+-		eventManager.addEventHandler("DealCanceled", self.onDealCanceled)
+-		eventManager.addEventHandler("EmbargoAccepted", self.onEmbargoAccepted)
++##
++# K-Mod, 15/jan/11, karadoc
++# I've disabled the following event handlers, because apparently the arugment list isn't what the author of this code thought it was.
++# (Note: I've only tested OnDealCanceled. But I don't trust the other's either.)
++##
++#		eventManager.addEventHandler("changeWar", self.onChangeWar)
++#		eventManager.addEventHandler("cityRazed", self.onCityRazed)
++#		eventManager.addEventHandler("DealCanceled", self.onDealCanceled)
++#		eventManager.addEventHandler("EmbargoAccepted", self.onEmbargoAccepted)
++##
++# K-Mod end
++##
+ 
+ 	def onBeginActivePlayerTurn(self, argsList):
+ 		self.check()
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index aed8e88f6..3103a737d 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -481,9 +481,9 @@ class EconomicsAdvisor:
+ 		#yLocation += 1.5 * self.Y_SPACING
+ 		
+ 		#iglobalWarming = CyGame().getGlobalWarmingIndex()
+-		#iglobalWarmingRolls = CyGame().getGlobalWarmingChances()
++		#iglobalWarmingChances = CyGame().getGlobalWarmingChances()
+ 		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Global Warming" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iglobalWarming) + "("+unicode(iglobalWarmingRolls)+")" + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iglobalWarming) + "("+unicode(iglobalWarmingChances)+")" + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		##
+ 		# K-Mod end
+ 		##
+@@ -516,18 +516,18 @@ class EconomicsAdvisor:
+ 
+ 		
+ 		iGlobalWarmingIndex = game.getGlobalWarmingIndex()
+-		iGlobalWarmingRolls = game.getGlobalWarmingChances()
++		iGlobalWarmingChances = game.getGlobalWarmingChances()
+ 		iGwEventTally = game.getGwEventTally()
+ 
+ 		# calculate expected number events per turn. Prob is out of 1000, so we divide by 1000 and multiply by 100 to get percent.
+ 		#fWarmingPercent = float(game.getGlobalWarmingChances() * gc.getDefineINT("GLOBAL_WARMING_PROB")) / (10.0*gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+ 		
+ 		# calculate the 'severity rating' as used in the GW unhappiness calculation
+-		iSeverityRating = 100-100000/(1000+(gc.getDefineINT("GLOBAL_WARMING_PROB") * iGlobalWarmingIndex / (max(1,4*CyMap().getLandPlots()*gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent()))))
++		iSeverityRating = game.calculateGwSeverityRating()
+ 		
+ 		#szText = u"GLOBAL WARMING SEVERITY RATING: %d" % iSeverityRating
+ 		szText = u"GLOBAL WARMING SEVERITY RATING: "
+-		if (iSeverityRating < 35):
++		if (iSeverityRating < 30):
+ 			szText += localText.getColorText("LOW", (), gc.getInfoTypeForString ("COLOR_GREEN"))
+ 		elif (iSeverityRating < 70):
+ 			szText += localText.getColorText ("MEDIUM", (), gc.getInfoTypeForString ("COLOR_YELLOW"))
+@@ -559,6 +559,7 @@ class EconomicsAdvisor:
+ 		iResources = player.calculatePollution(PollutionTypes.POLLUTION_BONUSES)
+ 		iPower = player.calculatePollution(PollutionTypes.POLLUTION_POWER)
+ 		iLocalPollution = player.calculatePollution(PollutionTypes.POLLUTION_ALL)
++		iLocalThreshold = game.calculateGwSustainabilityThreshold(self.iActiveLeader)
+ 		
+ 		# Here we check which types of pollution we are actually producing.
+ 		# maybe this is pointless – we could just display information for all types...
+@@ -605,7 +606,7 @@ class EconomicsAdvisor:
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Local Sustainability Threshold" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(game.calculateGwSustainabilityThreshold(self.iActiveLeader)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iLocalThreshold) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1 )
+ 
+ 
+ 		# Middle panel: Global
+@@ -638,12 +639,12 @@ class EconomicsAdvisor:
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(max(0, iGlobalPollution-iGlobalDefence-iThreshold)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		#iResponsibility = (100*iLocalPollution*iThreshold) / (game.calculateGwSustainabilityThreshold(self.iActiveLeader) * iGlobalPollution)
+-		iResponsibility = 100*iLocalPollution
+-		iResponsibility /= max(1, game.calculateGwSustainabilityThreshold(self.iActiveLeader))
++		iResponsibility = 100*(iLocalPollution - iLocalDefence)
++		iResponsibility /= max(1, iLocalThreshold)
+ 		iResponsibility *= iThreshold
+-		iResponsibility /= max(1, iGlobalPollution)
++		iResponsibility /= max(1, iGlobalPollution-iGlobalDefence)
+ 		
+-		if (iGwEventTally >= 0):
++		if (iGwEventTally >= 0 or CyGame().isDebugMode()):
+ 			yLocation += 1.5 * self.Y_SPACING
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Our Relative Contribution" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1 )
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iResponsibility) + "%</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1 )
+@@ -656,14 +657,14 @@ class EconomicsAdvisor:
+ 		# Right panel: Impact
+ 		yLocation = self.Y_LOCATION
+ 
+-		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingIndex) + "("+unicode(iGlobalWarmingRolls)+")" + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingIndex) + "("+unicode(iGlobalWarmingChances)+")" + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Global Warming Index" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1 )
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingIndex) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1 )
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+-		fExpectedEvents = 1.0 * iGlobalWarmingRolls * gc.getDefineINT("GLOBAL_WARMING_PROB") / (1000.0 * CyMap().getLandPlots()*gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
++		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Expected Events per Turn" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + u"%0.1f" % fExpectedEvents + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+@@ -679,9 +680,10 @@ class EconomicsAdvisor:
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGwPercentAnger) + "%</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1 )			
+ 		
+ 		# test
+-		#yLocation += 1.5 * self.Y_SPACING
+-		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "max turns" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1 )
+-		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(game.getMaxTurns()) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1 )
++		if (CyGame().isDebugMode()):
++			yLocation += 1.5 * self.Y_SPACING
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Chances" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(game.getGlobalWarmingChances()) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 
+ 		return 0
+
+diff --git a/Assets/readme.txt b/Assets/readme.txt
+index 409fbfbfb..e01b1b973 100644
+--- a/Assets/readme.txt
++++ b/Assets/readme.txt
+@@ -3,20 +3,22 @@ If you have any questions, comments, suggetsions, bug reports, etc. Post here: h
+ 
+ --
+ 
+-v0.92 changelist *
++v0.92 changelist
+ 
+- + Fixed a bug that would cause K-Mod to crash when playing with time victory disabled
+- + Removed all the custom map scripts that previously came with the mod. (These scripts have nothing to do with K-Mod.)
++ + Fixed a bug that would cause K-Mod to crash when playing with time victory disabled. (added a new xml parameter for controlling global warming chances per index)
++ + Removed all the custom map scripts that previously came with the mod. (These scripts aren't part of the mod. They can be installed separately by those who want them.)
+  + Fixed a bug that was preventing promotions with three 'or' prerequisites from being displayed.
+  + Added third promotion 'or' prerequisite information to the civilopedia (and sevopedia)
+  + Changed the tech chooser bulb preference list to only show techs that have not already been researched
++ + Disabled some faulty event handlers in Civ4lerts. [They didn't work, and they looked like they might cause a seg-fault.]
++ + Changed the global warming responsibility calculation to include offsets.
+ 
+ --
+ 
+ v0.91 changelist
+ 
+  + fixed a K-Mod bug that caused some cultural revolts to last much longer than they should.
+- + changed the length of cultural revolts 3 + 2*(number of previous revolts), so that the system is simplier. [previously it depended on the current era, the highest population of the city, and the number of adjacent plots owned by the player]
++ + changed the length of cultural revolts 3 + 2*(number of previous revolts), so that the system is simpler. [previously it depended on the current era, the highest population of the city, and the number of adjacent plots owned by the player]
+ 
+ 
+ ---
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=13614

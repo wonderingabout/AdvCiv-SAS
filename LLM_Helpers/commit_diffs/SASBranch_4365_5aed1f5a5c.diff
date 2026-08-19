@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4365
+# Commit: 5aed1f5a5c23b713a62d38de64eb3d900010c2d9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e6e39896e2cb7edcfd9baa5445119bf0964655a0
+# Title: decrease BBAI_MINIMUM_FOUND_VALUE to 550 Somehow it seems that AI settles cities a bit better with this specific number. I tried higher and lower values betw...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	Assets/XML/AI_Variables_GlobalDefines.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 65e710038..b8233d32a 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -397,9 +397,13 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
+-		<!-- some cities are not good enough but AI still settles them and cripples itself, hopefully this
+-		improves that while not hurting AI growth too much, was 600 -->
++		<!-- custom: at first i thought some cities are not good enough but AI still settles them and
++		cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't
++		seem to do too much especially if increased too much. A very low value (around 300 for example)
++		seemed to be mostly ignored too (except AI had more cities that were a bit too crammed.
++		Trying other values, it seems 550 somehow, i don't know why, but consistently provides better
++		city spots to the AI, would need more testing to make sure., was 600 -->
+ 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
+-		<iDefineIntVal>700</iDefineIntVal>
++		<iDefineIntVal>550</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1281

@@ -1,0 +1,391 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3571
+# Commit: 6301be8c8493846ff1c333da32c1a0f09efcb29e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9978b97def9bac6632a255f992318dec2f1f6db2
+# Title: Refactor: isNuke function replacing getNukeRange>-1 checks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	5	CvGameCoreDLL/CvCityAI.cpp
+6	10	CvGameCoreDLL/CvGame.cpp
+6	8	CvGameCoreDLL/CvGameTextMgr.cpp
+1	0	CvGameCoreDLL/CvInfo_Unit.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+5	5	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+5	5	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+6	4	CvGameCoreDLL/CvUnitAI.cpp
+4	4	CvGameCoreDLL/MilitaryBranch.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index dae543b07..34f59badf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6033,14 +6033,15 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
+ 	// <kekm.16> Replacing the line above.
+ 	// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
+ 	int iNukeDefense = -kBuilding.getNukeModifier();
+-	if(iNukeDefense > 0)
++	if (iNukeDefense > 0)
+ 	{
+ 		int iNukeEvasionProbability = 0;
+ 		int iNukeUnitTypes = 0;
+-		for(int i = 0; i < GC.getNumUnitInfos(); i++)
++		FOR_EACH_ENUM(Unit)
+ 		{
+-			CvUnitInfo const& kLoopUnit = GC.getInfo((UnitTypes)i);
+-			if(kLoopUnit.getNukeRange() >= 0)
++			CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
++			if (kLoopUnit.isNuke() &&
++				kLoopUnit.getProductionCost() > 0) // advc
+ 			{
+ 				iNukeEvasionProbability += kLoopUnit.getEvasionProbability();
+ 				iNukeUnitTypes++;
+@@ -6350,7 +6351,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ 			FOR_EACH_ENUM(Unit)
+ 			{
+ 				CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
+-				if (kLoopUnit.getNukeRange() < 0 || kLoopUnit.getProductionCost() < 0)
++				if (!kLoopUnit.isNuke() || kLoopUnit.getProductionCost() < 0)
+ 					continue; // either not a unit, or not normally buildable
+ 				for (PlayerAIIter<CIV_ALIVE,KNOWN_TO> itLoopPlayer(kTeam.getID());
+ 					itLoopPlayer.hasNext(); ++itLoopPlayer)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3bd977514..c8853cc85 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4139,11 +4139,8 @@ bool CvGame::canTrainNukes() const
+ 		for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 		{
+ 			UnitTypes eUnit = kCiv.unitAt(i);
+-			if (GC.getInfo(eUnit).getNukeRange() >= 0)
+-			{
+-				if (itPlayer->canTrain(eUnit))
+-					return true;
+-			}
++			if (GC.getInfo(eUnit).isNuke() && itPlayer->canTrain(eUnit))
++				return true;
+ 		}
+ 	}
+ 	return false;
+@@ -5918,10 +5915,9 @@ bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestV
+ 	{
+ 		return false;
+ 		// What the original code did:
+-		/*for(int i = 0; i < GC.getNumUnitInfos(); i++) {
+-			if (GC.getInfo((UnitTypes)i).getNukeRange() != -1)
+-				return false;
+-		}*/
++		/*FOR_EACH_ENUM(Unit)
++			if (GC.getInfo(eLoopUnit).isNuke())
++				return false;*/
+ 	}
+ 	{
+ 		SpecialBuildingTypes eSpecial = GC.getInfo(eBuilding).getSpecialBuildingType();
+@@ -5955,7 +5951,7 @@ bool CvGame::canTrain(UnitTypes eUnit, bool bIgnoreCost, bool bTestVisible) cons
+ 	if (bTestVisible)
+ 		return true;
+ 
+-	if ((isNoNukes() || !isNukesValid()) && kUnit.getNukeRange() != -1)
++	if ((isNoNukes() || !isNukesValid()) && kUnit.isNuke())
+ 		return false;
+ 
+ 	SpecialUnitTypes eSpecialUnit = kUnit.getSpecialUnitType();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 8cb628545..989f07cf4 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -679,7 +679,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 
+ 		if (!bShort)
+ 		{
+-			if (pUnit->nukeRange() >= 0)
++			if (pUnit->isNuke())
+ 			{
+ 				szString.append(NEWLINE);
+ 				szString.append(gDLL->getText("TXT_KEY_UNIT_CAN_NUKE"));
+@@ -8905,7 +8905,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 			}
+ 		}
+ 	}
+-	if (u.getNukeRange() != -1)
++	if (u.isNuke())
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CAN_NUKE"));
+@@ -9494,8 +9494,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 
+ 	if (pCity == NULL || !pCity->canTrain(eUnit))
+ 	{
+-		if (pCity != NULL && GC.getGame().isNoNukes() &&
+-			u.getNukeRange() >= 0)
++		if (pCity != NULL && GC.getGame().isNoNukes() && u.isNuke())
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_NO_NUKES"));
+@@ -9536,8 +9535,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 		}
+ 		{
+ 			bool bFirst = true;
+-			if (u.getNukeRange() != -1 &&
+-				(pCity == NULL || !GC.getGame().isNukesValid()))
++			if (u.isNuke() && (pCity == NULL || !GC.getGame().isNukesValid()))
+ 			{
+ 				FOR_EACH_ENUM(Project)
+ 				{
+@@ -11699,7 +11697,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
+ 	{
+ 		FOR_EACH_ENUM(Unit)
+ 		{
+-			if (GC.getInfo(eLoopUnit).getNukeRange() != -1)
++			if (GC.getInfo(eLoopUnit).isNuke())
+ 			{
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_NO_NUKES"));
+@@ -12054,7 +12052,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 		{
+ 			FOR_EACH_ENUM(Unit)
+ 			{
+-				if (GC.getInfo(eLoopUnit).getNukeRange() != -1)
++				if (GC.getInfo(eLoopUnit).isNuke())
+ 				{
+ 					szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_NO_NUKES"));
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.h b/CvGameCoreDLL/CvInfo_Unit.h
+index 10a43b43a..c437a8779 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.h
++++ b/CvGameCoreDLL/CvInfo_Unit.h
+@@ -92,6 +92,7 @@ public: /*  All const functions are exposed to Python except some related to art
+ 	int getAirUnitCap() const { return m_iAirUnitCap; }
+ 	int getDropRange() const { return m_iDropRange; }
+ 	int getNukeRange() const { return m_iNukeRange; }
++	bool isNuke() const { return (getNukeRange() >= 0); } // advc
+ 	int getWorkRate() const { return m_iWorkRate; }
+ 	int getBaseDiscover() const { return m_iBaseDiscover; }
+ 	int getDiscoverMultiplier() const { return m_iDiscoverMultiplier; }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a0fecbbd6..1f5bf2300 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5255,7 +5255,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
+ 		{
+ 			return false; // advc.opt
+ 			/*FOR_EACH_ENUM(Unit) {
+-				if (GC.getInfo(eLoopUnit).getNukeRange() != -1)
++				if (GC.getInfo(eLoopUnit).isNuke())
+ 					return false;
+ 			}*/
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bd3506007..b877abb3d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -555,7 +555,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 						pLastUpgradePlot = &kUnitPlot;
+ 					}
+ 					// <advc.650>
+-					if(GC.getInfo(pLoopUnit->getUnitType()).getNukeRange() >= 0)
++					if (pLoopUnit->isNuke())
+ 						bValid = false; // </advc.650>
+ 					// try to upgrade units which are in danger... but don't get obsessed
+ 					if (!bValid && pLastUpgradePlot != &kUnitPlot &&
+@@ -11442,7 +11442,7 @@ int CvPlayerAI::AI_baseBonusUnitVal(BonusTypes eBonus, UnitTypes eUnit,
+ 	}
+ 	/*	<advc.650> Having access to at least a few nukes is very valuable.
+ 		The XML power values can't capture that sufficiently. */
+-	else if (kUnit.getNukeRange() > 0 && getNumNukeUnits() * 2 < getNumCities())
++	else if (kUnit.isNuke() && getNumNukeUnits() * 2 < getNumCities())
+ 	{
+ 		iValue = (iValue * 3) / 2; 
+ 	} // </advc.650>
+@@ -13354,7 +13354,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
+ 			break;
+ 
+ 		case UNITAI_ICBM:
+-			if (u.getNukeRange() != -1)
++			if (u.isNuke())
+ 				bValid = true;
+ 			break;
+ 
+@@ -13898,7 +13898,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
+ 		break;
+ 
+ 	case UNITAI_ICBM:
+-		if (u.getNukeRange() != -1)
++		if (u.isNuke())
+ 		{
+ 			/*iTempValue = 40 + (u.getNukeRange() * 40);
+ 			if (u.getAirRange() == 0)
+@@ -24725,7 +24725,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		{
+ 			bHasBomber = true;
+ 		}
+-		if (kLoopUnit.getNukeRange() > 0)
++		if (kLoopUnit.isNuke())
+ 			iNukeCount++;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5963dcecf..d6ccfce36 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3571,7 +3571,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 		{
+ 			FOR_EACH_UNIT_VAR(u, *it)
+ 			{
+-				if(u->getUnitInfo().getNukeRange() >= 0) // non-nukes have -1
++				if (u->isNuke())
+ 					u->scrap();
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index e5a6ab393..fcbf26172 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -228,7 +228,7 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 	GET_TEAM(getTeam()).changeUnitClassCount(eUnitClass, 1);
+ 	kOwner.changeUnitClassCount(eUnitClass, 1);
+ 	kOwner.changeExtraUnitCost(m_pUnitInfo->getExtraCost());
+-	if (m_pUnitInfo->getNukeRange() != -1)
++	if (isNuke())
+ 		kOwner.changeNumNukeUnits(1);
+ 	if (m_pUnitInfo->isMilitarySupport())
+ 		kOwner.changeNumMilitaryUnits(1);
+@@ -491,7 +491,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 		return;
+ 	}
+ 
+-	if (isMadeAttack() && nukeRange() != -1)
++	if (isMadeAttack() && isNuke())
+ 	{
+ 		CvPlot* pTarget = getAttackPlot();
+ 		if (pTarget != NULL)
+@@ -538,7 +538,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 	kOwner.changeUnitClassCount(eUnitClass, -1);
+ 	kOwner.changeExtraUnitCost(-m_pUnitInfo->getExtraCost());
+ 
+-	if (m_pUnitInfo->getNukeRange() != -1)
++	if (isNuke())
+ 		kOwner.changeNumNukeUnits(-1);
+ 
+ 	if (m_pUnitInfo->isMilitarySupport())
+@@ -3068,7 +3068,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) /* advc: */ const
+ 	if (kRecipient.getID() == getOwner())
+ 		return false;
+ 	// <advc.143b>
+-	if(m_pUnitInfo->getNukeRange() >= 0) // -1 for non-nukes
++	if (isNuke())
+ 		return false; // </advc.143b>
+ 	// <advc.034>
+ 	if(!GET_TEAM(getTeam()).canPeacefullyEnter(kRecipient.getTeam()))
+@@ -7302,7 +7302,7 @@ bool CvUnit::canSiege(TeamTypes eTeam) const
+ bool CvUnit::canCombat() const
+ {
+ 	// avdc: Check m_pUnitInfo->isMilitaryProduction() instead?
+-	return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || nukeRange() >= 0);
++	return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || isNuke());
+ } // </kekm.8>
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index fd382983d..6908156c3 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -343,6 +343,7 @@ public:
+ 	{
+ 		return m_pUnitInfo->getNukeRange();
+ 	}
++	bool isNuke() const { return m_pUnitInfo->isNuke(); } // advc
+ 
+ 	bool canBuildRoute() const;																				// Exposed to Python
+ 	DllExport BuildTypes getBuildType() const;																// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9436fbde2..21f099bf5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1092,7 +1092,7 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 	if (getDomainType() == DOMAIN_AIR)
+ 	{
+ 		iValue = 128 * (100 + currInterceptionProbability());
+-		if (getUnitInfo().getNukeRange() != -1)
++		if (isNuke())
+ 			iValue += 25000;
+ 		//iValue /= std::max(1, (1 + getUnitInfo().getProductionCost()));
+ 		// <K-Mod>
+@@ -18804,7 +18804,7 @@ bool CvUnitAI::AI_airOffensiveCity()
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssert(canAirAttack() || nukeRange() >= 0);
++	FAssert(canAirAttack() || isNuke());
+ 
+ 	int iBestValue = 0;
+ 	CvPlot const* pBestPlot = NULL;
+@@ -18848,8 +18848,10 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
+ 	iAttackAirCount += 2 * kPlot.plotCount(PUF_isUnitAIType, UNITAI_ICBM, -1, NO_PLAYER, getTeam());
+ 	if (at(kPlot))
+ 	{
+-		iAttackAirCount += canAirAttack() ? -1 : 0;
+-		iAttackAirCount += (nukeRange() >= 0) ? -2 : 0;
++		if (canAirAttack())
++			iAttackAirCount -= 1;
++		if (isNuke())
++			iAttackAirCount -= 2;
+ 	}
+ 	int iDefenders = kPlot.plotCount(PUF_canDefend, -1, -1, kPlot.getOwner(),
+ 			NO_TEAM, PUF_isDomainType, DOMAIN_LAND); // advc.001s
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 8b68b272a..579f717f1 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -285,7 +285,7 @@ bool MilitaryBranch::canEmploy(UnitTypes eUnit) const
+ void MilitaryBranch::reportUnit(UnitTypes eUnit, int iChange)
+ {
+ 	// (Calling canEmploy could cause unitPower to be called twice)
+-	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).getNukeRange() >= 0) &&
++	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).isNuke()) &&
+ 		isValidDomain(eUnit))
+ 	{
+ 		scaled rPowChange = unitPower(eUnit, false);
+@@ -418,7 +418,7 @@ scaled MilitaryBranch::Army::unitPower(UnitTypes eUnit, bool bModify) const
+ {
+ 	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+ 	// (Do include nukes in army)
+-	/*if (kUnit.getNukeRange() >= 0)
++	/*if (kUnit.isNuke())
+ 		return -1;*/
+ 	scaled rBasePow = kUnit.getPowerValue();
+ 	if (bModify)
+@@ -481,8 +481,8 @@ scaled MilitaryBranch::Logistics::unitPower(UnitTypes eUnit, bool bModify) const
+ scaled MilitaryBranch::NuclearArsenal::unitPower(UnitTypes eUnit, bool bModify) const
+ {
+ 	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+-	if (kUnit.getNukeRange() < 0)
+-		return -1; // I.e. disregard non-nuke units
++	if (!kUnit.isNuke())
++		return -1; // Disregard non-nuke units
+ 	scaled rBasePow = kUnit.getPowerValue();
+ 	/*	bModify should only be used for picking the typical unit. Make sure
+ 		that ICBM gets chosen over TN despite costing twice as much b/c the
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=13241

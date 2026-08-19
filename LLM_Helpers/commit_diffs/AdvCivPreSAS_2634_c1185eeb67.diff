@@ -1,0 +1,172 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2634
+# Commit: c1185eeb67354e6de7e0ea80b2429c84bf2b14b1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6226d26e95e129d93f822bb2bf3293ee5e3f8530
+# Title: Announce relocation of capital
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	0	Assets/XML/Text/CIV4GameText_advc.xml
+6	3	CvGameCoreDLL/CvCity.cpp
+50	3	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 061fdfd43..624aeb0ff 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -582,6 +582,32 @@
+ 		<Italian>Disastro nucleare a %s1_CityName!</Italian>
+ 		<Spanish>&#161;Ha habido un accidente nuclear en %s1_CityName!</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CAPITAL_MOVED</Tag>
++		<English>%s1_CityName is now the capital of %s2_CivShortDesc (was %s3_CityName).</English>
++		<French>%s1_CityName est la nouvelle capitale des %s2_CivShortDesc (� la place de %s3_CityName).</French>
++		<German>%s1_CityName ist die neue Hauptstadt von %s2_CivShortDesc (anstatt %s3_CityName).</German>
++		<Italian>%s1_CityName � la nouva capitale %s2:3_CivShortDesc (in cambio di %s3_CityName).</Italian>
++		<Spanish>%s1_CityName es la nueva capital de %s2_CivShortDesc (en lugar de %s3_CityName).</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_IS_NOW_CAPITAL</Tag>
++		<English>%s1_CityName is now the capital of %s2_CivShortDesc.</English>
++		<French>%s1_CityName est la nouvelle capitale des %s2_CivShortDesc.</French>
++		<German>%s1_CityName ist die neue Hauptstadt von %s2_CivShortDesc.</German>
++		<Italian>%s1_CityName � la nouva capitale %s2:3_CivShortDesc.</Italian>
++		<Spanish>%s1_CityName es la nueva capital de %s2_CivShortDesc.</Spanish>
++	</TEXT>
++	<!-- (Starting with the civ name sounds less weird than the other way around
++		 when the city was razed) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NO_LONGER_CAPITAL</Tag>
++		<English>The capital of %s1_CivShortDesc is no longer %s2_CityName.</English>
++		<French>La capitale des %s1_CivShortDesc n'est plus %s2_CityName.</French>
++		<German>Die Hauptstadt von %s1_CivShortDesc ist nicht mehr %s2_CityName.</German>
++		<Italian>La capitale %s1:3_CivShortDesc non � pi� %s2_CityName.</Italian>
++		<Spanish>La capital de %s1_CivShortDesc ya no es %s2_CityName.</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.106f: Based on TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT in
+ 		 CIV4GameText_Misc1.xml -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8251aea23..7c451bc10 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -385,7 +385,10 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 	FAssert(!isProduction());
+ 
+ 	PlayerTypes eOwner = getOwner();
+-	bool bCapital = isCapital();
++	bool const bCapital = isCapital();
++	// <advc.106> Moved up so that the old capital can be announced
++	if (bCapital)
++		GET_PLAYER(eOwner).findNewCapital(); // </advc.106>
+ 	kPlot.setImprovementType(GC.getRUINS_IMPROVEMENT());
+ 	CvEventReporter::getInstance().cityLost(this);
+ 	GET_PLAYER(getOwner()).deleteCity(getID());
+@@ -412,9 +415,9 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 	GC.getMap().updateWorkingCity();
+ 	GC.getGame().AI_makeAssignWorkDirty();
+ 
+-	if (bCapital != NULL)
++	if (bCapital)
+ 	{
+-		GET_PLAYER(eOwner).findNewCapital();
++		//GET_PLAYER(eOwner).findNewCapital(); // advc.106: Moved up
+ 		GET_TEAM(eOwner).resetVictoryProgress();
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 708199659..336395f4b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4323,10 +4323,11 @@ void CvPlayer::findNewCapital()  // advc style changes
+ 
+ 	if (pBestCity != NULL)
+ 	{
+-		if (pOldCapital != NULL)
+-			pOldCapital->setNumRealBuilding(eCapitalBuilding, 0);
+ 		FAssert(pBestCity->getNumRealBuilding(eCapitalBuilding) == 0);
+ 		pBestCity->setNumRealBuilding(eCapitalBuilding, 1);
++		// advc.106: Moved down so that setCapital can announce the old capital
++		if (pOldCapital != NULL)
++			pOldCapital->setNumRealBuilding(eCapitalBuilding, 0);
+ 	}
+ }
+ 
+@@ -8180,7 +8181,7 @@ void CvPlayer::changeStateReligionFreeExperience(int iChange)
+ // advc: Renamed from "setCapitalCity"
+ void CvPlayer::setCapital(CvCity* pNewCapital)
+ {
+-	CvCity* pOldCapital = getCapital();
++	CvCity* const pOldCapital = getCapital();
+ 	if (pOldCapital == pNewCapital)
+ 	{	// <advc> Make sure these are consistent
+ 		if (pNewCapital == NULL)
+@@ -8223,6 +8224,52 @@ void CvPlayer::setCapital(CvCity* pNewCapital)
+ 		pNewCapital->updateCommerce();
+ 		pNewCapital->setInfoDirty(true);
+ 	}
++	// <advc.106> Announcement:
++	if (pOldCapital != NULL && pNewCapital != NULL)
++	{
++		CvWString szFullInfo = gDLL->getText("TXT_KEY_MISC_CAPITAL_MOVED",
++				pNewCapital->getNameKey(), getCivilizationShortDescriptionKey(),
++				pOldCapital->getNameKey());
++		CvWString szOnlyOldKnown = gDLL->getText("TXT_KEY_MISC_NO_LONGER_CAPITAL",
++				getCivilizationShortDescriptionKey(), pOldCapital->getNameKey());
++		CvWString szOnlyNewKnown = gDLL->getText("TXT_KEY_MISC_IS_NOW_CAPITAL",
++				pNewCapital->getNameKey(), getCivilizationShortDescriptionKey());
++		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++		{
++			CvPlayer const& kObs = *it;
++			if (kObs.getID() == getID())
++				continue;
++			if (GET_TEAM(getTeam()).isHasMet(kObs.getTeam()) ||
++				 kObs.isSpectator()) // advc.127
++			{
++				CvWString* pszMsg = NULL;
++				bool bOldRevealed = pOldCapital->isRevealed(kObs.getTeam(),
++						kObs.isSpectator()); // advc.127
++				bool bNewRevealed = pNewCapital->isRevealed(kObs.getTeam(),
++						kObs.isSpectator()); // advc.127
++				if (bOldRevealed && bNewRevealed)
++					pszMsg = &szFullInfo;
++				else if (bOldRevealed)
++					pszMsg = &szOnlyOldKnown;
++				else if (bNewRevealed)
++					pszMsg = &szOnlyNewKnown;
++				if (pszMsg != NULL)
++				{
++					CvPlot const& kFlashPlot = (bNewRevealed ?
++							pNewCapital->getPlot() : pOldCapital->getPlot());
++					/*	<advc.127> Not really a major event, but minor events
++						don't get shown in spectator mode. */
++					InterfaceMessageTypes eMsgType = (kObs.isSpectator() ?
++							MESSAGE_TYPE_MAJOR_EVENT : MESSAGE_TYPE_MINOR_EVENT);
++					// </advc.127>
++					gDLL->UI().addMessage(kObs.getID(), false, -1, *pszMsg, NULL,
++							eMsgType, ARTFILEMGR.getInterfaceArtInfo(
++							"INTERFACE_CITY_BAR_CAPITAL_TEXTURE")->getPath(),
++							NO_COLOR, kFlashPlot.getX(), kFlashPlot.getY());
++				}
++			}
++		}
++	} // </advc.106>
+ }
+ 
+ // <advc.127b>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6189

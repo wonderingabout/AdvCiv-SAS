@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2095
+# Commit: b103dfbcc6ec6491b9f0729a5298c54b7d20f843
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a3e0f85b1da1de95f876c4b154a7605d50f029b8
+# Title: Fix minor AdvCiv bug with redundant popups
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	10	CvGameCoreDLL/CvCity.cpp
+4	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 78526086a..414ee1ba2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10393,7 +10393,7 @@ bool CvCity::doCheckProduction()  // advc: some style changes
+ 	return checkCanContinueProduction();
+ }
+ 
+-// advc.064d:: Cut from doCheckProduction
++// advc.064d: Cut from doCheckProduction
+ bool CvCity::checkCanContinueProduction()
+ {
+ 	bool r = true;
+@@ -10405,15 +10405,7 @@ bool CvCity::checkCanContinueProduction()
+ 			popOrder(i, false, true);
+ 			r = false;
+ 		}
+-	}
+-	// <advc.064d>
+-	if (!isProduction() && !isDisorder())
+-	{
+-		if(isHuman() && !isProductionAutomated())
+-			chooseProduction();
+-		else AI().AI_chooseProduction();
+-	} // </advc.064d>
+-	// <advc.004x> Relaunch choose-production popups
++	}  // <advc.004x> Relaunch choose-production popups
+ 	if (!r)
+ 		GET_PLAYER(getOwner()).killAll(NO_BUTTONPOPUP); // </advc.004x>
+ 	return r;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c08d4171f..9798e690b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -22161,7 +22161,10 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
+ 					and founded a religion, i.e. the found-religion popup is
+ 					essentially already done. */
+ 				(ePopupType != BUTTONPOPUP_CHANGERELIGION || iPass < 1 ||
+-				pPopup->getButtonPopupType() != BUTTONPOPUP_FOUND_RELIGION)) ||
++				pPopup->getButtonPopupType() != BUTTONPOPUP_FOUND_RELIGION) &&
++				// Doesn't get minimized, never needs to be relaunched.
++				(iPass < 1 || pPopup->getButtonPopupType() != BUTTONPOPUP_DECLAREWARMOVE))
++				||
+ 				(iData1 >= 0 && pPopup->getData1() != iData1))
+ 			{
+ 				newQueue.push_back(pPopup);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1734

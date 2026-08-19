@@ -1,0 +1,449 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5950
+# Commit: 1f82d3ca4f9ff233291d23223e041b546ef556f6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 42cbc76648165ee979dae223a4374b3884e404a9
+# Title: Fix Base AdvCiv bug: Minor AI Work Boat overproduction/target mismatches; enhance AI Work Boat behaviour - Compare Work Boat need against the same primary/se...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+101	13	CvGameCoreDLL/CvCityAI.cpp
+15	0	CvGameCoreDLL/CvPlot.cpp
+40	1	CvGameCoreDLL/CvUnitAI.cpp
+39	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d6ac0a087..501268f37 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12,6 +12,67 @@
+ #include "CvInfo_Civics.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 
++// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact sea-worker target bonuses when city logging is high. No behavior change. See KI#157. (GPT-5.5) -->
++static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
++	CvArea const* pCityWaterArea = kCity.waterArea(true);
++	CvArea const* pSecondWaterArea = kCity.secondWaterArea();
++	int const iCityWaterAreaTrain = (pCityWaterArea == NULL ? 0 : pCityWaterArea->getNumTrainAIUnits(kCity.getOwner(), UNITAI_WORKER_SEA));
++	int const iRelevantWaterAreaTrain = (pRelevantWaterArea == NULL ? 0 : pRelevantWaterArea->getNumTrainAIUnits(kCity.getOwner(), UNITAI_WORKER_SEA));
++	int const iSecondWaterAreaTrain = (pSecondWaterArea == NULL ? 0 : pSecondWaterArea->getNumTrainAIUnits(kCity.getOwner(), UNITAI_WORKER_SEA));
++	int iRawAreaAvailable = 0;
++	if (pCityWaterArea != NULL) iRawAreaAvailable += kPlayer.AI_totalWaterAreaUnitAIs(*pCityWaterArea, UNITAI_WORKER_SEA);
++	if (pSecondWaterArea != NULL && pSecondWaterArea != pCityWaterArea) iRawAreaAvailable += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondWaterArea, UNITAI_WORKER_SEA);
++	logBBAI("      WORKER_SEA_CHOOSE_DETAIL branch=%s turn=%d player=%d %S city=%S cityId=%d pop=%d needed=%d existingRelevant=%d playerTrain=%d availableRawAreas=%d cityTrain=%d cityWaterArea=%d relevantWaterArea=%d secondWaterArea=%d cityWaterAreaTrain=%d relevantWaterAreaTrain=%d secondWaterAreaTrain=%d waterDanger=%d financialTrouble=%d",
++		szBranch, GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, kPlayer.AI_getNumTrainAIUnits(UNITAI_WORKER_SEA), iRawAreaAvailable, kCity.getNumTrainUnitAI(UNITAI_WORKER_SEA),
++		(pCityWaterArea == NULL ? -1 : pCityWaterArea->getID()), (pRelevantWaterArea == NULL ? -1 : pRelevantWaterArea->getID()), (pSecondWaterArea == NULL ? -1 : pSecondWaterArea->getID()), iCityWaterAreaTrain, iRelevantWaterAreaTrain, iSecondWaterAreaTrain, bWaterDanger, bFinancialTrouble);
++}
++
++static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot const& kPlot, CvPlot const& kFromPlot)
++{
++	if (kPlot.isCity())
++		return false;
++	BonusTypes const eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(kPlayer.getTeam());
++	if (eNonObsoleteBonus == NO_BONUS || kPlayer.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
++		return false;
++	if (!gDLL->getFAStarIFace()->GeneratePath(&GC.getBorderFinder(), kFromPlot.getX(), kFromPlot.getY(), kPlot.getX(), kPlot.getY(), !kPlot.isWater(), kPlayer.getID(), true))
++		return false;
++	FOR_EACH_ENUM(Build)
++	{
++		if (kPlayer.doesImprovementConnectBonus(GC.getInfo(eLoopBuild).getImprovement(), eNonObsoleteBonus) && kPlayer.canBuild(kPlot, eLoopBuild, false, false))
++			return true;
++	}
++	return false;
++}
++
++static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pWaterArea, char const* szAreaLabel)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
++	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
++	int iLoggedTargets = 0;
++	CvMap const& kMap = GC.getMap();
++	for (int i = 0; i < kMap.numPlots(); i++)
++	{
++		CvPlot const& kPlot = kMap.getPlotByIndex(i);
++		if (kPlot.getOwner() != kCity.getOwner() || !kPlot.isArea(*pWaterArea))
++			continue;
++		if (!isSASUnimprovedSeaBonusForLog(kPlayer, kPlot, kCity.getPlot()))
++			continue;
++		BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kCity.getTeam());
++		ImprovementTypes const eImprovement = kPlot.getImprovementType();
++		CvCity const* pWorkingCity = kPlot.getWorkingCity();
++		CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
++		wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
++		wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
++		logBBAI("      WORKER_SEA_NEEDED_TARGET turn=%d player=%d %S city=%S cityId=%d areaLabel=%s waterArea=%d plot=(%d,%d) bonus=%S improvement=%S cityRadius=%d workingCity=%S workingCityId=%d revealed=%d",
++			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szAreaLabel, pWaterArea->getID(), kPlot.getX(), kPlot.getY(), szBonus, szImprovement, kPlot.isCityRadius(), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), kPlot.isRevealed(kCity.getTeam(), false));
++		iLoggedTargets++;
++	}
++	logBBAI("      WORKER_SEA_NEEDED_TARGET_SUMMARY turn=%d player=%d %S city=%S cityId=%d areaLabel=%s waterArea=%d loggedTargets=%d",
++		GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szAreaLabel, pWaterArea->getID(), iLoggedTargets);
++}
++
+ 
+ CvCityAI::CvCityAI() // advc.003u: Merged with AI_reset
+ {
+@@ -742,6 +803,12 @@ void CvCityAI::AI_chooseProduction()
+ 	int const iNeededSeaWorkers = (bMaybeWaterArea) ? AI_neededSeaWorkers() : 0;
+ 	int const iExistingSeaWorkers = (pWaterArea != NULL) ?
+ 			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA) : 0;
++	// <!-- custom: Compare Work Boat need against the same raw primary + second water areas that AI_neededSeaWorkers counts. Using the strategically relevant pWaterArea can miss city-reachable targets in another local water area, while adding global playerTrain can suppress valid Work Boats on unrelated seas. AI_totalWaterAreaUnitAIs already includes queued/in-training boats for that water area. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
++	CvArea const* pPrimarySeaWorkerArea = waterArea(true);
++	CvArea const* pSecondSeaWorkerArea = secondWaterArea();
++	int iAvailableSeaWorkers = 0;
++	if (pPrimarySeaWorkerArea != NULL) iAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pPrimarySeaWorkerArea, UNITAI_WORKER_SEA);
++	if (pSecondSeaWorkerArea != NULL && pSecondSeaWorkerArea != pPrimarySeaWorkerArea) iAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondSeaWorkerArea, UNITAI_WORKER_SEA);
+ 
+ 	int iAreaBestFoundValue=-1;
+ 	int const iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kArea, iAreaBestFoundValue);
+@@ -1060,12 +1127,12 @@ void CvCityAI::AI_chooseProduction()
+ 		!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
+ 	{
+ 		if (!bWaterDanger && iCityPopulation < 3 &&
+-			iNeededSeaWorkers > 0 && iExistingSeaWorkers <= 0)
++			iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
+ 		{
+ 			// Build Work Boat first since it doesn't stop growth
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 1a", sCityName);
++				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 				return;
+ 			}
+ 		}
+@@ -1104,11 +1171,11 @@ void CvCityAI::AI_chooseProduction()
+ 				bChooseWorker = true;
+ 			}
+ 
+-			if (!bWaterDanger && iNeededSeaWorkers > iExistingSeaWorkers && iCityPopulation < 3)
++			if (!bWaterDanger && iNeededSeaWorkers > iAvailableSeaWorkers && iCityPopulation < 3)
+ 			{
+ 				if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 1", sCityName);
++					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 					return;
+ 				}
+ 			}
+@@ -1461,7 +1528,7 @@ void CvCityAI::AI_chooseProduction()
+ 	// K-Mod, 10/sep/10: was "if (bDanger", I have changed it to "if (!bDanger" 
+ 	if (!bDanger && iExistingWorkers == 0 && (isCapital() ||
+ 		iMissingWorkers > 0 || // advc.113: was iNeededWorkers>0
+-		iNeededSeaWorkers > iExistingSeaWorkers))
++		iNeededSeaWorkers > iAvailableSeaWorkers))
+ 	{
+ 		if (!(bDefenseWar && iWarSuccessRating < -30) &&
+ 			!kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
+@@ -1478,12 +1545,12 @@ void CvCityAI::AI_chooseProduction()
+ 				bChooseWorker = true;
+ 			}
+ 
+-			if (iNeededSeaWorkers > iExistingSeaWorkers)
++			if (iNeededSeaWorkers > iAvailableSeaWorkers)
+ 			{
+ 				if (AI_chooseUnit(UNITAI_WORKER_SEA,
+ 					60)) // advc.131: From MNAI; was -1.
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 2", sCityName);
++					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 2", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 					return;
+ 				}
+ 			}
+@@ -1492,11 +1559,11 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	if (!(bDefenseWar && iWarSuccessRating < -30))
+ 	{
+-		if (!bWaterDanger && iNeededSeaWorkers > iExistingSeaWorkers)
++		if (!bWaterDanger && iNeededSeaWorkers > iAvailableSeaWorkers)
+ 		{
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 3", sCityName);
++				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 3", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+ 				return;
+ 			}
+ 		}
+@@ -9120,12 +9187,24 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
+ 	iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pWaterArea, plot(), iLookAhead); // advc.042
+ 	// Check if second water area city can reach was any unimproved bonuses
+ 
+-	pWaterArea = secondWaterArea();
+-	if (pWaterArea != NULL)
++	CvArea* pPrimaryWaterArea = pWaterArea;
++	CvArea* pSecondWaterArea = secondWaterArea();
++	if (pSecondWaterArea != NULL)
+ 	{
+-		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pWaterArea, plot(), iLookAhead); // advc.042
++		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pSecondWaterArea, plot(), iLookAhead); // advc.042
+ 	}
+ 	// BETTER_BTS_AI_MOD: END
++	if (gCityLogLevel >= 3 && iNeededSeaWorkers > 0)
++	{
++		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++		logBBAI("      WORKER_SEA_NEEDED_SUMMARY turn=%d player=%d %S city=%S cityId=%d needed=%d primaryWaterArea=%d secondWaterArea=%d primaryExisting=%d secondExisting=%d primaryTrain=%d secondTrain=%d",
++			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededSeaWorkers,
++			(pPrimaryWaterArea == NULL ? -1 : pPrimaryWaterArea->getID()), (pSecondWaterArea == NULL ? -1 : pSecondWaterArea->getID()),
++			(pPrimaryWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pPrimaryWaterArea, UNITAI_WORKER_SEA)), (pSecondWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pSecondWaterArea, UNITAI_WORKER_SEA)),
++			(pPrimaryWaterArea == NULL ? 0 : pPrimaryWaterArea->getNumTrainAIUnits(getOwner(), UNITAI_WORKER_SEA)), (pSecondWaterArea == NULL ? 0 : pSecondWaterArea->getNumTrainAIUnits(getOwner(), UNITAI_WORKER_SEA)));
++		if (pPrimaryWaterArea != NULL) logSASNeededSeaWorkerTargets(*this, pPrimaryWaterArea, "primary");
++		if (pSecondWaterArea != NULL) logSASNeededSeaWorkerTargets(*this, pSecondWaterArea, "second");
++	}
+ 	return iNeededSeaWorkers;
+ }
+ 
+@@ -13057,6 +13136,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
+ 		{
++			if (gCityLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
++			{
++				CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++				CvArea const* pWaterArea = waterArea(true);
++				int const iNeededSeaWorkers = (pWaterArea == NULL ? 0 : AI_neededSeaWorkers());
++				int const iExistingSeaWorkers = (pWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA));
++				logSASWorkerSeaChooseDetail("AI_chooseUnit final worker sea", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, kOwner.AI_isAnyWaterDanger(getPlot(), 4), kOwner.AI_isFinancialTrouble());
++			}
+ 			pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI);
+ 		}
+ 		return true;
+@@ -16015,6 +16102,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 			iOdds /= 50 + (bLocalResource ? 3 : 5) * iBestBuildingValue;
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
+ 			{
++				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("governor worker sea", *this, pWaterArea, getPopulation(), AI_neededSeaWorkers(), kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA), bDanger, kOwner.AI_isFinancialTrouble());
+ 				return;
+ 			}
+ 		}
+@@ -16285,7 +16373,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 		{
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+-				if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose worker sea 1", sCityName);
++				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("barb choose worker sea 1", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, kPlayer.AI_isFinancialTrouble());
+ 				return;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b917a6851..1b0dfe156 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4772,6 +4772,21 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue,
+ 			GET_PLAYER(getOwner()).changeImprovementCount(eOldImprovement, -1);
+ 	}
+ 
++	// <!-- custom: Diagnostic-only log for repeated Work Boat replacement. BBAI logs showed Work Boats successfully improving the same seafood multiple times, then cities later counting the target as unimproved again; log when an owned water bonus loses a connecting sea improvement so we can distinguish pillage/destruction/ownership churn from production overqueue. No behavior change. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
++	if ((gCityLogLevel >= 2 || gUnitLogLevel >= 2) && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
++	{
++		CvPlayer const& kOwner = GET_PLAYER(getOwner());
++		BonusTypes const eBonus = getNonObsoleteBonusType(kOwner.getTeam());
++		if (eBonus != NO_BONUS && kOwner.doesImprovementConnectBonus(eOldImprovement, eBonus) &&
++			(eNewValue == NO_IMPROVEMENT || !kOwner.doesImprovementConnectBonus(eNewValue, eBonus)))
++		{
++			CvCity const* pWorkingCity = getWorkingCity();
++			CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
++			logBBAI("    WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d %S plot=(%d,%d) area=%d bonus=%S oldImprovement=%S newImprovement=%S workingCity=%S workingCityId=%d visibleEnemy=%d",
++				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getX(), getY(), getArea().getID(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eOldImprovement).getDescription(), (eNewValue == NO_IMPROVEMENT ? L"-" : GC.getInfo(eNewValue).getDescription()), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
++		}
++	}
++
+ 	updatePlotGroupBonus(false, /* advc.064d: */ false);
+ 	m_eImprovementType = eNewValue;
+ 	updatePlotGroupBonus(true);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 01777619a..9042a0008 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -32,6 +32,34 @@ CvUnitAI::~CvUnitAI()
+ 	//AI_uninit(); // Delete member pointers right here (but there are none)
+ }
+ 
++// <!-- custom: Diagnostic-only Work Boat movement logging to pair with CvCityAI worker-sea production logs. Production logs showed many completed Work Boats while the same sea bonuses stayed unimproved, so record whether UNITAI_WORKER_SEA units improve, retreat, seek safety, or idle. No behavior change. See KI#157. (GPT-5.5) -->
++static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
++	CvPlot const& kPlot = kUnit.getPlot();
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
++	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
++	int const iMissionQueue = (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue());
++	CvCity const* pCity = kPlot.getPlotCity();
++	CvCity const* pTargetWorkingCity = (pMissionPlot == NULL ? NULL : pMissionPlot->getWorkingCity());
++	BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kUnit.getTeam());
++	ImprovementTypes const eImprovement = kPlot.getImprovementType();
++	BonusTypes const eTargetBonus = (pMissionPlot == NULL ? NO_BONUS : pMissionPlot->getNonObsoleteBonusType(kUnit.getTeam()));
++	ImprovementTypes const eTargetImprovement = (pMissionPlot == NULL ? NO_IMPROVEMENT : pMissionPlot->getImprovementType());
++	CvWString const szCity = (pCity == NULL ? CvWString(L"-") : pCity->getName());
++	CvWString const szTargetWorkingCity = (pTargetWorkingCity == NULL ? CvWString(L"-") : pTargetWorkingCity->getName());
++	wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
++	wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
++	wchar const* szTargetBonus = (eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription());
++	wchar const* szTargetImprovement = (eTargetImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetImprovement).getDescription());
++	int const iTargetMissionAIsSkipSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, pGroup, 0, MAX_INT));
++	int const iTargetMissionAIsIncludingSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, NULL, 0, MAX_INT));
++	logBBAI("    WORKER_SEA_MOVE_DETAIL reason=%s turn=%d player=%d %S unitId=%d unit=%S plot=(%d,%d) area=%d owner=%d city=%S bonus=%S improvement=%S missionAI=%d missionPlot=(%d,%d) missionQueue=%d waterDanger=%d targetOwner=%d targetBonus=%S targetImprovement=%S targetWorkingCity=%S targetWorkingCityId=%d targetWaterDanger=%d targetMissionAIsSkipSelf=%d targetMissionAIsIncludingSelf=%d",
++		szReason, GC.getGame().getGameTurn(), kUnit.getOwner(), kPlayer.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), kPlot.getOwner(), szCity.GetCString(), szBonus, szImprovement, eMissionAI,
++		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionQueue, kPlayer.AI_isAnyWaterDanger(kPlot), (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner()), szTargetBonus, szTargetImprovement, szTargetWorkingCity.GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()), (pMissionPlot == NULL ? 0 : kPlayer.AI_isAnyWaterDanger(*pMissionPlot)), iTargetMissionAIsSkipSelf, iTargetMissionAIsIncludingSelf);
++}
++
+ // <!-- custom: Count non-home BFC food bonuses and bad plots for first-city heuristics. The home plot is skipped
+ // because settling consumes it as the city tile; a peak/desert/tundra hill under the city can still be a good settle
+ // tile, and a food bonus under the city is not a normal workable food bonus. Bad non-home plots are: no-yield plots
+@@ -8597,6 +8625,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 		{
+ 			if (AI_retreatToCity())
+ 			{
++				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
+ 				return;
+ 			}
+ 		}
+@@ -8610,6 +8639,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 
+ 	if (AI_improveBonus())
+ 	{
++		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
+ 		return;
+ 	}
+ 
+@@ -8621,6 +8651,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 			if (getPlot().getOwner() == getOwner() || !getPlot().isOwned())
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP);
++				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
+ 				return;
+ 			}
+ 		}
+@@ -8632,6 +8663,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 				if (isRevealedValidDomain(*pAdj)) // advc
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP);
++					if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
+ 					return;
+ 				}
+ 			}
+@@ -8665,15 +8697,18 @@ void CvUnitAI::AI_workerSeaMove()
+ 
+ 	if (AI_retreatToCity())
+ 	{
++		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
+ 		return;
+ 	}
+ 
+ 	if (AI_safety())
+ 	{
++		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
+ 		return;
+ 	}
+ 
+ 	getGroup()->pushMission(MISSION_SKIP);
++	if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
+ }
+ 
+ 
+@@ -21110,7 +21145,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 			continue;
+ 
+ 		bool bConnected = kPlot.isConnectedToCapital(getOwner());
+-		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute)
++		// <!-- custom: Work Boats can connect sea bonuses through the bonus improvement itself. Do not reject owned outside-BFC seafood merely because the plot has no working city and the unit cannot build routes; AI_neededSeaWorkers counts those targets, so rejecting them here can create a produce-boat / target-still-unimproved loop. Later checks still require AI_canConnectBonus, canBuild, pathing, and target reservation. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
++		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute && getDomainType() != DOMAIN_SEA)
+ 			continue;
+ 
+ 		// <advc.300> Barbarian workers shouldn't improve bonuses around remote cities
+@@ -21136,6 +21172,9 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 		// K-Mod. Simpler, and better.
+ 		bool bDoImprove = true;
+ 		ImprovementTypes eImprovement = kPlot.getImprovementType();
++		// <!-- custom: Sea workers should not spend themselves on a bonus that already has a connecting sea improvement. This guards stale Work Boats after another boat solved the target; unresolved repeated Work Boat production now appears more related to net loss/attrition than idle production. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
++		if (getDomainType() == DOMAIN_SEA && eImprovement != NO_IMPROVEMENT && kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
++			continue;
+ 		CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+ 		BuildTypes eBestTempBuild = NO_BUILD;
+ 		if (eImprovement != NO_IMPROVEMENT &&
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index c299fcf5d..e6332c08e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -192,6 +192,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#154---fixed-base-advciv-issue-great-people-could-wait-too-long-for-golden-age-partners-instead-of-using-lower-but-useful-actions)  
+ [155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
+ [156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
++[157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5791,3 +5792,41 @@ The generic `ATTACK_CITY_PARKING reason=wait_upgrade` log was then moved after t
+ Tuning is as of now exposed through the corresponding SAS defines for enable/disable, minimum stack size, minimum military share, and maximum target path turns.
+ 
+ Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
++
++## 157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1h4L2TK5pqCYLjVj81vFTW8xFKTKkE09z?usp=sharing).
++
++This follows the older Work Boat spam fixes in [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---fixed-base-advciv-issue-of-major-ai-work-boat-producing--scraping-loop-worker-sea-ai-overproduction) and [KI#23.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---seemingly-mostly-fixed-base-advciv-issue-of-major-ai-work-boat-producing--scraping-loop-worker-sea-ai-overproduction), and is related to the broader naval overproduction/scrapping sanity work in [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#53---fixed-ai-naval-dementia-naval-overproduction-and-naval-scrapping-mayhem). After those earlier changes, BBAI logs still showed many Work Boat pushes and finishes, especially through `choose worker sea 3`, while some seafood targets appeared repeatedly unimproved.
++
++We added targeted BBAI diagnostics:
++
++- `WORKER_SEA_CHOOSE_DETAIL`: every city-side Work Boat production source, including needed workers, existing relevant workers, queued workers, raw primary/second water-area availability, water danger, and financial trouble.
++- `WORKER_SEA_NEEDED_TARGET`: exact sea bonuses counted by `AI_neededSeaWorkers`.
++- `WORKER_SEA_MOVE_DETAIL`: what existing `UNITAI_WORKER_SEA` units did, such as improving a bonus, retreating, seeking safety, or skipping.
++- `WORKER_SEA_IMPROVEMENT_LOST`: when an owned water bonus lost a connecting sea improvement, so repeated replacement could be separated from production overqueue.
++
++The production-side fix was to compare `AI_neededSeaWorkers()` against the same raw primary + second water areas that `AI_neededSeaWorkers()` counts. The old branch used the strategically relevant `pWaterArea`, which can miss city-reachable targets in another local water area. A global queued-boat guard was tested and rejected because it can suppress valid Work Boats on unrelated seas. The current check uses `AI_totalWaterAreaUnitAIs` on the raw counted areas; that function already includes queued/in-training boats for that water area.
++
++The movement-side fix was to let sea workers resolve owned off-BFC sea bonuses that city production already counted. `AI_neededSeaWorkers()` can count those targets, but `AI_improveBonus()` had a land-worker-style guard that rejected no-working-city/no-route plots. For Work Boats, routing is normally irrelevant because the sea improvement itself connects the bonus, so this mismatch could produce a counted-target / boat-cannot-resolve loop. Sea workers now pass that guard, while later checks still require `AI_canConnectBonus`, `canBuild`, pathing, and target reservation.
++
++A stale-target guard was also added so a sea worker does not spend itself on a bonus that already has a connecting sea improvement. This covers cases where another Work Boat solved the target first.
++
++The reviewed log after these changes showed:
++
++- `WORKER_SEA_CHOOSE_DETAIL`: 262 lines.
++- `AI_chooseUnit final worker sea`: 131 lines.
++- `choose worker sea 3`: 130 lines.
++- `WORKER_SEA_MOVE_DETAIL`: 152 lines.
++- `improve bonus`: 125 lines.
++- `WORKER_SEA_IMPROVEMENT_LOST`: 55 lines.
++- 37 / 55 sea-improvement losses had `visibleEnemy=1`.
++- no pre-push case where `needed <= availableRawAreas`; when later choose logs showed that relation, it was because the Work Boat had already been queued.
++
++Repeated suspicious targets were then explained by real loss/replacement. Examples included Roman Fish `(57,6)` lost 5 times, Roman Crab `(54,6)` lost 5 times, Roman Whale `(48,10)` lost 4 times, Roman Crab `(59,12)` lost 4 times, Roman Crab `(60,14)` lost 4 times, French Molluscs `(21,37)` lost 4 times, and Zulu Whale `(13,34)` lost 4 times.
++
++Following this, Work Boat production is reduced (e.g., from 34 Work Boats before the fix to ~27-29 Work Boats for Augusts, remaining seeming to be due to heavy pillaging).
++
++Conclusion: the remaining high Work Boat count is largely genuine replacement after enemy or pirate pillaging/harassment, not the old produce/scrap or overqueue bug. Future work should therefore probably target naval defense or repeated sea-improvement loss response, not add broader Work Boat production suppression.
++
++Fixed/diagnosed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1dac70cb8..062951d74 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -236,6 +236,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ #### Units (Common) (AI)
+ 
+ - (Requires AdvCiv-SAS 5945+) Old default scrapping mode: **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago, etc.) **don’t restrict naval quotas** — sea control can decide wars (e.g., a frigate that sinks transports before they land can neutralize a four-unit invasion) and supports diverse strategies; on **land-heavy** maps (pangaea/continents) set naval quotas **much lower**. In war/danger, naval production quotas drop (sometimes to **0**), but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the "naval dementia" case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers) (complements [KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)). **Guardrail impact:** likely also covers hidden loops such as the **workboat infinite loop**; see [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late).
++- (Requires AdvCiv-SAS 5950+) **Work Boat overproduction bug follow-up:** after fixing the old Work Boat produce/scrap loop, BBAI logs still showed some minor remaining Work Boat overproduction, confirmed by ingame advisors (e.g., Augustus having built 34 Work Boats by T373, more than any other unit type). Two mismatches were fixed. First, cities could decide whether to build a Work Boat using a different water area than the one used to count seafood targets, so need and availability did not always match. Second, Work Boats could skip owned **off-BFC seafood** even though city production had counted it as a valid target. These mismatches are now fixed. Following this, Work Boat production is reduced (e.g., to ~27-29 Work Boats for Augusts, remaining seeming to be due to heavy pillaging). As an extra enhancement, stale Work Boats now also skip seafood already connected by another Work Boat. Following these fixes. See [KI#157](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses).
+ - (Requires AdvCiv-SAS 5945+) Old default scrapping mode: **Exception: Allow scrapping** for units that have an `ObsoleteTech`: they are less efficient to keep. **Gated strictly** by **domain/era:** (e.g., an archer is not useful at medieval era, but a knight unit is still useful at industrial era). These are **raw XML-cost gates** (no game-speed scaling). Also added a naval exception: **sea units carrying cargo are never scrapped** (e.g., a galley is still useful to transport units).
+ - (Requires AdvCiv-SAS 5945+) Old default scrapping mode: **Scrapping safeguards**: added pre-checks to stop scrapping **useful units**—**all land military units are protected**, and **no unit can be scrapped before turn 150**. Fixes early "produce then scrap" cases (e.g., macemen) and keeps forces on the map vs. barbarians/rivals (**no economy check**). See **[KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)**.
+ - (Requires AdvCiv-SAS 5945+) Old default scrapping mode: Add **scrap tolerance beyond unit support costs**: we expect to lose a few units during war; having a few **extra units** helps us not become weaker than our rivals; overshooting may lead to bankruptcy. Formula: `mult * (era + 1) + add` extra units.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=35139

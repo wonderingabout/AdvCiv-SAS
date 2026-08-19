@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4295
+# Commit: 97e01027547d0700a4bb6bb34a2b6e1a83216304
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f8c9dd630b9b9473dc7ecc410b84967aa4cab9f9
+# Title: AI may convert unemployed Pillage units to (City) Attack
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+41	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index cc9eef01c..b57c9e82f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2852,7 +2852,7 @@ void CvUnitAI::AI_paratrooperMove()
+ 		if (AI_anyAttack(1, 45, 0, 3))
+ 			return;
+ 	}*/ // disabled by K-Mod. (redundant)
+-	if (AI_pillageRange(1, 15))
++	if (AI_pillageRange(1, 13)) // advc.083: was 15
+ 	{
+ 		return;
+ 	}
+@@ -3946,7 +3946,7 @@ void CvUnitAI::AI_pillageMove()
+ 	/*	K-Mod. Pillage units should focus on pillaging, when possible.
+ 		note: having 2 moves doesn't necessarily mean we can
+ 		move & pillage in the same turn, but it's a good enough approximation. */
+-	if (AI_pillageRange(getGroup()->baseMoves() > 1 ? 1 : 0, 11))
++	if (AI_pillageRange(getGroup()->baseMoves() > 1 ? 1 : 0, 10)) // advc.083: thresh was 11
+ 	{
+ 		return;
+ 	}
+@@ -4011,7 +4011,7 @@ void CvUnitAI::AI_pillageMove()
+ 
+ 	if (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE || isEnemy(getPlot()))
+ 	{
+-		if (AI_pillage(20))
++		if (AI_pillage(12 + GET_PLAYER(getOwner()).AI_getCurrEra())) // advc.083: was 20
+ 		{
+ 			return;
+ 		}
+@@ -4056,6 +4056,42 @@ void CvUnitAI::AI_pillageMove()
+ 	if (AI_handleStranded())
+ 		return;
+ 	// K-Mod end
++	// <advc.017b>
++	UnitAITypes const eConvertAI = (AI_getBirthmark() % 3 == 0 ? UNITAI_ATTACK
++			: UNITAI_ATTACK_CITY);
++	if (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE &&
++		getPlot().isCity() &&
++		/*	Somewhat mirrors an invaderWeight condition in CvCityAI::
++			AI_chooseProduction - but the correspondence isn't consequential. */
++		GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_PILLAGE) * 7 >
++		getArea().getCitiesPerPlayer(getOwner()) * 2 &&
++		GET_PLAYER(getOwner()).AI_unitValue(
++		getUnitType(), eConvertAI, area()) > 0 &&
++		GET_TEAM(getTeam()).AI_getEnemyPowerPercent() > 50)
++	{
++		for (PlayerIter<ALIVE,/*KNOWN_POTENTIAL_*/ENEMY_OF> itEnemy(getTeam());
++			itEnemy.hasNext(); ++itEnemy)
++		{	/*	Better only consider switching the unit type once already at
++				war. Before that, we can't easily tell if there's anything
++				important to pillage. */
++			/*if (!GET_TEAM(getTeam()).AI_mayAttack(itEnemy->getTeam()))
++				continue;*/
++			FOR_EACH_CITY(pEnemyCity, *itEnemy)
++			{
++				if (!pEnemyCity->isRevealed(getTeam()) ||
++					!pEnemyCity->isArea(getArea()))
++				{
++					continue;
++				}
++				if (generatePath(pEnemyCity->getPlot(),
++					MOVE_ATTACK_STACK/* | MOVE_DECLARE_WAR*/))
++				{
++					AI_setUnitAIType(eConvertAI);
++					return;
++				}
++			}
++		}
++	} // </advc.017b>
+ 
+ 	if (AI_retreatToCity())
+ 	{
+@@ -15102,7 +15138,8 @@ bool CvUnitAI::AI_pillage(int iBonusValueThreshold, MovementFlags eFlags)
+ 						if (iValue > iBestValue)
+ 						{
+ 							int iPathTurns;
+-							if (generatePath(kPlot, eFlags, true, &iPathTurns))
++							if (generatePath(kPlot, eFlags, true, &iPathTurns,
++								8)) // advc.083: Don't move in arbitrarily deep
+ 							{
+ 								iValue /= (iPathTurns + 1);
+ 								if (iValue > iBestValue)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2998

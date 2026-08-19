@@ -1,0 +1,1096 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1614
+# Commit: 49bc0f540e3e308bf944c43a12b87e2456557b0f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ef9dfd3ea0086bf12f580ffe38c041fa6703c7ac
+# Title: Removed some includes from headers; AI_Defines.h renamed.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	2	CvGameCoreDLL/AdvCiv4lerts.h
+2	1	CvGameCoreDLL/ArmamentForecast.cpp
+2	2	CvGameCoreDLL/{AI_Defines.h => BBAI_Defines.h}
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvDLLButtonPopup.cpp
+3	5	CvGameCoreDLL/CvDLLButtonPopup.h
+0	1	CvGameCoreDLL/CvDLLEngineIFaceBase.h
+0	1	CvGameCoreDLL/CvDLLEntityIFaceBase.h
+2	1	CvGameCoreDLL/CvDLLIniParserIFaceBase.h
+0	3	CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+2	1	CvGameCoreDLL/CvDLLPlotBuilderIFaceBase.h
+1	0	CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+0	1	CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	0	CvGameCoreDLL/CvDLLXMLIFaceBase.h
+1	0	CvGameCoreDLL/CvDeal.cpp
+0	4	CvGameCoreDLL/CvDeal.h
+0	1	CvGameCoreDLL/CvDiploParameters.h
+1	0	CvGameCoreDLL/CvEventReporter.h
+1	1	CvGameCoreDLL/CvGame.cpp
+0	1	CvGameCoreDLL/CvGame.h
+1	0	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+0	2	CvGameCoreDLL/CvGameTextMgr.h
+1	0	CvGameCoreDLL/CvHallOfFameInfo.cpp
+1	1	CvGameCoreDLL/CvHallOfFameInfo.h
+0	1	CvGameCoreDLL/CvInfoWater.h
+0	1	CvGameCoreDLL/CvInitCore.h
+0	1	CvGameCoreDLL/CvPlayer.h
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+0	4	CvGameCoreDLL/CvPlot.h
+0	3	CvGameCoreDLL/CvReplayInfo.h
+0	2	CvGameCoreDLL/CvStructs.h
+1	1	CvGameCoreDLL/CvTeam.cpp
+3	3	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CvXMLLoadUtility.cpp
+1	3	CvGameCoreDLL/CvXMLLoadUtility.h
+1	2	CvGameCoreDLL/CyCity.h
+1	0	CvGameCoreDLL/CyGameTextMgr.h
+1	0	CvGameCoreDLL/CyMap.h
+1	0	CvGameCoreDLL/CyMapGenerator.h
+1	0	CvGameCoreDLL/CyPlot.h
+2	2	CvGameCoreDLL/CySelectionGroup.h
+4	0	CvGameCoreDLL/CyTeam.cpp
+1	3	CvGameCoreDLL/CyTeam.h
+2	0	CvGameCoreDLL/CyUnit.h
+1	0	CvGameCoreDLL/InvasionGraph.cpp
+0	1	CvGameCoreDLL/InvasionGraph.h
+2	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	0	CvGameCoreDLL/MilitaryBranch.cpp
+0	1	CvGameCoreDLL/MilitaryBranch.h
+1	1	CvGameCoreDLL/Project/AdvCiv.vcxproj
+0	1	CvGameCoreDLL/RFTotalScore.h
+1	1	CvGameCoreDLL/RiseFall.cpp
+0	4	CvGameCoreDLL/Shelf.h
+0	3	CvGameCoreDLL/WarAndPeaceAI.h
+2	3	CvGameCoreDLL/WarAndPeaceAgent.cpp
+4	3	CvGameCoreDLL/WarAndPeaceCache.cpp
+0	6	CvGameCoreDLL/WarAndPeaceCache.h
+0	4	CvGameCoreDLL/WarAndPeaceReport.h
+0	3	CvGameCoreDLL/WarEvalParameters.h
+1	1	CvGameCoreDLL/WarEvaluator.cpp
+0	3	CvGameCoreDLL/WarEvaluator.h
+2	1	CvGameCoreDLL/WarUtilityAspect.cpp
+ rename CvGameCoreDLL/{AI_Defines.h => BBAI_Defines.h} (97%)
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.h b/CvGameCoreDLL/AdvCiv4lerts.h
+index 55fdaab9e..d43203ed1 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.h
++++ b/CvGameCoreDLL/AdvCiv4lerts.h
+@@ -3,8 +3,6 @@
+ #ifndef ADVCIV4LERTS_H
+ #define ADVCIV4LERTS_H
+ 
+-#include "CvString.h"
+-
+ /*  <advc.210>: I can't write this in Python, so I'm having Civ4lerts.py call
+ 	this class. Will need to make changes in Civ4lerts.py, Civ4lerts.xml,
+ 	BugAlertsOptionsTab.py, CvPlayer.h, CvPlayer.cpp and some file for game text
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 6551b8aa7..5c209341e 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -7,8 +7,9 @@
+ #include "WarEvalParameters.h"
+ #include "WarAndPeaceReport.h"
+ #include "CvGamePlay.h"
+-#include "AI_Defines.h"
++#include "BBAI_Defines.h"
+ #include "CvMap.h"
++#include "CvInfos.h"
+ #include <sstream>
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/AI_Defines.h b/CvGameCoreDLL/BBAI_Defines.h
+similarity index 97%
+rename from CvGameCoreDLL/AI_Defines.h
+rename to CvGameCoreDLL/BBAI_Defines.h
+index 0445ed189..7047a0267 100644
+--- a/CvGameCoreDLL/AI_Defines.h
++++ b/CvGameCoreDLL/BBAI_Defines.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+-#ifndef AI_DEFINES_H
+-#define AI_DEFINES_H
++#ifndef BBAI_DEFINES_H // advc.make: Renamed this file from AI_Defines.h
++#define BBAI_DEFINES_H
+ 
+ /********************************************************************************/
+ /* 	BETTER_BTS_AI_MOD					03/08/10				jdog5000	    */
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 35b5f7ee0..9c6731372 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10,7 +10,7 @@
+ #include "CvInfos.h"
+ #include "CvStatistics.h" // advc.310
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+-#include "AI_Defines.h" // BBAI
++#include "BBAI_Defines.h"
+ 
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 0b8f55e09..e5462855f 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLButtonPopup.h"
++#include "CvPopupInfo.h"
+ #include "CvGamePlay.h"
+ #include "RiseFall.h" // advc.706
+ #include "CvMap.h"
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.h b/CvGameCoreDLL/CvDLLButtonPopup.h
+index 6f46c4211..ed5b46eb8 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.h
++++ b/CvGameCoreDLL/CvDLLButtonPopup.h
+@@ -5,12 +5,10 @@
+ #ifndef CIV4_DLL_BUTTON_POPUP_H
+ #define CIV4_DLL_BUTTON_POPUP_H
+ 
+-
+-#include "CvPopupInfo.h"
+-#include "CvPopupReturn.h"
+-
+-
+ class CvPopup;
++class PopupReturn;
++class CvPopupInfo;
++
+ class CvDLLButtonPopup
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLEngineIFaceBase.h b/CvGameCoreDLL/CvDLLEngineIFaceBase.h
+index a9157d4bc..9e741203c 100644
+--- a/CvGameCoreDLL/CvDLLEngineIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEngineIFaceBase.h
+@@ -3,7 +3,6 @@
+ #ifndef CvDLLEngineIFaceBase_h
+ #define CvDLLEngineIFaceBase_h
+ 
+-
+ //
+ // abstract interface for CvEngine functions used by DLL
+ //
+
+diff --git a/CvGameCoreDLL/CvDLLEntityIFaceBase.h b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+index 463654286..97bf5710b 100644
+--- a/CvGameCoreDLL/CvDLLEntityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+@@ -5,7 +5,6 @@
+ 
+ #pragma warning(disable:4100)
+ 
+-
+ //
+ // abstract class containing entity-related functions that the DLL needs
+ //
+
+diff --git a/CvGameCoreDLL/CvDLLIniParserIFaceBase.h b/CvGameCoreDLL/CvDLLIniParserIFaceBase.h
+index 7f0d52d8e..c60f42dd3 100644
+--- a/CvGameCoreDLL/CvDLLIniParserIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLIniParserIFaceBase.h
+@@ -3,10 +3,11 @@
+ #ifndef CvDLLIniParserIFaceBase_h
+ #define CvDLLIniParserIFaceBase_h
+ 
++class FIniParser;
++
+ //
+ // abstract interface for FIniParser functions used by DLL
+ //
+-class FIniParser;
+ class CvDLLIniParserIFaceBase
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+index 109ec3e78..8388293bf 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+@@ -7,9 +7,6 @@
+ // abstract class containing CvInterface functions that the DLL needs
+ //
+ 
+-
+-#include "LinkedList.h"
+-
+ class CvUnit;
+ class CvCity;
+ class CvPlot;
+
+diff --git a/CvGameCoreDLL/CvDLLPlotBuilderIFaceBase.h b/CvGameCoreDLL/CvDLLPlotBuilderIFaceBase.h
+index c36844536..026539734 100644
+--- a/CvGameCoreDLL/CvDLLPlotBuilderIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLPlotBuilderIFaceBase.h
+@@ -7,10 +7,11 @@
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGlobals.h"	// for gDLL
+ 
++class CvPlotBuilder;
++
+ //
+ // abstract interface for CvPlotBuilder functions used by DLL
+ //
+-class CvPlotBuilder;
+ class CvDLLPlotBuilderIFaceBase : public CvDLLEntityIFaceBase
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+index 7f76162c2..6276a259d 100644
+--- a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+@@ -16,6 +16,7 @@ class CvPlot;
+ class CvRoute;
+ class CvFeature;
+ class CvRiver;
++
+ class CvDLLSymbolIFaceBase
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+index b927ab3f6..667b14130 100644
+--- a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+@@ -3,7 +3,6 @@
+ #ifndef CvDLLUtilityIFaceBase_h
+ #define CvDLLUtilityIFaceBase_h
+ 
+-
+ #include "LinkedList.h"
+ 
+ //
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 7133fa850..64c779ee5 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -7,8 +7,9 @@
+ #include "CvEventReporter.h"
+ #include "CvPopupInfo.h"
+ #include "CvMessageControl.h"
++#include "CvInfos.h"
+ #include "CvBugOptions.h"
+-#include "AI_Defines.h" // BBAI
++#include "BBAI_Defines.h"
+ #include "WarEvaluator.h" // advc.104l
+ #include "RiseFall.h" // advc.706
+ #include "CvDLLInterfaceIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvDLLXMLIFaceBase.h b/CvGameCoreDLL/CvDLLXMLIFaceBase.h
+index 883d6b4bb..ab6de4a8c 100644
+--- a/CvGameCoreDLL/CvDLLXMLIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLXMLIFaceBase.h
+@@ -6,8 +6,10 @@
+ //
+ // abstract interface for FXml functions used by DLL
+ //
++
+ class FXml;
+ class FXmlSchemaCache;
++
+ class CvDLLXmlIFaceBase
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index e3054021e..da4a74632 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -7,6 +7,7 @@
+ #include "CvGameTextMgr.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvEventReporter.h"
++#include "CvInfos.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index 13201f79d..2c0553cbd 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -5,10 +5,6 @@
+ #ifndef CIV4_DEAL_H
+ #define CIV4_DEAL_H
+ 
+-
+-#include "LinkedList.h"
+-
+-
+ class CvDeal
+ {
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.h b/CvGameCoreDLL/CvDiploParameters.h
+index dc90ab628..a08b60548 100644
+--- a/CvGameCoreDLL/CvDiploParameters.h
++++ b/CvGameCoreDLL/CvDiploParameters.h
+@@ -2,7 +2,6 @@
+ #ifndef CVDIPLOPARAMETERS_H
+ #define CVDIPLOPARAMETERS_H
+ 
+-#include "LinkedList.h"
+ #include "FVariableSystem.h"
+ 
+ class CvDiploParameters
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index bb92aff36..92a128c7d 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -19,6 +19,7 @@ class CvUnit;
+ class CvCity;
+ class CvPlot;
+ class CvSelectionGroup;
++
+ class CvEventReporter
+ {
+ 	friend class CyStatistics;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index dd1b64ca9..ac5c1c403 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7684,7 +7684,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ // Returns the number of land units spawned (possibly in cargo). The first half is new code.
+ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAllowed) { // </advc.300>
+ 
+-	/* <advc.306> Spawn cargo load before ships. Othwerwise, the newly placed ship
++	/* <advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
+ 	   would always be an eligible target and too many ships would carry cargo. */
+ 	FAssert(!bCargoAllowed || pShelf != NULL);
+ 	int r = 0;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 3db7152b1..98cd42517 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -6,7 +6,6 @@
+ #define CIV4_GAME_H
+ 
+ #include "CvDeal.h"
+-#include "CvRandom.h"
+ 
+ class CvPlot;
+ class CvCity;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 22c69261c..83fe64a6c 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -3,6 +3,7 @@
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvMap.h"
++#include "CvInfos.h"
+ #include "CvInitCore.h"
+ #include "RiseFall.h" // advc.700
+ #include "CyPlot.h"
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c0739128f..3cbe700df 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18,7 +18,7 @@
+ #include "CvArtFileMgr.h"
+ #include "CvMap.h"
+ #include "RiseFall.h" // advc.700
+-#include "AI_Defines.h" // BBAI
++#include "BBAI_Defines.h"
+ #include "CvBugOptions.h"
+ #include "CvPopupInfo.h"
+ #include "CyArgsList.h"
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index ebd00ed3e..297fd2087 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -15,8 +15,6 @@
+ #ifndef CIV4_GAME_TEXT_MGR_H
+ #define CIV4_GAME_TEXT_MGR_H
+ 
+-#include "CvInfos.h"
+-
+ #pragma warning( disable: 4251 )	// needs to have dll-interface to be used by clients of class
+ 
+ class CvCity;
+
+diff --git a/CvGameCoreDLL/CvHallOfFameInfo.cpp b/CvGameCoreDLL/CvHallOfFameInfo.cpp
+index d0b89918a..270e397bc 100644
+--- a/CvGameCoreDLL/CvHallOfFameInfo.cpp
++++ b/CvGameCoreDLL/CvHallOfFameInfo.cpp
+@@ -1,5 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvHallOfFameInfo.h"
++#include "CvReplayInfo.h"
+ #include "CvGameAI.h"
+ 
+ CvHallOfFameInfo::CvHallOfFameInfo()
+
+diff --git a/CvGameCoreDLL/CvHallOfFameInfo.h b/CvGameCoreDLL/CvHallOfFameInfo.h
+index 2249116be..e288ec054 100644
+--- a/CvGameCoreDLL/CvHallOfFameInfo.h
++++ b/CvGameCoreDLL/CvHallOfFameInfo.h
+@@ -3,7 +3,7 @@
+ 
+ #pragma once
+ 
+-#include "CvReplayInfo.h"
++class ReplayInfo;
+ 
+ class CvHallOfFameInfo
+ {
+
+diff --git a/CvGameCoreDLL/CvInfoWater.h b/CvGameCoreDLL/CvInfoWater.h
+index 5dae5e215..d5005f8d2 100644
+--- a/CvGameCoreDLL/CvInfoWater.h
++++ b/CvGameCoreDLL/CvInfoWater.h
+@@ -17,7 +17,6 @@
+ #define CV_WATERINFO_H
+ 
+ #include "CvInfos.h"
+-#include "CvEnums.h"
+ 
+ #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index 03f281859..325d7a0db 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -1,6 +1,5 @@
+ #pragma once
+ 
+-
+ #ifndef CIV4_INITCORE_H
+ #define CIV4_INITCORE_H
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index cd6b4c08c..c6ed00971 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -9,7 +9,6 @@
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+ #include "CvPlotGroup.h"
+-#include "LinkedList.h"
+ #include "CvTalkingHeadMessage.h"
+ 
+ class CvDiploParameters;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2bd8f2207..703e74289 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3,8 +3,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayerAI.h"
+ #include "CvGamePlay.h"
+-#include "BBAILog.h" // BBAI
+-#include "AI_Defines.h" // BBAI
++#include "BBAILog.h"
++#include "BBAI_Defines.h"
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+ #include "CvMap.h"
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 03b142d5d..20db3347c 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -5,10 +5,6 @@
+ #ifndef CIV4_PLOT_H
+ #define CIV4_PLOT_H
+ 
+-#include "LinkedList.h"
+-#include <bitset>
+-#include <set> // advc.300
+-
+ // needs to have dll-interface to be used by clients of class
+ #pragma warning( disable: 4251 )
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index c054e8212..99ac52912 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -3,11 +3,8 @@
+ 
+ #pragma once
+ 
+-#include "CvEnums.h"
+-
+ class CvReplayMessage;
+ 
+-
+ class CvReplayInfo
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 567b5585f..5a23d12df 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -5,8 +5,6 @@
+ 
+ // structs.h
+ 
+-#include "CvString.h"
+-
+ // <advc.071>
+ class CvPlot;
+ class CvUnit;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index b1220eb0a..01e69721f 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -12,7 +12,7 @@
+ #include "CvPopupInfo.h"
+ #include "CyArgsList.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+-#include "AI_Defines.h" // BBAI
++#include "BBAI_Defines.h"
+ #include "CvInitCore.h" // advc.003m
+ #include "CvBugOptions.h" // advc.071
+ #include "CvDLLPythonIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0d9b5e8e6..a4b218adf 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -6,8 +6,8 @@
+ #include "CvMap.h"
+ #include "CvInfos.h"
+ #include "CyArgsList.h"
+-#include "BBAILog.h" // BBAI
+-#include "AI_Defines.h" // BBAI
++#include "BBAILog.h"
++#include "BBAI_Defines.h"
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+@@ -474,7 +474,7 @@ bool CvTeamAI::AI_hasSharedPrimaryArea(TeamTypes eTeam) const
+ // K-Mod end
+ 
+ /*  advc.104s (note): If UWAI is enabled, AI_doWar may adjust (i.e. overwrite) the
+-	result of this calculation through WarAndPeaceAI::Team::alignAreaAI. */
++	result of this calculation through WarAndPeaceAgent::Team::alignAreaAI. */
+ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal) const  // advc.003: style changes
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 73f6af83e..9abf3777e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -13,7 +13,7 @@
+ #include "CvPopupInfo.h"
+ #include "CvArtFileMgr.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
+-#include "AI_Defines.h" // BBAI
++#include "BBAI_Defines.h"
+ #include "CvBugOptions.h" // advc.002e
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 866babc3c..f610649f5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -8,7 +8,7 @@
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+-#include "AI_Defines.h" // BBAI
++#include "BBAI_Defines.h"
+ #include "FAStarNode.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index bad9a8379..4882ed94d 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -12,6 +12,7 @@
+ //  Copyright (c) 2003 Firaxis Games, Inc. All rights reserved.
+ //------------------------------------------------------------------------------------------------
+ #include "CvGameCoreDLL.h"
++#include "CvInfos.h"
+ #include "CvDLLXMLIFaceBase.h"
+ #include "CvXMLLoadUtility.h"
+ #include "CvDLLUtilityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index 185648849..394033c68 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -15,13 +15,11 @@
+ #ifndef XML_LOAD_UTILITY_H
+ #define XML_LOAD_UTILITY_H
+ 
+-#include "CvInfos.h"
+-#include "CvGlobals.h"
+-
+ class FXmlSchemaCache;
+ class FXml;
+ class CvGameText;
+ class CvCacheObject;
++class CvImprovementBonusInfo;
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index 152fc21e0..5f0f86f6d 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -6,8 +6,7 @@
+ // Python wrapper class for CvCity
+ //
+ 
+-#include <string>
+-# include <boost/python/tuple.hpp>
++#include <boost/python/tuple.hpp>
+ namespace python = boost::python;
+ 
+ struct OrderData;
+
+diff --git a/CvGameCoreDLL/CyGameTextMgr.h b/CvGameCoreDLL/CyGameTextMgr.h
+index fb7143f1b..62fb62b7e 100644
+--- a/CvGameCoreDLL/CyGameTextMgr.h
++++ b/CvGameCoreDLL/CyGameTextMgr.h
+@@ -12,6 +12,7 @@ class CyCity;
+ class CyUnit;
+ class CyDeal;
+ struct TradeData;
++
+ class CyGameTextMgr
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CyMap.h b/CvGameCoreDLL/CyMap.h
+index 2597da603..5b2caa34c 100644
+--- a/CvGameCoreDLL/CyMap.h
++++ b/CvGameCoreDLL/CyMap.h
+@@ -14,6 +14,7 @@ class CyCity;
+ class CySelectionGroup;
+ class CyUnit;
+ class CyArea;
++
+ class CyMap
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CyMapGenerator.h b/CvGameCoreDLL/CyMapGenerator.h
+index 3d6d0e1bd..696c81e0a 100644
+--- a/CvGameCoreDLL/CyMapGenerator.h
++++ b/CvGameCoreDLL/CyMapGenerator.h
+@@ -16,6 +16,7 @@
+ 
+ class CvMapGenerator;
+ class CyPlot;
++
+ class CyMapGenerator
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CyPlot.h b/CvGameCoreDLL/CyPlot.h
+index 639b507b2..b8b336b44 100644
+--- a/CvGameCoreDLL/CyPlot.h
++++ b/CvGameCoreDLL/CyPlot.h
+@@ -10,6 +10,7 @@ class CyArea;
+ class CvPlot;
+ class CyUnit;
+ class CyCity;
++
+ class CyPlot
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.h b/CvGameCoreDLL/CySelectionGroup.h
+index 938f0759c..c53efb911 100644
+--- a/CvGameCoreDLL/CySelectionGroup.h
++++ b/CvGameCoreDLL/CySelectionGroup.h
+@@ -2,17 +2,17 @@
+ 
+ #ifndef CySelectionGroup_h
+ #define CySelectionGroup_h
++
+ //
+ // Python wrapper class for CySelectionGroup
+ //
+-//
+ 
+ struct MissionData;
+-
+ class CyPlot;
+ class CyArea;
+ class CyUnit;
+ class CvSelectionGroup;
++
+ class CySelectionGroup
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CyTeam.cpp b/CvGameCoreDLL/CyTeam.cpp
+index a5431d026..7a95f098b 100644
+--- a/CvGameCoreDLL/CyTeam.cpp
++++ b/CvGameCoreDLL/CyTeam.cpp
+@@ -913,6 +913,10 @@ int CyTeam::getLaunchSuccessRate(int /*VictoryTypes*/ eVictory)
+ 	return (m_pTeam ? m_pTeam->getLaunchSuccessRate((VictoryTypes)eVictory) : -1);
+ }
+ 
++bool CyTeam::hasSpaceshipArrived() // K-Mod
++{
++	return (m_pTeam ? m_pTeam->hasSpaceshipArrived() : false);
++}
+ 
+ int CyTeam::getEspionagePointsAgainstTeam(int /*TeamTypes*/ eIndex)
+ {
+
+diff --git a/CvGameCoreDLL/CyTeam.h b/CvGameCoreDLL/CyTeam.h
+index ccfa81c83..f2b527e37 100644
+--- a/CvGameCoreDLL/CyTeam.h
++++ b/CvGameCoreDLL/CyTeam.h
+@@ -6,8 +6,6 @@
+ // Python wrapper class for CvTeam
+ //
+ 
+-#include "CvTeam.h"
+-
+ class CvTeam;
+ class CyArea;
+ class CyTeam
+@@ -210,7 +208,7 @@ public:
+ 	int getVictoryDelay(int /*VictoryTypes*/ eVictory);
+ 	bool canLaunch(int /*VictoryTypes*/ eVictory);
+ 	int getLaunchSuccessRate(int /*VictoryTypes*/ eVictory);
+-	bool hasSpaceshipArrived() { return (m_pTeam ? m_pTeam->hasSpaceshipArrived() : false); } // K-Mod
++	bool hasSpaceshipArrived();
+ 
+ 	int getEspionagePointsAgainstTeam(int /*TeamTypes*/ eIndex);
+ 	void setEspionagePointsAgainstTeam(int /*TeamTypes*/ eIndex, int iValue);
+
+diff --git a/CvGameCoreDLL/CyUnit.h b/CvGameCoreDLL/CyUnit.h
+index 7aa5e271a..a44a8abf9 100644
+--- a/CvGameCoreDLL/CyUnit.h
++++ b/CvGameCoreDLL/CyUnit.h
+@@ -2,6 +2,7 @@
+ 
+ #ifndef CyUnit_h
+ #define CyUnit_h
++
+ //
+ // Python wrapper class for CvUnit
+ //
+@@ -12,6 +13,7 @@ class CyCity;
+ class CvUnit;
+ class CySelectionGroup;
+ class CvArtInfoUnit;
++
+ class CyUnit
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index daa1a232f..2392c6814 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -9,6 +9,7 @@
+ #include "CvGamePlay.h"
+ #include "CvPlot.h"
+ #include "CvArea.h"
++#include "CvInfos.h"
+ #include <sstream>
+ 
+ using std::ostringstream;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index 3481ef32e..490d5dd19 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -6,7 +6,6 @@
+ #include "MilitaryBranch.h"
+ #include "WarAndPeaceCache.h"
+ #include "WarAndPeaceReport.h"
+-#include <set>
+ 
+ class MilitaryAnalyst;
+ class SimulationStep;
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index f00e35744..7f5bb3ddc 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -6,7 +6,8 @@
+ #include "WarAndPeaceAgent.h"
+ #include "InvasionGraph.h"
+ #include "CvGamePlay.h"
+-#include "AI_Defines.h"
++#include "BBAI_Defines.h"
++#include "CvInfos.h"
+ #include <sstream>
+ #include <iterator>
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 4cb383840..7665d5355 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -5,6 +5,7 @@
+ #include "WarAndPeaceAgent.h"
+ #include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvInfos.h"
+ 
+ using std::ostream;
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.h b/CvGameCoreDLL/MilitaryBranch.h
+index 1a65a777b..373e6d389 100644
+--- a/CvGameCoreDLL/MilitaryBranch.h
++++ b/CvGameCoreDLL/MilitaryBranch.h
+@@ -3,7 +3,6 @@
+ #ifndef MILITARY_BRANCH_H
+ #define MILITARY_BRANCH_H
+ 
+-#include "CvInfos.h"
+ #include <sstream>
+ 
+ /* Containers of military branches should be laid out in this order.
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 699a4a4d0..23221981f 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -160,8 +160,8 @@
+   </ItemGroup>
+   <ItemGroup>
+     <ClInclude Include="..\AdvCiv4lerts.h" />
+-    <ClInclude Include="..\AI_Defines.h" />
+     <ClInclude Include="..\ArmamentForecast.h" />
++    <ClInclude Include="..\BBAI_Defines.h" />
+     <ClInclude Include="..\BBAILog.h" />
+     <ClInclude Include="..\CvArea.h" />
+     <ClInclude Include="..\CvArtFileMgr.h" />
+
+diff --git a/CvGameCoreDLL/RFTotalScore.h b/CvGameCoreDLL/RFTotalScore.h
+index 9c50a916b..84ed68150 100644
+--- a/CvGameCoreDLL/RFTotalScore.h
++++ b/CvGameCoreDLL/RFTotalScore.h
+@@ -5,7 +5,6 @@
+ 
+ #include "RFChapter.h"
+ 
+-
+ /*  <advc.700>: New class. Computes and stores the total awarded Rise score. */
+ class RFTotalScore {
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index f5636b45e..16a2400bf 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -5,7 +5,7 @@
+ #include "CvInfos.h"
+ #include "CvGamePlay.h"
+ #include "WarAndPeaceAgent.h" // advc.104
+-#include "AI_Defines.h"
++#include "BBAI_Defines.h"
+ #include "CvPopupInfo.h"
+ #include "CvInitCore.h"
+ #include "CvReplayInfo.h"
+
+diff --git a/CvGameCoreDLL/Shelf.h b/CvGameCoreDLL/Shelf.h
+index fa1d69ff3..f1f29e265 100644
+--- a/CvGameCoreDLL/Shelf.h
++++ b/CvGameCoreDLL/Shelf.h
+@@ -3,13 +3,9 @@
+ #ifndef SHELF_H
+ #define SHELF_H
+ 
+-#include <utility>
+-#include <vector>
+-
+ class CvPlot;
+ class CvUnit;
+ 
+-
+ /* <advc.300> New class representing a continental shelf, akin to a CvArea
+    (but I don't want to inherit from that class). Used for spawning
+    Barbarian sea units. */
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index a891b328f..00922bffc 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -3,9 +3,6 @@
+ #ifndef WAR_AND_PEACE_AI_H
+ #define WAR_AND_PEACE_AI_H
+ 
+-#include "CvEnums.h"
+-#include <vector>
+-
+ class FDataStreamBase;
+ 
+ /*  <advc.104> AI functionality for decisions on war and peace. Main class of the
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.cpp b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+index 866a9f584..d1fdafbdf 100644
+--- a/CvGameCoreDLL/WarAndPeaceAgent.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+@@ -7,7 +7,7 @@
+ #include "WarEvalParameters.h"
+ #include "CvInfos.h"
+ #include "CvGamePlay.h"
+-#include "AI_Defines.h"
++#include "BBAI_Defines.h"
+ #include "CvDiploParameters.h"
+ #include "CvMap.h"
+ #include "RiseFall.h" // advc.705
+@@ -2028,8 +2028,7 @@ bool WarAndPeaceAI::Team::isPotentialWarEnemy(TeamTypes tId) const {
+ 
+ bool WarAndPeaceAI::Team::isFastRoads() const {
+ 
+-	// aka isEngineering
+-	return GET_TEAM(agentId).getRouteChange((RouteTypes)0) <= -10;
++	return (GET_TEAM(agentId).getRouteChange((RouteTypes)0) <= -10);
+ }
+ 
+ double WarAndPeaceAI::Team::computeVotesToGoForVictory(double* voteTarget,
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index cb9736717..0dc76e29e 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -4,12 +4,13 @@
+ #include "WarAndPeaceCache.h"
+ #include "WarAndPeaceAgent.h"
+ #include "WarAndPeaceReport.h"
+-#include "CvGamePlay.h"
+-#include "AI_Defines.h"
+-#include "CvMap.h"
+ #include "MilitaryBranch.h"
+ #include "WarEvalParameters.h"
+ #include "WarEvaluator.h"
++#include "CvGamePlay.h"
++#include "BBAI_Defines.h"
++#include "CvMap.h"
++#include "CvInfos.h"
+ #include <cmath>
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index d7376a7cf..6dbe1c66f 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -3,12 +3,6 @@
+ #ifndef WAR_AND_PEACE_CACHE_H
+ #define WAR_AND_PEACE_CACHE_H
+ 
+-#include "CvEnums.h"
+-#include "CvStructs.h"
+-#include "LinkedList.h"
+-#include <vector>
+-#include <map>
+-
+ class WarAndPeaceCache;
+ class MilitaryBranch;
+ class CvCity;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.h b/CvGameCoreDLL/WarAndPeaceReport.h
+index fa5fc9248..0e4b6108e 100644
+--- a/CvGameCoreDLL/WarAndPeaceReport.h
++++ b/CvGameCoreDLL/WarAndPeaceReport.h
+@@ -3,10 +3,6 @@
+ #ifndef WAR_AND_PEACE_REPORT_H
+ #define WAR_AND_PEACE_REPORT_H
+ 
+-#include "CvEnums.h"
+-#include "CvString.h"
+-#include <vector>
+-
+ /* <advc.104>: New class. A report about the war planning of a single team
+    (cf. WarAndPeaceAI::Team::doWar). I'm also focusing string handling
+    needed for logging in this class.
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.h b/CvGameCoreDLL/WarEvalParameters.h
+index 4703cf0ab..4eba07be1 100644
+--- a/CvGameCoreDLL/WarEvalParameters.h
++++ b/CvGameCoreDLL/WarEvalParameters.h
+@@ -3,9 +3,6 @@
+ #ifndef WAR_EVAL_PARAMETERS_H
+ #define WAR_EVAL_PARAMETERS_H
+ 
+-#include "CvEnums.h"
+-#include <set>
+-
+ class WarUtilityAspect;
+ class WarAndPeaceReport;
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index f3dd97396..d4ad4c132 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -8,7 +8,7 @@
+ #include "WarAndPeaceReport.h"
+ #include "WarEvalParameters.h"
+ #include "CvGamePlay.h"
+-
++#include "CvInfos.h"
+ #include <sstream>
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/WarEvaluator.h b/CvGameCoreDLL/WarEvaluator.h
+index 0a752f54b..c21ca0392 100644
+--- a/CvGameCoreDLL/WarEvaluator.h
++++ b/CvGameCoreDLL/WarEvaluator.h
+@@ -3,9 +3,6 @@
+ #ifndef WAR_EVALUATOR_H
+ #define WAR_EVALUATOR_H
+ 
+-#include "CvEnums.h"
+-#include <vector>
+-
+ class WarEvalParameters;
+ class WarUtilityAspect;
+ class WarAndPeaceReport;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index fc52b9109..ab563cb95 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -8,9 +8,10 @@
+ #include "WarAndPeaceAgent.h"
+ #include "MilitaryAnalyst.h"
+ #include "CvGamePlay.h"
+-#include "AI_Defines.h"
++#include "BBAI_Defines.h"
+ #include "CvStatistics.h"
+ #include "CvMap.h"
++#include "CvInfos.h"
+ 
+ using std::vector;
+ using std::string;
+
+[PATCH COVERAGE]
+patchFiles=66 embeddedFiles=66 omittedFiles=0 embeddedPatchBytes=27877

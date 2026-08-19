@@ -1,0 +1,396 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4985
+# Commit: b9e253a3ce3f13933babe7714a22ddadd31789a4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4c7fc2356da7aa194e3332a52b2701feed47082f
+# Title: rename "CHICHEN_ITZA" to "TEMPLE_OF_KUKULCAN", add alt+S shortcut info, make unit_gunship move impassable or/and such anyways etc - "rename "CHICHEN_ITZA" (b...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/AI_Variables_GlobalDefines.xml
+1	1	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	1	Assets/XML/Art/CIV4ArtDefines_Movie.xml
+3	3	Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+8	8	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Buildings/CIV4CityLSystem.xml
+5	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+2	5	Assets/XML/Text/CIV4GameText_Shortcuts.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_wonders.xml
+4	2	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+4	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index b846ed38e..662be2a82 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -360,7 +360,7 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
+-		<!-- custom: at first i thought some cities are not good enough but AI still settles them and cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't seem to do too much especially if increased too much. A very low value (around 300 for example) seemed to be mostly ignored too (except AI had more cities that were a bit too crammed. Trying other values, it seems 550 somehow, i don't know why, but consistently provides better city spots to the AI, would need more testing to make sure., was 600 -->
++		<!-- custom: at first i thought some cities are not good enough but AI still settles them and cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't seem to do too much especially if increased too much. A very low value (around 300 for example) seemed to be mostly ignored too (except AI had more cities that were a bit too crammed. Trying other values, it seems 550 somehow, i don't know why, but consistently provides better city spots to the AI, would need more testing to make sure., was 600; update much later: these don't seem to do much if at all, i'd recommend modifying the DLL/.cpp or such files rather, for example i could change AI settling preferences/recommended spots in map view too it seems as well by modifying AIFoundValue::evaluate in CitySiteEvaluator.cpp and other related functions or/and code or other parts of the code if any other anyways etc; see also the quick guide or/and known issues documentation about such changes anyways etc -->
+ 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
+ 		<iDefineIntVal>550</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index a35b4bc56..877469629 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -1248,7 +1248,7 @@
+ 			<Button>,Art/Interface/Buttons/Buildings/HagiaSophia.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,3</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_CHICHEN_ITZA</Type>
++			<Type>ART_DEF_BUILDING_TEMPLE_OF_KUKULCAN</Type>
+ 			<LSystem>LSYSTEM_3x3</LSystem>
+ 			<bAnimated>0</bAnimated>
+ 			<fScale>1.33</fScale>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Movie.xml b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+index 044401947..ae86591b3 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Movie.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+@@ -34,7 +34,7 @@ and then modified for AdvCiv-SAS
+ 			<Path>Art/Movies/Wonders/Broadway.bik</Path>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+-			<Type>ART_DEF_MOVIE_CHICHEN_ITZA</Type>
++			<Type>ART_DEF_MOVIE_TEMPLE_OF_KUKULCAN</Type>
+ 			<Path>Art/Movies/Wonders/ChichenItza.bik</Path>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+index 580568036..dce86d8fc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+@@ -1123,15 +1123,15 @@
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+-			<Type>BUILDINGCLASS_CHICHEN_ITZA</Type>
+-			<Description>TXT_KEY_BUILDING_CHICHEN_ITZA</Description>
++			<Type>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</Type>
++			<Description>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Description>
+ 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
+ 			<bNoLimit>0</bNoLimit>
+ 			<bMonument>0</bMonument>
+-			<DefaultBuilding>BUILDING_CHICHEN_ITZA</DefaultBuilding>
++			<DefaultBuilding>BUILDING_TEMPLE_OF_KUKULCAN</DefaultBuilding>
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index a5a7bc712..2fcc6213e 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -24725,16 +24725,16 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: chichen_itza, type: chichen_itza (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_CHICHEN_ITZA</BuildingClass>
+-			<Type>BUILDING_CHICHEN_ITZA</Type>
++		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</BuildingClass>
++			<Type>BUILDING_TEMPLE_OF_KUKULCAN</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_CHICHEN_ITZA</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_CHICHEN_ITZA_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_CHICHEN_ITZA_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Description>
++			<Civilopedia>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_CHICHEN_ITZA</ArtDefineTag>
+-			<MovieDefineTag>ART_DEF_MOVIE_CHICHEN_ITZA</MovieDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_TEMPLE_OF_KUKULCAN</ArtDefineTag>
++			<MovieDefineTag>ART_DEF_MOVIE_TEMPLE_OF_KUKULCAN</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index 6f20deeb1..ad3222a9a 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -1265,7 +1265,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 		<ArtRef Name="building:BUILDING_MILITARY_ACADEMY">
+ 			<Scale>2.0</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_CHICHEN_ITZA">
++		<ArtRef Name="building:BUILDING_TEMPLE_OF_KUKULCAN">
+ 			<Scale>1.33</Scale>
+ 		</ArtRef>
+ 		<ArtRef Name="building:BUILDING_HAGIA_SOPHIA">
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 36f7d869f..196f16feb 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -283,6 +283,11 @@
+ 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
+ 		<English>Natya Shastra</English>
+ 	</TEXT>
++	<!-- custom: rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Tag>
++		<English>Temple of Kukulcan</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Shortcuts.xml b/Assets/XML/Text/CIV4GameText_Shortcuts.xml
+index 28ca3b3ad..781bc3174 100644
+--- a/Assets/XML/Text/CIV4GameText_Shortcuts.xml
++++ b/Assets/XML/Text/CIV4GameText_Shortcuts.xml
+@@ -151,13 +151,10 @@
+ 		<Spanish>[H1]BUG Mod[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+O[COLOR_REVERT][\BOLD][TAB][TAB]Ventana de opciones de BUG[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+F1[COLOR_REVERT][\BOLD][TAB][TAB]Ayuda de BUG (externa)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+M, Alt+Ctrl+R[COLOR_REVERT][\BOLD][TAB]Crear recordatorio[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Comenzar/detener registrado[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Crear registro manual[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Registrar estad�sticas de batalla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Permite colocar marcadores en el mapa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Mostrar/ocultar marcadores en mapa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Regenerar el mapa[NEWLINE][NEWLINE]Hold [BOLD][COLOR_HIGHLIGHT_TEXT]Alt[COLOR_REVERT][\BOLD] mientras se deja el rat�n sobre el icono de una unidad para mostrar sus posibles movimientos en el mapa.</Spanish>
+ 	</TEXT>
+ 	<!-- advc.004y: Ping moved to Multiplayer; Alt+U added. -->
++	<!-- custom: add info about Alt+S (toggle write some text on a tile) anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_MAP_PEDIA</Tag>
+-		<English>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle resource display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle unit display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle tile grid[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle yield display (yield icons)[NEWLINE]</English>
+-		<French>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Ping the map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Flag resources on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Turn grid on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Turn tile yields on/off[NEWLINE]</French>
+-		<German>[H1]Hauptbildschirm[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Karte anpingen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Interface entfernen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Interface minimieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Leere Karte ein/aus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Ressourcen anzeigen ein/aus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Rasterlinien anzeigen ein/aus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Z[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Gel�ndefeld-Ertr�ge anzeigen ein/aus[NEWLINE]</German>
+-		<Italian>[H1]Mappa[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Segna un punto sulla mappa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde l'interfaccia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimizza l'interfaccia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Attiva/Disattiva la mappa semplificata[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde gli indicatori delle Risorse[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde la griglia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde gli indicatori delle Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde la produzione delle caselle[NEWLINE]</Italian>
+-		<Spanish>[H1]Mapa[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Hacer ping en el mapa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Retirar interfaz[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimizar interfaz[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Activar/desactivar mapa limpio[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Activar/desactivar indicadores de recurso[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Activar/desactivar rejilla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Activar/desactivar beneficios de casilla[NEWLINE]</Spanish>
++		<English>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle resource display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle unit display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle tile grid[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle yield display (yield icons)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle on/off write some text ("Enter caption") on a tile[NEWLINE]</English>
+ 	</TEXT>
+ 	<!-- advc.004: Ctrl+Shift+E/F, Shift+Print, Ctrl+Print, Ctrl+Shift+A added -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 6b27b7811..84b853601 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -471,6 +471,14 @@
+ 
+ 
+ 
++	<!-- custom: rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" anyways etc, import/based on similarly on i mean anyways etc https://en.wikipedia.org/wiki/El_Castillo,_Chichen_Itza and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN_PEDIA</Tag>
++		<English>[TAB]El Castillo ('the Castle'), also known as the Temple of Kukulcan is a Mesoamerican step-pyramid that dominates the center of the Chichen Itza archaeological site in the Mexican state of Yucat�n. The temple building is more formally designated by archaeologists as Chichen Itza Structure 5B18.[PARAGRAPH:1]Built by the pre-Columbian Maya civilization sometime between the 8th and 12th centuries AD, the building served as a temple to the deity Kukulc�n, the Yucatec Maya Feathered Serpent deity closely related to Quetzalcoatl, a deity known to the Aztecs and other central Mexican cultures of the Postclassic period. It has a substructure that likely was constructed several centuries earlier for the same purpose.[PARAGRAPH:1]The temple consists of a series of square terraces with stairways up each of the four sides to the temple on top. Sculptures of plumed serpents run down the sides of the northern balustrade. Around the spring and autumn equinoxes, the late afternoon sun strikes off the northwest corner of the temple and casts a series of triangular shadows against the northwest balustrade, creating the illusion of the feathered serpent "crawling" down the temple. To contemporary visitors, the event has been very popular and is witnessed by thousands at the spring equinox, but it is not known whether the phenomenon is a result of a purposeful design since the light-and-shadow effect can be observed without major changes during several weeks near the equinoxes.[PARAGRAPH:1]Scientific research led since 1998 suggests that the temple mimics the chirping sound of the quetzal bird when humans clap their hands around it. The researchers argue that this phenomenon is not accidental, that the builders of this temple felt divinely rewarded by the echoing effect of this structure. Technically, the clapping noise rings out and scatters against the temple's high and narrow limestone steps, producing a chirp-like tone that declines in frequency.[PARAGRAPH:1]All four sides of the temple have approximately 91 steps which, when added together and including the temple platform on top as the final "step", may produce a total of 365 steps (the steps on the south side of the temple are eroded). That number is equal to the number of days of the Haab' year and likely is significantly related to rituals.[PARAGRAPH:1]The structure is 24 m (79 ft) high, plus an additional 6 m (20 ft) for the temple at the top. The square base measures 55.3 m (181 ft) across.</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU_PEDIA</Tag>
+ 		<English>[TAB]As long as there has been espionage, there has been a need for counter-espionage. This is the realm of the Security Bureau. Bureaus like the American FBI or the British MI5 make sure that sensitive intelligence is protected from outside sources. While espionage is an ancient practice, most Security Bureaus are less than one hundred years old. MI5 has only been in existence since 1909, organized originally to fight against German spies before World War I. The FBI began its expansion in the 1930s thanks to J. Edgar Hoover, the Bureau's first director.</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_wonders.xml b/Assets/XML/Text/CIV4GameText_advc_wonders.xml
+index 83878a466..9b0f5f772 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_wonders.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_wonders.xml
+@@ -729,7 +729,7 @@
+ 		<Spanish>.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_CHICHEN_ITZA_NA</Tag>
++		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN_NA</Tag>
+ 		<English>.</English>
+ 		<French>.</French>
+ 		<German>.</German>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index a286062df..75211db94 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -19501,8 +19501,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<!-- custom: was 0 -->
++			<bCanMoveImpassable>1</bCanMoveImpassable>
++			<!-- custom: was 0 -->
++			<bCanMoveAllTerrain>1</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+ 			<bIgnoreTerrainCost>1</bIgnoreTerrainCost>
+ 			<bNukeImmune>0</bNukeImmune>
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index e9a97d0d0..d858251a5 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -528,7 +528,7 @@ p221
+ I22
+ g215
+ tp222
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p223
+ I22
+ g215
+@@ -2030,7 +2030,7 @@ p836
+ I22
+ g650
+ tp837
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p838
+ I22
+ g650
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 2e0bce306..6c14d14b3 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -528,7 +528,7 @@ p221
+ I22
+ g215
+ tp222
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p223
+ I22
+ g215
+@@ -2030,7 +2030,7 @@ p836
+ I22
+ g650
+ tp837
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p838
+ I22
+ g650
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index 21d94760a..6dfe2e0f8 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -448,7 +448,7 @@ p189
+ I22
+ g183
+ tp190
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p191
+ I22
+ g183
+@@ -1809,7 +1809,7 @@ p750
+ I22
+ g573
+ tp751
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p752
+ I22
+ g573
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index c4056489e..891f04c0e 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -468,7 +468,7 @@ p197
+ I22
+ g191
+ tp198
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p199
+ I22
+ g191
+@@ -1906,7 +1906,7 @@ p781
+ I22
+ g600
+ tp782
+-a(S'BLDGCLASS_BUILDINGCLASS_CHICHEN_ITZA'
++a(S'BLDGCLASS_BUILDINGCLASS_TEMPLE_OF_KUKULCAN'
+ p783
+ I22
+ g600
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index ed2d28c90..f7294decc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -100,6 +100,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
++- sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ 
+ ### Concepts (as of now in the "Outdated" sevopedia category)
+ 
+@@ -232,7 +233,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - enabled floodplains after raze, hopefully they (previous city (owners) developped the land well enough that it can still be profitable, also for more relaxed and interesting gameplay, i would want the difficulty to be elsewhere, not in such tedious things)
+ - ground explore/recon units can move through all terrains (`bCanMoveImpassable` enabled in xml anyways etc) since the beginning of the game, not water tiles though, but for example peaks. They also all ignore terrain movement costs, not just the (renaissance) explorer, see sevopedia Terrain Peak (new entry added as part of the sevopedia rework anyways etc, see [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) or/and see xml for details as well anyways etc)
+ - some other units such as for example as of now the quechua warrior can also move through all land terrains (`bCanMoveImpassable` enabled in xml anyways etc), see sevopedia terrain peak or hill (also newly added in sevopedia rework of the terrain category anyways etc) or any terrain there or/and in xml or and docs for relevant units per terrain.
+-- air explore/recon units (as of now for example the airship (see sevopedia unit or the military changes section in this readme for details about the airship changes anyways etc)) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
++- air explore/recon units (as of now for example the airship (see sevopedia unit or the military changes section in this readme for details about the airship changes anyways etc)) or/and land-air type of units like as of now the only the gunship can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). This effect applies to these tiles even if they are roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
+ - some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat ; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
+ - terrains and features have a higher importance in military, more units have terrain/feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and feature page(s) to easily (or at least much more easily hopefully but anyways etc) visualize these with the new UI additions we made there as well but anyways etc (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 772936583..a41a70dcc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -21,6 +21,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [example 8: building category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category)  
+ [example 9: terrains category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)  
+ [example 10: techs category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)  
++[example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+@@ -161,3 +162,7 @@ Note: the untradeable techs list as string/text is very efficiently precomputed
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
++
++## example 11: shortcuts category
++
++No graphical change, only added info about some shortcuts, as of now only about Alt+S (Toggle on/off write some text ("Enter caption") on a tile) anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index f8e03485b..bcc3534b7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -87,6 +87,7 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
++- **Sevopedia — Shortcuts**: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ 
+ ### Concepts (currently under “Outdated” category)
+ 
+@@ -207,7 +208,9 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ - Overall: **snow**, **desert**, and **water** tiles strengthened via bonus/building changes (see Bonus/Buildings sections).
+ - **Floodplains persist after raze** (city destruction doesn’t remove them).
+-- **Recon units** (ground) can move through **all terrains** (`bCanMoveImpassable`) and **ignore terrain movement costs**; air recon (e.g., **airship**) can move across all terrains (`bCanMoveAllTerrain`), including peaks/water.
++- **Ground explore/recon units**: can move through **all terrains** from game start (e.g., **peaks**) via `bCanMoveImpassable` (no water tiles). They also **ignore terrain movement costs** (not just the Renaissance **Explorer**). See Sevopedia **Terrain: Peak** (new entry; [example-9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)) or XML for details.
++- **Other units (example: Quechua Warrior)**: can also move through **all land terrains** (`bCanMoveImpassable`). See Sevopedia Terrain **Peak/Hill** entries (added in the terrain-category rework) or XML/docs for per-terrain/unit details.
++- **Air explore/recon & land-air units**: the **Airship** (see its Sevopedia entry or this guide’s military section) and **Gunship** can move through **all terrains, including peaks and water tiles** using `bCanMoveImpassable` **and** `bCanMoveAllTerrain`.
+ - **Movement restrictions** (outside cultural borders): some units (e.g., **chariots**, some **siege**) can’t move in **forest/jungle**; mounted melee/ranged receive **forest/jungle** combat penalties (ranged limited to defense penalty). See Sevopedia entries for per‑unit modifiers.
+ - **Feature: Jungle** rework: remove the food penalty (**no food malus**), increase unhealth to `iHealthPercent` **-50**, set feature defense `iDefense` **-25** (still +25% rival defense in features → net 0 in jungle). **Remove jungle** now yields **+20 hammers**.
+ - **Feature: Fallout** `iHealthPercent` **-50 → -75**.
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=34436

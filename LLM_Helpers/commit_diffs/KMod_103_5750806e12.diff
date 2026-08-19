@@ -1,0 +1,1090 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 103
+# Commit: 5750806e12638791999cb664ed82602822e05e6b
+# History segment: K-Mod history
+# Parent used for diff: b8d9b2e2691d714d6b9be4cbb5a443b0dae506d8
+# Title: Fixed a problem which could cause permanently impossiblely high espionage targets for the AI. Fixed an original BtS bug which prevent the AI from using the c...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	18	CvGameCoreDLL/CvCityAI.cpp
+18	2	CvGameCoreDLL/CvGameTextMgr.cpp
+2	0	CvGameCoreDLL/CvPlayer.cpp
+78	61	CvGameCoreDLL/CvPlayerAI.cpp
+173	187	CvGameCoreDLL/CvTeamAI.cpp
+28	5	CvGameCoreDLL/CvUnitAI.cpp
+1	0	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 4c7edc142..647e551ed 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1629,7 +1629,7 @@ void CvCityAI::AI_chooseProduction()
+ **** K-Mod, 10/sep/10, Karadoc
+ **** It was "if (bDanger", I have changed it to "if (!bDanger"
+ ***/
+-    if (bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > iExistingSeaWorkers)))
++    if (!bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > iExistingSeaWorkers)))
+     {
+ 		if( !(bDefenseWar && iWarSuccessRatio < -30) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{
+@@ -1955,6 +1955,32 @@ void CvCityAI::AI_chooseProduction()
+ 			}
+         }
+ 
++		// K-Mod (the spies stuff used to be lower down)
++		int iNumSpies = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_SPY) + kPlayer.AI_getNumTrainAIUnits(UNITAI_SPY);
++		int iNeededSpies = iNumCitiesInArea / 3;
++		iNeededSpies += bPrimaryArea ? (kPlayer.getCommerceRate(COMMERCE_ESPIONAGE)+50)/100 : 0;
++		iNeededSpies *= 100 + 3*kPlayer.AI_commerceWeight(COMMERCE_ESPIONAGE);
++		iNeededSpies /= 150;
++		{
++			const CvCity* pCapitalCity = kPlayer.getCapitalCity();
++			if (pCapitalCity != NULL && pCapitalCity->area() == area())
++				iNeededSpies++;
++		}
++		iNeededSpies -= (bDefenseWar ? 1 : 0);
++
++		if (iNumSpies < iNeededSpies)
++		{
++			int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) || GET_TEAM(getTeam()).getAnyWarPlanCount(true)) ?40 : 30;
++			iOdds *= iNeededSpies;
++			iOdds /= (4*iNumSpies+iNeededSpies);
++			if (AI_chooseUnit(UNITAI_SPY, iOdds))
++			{
++				if( gCityLogLevel >= 2 ) logBBAI("      City %S chooses spy with %d/%d needed, at %d odds", getName().GetCString(), iNumSpies, iNeededSpies, iOdds);
++				return;
++			}
++		}
++		// K-Mod end
++
+ 		if( bDefenseWar || (bLandWar && (iWarSuccessRatio < -30)) )
+ 		{
+ 			UnitTypeWeightArray panicDefenderTypes;
+@@ -2588,25 +2614,19 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
++	/* original bts code. (I've moved to spy stuff higher up - K-Mod)
+ 	int iNumSpies = (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_SPY));
+ 	int iNeededSpies = iNumCitiesInArea / 3;
++
+ 	iNeededSpies += isCapital() ? 1 : 0;
+-	// K-Mod
+-	iNeededSpies += (kPlayer.getCommerceRate(COMMERCE_ESPIONAGE)+50)/100;
+-	iNeededSpies *= 100 + 3*kPlayer.AI_commerceWeight(COMMERCE_ESPIONAGE);
+-	iNeededSpies /= 150;
+ 
+ 	if (iNumSpies < iNeededSpies)
+ 	{
+-		//if (AI_chooseUnit(UNITAI_SPY, 5 + 50 / (1 + iNumSpies)))
+-		int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) || GET_TEAM(getTeam()).getAnyWarPlanCount(true)) ?65 : 50;
+-		iOdds *= iNeededSpies;
+-		iOdds /= (4*iNumSpies+iNeededSpies);
+-		if (AI_chooseUnit(UNITAI_SPY, iOdds)) // K-Mod
++		if (AI_chooseUnit(UNITAI_SPY, 5 + 50 / (1 + iNumSpies)))
+ 		{
+ 			return;
+ 		}
+-	}
++	}*/
+ 	
+ 	if (bLandWar && !bDanger)
+ 	{
+@@ -3130,8 +3150,15 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	// K-Mod
+ 	if (GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+ 	{
+-		aiUnitAIVal[UNITAI_ATTACK_CITY] *= 3;
+-		aiUnitAIVal[UNITAI_ATTACK_AIR] *= 3;
++		aiUnitAIVal[UNITAI_ATTACK_CITY] *= 2;
++		aiUnitAIVal[UNITAI_ATTACK] *= 3;
++		aiUnitAIVal[UNITAI_ATTACK] /= 2;
++		aiUnitAIVal[UNITAI_ATTACK_AIR] *= 2;
++	}
++	if (GET_TEAM(getTeam()).AI_getRivalAirPower() <= 10 * GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(area(), UNITAI_DEFENSE_AIR))
++	{
++		// if each of our air defence units has a power of around 50, then this means the rival air power is very low.
++		aiUnitAIVal[UNITAI_DEFENSE_AIR] /= 4;
+ 	}
+ 	// K-Mod end
+ 
+@@ -7787,9 +7814,9 @@ void CvCityAI::AI_updateBestBuild()
+ 				BuildTypes eLastBestBuildType = m_aeBestBuild[iI];
+ 
+ 				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodMultiplier, iProductionMultiplier, iCommerceMultiplier, bChop, iHappyAdjust, iHealthAdjust, iDesiredFoodChange);
+-				m_aiBestBuildValue[iI] *= 5; // K-Mod, increased this from 4 (and the 2 lines below)
+-				m_aiBestBuildValue[iI] += 4 + iWorkerCount;  // to round up
+-				m_aiBestBuildValue[iI] /= (5 + iWorkerCount);
++				m_aiBestBuildValue[iI] *= 6; // K-Mod, increased this from 4 (and the 2 lines below)
++				m_aiBestBuildValue[iI] += 5 + iWorkerCount;  // to round up
++				m_aiBestBuildValue[iI] /= (6 + iWorkerCount);
+ 				
+ 				if (m_aiBestBuildValue[iI] > 0)
+ 				{
+@@ -8072,7 +8099,8 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 				{
+ 					// Non-critical, only burn population if population is not worth much
+ 					//if ((getConscriptAngerTimer() == 0) && (AI_countWorkedPoorTiles() > 1))
+-					if ((getConscriptAngerTimer() == 0 || isNoUnhappiness()) && AI_countWorkedPoorTiles() > 0) // K-Mod
++					if ((getConscriptAngerTimer() == 0 || isNoUnhappiness()) // K-Mod
++						&& (AI_countWorkedPoorTiles() > 0 || foodDifference()+getFood() < 0 || (foodDifference() < 0 && healthRate() <= -4)))
+ 					{
+ 						//if( (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
+ 						// We're working poor tiles. What more do you want?
+@@ -11937,7 +11965,7 @@ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ 		int iExtra = 0;
+ 		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+-			iExtra += getCommerceRateModifier((CommerceTypes)iI) * kPlayer.getCommercePercent((CommerceTypes)iI);
++			iExtra += (getTotalCommerceRateModifier((CommerceTypes)iI)-100) * kPlayer.getCommercePercent((CommerceTypes)iI);
+ 		}
+ 		iMultiplier += iExtra/100;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 8ceb726df..601f5a627 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4498,14 +4498,14 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 
+ 				if( pPlot->getFeatureType() != NO_FEATURE )
+ 				{
+-					szString.append(CvWString::format(L"Defense unit AIs:\n"));
++					szString.append(CvWString::format(L"\nDefense unit AIs:"));
+ 					vecUnitAIs.push_back(UNITAI_CITY_DEFENSE);
+ 					vecUnitAIs.push_back(UNITAI_COUNTER);
+ 					vecUnitAIs.push_back(UNITAI_CITY_COUNTER);
+ 				}
+ 				else
+ 				{
+-					szString.append(CvWString::format(L"Attack unit AIs:\n"));
++					szString.append(CvWString::format(L"\nAttack unit AIs:"));
+ 					vecUnitAIs.push_back(UNITAI_ATTACK);
+ 					vecUnitAIs.push_back(UNITAI_ATTACK_CITY);
+ 					vecUnitAIs.push_back(UNITAI_COUNTER);
+@@ -4786,6 +4786,22 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				szString.append(CvWString::format(L"\nUnit cost percentage: %d (%d / %d)", iUnitCostPercentage, iUnitCost, iTotalCosts));
+ 
+ 				szString.append(CvWString::format(L"\nUpgrade all units: %d gold", kPlayer.AI_goldToUpgradeAllUnits()));
++				// K-Mod
++				{
++					int iValue = 0;
++					for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++					{
++						iValue += kPlayer.getCommerceRate((CommerceTypes)iI) * kPlayer.AI_commerceWeight((CommerceTypes)iI)/100;
++					}
++					int iLoop;
++					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
++					{
++						iValue += 2*pLoopCity->getYieldRate(YIELD_PRODUCTION);
++					}
++					iValue /= kPlayer.getTotalPopulation();
++					szString.append(CvWString::format(L"\nAverage citizen value: %d", iValue));
++				}
++				// K-Mod end
+ 
+ 				szString.append(CvWString::format(L"\n\nRanks:"));
+ 				szString.append(CvWString::format(L"\nPopulation:%d", pCity->findPopulationRank()));
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1fa4575f6..12d2baeb3 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11881,6 +11881,8 @@ void CvPlayer::setCommercePercent(CommerceTypes eIndex, int iNewValue)
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < NUM_COMMERCE_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+ 
++	PROFILE_FUNC(); // K-Mod - I suspect this function is slow
++
+ 	iOldValue = getCommercePercent(eIndex);
+ 
+ 	m_aiCommercePercent[eIndex] = range(iNewValue, 0, 100);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f01c8c766..256c10e79 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2420,15 +2420,17 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity) const
+ 							iEspBehindWeight += 1;
+ 						}
+ 					}
+-					if ((GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_ANNOYED
+-						&& GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+-						|| GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
++					if (GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+ 					{
+-						iEspAttackWeight += 1;
+-					}
+-					if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && GET_PLAYER(kLoopTeam.getLeaderID()).getTechScore() > getTechScore())
+-					{
+-						iEspAttackWeight += 1;
++						if (GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_ANNOYED
++							|| GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
++						{
++							iEspAttackWeight += 1;
++						}
++						if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && GET_PLAYER(kLoopTeam.getLeaderID()).getTechScore() > getTechScore())
++						{
++							iEspAttackWeight += 1;
++						}
+ 					}
+ 					// K-Mod end
+ 				}
+@@ -11914,6 +11916,13 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 					iTempValue *= 75 + range(-iWarSuccessRatio, 25, 100);
+ 					iTempValue /= 100;
+ 				}
++				// K-Mod (maybe I'll do some more tweaking later)
++				int iConscriptPop = std::max(1, GC.getUnitInfo(eConscript).getProductionCost() / GC.getDefineINT("CONSCRIPT_POPULATION_PER_COST"));
++				iTempValue *= GC.getUnitInfo(eConscript).getProductionCost();
++				iTempValue /= iConscriptPop * GC.getDefineINT("CONSCRIPT_POPULATION_PER_COST");
++				iTempValue *= std::min(iCities, iTemp*3);
++				iTempValue /= iTemp*3;
++				// K-Mod end
+ 
+ 				iValue += iTempValue;
+ 			}
+@@ -11944,7 +11953,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			iGwAnger /= 100 - 2*kCivic.getUnhealthyPopulationModifier()/3;
+ 			// Note, this fudge factor is actually pretty good at estimating what the GwAnger would have been.
+ 		}
+-		int iCleanValue = (iCities * 12 * iS * AI_getHappinessWeight(iS*ROUND_DIVIDE(-kCivic.getUnhealthyPopulationModifier()*iGwAnger*2,300), 2, true)) / 100;
++		int iCleanValue = (iCities * 12 * iS * AI_getHappinessWeight(iS*ROUND_DIVIDE(-kCivic.getUnhealthyPopulationModifier()*iGwAnger*2,300), 1, true)) / 100;
+ 		// This isn't a big reduction; and it should be the only part of this evaluation.
+ 		// Maybe I'll add more later; such as some flavour factors.
+ 
+@@ -12152,7 +12161,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 
+ 		// K-Mod version.
+ 		// value for negation of unhappiness. Again, let me point out how _stupid_ it is that "percent_anger_divisor" is 1000, not 100.
+-		iValue += (iCities * 14 * iS * AI_getHappinessWeight(iS*getCivicPercentAnger(eCivic, true)*100/GC.getPERCENT_ANGER_DIVISOR(), 2, true)) / 100;
++		iValue += (iCities * 12 * iS * AI_getHappinessWeight(iS*getCivicPercentAnger(eCivic, true)*100/GC.getPERCENT_ANGER_DIVISOR(), 2, true)) / 100;
+ 		// value for putting pressure on other civs. (this should probably take into account the civics of other civs)
+ 		iValue += kCivic.getCivicPercentAnger() * (iCities * iCities - iCities) / (5*GC.getGameINLINE().getNumCities()); // the 5* on the end is because "percent" is really per mil.
+ 	}
+@@ -12180,7 +12189,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ /* orginal bts code
+ 		iValue += (12 * std::min(getNumCities(), GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities()) * AI_getHappinessWeight(isCivic(eCivic) ? -iTempValue : iTempValue, 1)) / 100;
+ */
+-		iValue += (12 * std::min(iCities, GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities()) * iS * AI_getHappinessWeight(iS*iTempValue, 1)) / 100;
++		iValue += (14 * std::min(iCities, GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities()) * iS * AI_getHappinessWeight(iS*iTempValue, 1)) / 100;
+ 	}
+ 	
+ 	if (kCivic.getWarWearinessModifier() != 0)
+@@ -12207,7 +12216,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		}
+ #endif
+ 		// K-Mod; my version:
+-		iValue += (11 * iCities * iS * AI_getHappinessWeight(iS*ROUND_DIVIDE(getWarWearinessPercentAnger() * -getWarWearinessModifier(), GC.getPERCENT_ANGER_DIVISOR()), 1, true)) / 100;
++		iValue += (12 * iCities * iS * AI_getHappinessWeight(iS*ROUND_DIVIDE(getWarWearinessPercentAnger() * -getWarWearinessModifier(), GC.getPERCENT_ANGER_DIVISOR()), 1, true)) / 100;
+ 	}
+ 	
+ 	iValue += (kCivic.getNonStateReligionHappiness() * (iTotalReligonCount - iHighestReligionCount) * 5);
+@@ -12411,7 +12420,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			{
+ 				iExpectedBuildings = (iCities + 2*getBuildingClassCountPlusMaking((BuildingClassTypes)iI))/3;
+ 			}
+-			iValue += (12 * iExpectedBuildings * iS * AI_getHappinessWeight(iS * iTempValue, 1))/100;
++			iValue += (10 * iExpectedBuildings * iS * AI_getHappinessWeight(iS * iTempValue, 1))/100;
+ 		}
+ 	}
+ 
+@@ -13657,6 +13666,8 @@ void CvPlayerAI::AI_doCommerce()
+ 				iIdealPercent+=5;
+ 				iCap += 20;
+ 			}
++			iIdealPercent += (AI_averageCulturePressure() - 100)/10;
++			iIdealPercent = std::max(iIdealPercent, (AI_averageCulturePressure() - 100)/5);
+ 			iIdealPercent -= (iIdealPercent % GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+ 			//iIdealPercent = std::min(iIdealPercent, 20);
+ 			iIdealPercent = std::min(iIdealPercent, iCap);
+@@ -13695,7 +13706,7 @@ void CvPlayerAI::AI_doCommerce()
+ 		}
+ 		else
+ 		{
+-			while (calculateGoldRate() > 0)
++			/* while (calculateGoldRate() > 0)
+ 			{
+ 				changeCommercePercent(COMMERCE_RESEARCH, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+ 
+@@ -13703,7 +13714,8 @@ void CvPlayerAI::AI_doCommerce()
+ 				{
+ 					break;
+ 				}
+-			}
++			} */
++			// K-Mod disabled this!
+ 
+ 			if (getGold() + iTargetTurns * calculateGoldRate() < iGoldTarget)
+ 			{
+@@ -13811,7 +13823,7 @@ void CvPlayerAI::AI_doCommerce()
+ 				int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
+ 
+ 				aiWeight[iTeam] = 6;
+-				int iRateDivisor = 12;
++				int iRateDivisor = iTargetTurns*3;
+ 
+ 				if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
+ 				{
+@@ -13826,7 +13838,7 @@ void CvPlayerAI::AI_doCommerce()
+ 						iDesiredMissionPoints = iMissionCost;
+ 					}
+ 
+-					iRateDivisor -= 2;
++					iRateDivisor -= iTargetTurns/2;
+ 					aiWeight[iTeam] += 6;
+ 
+ 				}
+@@ -13856,13 +13868,13 @@ void CvPlayerAI::AI_doCommerce()
+ 					}
+ 				}
+ 
+-				iRateDivisor += (iAttitude/5);
++				iRateDivisor += 4*iAttitude/(5*iTargetTurns);
+ 				aiWeight[iTeam] -= (iAttitude/3);
+ 				if (GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+ 				{
+ 					aiWeight[iTeam] *= 2;
+ 					aiWeight[iTeam] = std::max(0, aiWeight[iTeam]);
+-					iRateDivisor -= 3;
++					iRateDivisor -= iTargetTurns;
+ 				}
+ 
+ 				// Individual player targeting
+@@ -13920,19 +13932,18 @@ void CvPlayerAI::AI_doCommerce()
+ 					iRateDivisor += 1;
+ 					// scale by esp points ever, so that we don't fall over ourselves trying to catch up with
+ 					// a civ that happens to be running an espionage economy.
+-					int iOurTotal = GET_TEAM(getTeam()).getEspionagePointsEver();
+-					int iTheirTotal = kLoopTeam.getEspionagePointsEver();
+-					iTheirEspPoints *= iOurTotal;
+-					iTheirEspPoints /= std::max(1, iTheirTotal);
++					int iOurTotal = std::max(4, GET_TEAM(getTeam()).getEspionagePointsEver());
++					int iTheirTotal = std::max(4, kLoopTeam.getEspionagePointsEver());
++
++					iTheirEspPoints *= (3*iOurTotal + iTheirTotal);
++					iTheirEspPoints /= (2*iOurTotal + 3*iTheirTotal);
++					// That's a factor between 3/2 and 1/3, centered at 4/5
+ 					iDesiredMissionPoints = std::max(iTheirEspPoints, iDesiredMissionPoints);
+ 				}
+ 
+-				aiTarget[iTeam] = (iDesiredMissionPoints - iOurEspPoints)/std::max(6,iRateDivisor);
++				aiTarget[iTeam] = (iDesiredMissionPoints - iOurEspPoints)/std::max(3*iTargetTurns/2,iRateDivisor);
+ 
+-				if( aiTarget[iTeam] > 0 )
+-				{
+-					iEspionageTargetRate += aiTarget[iTeam];
+-				}
++				iEspionageTargetRate += std::max(0, aiTarget[iTeam]);
+ 			}
+ 		}
+ 
+@@ -13948,8 +13959,8 @@ void CvPlayerAI::AI_doCommerce()
+ 				iMinModifier /= 100;
+ 				// This is the espionage cost modifier for stealing techs.
+ 
+-				// lets say "cheap" means 70% of the research cost.
+-				bCheapTechSteal = (7000 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
++				// lets say "cheap" means 80% of the research cost.
++				bCheapTechSteal = (8000 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
+ 				if (bCheapTechSteal)
+ 				{
+ 					aiTarget[eMinModTeam] += iApproxTechCost / 10;
+@@ -13985,6 +13996,9 @@ void CvPlayerAI::AI_doCommerce()
+ 			}
+ 			// note. bounds checks are done the set weight function
+ 			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, aiWeight[iTeam]);
++			// one last ad-hoc correction to the target espionage rate...
++			if (aiWeight[iTeam] <= 0 && aiTarget[iTeam] > 0)
++				iEspionageTargetRate -= aiTarget[iTeam];
+ 		}
+ 		SAFE_DELETE_ARRAY(aiTarget);
+ 		SAFE_DELETE_ARRAY(aiWeight);
+@@ -14017,7 +14031,6 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 			//while (getCommerceRate(COMMERCE_ESPIONAGE) < iEspionageTargetRate && getCommercePercent(COMMERCE_ESPIONAGE) < 20)
+ 			// K-Mod
+-			bool bCheapTechSteal = (eMinModTeam != NO_TEAM && 700 * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
+ 			int iCap = (bCheapTechSteal? 60 :20);
+ 
+ 			while (getCommerceRate(COMMERCE_ESPIONAGE) < iEspionageTargetRate && getCommercePercent(COMMERCE_ESPIONAGE) < iCap)
+@@ -19687,7 +19700,7 @@ int CvPlayerAI::AI_getTotalFloatingDefenders(CvArea* pArea) const
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_COUNTER);
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_SPECIAL);
+ 	// BBAI TODO: Defense air?  Is this outdated?
+-	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_DEFENSE_AIR);
++	//iCount += AI_totalAreaUnitAIs(pArea, UNITAI_DEFENSE_AIR); // K-Mod commented this out.
+ 	return iCount;
+ }
+ 
+@@ -21527,7 +21540,7 @@ int CvPlayerAI::AI_getPlotCanalValue(CvPlot* pPlot) const
+ 	return 10 * std::min(0, pSecondWaterArea->getNumTiles() - 2);
+ }
+ 
+-//This returns a positive number equal approximately to the sum
++//This returns approximately to the sum
+ //of the percentage values of each unit (there is no need to scale the output by iHappy)
+ //100 * iHappy means a high value.
+ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent) const
+@@ -21547,6 +21560,7 @@ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent)
+ 	int iValue = 0;
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
++		/* original bts code
+ 		int iCityHappy = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(iExtraPop);
+ 		
+ 		iCityHappy -= std::max(0, pLoopCity->getCommerceHappiness());
+@@ -21562,26 +21576,29 @@ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent)
+ 		}
+ 		else
+ 		{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       10/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* orginal bts code
+-			iValue += std::max(0, -iTempValue);
+-*/
+-			// Negative happy changes should produce a negative value, not the same value as positive
+ 			iValue += std::min(0, iTempValue);
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+-		}
++		} */
++
++		// K-Mod. I have no idea what they were trying to 'integrate', and it was giving some strange answers.
++		// So lets try it my way.
++		if (pLoopCity->isNoUnhappiness())
++			continue;
++		int iCurrentHappy = 100*(pLoopCity->happyLevel() - pLoopCity->unhappyLevel(iExtraPop));
++		// I'm only going to subtract half of the commerce happiness, because we might not be using that commerce for only happiness.
++		iCurrentHappy -= 50*std::max(0, pLoopCity->getCommerceHappiness());
++		int iTestHappy = iCurrentHappy +
++			(bPercent ? ((pLoopCity->getPopulation()+iExtraPop)*iHappy) : 100 * iHappy);
++		iValue += std::max(0, -iCurrentHappy) - std::max(0, -iTestHappy); // change in the number of angry citizens
++		// a small bonus for happiness beyond what we need
++		iValue += 100*(std::max(0, iTestHappy) - std::max(0, iCurrentHappy))/(600 + std::max(0, iTestHappy) + std::max(0, iCurrentHappy));
++		// K-Mod end
+ 		
+ 		iCount++;
++		/* original bts code - (huh?)
+ 		if (iCount > 6)
+ 		{
+ 			break;
+-		}
++		}*/
+ 	}
+ 	
+ 	return (0 == iCount) ? 50 * iHappy : iValue / iCount;
+@@ -21604,6 +21621,7 @@ int CvPlayerAI::AI_getHealthWeight(int iHealth, int iExtraPop, bool bPercent) co
+ 	int iValue = 0;
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
++		/* original bts code
+ 		int iCityHealth = pLoopCity->goodHealth() - pLoopCity->badHealth(false, iExtraPop);
+ 		
+ 		int iHealthNow = iCityHealth;
+@@ -21618,25 +21636,24 @@ int CvPlayerAI::AI_getHealthWeight(int iHealth, int iExtraPop, bool bPercent) co
+ 		}
+ 		else
+ 		{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       10/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* orginal bts code
+-			iValue += std::max(0, -iTempValue);
+-*/
+-			// Negative health changes should produce a negative value, not the same value as positive
+ 			iValue += std::min(0, iTempValue);
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+-		}
++		} */
++
++		// K-Mod. Changed to match the happiness function.
++		int iCurrentHealth = 100*(pLoopCity->goodHealth() - pLoopCity->badHealth(false, iExtraPop));
++		int iTestHealth = iCurrentHealth +
++			(bPercent ? ((pLoopCity->getPopulation()+iExtraPop)*iHealth) : 100 * iHealth);
++		iValue += std::max(0, -iCurrentHealth) - std::max(0, -iTestHealth); // change in the number of angry citizens
++		// a small bonus for happiness beyond what we need
++		iValue += 100*(std::max(0, iTestHealth) - std::max(0, iCurrentHealth))/(600 + std::max(0, iTestHealth) + std::max(0, iCurrentHealth));
++		// K-Mod end
++
+ 		iCount++;
++		/* original bts code
+ 		if (iCount > 6)
+ 		{
+ 			break;
+-		}
++		} */
+ 	}
+ 	
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a9c834c5c..6f1d3865c 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -390,164 +390,135 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ {
+ 	PROFILE_FUNC();
+ 
+-	bool bRecentAttack;
+-	bool bTargets;
+-	bool bChosenTargets;
+-	bool bDeclaredTargets;
+-	int iOffensiveThreshold;
+-	int iAreaCities;
+-	int iI;
++	// K-Mod. This function originally had "!isWater()" wrapping all of the code.
++	// I've changed it to be more readable.
++	if (pArea->isWater())
++	{
++		return AREAAI_NEUTRAL;
++	}
+ 
+-	if (!(pArea->isWater()))
++	if (isBarbarian())
+ 	{
+-		if (isBarbarian())
++		if ((pArea->getNumCities() - pArea->getCitiesPerPlayer(BARBARIAN_PLAYER)) == 0)
+ 		{
+-			if ((pArea->getNumCities() - pArea->getCitiesPerPlayer(BARBARIAN_PLAYER)) == 0)
+-			{
+-				return AREAAI_ASSAULT;
+-			}
+-
+-			if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((AI_countMilitaryWeight(pArea) * 20) / 100) + 1))
+-			{
+-				return AREAAI_OFFENSIVE; // XXX does this ever happen?
+-			}
++			return AREAAI_ASSAULT;
++		}
+ 
+-			return AREAAI_MASSING;
++		if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((AI_countMilitaryWeight(pArea) * 20) / 100) + 1))
++		{
++			return AREAAI_OFFENSIVE; // XXX does this ever happen?
+ 		}
+ 
+-		bRecentAttack = false;
+-		bTargets = false;
+-		bChosenTargets = false;
+-		bDeclaredTargets = false;
++		return AREAAI_MASSING;
++	}
+ 
+-		bool bAssault = false;
+-		bool bPreparingAssault = false;
++	bool bRecentAttack = false;
++	bool bTargets = false;
++	bool bChosenTargets = false;
++	bool bDeclaredTargets = false;
+ 
+-		if (bPreparingTotal)
+-		{
+-			iOffensiveThreshold = 25;
+-		}
+-		else
+-		{
+-			iOffensiveThreshold = 20;
+-		}
++	bool bAssault = false;
++	bool bPreparingAssault = false;
+ 
+-		iAreaCities = countNumCitiesByArea(pArea);
++	// int iOffensiveThreshold = (bPreparingTotal ? 25 : 20); // K-Mod, I don't use this.
++	int iAreaCities = countNumCitiesByArea(pArea);
++	int iWarSuccessRatio = AI_getWarSuccessCapitulationRatio(); // K-Mod
+ 
+-		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
++	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++	{
++		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+-			if (GET_TEAM((TeamTypes)iI).isAlive())
++			if (AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+ 			{
+-				if (AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
++				FAssert(((TeamTypes)iI) != getID());
++				FAssert(isHasMet((TeamTypes)iI) || GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR));
++
++				if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_ATTACKED_RECENT)
+ 				{
+-					FAssert(((TeamTypes)iI) != getID());
+-					FAssert(isHasMet((TeamTypes)iI) || GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR));
++					FAssert(isAtWar((TeamTypes)iI));
++					bRecentAttack = true;
++				}
+ 
+-					if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_ATTACKED_RECENT)
+-					{
+-						FAssert(isAtWar((TeamTypes)iI));
+-						bRecentAttack = true;
+-					}
++				if ((GET_TEAM((TeamTypes)iI).countNumCitiesByArea(pArea) > 0) || (GET_TEAM((TeamTypes)iI).countNumUnitsByArea(pArea) > 4))
++				{
++					bTargets = true;
+ 
+-					if ((GET_TEAM((TeamTypes)iI).countNumCitiesByArea(pArea) > 0) || (GET_TEAM((TeamTypes)iI).countNumUnitsByArea(pArea) > 4))
++					if (AI_isChosenWar((TeamTypes)iI))
+ 					{
+-						bTargets = true;
++						bChosenTargets = true;
+ 
+-						if (AI_isChosenWar((TeamTypes)iI))
++						if ((isAtWar((TeamTypes)iI)) ? (AI_getAtWarCounter((TeamTypes)iI) < 10) : AI_isSneakAttackReady((TeamTypes)iI))
+ 						{
+-							//// K-Mod. Lets just say it's only really a "chosen war" if we're not losing too badly.
+-							//// The follow code mimics the !bLosingBig test I wrote for forced peace votes.
+-							//long iWarPowerRatio = GET_TEAM((TeamTypes)iI).AI_getWarSuccess(getID());
+-							//iWarPowerRatio *= GET_TEAM((TeamTypes)iI).getPower(false); // not sure if I should use true or false for this.
+-							//iWarPowerRatio /= std::max(1, (AI_getWarSuccess((TeamTypes)iI) + 2 * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING")));
+-							//iWarPowerRatio /= std::max(1, getPower(false));
+-							//if (iWarPowerRatio < 2)
+-							//// K-Mod end
+-							{
+-								bChosenTargets = true;
+-
+-								if ((isAtWar((TeamTypes)iI)) ? (AI_getAtWarCounter((TeamTypes)iI) < 10) : AI_isSneakAttackReady((TeamTypes)iI))
+-								{
+-									bDeclaredTargets = true;
+-								}
+-							}
++							bDeclaredTargets = true;
+ 						}
+ 					}
+-					else
+-					{
+-                        bAssault = true;
+-                        if (AI_isSneakAttackPreparing((TeamTypes)iI))
+-                        {
+-                            bPreparingAssault = true;
+-                        }
+-					}
+-				}
+-			}
+-		}
+-        
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                         01/12/10                             jdog5000      */
+-/*                                                                                              */
+-/* War strategy AI                                                                              */
+-/************************************************************************************************/
+-		if( bTargets )
+-		{
+-			if(iAreaCities > 0 && getAtWarCount(true) > 0) 
+-			{
+-				int iPower = countPowerByArea(pArea);
+-				int iEnemyPower = countEnemyPowerByArea(pArea);
+-				
+-				if( AI_isPrimaryArea(pArea) && AI_getWarSuccessCapitulationRatio() < -50 )
+-				{
+-					// Use defensive stance if enemy has strong presence, we've been losing badly
+-					if( iPower < iEnemyPower )
+-					{
+-						return AREAAI_DEFENSIVE;
+-					}
+ 				}
+ 				else
+ 				{
+-					// Use defensive area AI right after invasions, to force vulnerable captured cities to be better defended
+-					if( 2*iPower < iEnemyPower )
+-					{
+-						return AREAAI_DEFENSIVE;
+-					}
++                    bAssault = true;
++                    if (AI_isSneakAttackPreparing((TeamTypes)iI))
++                    {
++                        bPreparingAssault = true;
++                    }
+ 				}
+ 			}
+ 		}
++	}
+     
+-		if (bDeclaredTargets)
++	// K-Mod - based on idea from BBAI
++	if( bTargets )
++	{
++		if(iAreaCities > 0 && getAtWarCount(true) > 0) 
+ 		{
+-			return AREAAI_OFFENSIVE;
++			int iPower = countPowerByArea(pArea);
++			int iEnemyPower = countEnemyPowerByArea(pArea);
++			
++			iPower *= 100 + iWarSuccessRatio + (bChosenTargets ? 100 : 50);
++			iEnemyPower *= 100;
++			// it would be nice to put some personality modifiers into this. But this is a Team function. :(
++			if (iPower < iEnemyPower)
++			{
++				return AREAAI_DEFENSIVE;
++			}
+ 		}
++	}
++	// K-Mod end
+ 
+-		if (bTargets)
+-		{
+-			// AI_countMilitaryWeight is based on this team's pop and cities ... if this team is the biggest, it will over estimate needed units
+-			int iMilitaryWeight = AI_countMilitaryWeight(pArea);
+-			int iCount = 1;
++	if (bDeclaredTargets)
++	{
++		return AREAAI_OFFENSIVE;
++	}
++
++	if (bTargets)
++	{
++		/* BBAI code. -- This code has two major problems.
++		* Firstly, it makes offense more likely when we are in more wars.
++		* Secondly, it chooses offense based on how many offense units we have -- but offense units are built for offense areas!
++		*
++		// AI_countMilitaryWeight is based on this team's pop and cities ... if this team is the biggest, it will over estimate needed units
++		int iMilitaryWeight = AI_countMilitaryWeight(pArea);
++		int iCount = 1;
+ 
+-			for( int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++ )
++		for( int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++ )
++		{
++			if( iJ != getID() && GET_TEAM((TeamTypes)iJ).isAlive() )
+ 			{
+-				if( iJ != getID() && GET_TEAM((TeamTypes)iJ).isAlive() )
++				if( !(GET_TEAM((TeamTypes)iJ).isBarbarian() || GET_TEAM((TeamTypes)iJ).isMinorCiv()) )
+ 				{
+-					if( !(GET_TEAM((TeamTypes)iJ).isBarbarian() || GET_TEAM((TeamTypes)iJ).isMinorCiv()) )
++					if( AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN )
+ 					{
+-						if( AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN )
+-						{
+-							iMilitaryWeight += GET_TEAM((TeamTypes)iJ).AI_countMilitaryWeight(pArea);
+-							iCount++;
++						iMilitaryWeight += GET_TEAM((TeamTypes)iJ).AI_countMilitaryWeight(pArea);
++						iCount++;
+ 
+-							if( GET_TEAM((TeamTypes)iJ).isAVassal() )
++						if( GET_TEAM((TeamTypes)iJ).isAVassal() )
++						{
++							for( int iK = 0; iK < MAX_CIV_TEAMS; iK++ )
+ 							{
+-								for( int iK = 0; iK < MAX_CIV_TEAMS; iK++ )
++								if( iK != getID() && GET_TEAM((TeamTypes)iK).isAlive() )
+ 								{
+-									if( iK != getID() && GET_TEAM((TeamTypes)iK).isAlive() )
++									if( GET_TEAM((TeamTypes)iJ).isVassal((TeamTypes)iK) )
+ 									{
+-										if( GET_TEAM((TeamTypes)iJ).isVassal((TeamTypes)iK) )
+-										{
+-											iMilitaryWeight += GET_TEAM((TeamTypes)iK).AI_countMilitaryWeight(pArea);
+-										}
++										iMilitaryWeight += GET_TEAM((TeamTypes)iK).AI_countMilitaryWeight(pArea);
+ 									}
+ 								}
+ 							}
+@@ -555,105 +526,115 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 					}
+ 				}
+ 			}
++		}
+ 
+-			iMilitaryWeight /= iCount;
+-			if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((iMilitaryWeight * iOffensiveThreshold) / 100) + 1))
++		iMilitaryWeight /= iCount;
++		if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((iMilitaryWeight * iOffensiveThreshold) / 100) + 1))
++		{
++			return AREAAI_OFFENSIVE;
++		}
++		*/
++		// K-Mod. I'm not sure how best to do this yet. Let me just try a rough idea for now.
++		// I'm using AI_countMilitaryWeight; but what I really want is "border terriory which needs defending"
++		int iOurRelativeStrength = 100 * countPowerByArea(pArea) / (AI_countMilitaryWeight(pArea) + 10);
++		iOurRelativeStrength *= 100 + (bDeclaredTargets ? 30 : 0) + (bPreparingTotal ? -20 : 0) + iWarSuccessRatio/2;
++		iOurRelativeStrength /= 100;
++		int iEnemyRelativeStrength = 0;
++		bool bEnemyCities = false;
++
++		for (int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
++		{
++			const CvTeamAI& kLoopTeam = GET_TEAM((TeamTypes)iJ);
++			if (iJ != getID() && kLoopTeam.isAlive() && AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN)
+ 			{
+-				return AREAAI_OFFENSIVE;
++				int iPower = 100 * kLoopTeam.countPowerByArea(pArea);
++				int iCommitment = 10 + kLoopTeam.AI_countMilitaryWeight(pArea) * (1 + kLoopTeam.getAtWarCount(true, true)) / 2;
++				iPower /= iCommitment;
++				iEnemyRelativeStrength += iPower;
++				if (kLoopTeam.countNumCitiesByArea(pArea) > 0)
++					bEnemyCities = true;
+ 			}
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		if (bEnemyCities && iOurRelativeStrength > iEnemyRelativeStrength)
++			return AREAAI_OFFENSIVE;
++		// K-Mod end
++	}
+ 
+-		if (bTargets)
++	if (bTargets)
++	{
++		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+ 		{
+-			for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+-			{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       09/17/09                      cephalo & jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* original BTS code
+-				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+-*/
+-				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+ 			
+-				if (kPlayer.isAlive())
++			if (kPlayer.isAlive())
++			{
++				if (kPlayer.getTeam() == getID())
+ 				{
+-					if (kPlayer.getTeam() == getID())
++					if (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) || kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
+ 					{
+-						if (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) || kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++						if (pArea->getCitiesPerPlayer((PlayerTypes)iPlayer) > 0)
+ 						{
+-							if (pArea->getCitiesPerPlayer((PlayerTypes)iPlayer) > 0)
+-							{
+-								return AREAAI_MASSING;
+-							}
++							return AREAAI_MASSING;
+ 						}
+ 					}
+ 				}
+ 			}
+-			if (bRecentAttack)
+-			{
+-				int iPower = countPowerByArea(pArea);
+-				int iEnemyPower = countEnemyPowerByArea(pArea);
+-				if (iPower > iEnemyPower)
+-				{
+-					return AREAAI_MASSING;
+-				}
+-				return AREAAI_DEFENSIVE;
+-			}
+ 		}
+-
+-		if (iAreaCities > 0)
++		if (bRecentAttack)
+ 		{
+-			if (countEnemyDangerByArea(pArea) > iAreaCities)
++			int iPower = countPowerByArea(pArea);
++			int iEnemyPower = countEnemyPowerByArea(pArea);
++			if (iPower > iEnemyPower)
+ 			{
+-				return AREAAI_DEFENSIVE;
++				return AREAAI_MASSING;
+ 			}
++			return AREAAI_DEFENSIVE;
+ 		}
++	}
+ 
+-		if (bChosenTargets)
++	if (iAreaCities > 0)
++	{
++		if (countEnemyDangerByArea(pArea) > iAreaCities)
+ 		{
+-			return AREAAI_MASSING;
++			return AREAAI_DEFENSIVE;
+ 		}
++	}
++
++	if (bChosenTargets)
++	{
++		return AREAAI_MASSING;
++	}
+ 
+-		if (bTargets)
++	if (bTargets)
++	{
++		if (iAreaCities > (getNumMembers() * 3))
+ 		{
+-			if (iAreaCities > (getNumMembers() * 3))
++			if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) || GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) || (countPowerByArea(pArea) > ((countEnemyPowerByArea(pArea) * 3) / 2)))
+ 			{
+-				if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) || GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) || (countPowerByArea(pArea) > ((countEnemyPowerByArea(pArea) * 3) / 2)))
+-				{
+-					return AREAAI_MASSING;
+-				}
++				return AREAAI_MASSING;
+ 			}
+-			return AREAAI_DEFENSIVE;
+ 		}
+-		else
++		return AREAAI_DEFENSIVE;
++	}
++	else
++	{
++		if (bAssault)
+ 		{
+-			if (bAssault)
++			if (AI_isPrimaryArea(pArea))
+ 			{
+-				if (AI_isPrimaryArea(pArea))
+-				{
+-                    if (bPreparingAssault)
+-					{
+-						return AREAAI_ASSAULT_MASSING;
+-					}
+-				}
+-				else if (countNumCitiesByArea(pArea) > 0)
++                if (bPreparingAssault)
+ 				{
+-					return AREAAI_ASSAULT_ASSIST;
++					return AREAAI_ASSAULT_MASSING;
+ 				}
+-
+-				return AREAAI_ASSAULT;
+ 			}
++			else if (countNumCitiesByArea(pArea) > 0)
++			{
++				return AREAAI_ASSAULT_ASSIST;
++			}
++
++			return AREAAI_ASSAULT;
+ 		}
+ 	}
+-
+ 	return AREAAI_NEUTRAL;
+ }
+ 
+@@ -2377,8 +2358,13 @@ int CvTeamAI::AI_getEnemyPowerPercent( bool bConsiderOthers ) const
+ 			}
+ 		}
+ 	}
+-
+-	return (iEnemyPower/std::max(1, (isAVassal() ? getCurrentMasterPower(true) : getPower(true))));
++	//return (iEnemyPower/std::max(1, (isAVassal() ? getCurrentMasterPower(true) : getPower(true))));
++	// K-Mod - Lets not rely too much on our vassals...
++	int iOurPower = getPower(false);
++	iOurPower += isAVassal() ? getCurrentMasterPower(true) : getPower(true);
++	iOurPower /= 2;
++	return iEnemyPower/std::max(1, iOurPower);
++	// K-Mod end
+ }
+ 
+ /// \brief Sum up air power of enemies plus average of other civs we've met.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1d41ea868..70c0f28ba 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2775,8 +2775,8 @@ void CvUnitAI::AI_attackCityMove()
+ 		int iStepDistToTarget = stepDistance(pTargetCity->getX_INLINE(), pTargetCity->getY_INLINE(), getX_INLINE(), getY_INLINE());
+ 		int iAttackRatio = std::max(100, GC.getBBAI_ATTACK_CITY_STACK_RATIO());
+ 		// K-Mod - I'm going to scale the attack ratio based on the quality of our units.
+-		// this isn't the "right way" to do it, but it's better than nothing.
+-		// (The /right way/ would be to estimate how good our odd would be after collateral damage, etc.)
++		// this isn't the "right way" to do it, but hopefully it's better than nothing.
++		// (The /right way/ would be to estimate how good our odds would be after collateral damage, etc.)
+ 		{
+ 			int iOurValue = GET_PLAYER(getOwner()).getTypicalUnitValue(UNITAI_ATTACK_CITY);
+ 			int iTheirValue = GET_PLAYER(pTargetCity->getOwner()).getTypicalUnitValue(UNITAI_CITY_DEFENSE);
+@@ -3378,13 +3378,31 @@ void CvUnitAI::AI_collateralMove()
+ 		FAssert(iTally > 0);
+ 		FAssert(collateralDamageMaxUnits() > 0);
+ 
++		int iDangerModifier = 100;
++		//if (iTally > 1 && GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 3, false))
++		//{
++		//	int iEnemyOffense = GET_PLAYER(getOwner()).AI_getEnemyPlotStrength(plot(), 2, false, false);
++		//	if (iEnemyOffense > 0)
++		//	{
++		//		int iOurDefense = GET_PLAYER(getOwner()).AI_getOurPlotStrength(plot(), 0, true, false);
++		//		iDangerModifier = iEnemyOffense * 100 / std::max(1, iOurDefense);
++		//		iDangerModifier = std::max(iDangerModifier, 100);
++		//		iDangerModifier = std::min(iDangerModifier, 300);
++		//		//if (!plot()->isCity())
++		//		//	iDangerModifier = std::min(iDangerModifier, 150);
++		//	}
++		//}
++
+ 		do
+ 		{
+-			if (AI_anyAttack(1, 80 / (3 + iTally), std::min(2*collateralDamageMaxUnits(), collateralDamageMaxUnits() + iTally - 1)))
++			int iMinOdds = 80 / (3 + iTally);
++			iMinOdds *= 100;
++			iMinOdds /= iDangerModifier;
++			if (AI_anyAttack(1, iMinOdds, std::min(2*collateralDamageMaxUnits(), collateralDamageMaxUnits() + iTally - 1)))
+ 			{
+ 				return;
+ 			}
+-			// Try again with just half the units, just in case our only problem is that we can't find a bit enough target stack.
++			// Try again with just half the units, just in case our only problem is that we can't find a big enough target stack.
+ 			iTally = (iTally-1)/2;
+ 		} while (iTally > 1);
+ 	}
+@@ -5289,6 +5307,8 @@ bool CvUnitAI::AI_greatPersonMove()
+ 
+ 	CvPlot* pBestTradePlot;
+ 	int iTradeValue = AI_tradeMissionValue(pBestTradePlot, iDiscoverValue / 2);
++	iTradeValue *= kPlayer.AI_commerceWeight(COMMERCE_GOLD);
++	iTradeValue /= 100;
+ 	iTradeValue *= (75 + kPlayer.AI_getStrategyRand(9) % 51);
+ 	iTradeValue /= 100;
+ 
+@@ -20142,6 +20162,10 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 				if( atPlot(pLoopPlot) || (AI_plotValid(pLoopPlot) && generatePath(pLoopPlot, 0, true, &iPathTurns)) )
+ 				{
+ 					pPickupPlot = pLoopPlot;
++					// K-Mod, bug fix
++					if (atPlot(pLoopPlot))
++						iPathTurns = 0;
++					// K-Mod end.
+ 				}
+ 				else
+ 				{
+@@ -21837,7 +21861,6 @@ int CvUnitAI::AI_tradeMissionValue(CvPlot*& pBestPlot, int iThreshold)
+                                     iBestValue = iValue;
+ 									iBestPathTurns = iPathTurns;
+                                     pBestPlot = getPathEndTurnPlot();
+-									FAssert(pBestPlot == pLoopCity->plot());
+ 									iThreshold = std::max(iThreshold, iBestValue * 4 / (4 + iBestPathTurns));
+                                 }
+                             }
+
+diff --git a/changelog.txt b/changelog.txt
+index 5a066391e..b0783e7a5 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -37,6 +37,7 @@ v0.98 changelist
+ + Changed the scaling of the AI's commerce weight for improvement evaluation.
+ + Fixed an original BtS bug which prevented improvement builds which remove bonus from being penalised.
+ + When choosing an improvement, the AI will now try to anticipate how the improvement will change their future needs - this should reduce the AI's tendency to oscillating between different improvements.
+++ Automated (human) workers will now try to avoid working near enemy borders when at war.
+ 
+ + Fixed an bug in the original BtS ironclad animation file.
+ + Removed / fixed some false debug assertions and logging problems; from my code, BBAI code, and from BtS code. [This only applies to the Debug build]
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=44426

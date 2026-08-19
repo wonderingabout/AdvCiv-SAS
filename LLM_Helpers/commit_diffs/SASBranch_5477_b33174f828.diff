@@ -1,0 +1,304 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5477
+# Commit: b33174f828f1f2397c62fd438049baa7b475acab
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 71b57498c0862d9ee0dbae20dbf8fab997b57cd0
+# Title: Add strict obsolete tech scrapping gates by XML Cost and none for cargo - **Gated strictly** by **domain/era:** (e.g., an archer is not useful at medieval er...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+81	0	Assets/XML/GlobalDefines_advciv_sas.xml
+3	6	CvGameCoreDLL/CvCityAI.cpp
+91	3	CvGameCoreDLL/CvUnit.cpp
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 0fbefc32a..bb6da8d61 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -13035,8 +13035,8 @@
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- custom: Changpingcang keeps food after growth over base Market. (GPT-5.3-Codex) -->
+-			<iFoodKept>10</iFoodKept>
++			<!-- custom: as of now more than civ-specific granaries because it is available much later and a non-ubiquitous building, and because the building is as of now otherwise weak -->
++			<iFoodKept>15</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+ 			<iAirUnitCapacity>0</iAirUnitCapacity>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 9b859277e..26ecabe31 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1046,6 +1046,87 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CAN_SCRAP_OBSOLETE_TECH</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++
++
++
++	<!-- custom: obsolete-unit scrap hard-gates by era and domain, based on iXMLCost. If obsolete and iXMLCost <= cap, scrapping is allowed; if above cap, unit is kept. iXMLCost is game-speed invariant, and these caps are compared as raw XML-cost gates (no game-speed scaling). DOMAIN_LAND is for land combat units; DOMAIN_SEA is for ships (cargo transports are hard-protected in DLL regardless of cap). (GPT-5.3-Codex) -->
++	<!-- custom: do not scrap units so early -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: do not scrap units so early -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: archers are no longer valuable (as of now 2 str) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL</DefineName>
++		<iDefineIntVal>27</iDefineIntVal>
++	</Define>
++	<!-- custom: axemen are no longer valuable (as of now 5 effective str), but for example knight units still are even if obsolete for production -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE</DefineName>
++		<iDefineIntVal>37</iDefineIntVal>
++	</Define>
++	<!-- custom: macemen are no longer valuable (as of now 5 effective str), but for example knight units still are, and trebuchets still are as well -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL</DefineName>
++		<iDefineIntVal>78</iDefineIntVal>
++	</Define>
++	<!-- custom: musketmen are still valuable (keeps knights as a side effect but maybe fine or not too bad as such) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN</DefineName>
++		<iDefineIntVal>98</iDefineIntVal>
++	</Define>
++	<!-- custom: riflemen are still valuable (and so are cuirassier units) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE</DefineName>
++		<iDefineIntVal>118</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: for domain sea units, as of now if not cargo: -->
++	<!-- custom: do not scrap so early -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: do not scrap so early -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: an as of now trireme is still effective against privateers so keep it -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL</DefineName>
++		<iDefineIntVal>38</iDefineIntVal>
++	</Define>
++	<!-- custom: triremes are not so useful anymore, but privateers are, use some intermediate value -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE</DefineName>
++		<iDefineIntVal>58</iDefineIntVal>
++	</Define>
++	<!-- custom: a frigate is a bit old but still decent against an ironclad, and so is a privateer to a lesser extent, do not scrap so early for these -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL</DefineName>
++		<iDefineIntVal>68</iDefineIntVal>
++	</Define>
++	<!-- custom: a frigate is a bit old but still decent against an ironclad, and so is a privateer to a lesser extent, do not scrap so early for these -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN</DefineName>
++		<iDefineIntVal>78</iDefineIntVal>
++	</Define>
++	<!-- custom: a ship of the line is better than nothing -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE</DefineName>
++		<iDefineIntVal>108</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = ((4 * (0 + 1)) + 1 = 5 at ancient, (4 * 2) + 1 = 9 at classical, (4 * 3) + 1 = 13 at medieval. Note: overshooting may lead to bankruptcy though. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 96f11f3c8..fcec49724 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5521,8 +5521,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+ 			{
+ 				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
+-				// Cheap World Wonder grab policy: per-era iCost caps (Normal).
+-				// If iCost <= cap(for current era) scaled by game speed, treat the WW as "cheap".
++				// Cheap World Wonder grab policy: per-era iCost caps (XML-cost gates).
++				// Compare raw iCost vs raw cap (no game-speed scaling) since XML cost is game-speed independent.
+ 				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future.
+ 
+ 				static const int iCheapWWCapAncientNormal     = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL");
+@@ -5545,11 +5545,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					default: iCheapWWCapNormal = iCheapWWCapFutureNormal; break; // includes era 6 and any later eras
+ 				}
+ 
+-				// Scale cap to game speed (same style you use elsewhere)
+-				const int iCheapWWCapAdjusted = (iCheapWWCapNormal * iGameSpeedMultiplier) / 100;
+-
+ 				// Final flag: cheap enough to consider as "grab it"
+-				const bool bCheapWorldWonder = (iCost <= iCheapWWCapAdjusted);
++				const bool bCheapWorldWonder = (iCost <= iCheapWWCapNormal);
+ 				// If cheap, push it hard (so it doesn't get ignored by other builds).
+ 				if (bCheapWorldWonder)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ed8246909..dff28e984 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3276,16 +3276,105 @@ bool CvUnit::canScrap() const
+ 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
+ 	{
+ 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
+-		const UnitAITypes eUnitAI = AI_getUnitAIType();
+ 		const CvUnitInfo& kUnitInfo = getUnitInfo();
+-
+ 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
+ 		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
+ 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
+ 		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+ 		{
++			// <!-- custom: keep direct getDomainType() checks here. We had compile errors when testing era enums/cases (`ERA_ANCIENT` etc. undeclared / case expression not constant), so for safety we also avoid domain-enum caching here for now; the extra cost is tiny anyway. (GPT-5.3-Codex) -->
++			// 1>..\CvUnit.cpp(3301): error C2065: 'ERA_ANCIENT' : undeclared identifier
++			// 1>..\CvUnit.cpp(3301): error C2051: case expression not constant
++			// 1>..\CvUnit.cpp(3304): error C2065: 'ERA_CLASSICAL' : undeclared identifier
++			// <!-- custom: obsolete-unit scrap gates are based on iXMLCost by era, split by domain. For DOMAIN_LAND combat units, cheap obsolete units (e.g. Archers) become low-value maintenance in/after Medieval and are allowed to scrap earlier, while higher-cost obsolete units (e.g. Knights, Trebuchets) can remain strategically useful even in later eras and are protected by stricter cost gates. For DOMAIN_SEA, transports with cargo are never scrapped even when obsolete because they can still enable invasions, while other obsolete ships use their own era-based iXMLCost gates. Important: compare raw iXMLCost vs raw gate (no game-speed scaling) since XML cost itself is game-speed independent. (GPT-5.3-Codex) -->
++			if (getDomainType() == DOMAIN_LAND && canFight())
++			{
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE");
++
++				int iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE;
++				int const iCurrentEra = GET_PLAYER(getOwner()).getCurrentEra();
++				switch (iCurrentEra)
++				{
++				case 0:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT;
++					break;
++				case 1:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL;
++					break;
++				case 2:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL;
++					break;
++				case 3:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE;
++					break;
++				case 4:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL;
++					break;
++				case 5:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN;
++					break;
++				default:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE;
++					break;
++				}
++				int const iXMLCost = kUnitInfo.getProductionCost();
++				return (iXMLCost <= iWeakObsoleteXMLCostCap);
++			}
++			else if (getDomainType() == DOMAIN_SEA)
++			{
++				// <!-- custom: even if galley is old, if it's our only unit to invade a rival we should definitely use it even in later eras so don't scrap naval units that can have a cargo -->
++				if (getCargo() > 0)
++				{
++					return false;
++				}
++
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN");
++				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE");
++
++				int iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE;
++				int const iCurrentEra = GET_PLAYER(getOwner()).getCurrentEra();
++				switch (iCurrentEra)
++				{
++				case 0:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT;
++					break;
++				case 1:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL;
++					break;
++				case 2:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL;
++					break;
++				case 3:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE;
++					break;
++				case 4:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL;
++					break;
++				case 5:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN;
++					break;
++				default:
++					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE;
++					break;
++				}
++				int const iXMLCost = kUnitInfo.getProductionCost();
++				return (iXMLCost <= iWeakObsoleteXMLCostCap);
++			}
+ 			return true;
+ 		}
++
++		const UnitAITypes eUnitAI = AI_getUnitAIType();
+ 		const bool bLandMilitaryUnitAIs = (
+ 			(eUnitAI == UNITAI_ATTACK) ||
+ 			(eUnitAI == UNITAI_ATTACK_CITY) ||
+@@ -3300,7 +3389,6 @@ bool CvUnit::canScrap() const
+ 			//
+ 			(eUnitAI == UNITAI_PARADROP)
+ 		);
+-
+ 		if (bLandMilitaryUnitAIs)
+ 		{
+ 			return false;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a69d16030..31dcb3deb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -229,7 +229,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ #### Units (Common) (AI)
+ 
+-- **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago, etc.) **don’t restrict naval quotas** — sea control can decide wars (e.g., a frigate that sinks transports before they land can neutralize a four-unit invasion) and supports diverse strategies; on **land-heavy** maps (pangaea/continents) set naval quotas **much lower**. In war/danger, naval production quotas drop (sometimes to **0**), but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the "naval dementia" case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers) (complements [KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)). **Guardrail impact:** likely also covers hidden loops such as the **workboat infinite loop**; see [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late). Update: **Exception: Allow scrapping** for units that have an `ObsoleteTech`. They are less efficient to keep.
++- **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago, etc.) **don’t restrict naval quotas** — sea control can decide wars (e.g., a frigate that sinks transports before they land can neutralize a four-unit invasion) and supports diverse strategies; on **land-heavy** maps (pangaea/continents) set naval quotas **much lower**. In war/danger, naval production quotas drop (sometimes to **0**), but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the "naval dementia" case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers) (complements [KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)). **Guardrail impact:** likely also covers hidden loops such as the **workboat infinite loop**; see [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late).
++- **Exception: Allow scrapping** for units that have an `ObsoleteTech`: they are less efficient to keep. (Requires AdvCiv-SAS 5477+) **Gated strictly** by **domain/era:** (e.g., an archer is not useful at medieval era, but a knight unit is still useful at industrial era). These are **raw XML-cost gates** (no game-speed scaling). Also added a naval exception: **sea units carrying cargo are never scrapped** (e.g., a galley is still useful to transport units).
+ - **Scrapping safeguards**: added pre-checks to stop scrapping **useful units**—**all land military units are protected**, and **no unit can be scrapped before turn 150**. Fixes early "produce then scrap" cases (e.g., macemen) and keeps forces on the map vs. barbarians/rivals (**no economy check**). See **[KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)**.
+ - Add **scrap tolerance beyond unit support costs**: we expect to lose a few units during war; having a few **extra units** helps us not become weaker than our rivals; overshooting may lead to bankruptcy. Formula: `mult * (era + 1) + add` extra units.
+ - Heavily increase the importance of **XML Unit Cost (Hammers)** (reliable reflection of a unit's overall strength: e.g. A 4 Strength Trebuchet at 80 Hammers Cost is stronger than a 5 Strength Axeman at 35 Hammers) when deciding which unit to scrap first, and **reduce the importance of experience**: A 0 XP swordsman is more valuable than a 10 XP we will likely never upgrade. Also **account for map heaviness** (e.g. prioritize scrapping land units on archipelago, or galleys on pangea). Change in `CvPlayerAI::AI_disbandValue`.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=22862

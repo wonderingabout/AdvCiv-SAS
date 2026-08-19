@@ -1,0 +1,177 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3055
+# Commit: a4397559da8abc9bedb38ecdf1779f13130205cf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cea7792fcf46ef0f8916e66e9262e1a9a3a53a26
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+6	5	CvGameCoreDLL/CvPlayerAI.cpp
+2	0	CvGameCoreDLL/CvTeamAI.cpp
+11	6	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/GroupPathFinder.cpp
+1	0	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 82dc5685c..32d46ea14 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10790,7 +10790,6 @@ void CvGame::doVoteResults()
+ 					size_t pos1 = szResolution.find(L"(");
+ 					if(pos1 != CvWString::npos && pos1 + 1 < szResolution.length())
+ 					{
+-						bool bForceCivic = false;
+ 						// Mustn't remove the stuff after the dash if bForceCivic
+ 						size_t pos2 = std::min((kVote.isForceCivic().isAnyNonDefault() ?
+ 								CvWString::npos : szResolution.find(L" -")),
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index cfc505321..19a42ee69 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3534,7 +3534,7 @@ void CvGameTextMgr::setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot con
+ {
+ 	CvTeam const& kActiveTeam = GET_TEAM(GC.getGame().getActiveTeam());
+ 	CvPlayer const& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+-	CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
++	CvUnit const* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
+ 	bool bCanRemove = false;
+ 	// <advc.004b>
+ 	bool bFound = false;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 022f5920c..596dee0d7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14739,9 +14739,10 @@ int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
+ 					/*	decrease the value for wounded units.
+ 						(it might be nice to only do this if we are
+ 						in a position to attack with ground forces...) */
+-					int x = 100 * (pUnit->maxHitPoints() - pUnit->currHitPoints()) /
++					int iDamagePercent = (100 *
++							(pUnit->maxHitPoints() - pUnit->currHitPoints())) /
+ 							std::max(1, pUnit->maxHitPoints());
+-					iUnitValue -= iUnitValue*x*x/10000;
++					iUnitValue -= (iUnitValue * SQR(iDamagePercent)) / 10000;
+ 					iValue += iMilitaryTargetWeight * iUnitValue;
+ 				}
+ 				else // non enemy unit
+@@ -14749,9 +14750,9 @@ int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
+ 					if (pUnit->getTeam() == getTeam())
+ 					{
+ 						// nuking our own units... sometimes acceptable
+-						int x = pUnit->getUnitInfo().getProductionCost();
+-						if (x > 0)
+-							iValue -= iMilitaryTargetWeight * x;
++						int const iCost = pUnit->getUnitInfo().getProductionCost();
++						if (iCost > 0)
++							iValue -= iMilitaryTargetWeight * iCost;
+ 						// assume this is a special unit.
+ 						else return MIN_INT;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index ab41e59a5..81c140613 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1999,6 +1999,8 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 		CvGame const& kGame = GC.getGame();
+ 		scaled rGameProgress(kGame.getGameTurn() - kGame.getStartTurn(),
+ 				std::max(1, kGame.getEstimateEndTurn() - kGame.getStartTurn()));
++		// Too big a discount too early this way? Could do:
++		//rGameProgress = 1 / (1 + 1 / rGameProgress);
+ 		rGameProgress.clamp(0, fixp(0.5));
+ 		rPowRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
+ 		rTechRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 46f89fc9d..569e649da 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19757,7 +19757,7 @@ bool CvUnitAI::AI_nuke()
+ 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
+ 
+ 	// consider changing this to something smarter
+-	bool bDanger = kOwner.AI_isAnyPlotDanger(getPlot(), 2);
++	bool const bDanger = kOwner.AI_isAnyPlotDanger(getPlot(), 2);
+ 	int const iWarRating = kTeam.AI_getWarSuccessRating();
+ 	// iBaseWeight is the civ-independant part of the weight for civilian damage evaluation
+ 	/*int iBaseWeight = 10;
+@@ -19767,15 +19767,17 @@ bool CvUnitAI::AI_nuke()
+ 	if (kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST3))
+ 		iBaseWeight += 8; // </advc.019>
+ 	if (kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST4))
+-	iBaseWeight += 20;
++		iBaseWeight += 20;
+ 	iBaseWeight += std::max(0, -iWarRating);
+ 	// don't completely destroy them if we want to keep their land.
+ 	iBaseWeight -= std::max(0, iWarRating - 50);
+ 
+ 	CvPlot* pBestTarget = 0;
+-	// the initial value of iBestValue is the threshold for action. (cf. units of AI_nukeValue)
+-	int iBestValue = std::max(0, 4 * getUnitInfo().getProductionCost());
+-	iBestValue += (bDanger || kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 20 : 100);
++	/*	the initial value of iBestValue is the threshold for action.
++		(cf. units of AI_nukeValue) */
++	int iBestValue = std::max(0, 4 * getUnitInfo().getProductionCost()) + 100;
++	if (bDanger || kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER))
++		iBestValue -= 80;
+ 	iBestValue *= std::max(1,
+ 			kOwner.getNumNukeUnits() + 2 * kOwner.getNumCities());
+ 	iBestValue /= std::max(1,
+@@ -19804,8 +19806,11 @@ bool CvUnitAI::AI_nuke()
+ 			CvPlot* pTarget;
+ 			int iValue = AI_nukeValue(pLoopCity->getPlot(), nukeRange(), pTarget,
+ 					iDestructionWeight);
+-			if (kTeam.AI_getWarPlan(pLoopCity->getTeam()) == WARPLAN_LIMITED && iWarRating > -10)
++			if (kTeam.AI_getWarPlan(pLoopCity->getTeam()) == WARPLAN_LIMITED &&
++				iWarRating > -10)
++			{
+ 				iValue /= 2;
++			}
+ 			if (iValue > iBestValue)
+ 			{
+ 				iBestValue = iValue;
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 984908252..a8c3587ef 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -241,7 +241,7 @@ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& k
+ #define PATH_STRAIGHT_WEIGHT       (2) // K-Mod: was 1
+ //#define PATH_ASYMMETRY_WEIGHT    (1) // K-Mod
+ 
+-// #define PATH_DAMAGE_WEIGHT      (500) // K-Mod (disabled because it isn't used)
++// #define PATH_DAMAGE_WEIGHT      (500) // K-Mod (gets loaded from XML)
+ // advc.pf: Was 300 in K-Mod
+ #define PATH_COMBAT_WEIGHT         (350) // K-Mod. penalty for having to fight along the way.
+ // Note: there will also be other combat penalties added, for example from defence weight and city weight.
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index c360d68d6..6ccdc7f15 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -61,6 +61,7 @@ protected:
+ 	CvPlot* m_pPlot; // FAStarNode::m_iX, m_iY in K-MMod
+ 	int m_iPathLength; // FAStarNode::m_iData2 in K-Mod
+ public: // Keeping these public (for now) for interchangeability with FAStarNode
++	// Path costs need to have a fairly high resolution; short int won't do.
+ 	int m_iTotalCost;
+ 	int m_iKnownCost;
+ 	int m_iHeuristicCost;
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=6676

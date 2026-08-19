@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4447
+# Commit: 9e636f4ebf8829e96ead5fd9ef58a559e277e46a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 521c0058ebf9265c9806cf72b696525d525459b3
+# Title: update tech tree and docs slightly
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+4	4	_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+index 75c4e47fa..f183b0477 100644
+Binary files a/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png and b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png differ
+
+diff --git a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+index ee44d8ca0..bd2342041 100644
+--- a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+@@ -1,9 +1,9 @@
+ # Quick Get Started Guide
+ 
+-This page does not go to go deep into the technicalities, for that see the other
+-documents of this mod, but it gives instead a quick starter guide on the key
+-few differences between AdvCiv and AdvCiv SAS, for newcomer players used to
+-AdvCiv, Civ4 BTS, or some similar mods
++This page does not go to go deep into the technicalities, for that see the
++[other documents](/_1_AdvCiv_SAS/) of this mod, but it gives instead a quick
++starter guide on the key few differences between AdvCiv and AdvCiv SAS, for
++newcomer players used to AdvCiv, Civ4 BTS, or some similar mods
+ 
+ ## Main Changes quick starter guide
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1201

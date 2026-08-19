@@ -1,0 +1,1841 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5381
+# Commit: 5102770120052fdc9fdb9280d988cf0caecc26d6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 02bdeb35bb33f1bd1238ed80d58427611d89e6d6
+# Title: refactor: move common logic for in-category charts to sevopedia helpers Done with the help of Claude code Opus 4.5 thanks a lot :)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	35	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+28	83	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+14	43	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+174	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+4	34	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+2	2	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+1	1	Assets/XML/GameInfo/CIV4ProcessInfo.xml
+2	2	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+2	2	Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+1	10	Assets/XML/Interface/CIV4ColorVals.xml
+2	97	Assets/XML/Misc/CIV4DetailManager.xml
+2	2	Assets/XML/Technologies/CIV4TechInfos.xml
+497	0	Long_Comments/CIV4DetailManager_for_comments.xml
+85	0	Long_Comments/Long_Comments_XML.txt
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Long_Comments/CIV4DetailManager_for_comments.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 68524ba84..957c2bbb7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -184,9 +184,9 @@ class SevoPediaImprovement:
+ 
+ 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
+-		self.IMPROVEMENT_LEADER_ICON_SIZE = 24
+-		self.IMPROVEMENT_LEADER_BUTTON_SPACING = 2
+-		self.IMPROVEMENT_LEADER_ROW_H = 24
++		# <!-- custom: Leader icon sizes now use centralized INCHART_* constants from _sevopedia_helpers.
++		# IMPROVEMENT_LEADER_ICON_SIZE, IMPROVEMENT_LEADER_BUTTON_SPACING, IMPROVEMENT_LEADER_ROW_H replaced by
++		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
+ 
+ 
+ 
+@@ -475,61 +475,37 @@ class SevoPediaImprovement:
+ 		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
+ 
+ 		if not weightToLeaders:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 			return
+ 
+-		tableMargin = 8
++		tableMargin = INCHART_TABLE_MARGIN
+ 		tableX = xPanel + tableMargin
+ 		tableY = yPanel + 30
+ 		tableW = wPanel - (2 * tableMargin)
+ 		tableH = hPanel - 40
+ 
+-		leaderColW = self.IMPROVEMENT_LEADER_ICON_SIZE + self.IMPROVEMENT_LEADER_BUTTON_SPACING
+ 		weightColW = 60
+ 		countColW = 60
+-		availableLeadersW = tableW - weightColW - countColW
+-		if availableLeadersW < leaderColW * maxLeaders:
+-			leaderColW = int(availableLeadersW / maxLeaders)
+-			if leaderColW < 10:
+-				leaderColW = 10
++		fixedColsW = weightColW + countColW
++		leaderColW, maxLeaders = inchart_calc_icon_col_width(tableW, fixedColsW, maxLeaders)
+ 
+ 		tableName = self.top.getNextWidgetName()
+-		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, self.IMPROVEMENT_LEADER_ROW_H, self.IMPROVEMENT_LEADER_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, INCHART_ROW_HEIGHT, INCHART_ROW_HEIGHT, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSort(tableName)
+ 
+ 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_WEIGHT", ()), weightColW)
+ 		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), countColW)
+-		for iCol in xrange(maxLeaders):
+-			screen.setTableColumnHeader(tableName, 2 + iCol, "", leaderColW)
++		inchart_set_icon_column_headers(screen, tableName, 2, maxLeaders, leaderColW)
+ 
+ 		for weight in weightsSorted:
+ 			iRow = screen.appendTableRow(tableName)
+ 			screen.setTableText(tableName, 0, iRow, u"<font=2>%+d</font>" % weight, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 			leaderCount = len(weightToLeaders[weight])
+ 			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % leaderCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-			self._setLeaderIconCells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, leaderToCiv)
+-
+-
+-	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
+-		for iCol in xrange(leaderColCount):
+-			if iCol >= len(leaderIds):
+-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-				continue
+-
+-			iLeader = leaderIds[iCol]
+-			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+-			buttonPath = leaderInfo.getButton()
+-			iCiv = leaderToCiv.get(iLeader, -1)
+-			if iCiv != -1 and buttonPath:
+-				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
+-			else:
+-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			inchart_set_icon_cells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
+ 
+ 
++	# <!-- custom: _setLeaderIconCells removed - now uses centralized inchart_set_icon_cells from _sevopedia_helpers -->
+ 
+ 	# <!-- custom: new addition thanks to chatgpt; as for logic this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos. -->
+ 	def placeTerrainMakesValids(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 73226b74f..76fbb62ff 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -274,10 +274,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.STATS_RIGHT_W = self.W_STATS - self.STATS_LEFT_W - 3 * STATS_MARGIN
+ 		self.STATS_RIGHT_H = self.H_STATS - 2 * STATS_MARGIN
+ 
+-		# Button sizes for statistics tables
+-		self.CIV_ICON_SIZE = 24
+-		self.TECH_ICON_SIZE = 24
+-		self.CIV_BUTTON_COLUMN_SPACING = 2
++		# <!-- custom: Button sizes now use centralized INCHART_* constants from _sevopedia_helpers.
++		# CIV_ICON_SIZE, TECH_ICON_SIZE, CIV_BUTTON_COLUMN_SPACING replaced by INCHART_ICON_SIZE, INCHART_ICON_SPACING -->
+ 
+ 		# Bottom row: Special / History (reduced height by 120px)
+ 		self.X_SPECIAL = self.X_TECH_PANE
+@@ -955,9 +953,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+ 		if not startingTechData:
+-			# No starting techs found - show message
+-			txtName = self.top.getNextWidgetName()
+-			screen.addMultilineText(txtName, localText.getText("TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS", ()), panelX + 10, panelY + 10, panelW - 20, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# No starting techs found - show message using centralized helper
++			inchart_show_no_content_text(screen, self.top, panelX, panelY, panelW, panelH, "TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS")
+ 			return
+ 
+ 		# Table dimensions inside panel
+@@ -971,12 +968,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		colTechW = 160
+ 		colCountW = 40
+ 		maxCivs = startingTechMaxCivs
+-		if maxCivs < 1:
+-			maxCivs = 1
+-		civColW = self.CIV_ICON_SIZE + self.CIV_BUTTON_COLUMN_SPACING
+-		availableCivW = tableW - colTechW - colCountW
+-		if availableCivW < civColW * maxCivs:
+-			civColW = max(16, availableCivW / maxCivs)
++		fixedColsW = colTechW + colCountW
++		civColW, maxCivs = inchart_calc_icon_col_width(tableW, fixedColsW, maxCivs)
+ 
+ 		# Create table
+ 		tableName = self.top.getNextWidgetName()
+@@ -986,8 +979,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		# Column headers: "Starting Tech" in first column (implicit panel title)
+ 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER", ()), colTechW)
+ 		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW)
+-		for iCol in xrange(maxCivs):
+-			screen.setTableColumnHeader(tableName, 2 + iCol, "", civColW)
++		inchart_set_icon_column_headers(screen, tableName, 2, maxCivs, civColW)
+ 
+ 		for iTech, civCount, civIds in startingTechData:
+ 			iRow = screen.appendTableRow(tableName)
+@@ -997,7 +989,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			screen.setTableText(tableName, 0, iRow, techText, techInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-			self._setCivIconCells(screen, tableName, iRow, civIds, 2, maxCivs)
++			inchart_set_icon_cells(screen, tableName, iRow, civIds, 2, maxCivs, INCHART_ICON_TYPE_CIV)
+ 
+ 
+ 	def _placeUntradeableTechsByEraTable(self, screen, cache):
+@@ -1021,8 +1013,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		# Check if any untradeable techs exist
+ 		totalUntradeable = sum([data[0] for data in untradeableTechsByEra.values()])
+ 		if totalUntradeable == 0:
+-			txtName = self.top.getNextWidgetName()
+-			screen.addMultilineText(txtName, localText.getText("TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS", ()), panelX + 10, panelY + 10, panelW - 20, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			inchart_show_no_content_text(screen, self.top, panelX, panelY, panelW, panelH, "TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS")
+ 			return
+ 
+ 		# Table dimensions inside panel
+@@ -1037,12 +1028,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		colCountW = 40
+ 		colAllW = 40
+ 		maxTechs = maxUntradeableTechs
+-		if maxTechs < 1:
+-			maxTechs = 1
+-		techColW = self.TECH_ICON_SIZE + self.CIV_BUTTON_COLUMN_SPACING
+-		availableTechW = tableW - colEraW - colCountW - colAllW
+-		if availableTechW < techColW * maxTechs:
+-			techColW = max(16, availableTechW / maxTechs)
++		fixedColsW = colEraW + colCountW + colAllW
++		techColW, maxTechs = inchart_calc_icon_col_width(tableW, fixedColsW, maxTechs)
+ 
+ 		# Create table (3 fixed columns + tech button columns)
+ 		tableName = self.top.getNextWidgetName()
+@@ -1053,8 +1040,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER", ()), colEraW)
+ 		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), colCountW)
+ 		screen.setTableColumnHeader(tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_ALL", ()), colAllW)
+-		for iCol in xrange(maxTechs):
+-			screen.setTableColumnHeader(tableName, 3 + iCol, "", techColW)
++		inchart_set_icon_column_headers(screen, tableName, 3, maxTechs, techColW)
+ 
+ 		numEras = gc.getNumEraInfos()
+ 		for iEra in xrange(numEras):
+@@ -1082,7 +1068,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			screen.setTableText(tableName, 2, iRow, u"<font=2>%d</font>" % totalInEra, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 			# Tech button columns (starting at column 3)
+-			self._setTechIconCells(screen, tableName, iRow, techIds, 3, maxTechs)
++			inchart_set_icon_cells(screen, tableName, iRow, techIds, 3, maxTechs, INCHART_ICON_TYPE_TECH)
+ 
+ 
+ 	def _placeStartingTechCombosTable(self, screen, cache):
+@@ -1103,8 +1089,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+ 		if not startingTechCombos:
+-			txtName = self.top.getNextWidgetName()
+-			screen.addMultilineText(txtName, localText.getText("TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND", ()), panelX + 10, panelY + 10, panelW - 20, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			inchart_show_no_content_text(screen, self.top, panelX, panelY, panelW, panelH, "TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND")
+ 			return
+ 
+ 		# Table dimensions inside panel
+@@ -1114,17 +1099,12 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		tableH = panelH - 2 * self.STATS_INNER
+ 
+ 		# Column widths
+-		if combosMaxCivs > 0:
+-			maxCivsRight = combosMaxCivs
+-		else:
+-			maxCivsRight = 1
++		maxCivsRight = combosMaxCivs
+ 		colComboW = int(tableW * 0.50)
+ 		colCountW = 40
+ 		colRankW = 70
+-		civColW = self.CIV_ICON_SIZE + self.CIV_BUTTON_COLUMN_SPACING
+-		availableCivW = tableW - colComboW - colCountW - colRankW
+-		if availableCivW < civColW * maxCivsRight:
+-			civColW = max(16, availableCivW / maxCivsRight)
++		fixedColsW = colComboW + colCountW + colRankW
++		civColW, maxCivsRight = inchart_calc_icon_col_width(tableW, fixedColsW, maxCivsRight)
+ 
+ 		# Create table
+ 		tableName = self.top.getNextWidgetName()
+@@ -1135,8 +1115,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER", ()), colComboW)
+ 		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW)
+ 		screen.setTableColumnHeader(tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW)
+-		for iCol in xrange(maxCivsRight):
+-			screen.setTableColumnHeader(tableName, 3 + iCol, "", civColW)
++		inchart_set_icon_column_headers(screen, tableName, 3, maxCivsRight, civColW)
+ 
+ 		minCount, maxCount = combosMinMax
+ 		for tech1, tech2, civCount, civIds in startingTechCombos:
+@@ -1145,58 +1124,24 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			tech1Info = gc.getTechInfo(tech1)
+ 			tech2Info = gc.getTechInfo(tech2)
+ 
+-			# Combination text with tech icons using <img> tags (size=24 to match button columns)
+-			comboText = u"<font=2><img=%s size=24> %s + <img=%s size=24> %s</font>" % (
+-				tech1Info.getButton(), tech1Info.getDescription(),
+-				tech2Info.getButton(), tech2Info.getDescription())
++			# Combination text with tech icons using <img> tags (size=24 to match button columns using INCHART_ICON_SIZE)
++			comboText = u"<font=2><img=%s size=%d> %s + <img=%s size=%d> %s</font>" % (
++				tech1Info.getButton(), INCHART_ICON_SIZE, tech1Info.getDescription(),
++				tech2Info.getButton(), INCHART_ICON_SIZE, tech2Info.getDescription())
+ 			screen.setTableText(tableName, 0, iRow, comboText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			# Count
+ 			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-			# Ranking bar
+-			if maxCount > minCount:
+-				normalized = (civCount - minCount) * 100 / (maxCount - minCount)
+-			else:
+-				normalized = 50
+-			numPlus = (normalized + 10) / 20
+-			screen.setTableText(tableName, 2, iRow, u"<font=2>%s</font>" % (u"+" * numPlus), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-
+-			# Civ icons
+-			self._setCivIconCells(screen, tableName, iRow, civIds, 3, maxCivsRight)
++			# Ranking bar using centralized helper
++			rankingBar = inchart_calc_ranking_bar(civCount, minCount, maxCount)
++			screen.setTableText(tableName, 2, iRow, u"<font=2>%s</font>" % rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
++			# Civ icons using centralized helper
++			inchart_set_icon_cells(screen, tableName, iRow, civIds, 3, maxCivsRight, INCHART_ICON_TYPE_CIV)
+ 
+-	def _setCivIconCells(self, screen, tableName, row, civIds, civColStart, civColCount):
+-		# Helper to set civ icon cells in a table row
+-		for iCol in xrange(civColCount):
+-			if iCol >= len(civIds):
+-				screen.setTableText(tableName, civColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-				continue
+-
+-			iCiv = civIds[iCol]
+-			civInfo = gc.getCivilizationInfo(iCiv)
+-			buttonPath = civInfo.getButton()
+-			if buttonPath:
+-				screen.setTableText(tableName, civColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			else:
+-				screen.setTableText(tableName, civColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-
+-	def _setTechIconCells(self, screen, tableName, row, techIds, techColStart, techColCount):
+-		# Helper to set tech icon cells in a table row
+-		for iCol in xrange(techColCount):
+-			if iCol >= len(techIds):
+-				screen.setTableText(tableName, techColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-				continue
+-
+-			iTech = techIds[iCol]
+-			techInfo = gc.getTechInfo(iTech)
+-			buttonPath = techInfo.getButton()
+-			if buttonPath:
+-				screen.setTableText(tableName, techColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			else:
+-				screen.setTableText(tableName, techColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++	# <!-- custom: _setCivIconCells and _setTechIconCells removed - now use centralized inchart_set_icon_cells from _sevopedia_helpers -->
+ 
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index bfefc035f..0846da850 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -216,10 +216,8 @@ class SevoPediaTrait:
+ 		self.W_HISTORY = self.R_CONTENT - self.X_HISTORY
+ 		self.H_HISTORY = H_BOTTOM_ROW
+ 
+-		# <!-- custom: Leader icon size for statistics tables. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
+-		self.LEADER_ICON_SIZE = 24
+-		# <!-- custom: Leader button columns spacing; total column width is icon size + spacing. (GPT-5.2-Codex) -->
+-		self.LEADER_BUTTON_COLUMN_SPACING = 2
++		# <!-- custom: Row height for statistics tables. Icon size and spacing now use centralized INCHART_* constants. (Claude Opus 4.5) -->
++		# LEADER_ICON_SIZE and LEADER_BUTTON_COLUMN_SPACING replaced by INCHART_ICON_SIZE and INCHART_ICON_SPACING from _sevopedia_helpers
+ 
+ 
+ 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
+@@ -278,12 +276,8 @@ class SevoPediaTrait:
+ 		# === LEFT TABLE: Pairings for current trait ===
+ 		if pairingData:
+ 			maxLeadersLeft = max([len(d[3]) for d in pairingData])
+-			if maxLeadersLeft < 1:
+-				maxLeadersLeft = 1
+-			leaderColWLeft = self.LEADER_ICON_SIZE + self.LEADER_BUTTON_COLUMN_SPACING
+-			availableLeadersWLeft = self.STATS_LEFT_TABLE_W - self.STATS_LEFT_COL_TRAIT - self.STATS_LEFT_COL_PAIR - self.STATS_LEFT_COL_TOTAL
+-			if availableLeadersWLeft < leaderColWLeft * maxLeadersLeft:
+-				leaderColWLeft = int(availableLeadersWLeft / maxLeadersLeft)
++			fixedColsWLeft = self.STATS_LEFT_COL_TRAIT + self.STATS_LEFT_COL_PAIR + self.STATS_LEFT_COL_TOTAL
++			leaderColWLeft, maxLeadersLeft = inchart_calc_icon_col_width(self.STATS_LEFT_TABLE_W, fixedColsWLeft, maxLeadersLeft)
+ 
+ 			leftPanelName = self.top.getNextWidgetName()
+ 			screen.addPanel(leftPanelName, "", "", True, True, self.STATS_PANEL_X, self.STATS_PANEL_Y, self.STATS_LEFT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
+@@ -295,8 +289,7 @@ class SevoPediaTrait:
+ 			screen.setTableColumnHeader(leftTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ()), self.STATS_LEFT_COL_TRAIT)
+ 			screen.setTableColumnHeader(leftTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_LEFT_COL_PAIR)
+ 			screen.setTableColumnHeader(leftTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), self.STATS_LEFT_COL_TOTAL)
+-			for iCol in xrange(maxLeadersLeft):
+-				screen.setTableColumnHeader(leftTableName, 3 + iCol, "", leaderColWLeft)
++			inchart_set_icon_column_headers(screen, leftTableName, 3, maxLeadersLeft, leaderColWLeft)
+ 
+ 			for otherTrait, pairCount, totalCount, leaderIds in pairingData:
+ 				iRow = screen.appendTableRow(leftTableName)
+@@ -307,18 +300,14 @@ class SevoPediaTrait:
+ 				screen.setTableText(leftTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 				screen.setTableText(leftTableName, 2, iRow, u"<font=2>%d</font>" % totalCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-				self._setLeaderIconCells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, leaderToCiv)
++				inchart_set_icon_cells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
+ 
+ 		# === RIGHT TABLE: All trait combinations globally ===
+ 		# <!-- custom: Use cached all-pairs data for efficiency. (Claude Opus 4.5) -->
+ 		allPairsData, (minCount, maxCount), maxLeadersRight = self._getAllTraitPairsData()
+ 		if allPairsData:
+-			if maxLeadersRight < 1:
+-				maxLeadersRight = 1
+-			leaderColWRight = self.LEADER_ICON_SIZE + self.LEADER_BUTTON_COLUMN_SPACING
+-			availableLeadersWRight = self.STATS_RIGHT_TABLE_W - self.STATS_RIGHT_COL_COMBO - self.STATS_RIGHT_COL_COUNT - self.STATS_RIGHT_COL_RANK
+-			if availableLeadersWRight < leaderColWRight * maxLeadersRight:
+-				leaderColWRight = int(availableLeadersWRight / maxLeadersRight)
++			fixedColsWRight = self.STATS_RIGHT_COL_COMBO + self.STATS_RIGHT_COL_COUNT + self.STATS_RIGHT_COL_RANK
++			leaderColWRight, maxLeadersRight = inchart_calc_icon_col_width(self.STATS_RIGHT_TABLE_W, fixedColsWRight, maxLeadersRight)
+ 			tableWRight = self.STATS_RIGHT_TABLE_W
+ 
+ 			rightPanelName = self.top.getNextWidgetName()
+@@ -331,8 +320,7 @@ class SevoPediaTrait:
+ 			screen.setTableColumnHeader(rightTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ()), self.STATS_RIGHT_COL_COMBO)
+ 			screen.setTableColumnHeader(rightTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_RIGHT_COL_COUNT)
+ 			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
+-			for iCol in xrange(maxLeadersRight):
+-				screen.setTableColumnHeader(rightTableName, 3 + iCol, "", leaderColWRight)
++			inchart_set_icon_column_headers(screen, rightTableName, 3, maxLeadersRight, leaderColWRight)
+ 
+ 			for trait1, trait2, pairCount, leaderIds in allPairsData:
+ 				iRow = screen.appendTableRow(rightTableName)
+@@ -345,30 +333,13 @@ class SevoPediaTrait:
+ 				screen.setTableText(rightTableName, 0, iRow, pairText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				screen.setTableText(rightTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-				# Ranking bar
+-				if maxCount > minCount:
+-					normalized = (pairCount - minCount) * 100 / (maxCount - minCount)
+-				else:
+-					normalized = 50
+-				numPlus = (normalized + 10) / 20
+-				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % (u"+" * numPlus), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-
+-				self._setLeaderIconCells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, leaderToCiv)
++				# Ranking bar using centralized helper
++				rankingBar = inchart_calc_ranking_bar(pairCount, minCount, maxCount)
++				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
+-		for iCol in xrange(leaderColCount):
+-			if iCol >= len(leaderIds):
+-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-				continue
++				inchart_set_icon_cells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
+ 
+-			iLeader = leaderIds[iCol]
+-			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+-			buttonPath = leaderInfo.getButton()
+-			iCiv = leaderToCiv.get(iLeader, -1)
+-			if iCiv != -1 and buttonPath:
+-				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
+-			else:
+-				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++	# <!-- custom: _setLeaderIconCells removed - now uses centralized inchart_set_icon_cells from _sevopedia_helpers -->
+ 
+ 	def _buildTraitPairingData(self):
+ 		# <!-- custom: Build per-trait pairing data using cached traitLeaders mapping.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 82ddf731d..78eb0ebdd 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -6,6 +6,7 @@
+ 
+ from CvPythonExtensions import *
+ 
++import CvUtil
+ import re
+ 
+ 
+@@ -481,3 +482,176 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
+ 	if len(out) == 0:
+ 		return none_text
+ 	return ", ".join(out)
++
++
++
++# <!-- custom: In-Category Chart Helpers (InChart) - shared across Traits, Tech, Improvement charts.
++# These are charts that appear WITHIN a category item page (e.g. leader pairing table in Traits),
++# as opposed to "Chart as category" pages like Handicap Chart where the chart IS the category.
++# Centralized here to reduce code duplication and ensure consistent styling. (Claude Opus 4.5) -->
++
++# <!-- custom: In-Category Chart Constants -->
++INCHART_ICON_SIZE = 24              # Icon button size in table cells (leaders, civs, techs)
++INCHART_ICON_SPACING = 2            # Spacing between icon columns
++INCHART_ROW_HEIGHT = 24             # Table row height
++INCHART_TABLE_MARGIN = 8            # Margin around table inside panel
++INCHART_TABLE_INNER = 6             # Inner padding for tables
++INCHART_MIN_ICON_COL_WIDTH = 16     # Minimum icon column width after scaling
++
++
++
++def inchart_calc_icon_col_width(tableW, fixedColsW, maxIcons, iconSize=None, iconSpacing=None):
++	# Calculate icon column width, scaling down if necessary to fit.
++	# tableW: total table width
++	# fixedColsW: sum of fixed column widths (non-icon columns)
++	# maxIcons: maximum number of icon columns needed
++	# iconSize: icon size (defaults to INCHART_ICON_SIZE)
++	# iconSpacing: spacing between icons (defaults to INCHART_ICON_SPACING)
++	# Returns: (iconColW, maxIcons) - column width and adjusted max icons (at least 1)
++	if iconSize is None:
++		iconSize = INCHART_ICON_SIZE
++	if iconSpacing is None:
++		iconSpacing = INCHART_ICON_SPACING
++
++	if maxIcons < 1:
++		maxIcons = 1
++
++	iconColW = iconSize + iconSpacing
++	availableW = tableW - fixedColsW
++
++	if availableW < iconColW * maxIcons:
++		iconColW = max(INCHART_MIN_ICON_COL_WIDTH, int(availableW / maxIcons))
++
++	return iconColW, maxIcons
++
++
++
++def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWidth):
++	# Set empty column headers for icon columns (common pattern in all in-category charts).
++	# screen: CyGInterfaceScreen
++	# tableName: name of the table widget
++	# startCol: column index to start at
++	# numCols: number of icon columns to add
++	# colWidth: width for each column
++	for iCol in xrange(numCols):  # noqa: F821
++		screen.setTableColumnHeader(tableName, startCol + iCol, "", colWidth)
++
++
++
++def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
++	# Display "None" or custom text when a panel has no content to show.
++	# screen: CyGInterfaceScreen
++	# selfTop: reference to main pedia class (for getNextWidgetName)
++	# panelX, panelY, panelW, panelH: panel dimensions
++	# txtKey: optional custom text key (defaults to TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE)
++	if txtKey is None:
++		txtKey = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++
++	textName = selfTop.getNextWidgetName()
++	szText = localText.getText(txtKey, ())
++	yPanelCenter = panelY + (panelH / 2)
++	screen.addMultilineText(
++		textName, szText,
++		panelX + 7, yPanelCenter,
++		panelW - 14, panelH - 20,
++		WidgetTypes.WIDGET_GENERAL, -1, -1,
++		CvUtil.FONT_LEFT_JUSTIFY
++	)
++
++
++
++def inchart_calc_ranking_bar(value, minVal, maxVal, maxPlus=5):
++	# Calculate ranking bar string (+ symbols) for a value within a range.
++	# value: the value to rank
++	# minVal: minimum value in range
++	# maxVal: maximum value in range
++	# maxPlus: maximum number of + symbols (default 5)
++	# Returns: unicode string of + symbols
++	if maxVal > minVal:
++		normalized = (value - minVal) * 100 / (maxVal - minVal)
++	else:
++		normalized = 50
++
++	# Convert normalized (0-100) to plus count (0-maxPlus)
++	# Formula: (normalized + 10) / 20 gives 0-5 range for normalized 0-100
++	numPlus = (normalized + 10) / (100 / maxPlus)
++	if numPlus < 0:
++		numPlus = 0
++	if numPlus > maxPlus:
++		numPlus = maxPlus
++
++	return u"+" * numPlus
++
++
++
++# <!-- custom: Icon type constants for inchart_set_icon_cells -->
++INCHART_ICON_TYPE_LEADER = 0
++INCHART_ICON_TYPE_CIV = 1
++INCHART_ICON_TYPE_TECH = 2
++
++
++
++def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, iconType, extraData=None):
++	# Generic helper to set icon cells in a table row.
++	# screen: CyGInterfaceScreen
++	# tableName: name of the table widget
++	# row: row index
++	# itemIds: list of item IDs (leader IDs, civ IDs, or tech IDs)
++	# colStart: column index to start placing icons
++	# colCount: total number of icon columns (fills empty cells if itemIds is shorter)
++	# iconType: INCHART_ICON_TYPE_LEADER, INCHART_ICON_TYPE_CIV, or INCHART_ICON_TYPE_TECH
++	# extraData: dict with extra data (e.g. {"leaderToCiv": {...}} for leaders)
++	#
++	# For leaders: extraData should contain "leaderToCiv" mapping iLeader -> iCiv
++	# For civs/techs: extraData is not required
++
++	for iCol in xrange(colCount):  # noqa: F821
++		if iCol >= len(itemIds):
++			# Empty cell
++			screen.setTableText(tableName, colStart + iCol, row, "", "",
++				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			continue
++
++		itemId = itemIds[iCol]
++		buttonPath = ""
++		widgetType = WidgetTypes.WIDGET_GENERAL
++		widgetData1 = -1
++		widgetData2 = -1
++
++		if iconType == INCHART_ICON_TYPE_LEADER:
++			leaderInfo = gc.getLeaderHeadInfo(itemId)
++			buttonPath = leaderInfo.getButton()
++			if extraData:
++				leaderToCiv = extraData.get("leaderToCiv", {})
++			else:
++				leaderToCiv = {}
++			iCiv = leaderToCiv.get(itemId, -1)
++			if iCiv != -1 and buttonPath:
++				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER
++				widgetData1 = itemId
++				widgetData2 = iCiv
++			else:
++				buttonPath = ""
++
++		elif iconType == INCHART_ICON_TYPE_CIV:
++			civInfo = gc.getCivilizationInfo(itemId)
++			buttonPath = civInfo.getButton()
++			if buttonPath:
++				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV
++				widgetData1 = itemId
++				widgetData2 = -1
++
++		elif iconType == INCHART_ICON_TYPE_TECH:
++			techInfo = gc.getTechInfo(itemId)
++			buttonPath = techInfo.getButton()
++			if buttonPath:
++				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH
++				widgetData1 = itemId
++				widgetData2 = -1
++
++		if buttonPath:
++			screen.setTableText(tableName, colStart + iCol, row, "", buttonPath,
++				widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
++		else:
++			screen.setTableText(tableName, colStart + iCol, row, "", "",
++				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 210e833dd..7dbe67897 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -6,6 +6,7 @@
+ <!-- Game Speed -->
+ <!-- NOTE: If you remove any of these you need to update GameInfo/CultureLevelInfos.xml. Also you will need to update the GlobalDefines.xml if you remove GAMESPEED_STANDARD -->
+ <!-- custom: Long_Comments_XML.txt #138 -->
++<!-- custom: note to agents: if you want to modify this file, please also read the Long Comments mentioned here, as they should provide useful design information. Removed for concision from this doc. -->
+ <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameSpeedInfos>
+ 
+@@ -283,19 +284,7 @@
+ 			<iEventRollSidesPercent>80</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>67</iVoteIntervalPercent>
+ 			<!-- advc.252: end -->
+-			<!-- advc.910: Changed most of the turn count. Now sum up to a
+-				 max turn of 335 instead of 330. -->
+-			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
+-			<!--
+-			Awesome—sticking with Quick = 330 turns makes sense. Here’s a clean, monotonic, integer-years-per-turn Quick calendar that mirrors your Normal/Epic/Marathon pivots (ends at 2105 CE), uses only 12-month multiples, and totals 330 turns.
+-
+-			Why this works:
+-			- Total turns = 330 exactly.
+-			- Keeps your pivots (1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
+-			- Integer years/turn everywhere (≥1y), no odd 1.3/1.5 steps.
+-			- Monotonic: years/turn never go up as time advances (they step down to 1y/turn at the end).
+-			- Late game uses 24 or 12 months/turn only, so the calendar feels clean.
+-			-->
++			<!-- custom: Long_Comments_XML.txt #319 -->
+ 			<!-- QUICK (330 turns). All month increments are multiples of 12. Years/turn never increase over time. -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -30,000 (20,000y) → 5 turns @ 4,000 y/turn (48,000 mo/turn) -->
+@@ -499,17 +488,7 @@
+ 			<!-- advc.252: start -->
+ 			<iEventRollSidesPercent>125</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>150</iVoteIntervalPercent>
+-			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
+-			<!--
+-			ya, gotcha — your Epic should “fade fast” in Prehistory like Normal/Marathon, keep only clean integer years/turn (≥1), never speed back up, and use 0.5y/turn only at the very end. Here’s a redesigned EPIC (750 turns) block that matches that vibe. Early bands use the same coarse steps as Normal (so it fades quickly), then we add resolution from Classical → Medieval → Renaissance to land exactly at 750.
+-
+-			Why this fixes the feel:
+-			- Same early fade as Normal/Marathon. First 7 bands reuse Normal’s 5,000→2,500→1,000→…→125 y/turn steps, so Prehistory isn’t over-detailed.
+-			- Clean math. Every ≥1y step is an integer; months/turn are all multiples of 12; only the two final bands use 6-month turns.
+-			- Monotonic. Years/turn never increase as time advances.
+-			- Pivots line up. 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105 stay intact.
+-			- Exactly 750 turns. (I checked the sum.)
+-			-->
++			<!-- custom: new timeline with the help of chatgpt 5 thanks replaces the old one entirely; Long_Comments_XML.txt #320 -->
+ 			<!-- EPIC (750 turns). Early steps mirror Normal (fast fade), all ≥1y steps are integers, months/turn are multiples of 12. Only the last two bands use 0.5y/turn (6 months). Total = 750 turns. -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -30,000 (20,000y) → 4 turns @ 5,000 y/turn (60,000 mo/turn) -->
+@@ -643,16 +622,7 @@
+ 			<iEventRollSidesPercent>200</iEventRollSidesPercent>
+ 			<!-- custom: not sure if we should change it too much but aim for exact double just in case, was 250 -->
+ 			<iVoteIntervalPercent>200</iVoteIntervalPercent>
+-			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
+-			<!--
+-			love it—here’s a Marathon = 1000 turns timeline that keeps everything clean (integer years/turn whenever >1), strictly monotonic (never speeds up later), and uses 6-month steps for all sub-year pacing (no need for 4-month trimesters).
+-
+-			Notes:
+-			- Total turns = 1000 (checked).
+-			- Years/turn never increase as time moves forward.
+-			- All >1y steps are integers; sub-year steps are 6 months.
+-			- Same historical pivots as your Normal/Epic (e.g., 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
+-			-->
++			<!-- custom: Long_Comments_XML.txt #321 -->
+ 			<!-- MARATHON (1000 turns) — clean integers for years/turn; sub-year = 6 months only -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -30,000 (20,000y) — 2,000y/turn (24,000m), 10 turns -->
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index e1240d22d..29749aa26 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -1218,10 +1218,10 @@
+ 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>75</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
+-			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
++			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled xd, as confirmed by chatgpt 5, check if accurate; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather -->
+ 			<!-- advc.251: Renamed; was 5 per era. -->
+ 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+-			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess, hopefully accurate enough if i may say and more in line with the spirit of our changes -->
++			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess -->
+ 			<!-- advc.250c: was 170 -->
+ 			<iAIAdvancedStartPercent>200</iAIAdvancedStartPercent>
+ 			<!-- advc.148 -->
+
+diff --git a/Assets/XML/GameInfo/CIV4ProcessInfo.xml b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+index e02e57979..5d089c288 100644
+--- a/Assets/XML/GameInfo/CIV4ProcessInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+@@ -22,7 +22,7 @@
+ 			<Type>PROCESS_RESEARCH</Type>
+ 			<Description>TXT_KEY_PROCESS_RESEARCH</Description>
+ 			<Strategy>TXT_KEY_PROCESS_RESEARCH_STRATEGY</Strategy>
+-			<!-- custom: since we can build libraries with writing, it would not be too weird if research could be built from that time/tech too. Maybe would allow more strategic diversity/depth especially at higher levels. Would need testing to see how AIs would handle it but is maybe fine (would need to test to see / be sure). Plus, we have removed alphabet from our new tech tree now (as is an inefficient tech, and replaced it much later with tech naturalism todo see dcs for details), was TECH_NATURALISM -->
++			<!-- custom: Long_Comments_XML.txt #318, was TECH_NATURALISM -->
+ 			<TechPrereq>TECH_WRITING</TechPrereq>
+ 			<ProductionToCommerceModifiers>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index 9ca3827ce..14829935c 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -12,7 +12,7 @@
+ 			<Description>TXT_KEY_RELIGION_PAGANISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_PAGANISM_PEDIA</Civilopedia>
+-			<!-- custom: ideally we'd want it to be tech_mysticism assuming we have one or a few techs before it (i.e. before tech_mysticism), but using tech_polytheism instead so some civ can compete for it rather than a random one seemingly getting it at start if many start with mysticism -->
++			<!-- custom: Long_Comments_XML.txt #318 -->
+ 			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_PAGAN_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+@@ -45,7 +45,7 @@
+ 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
+-			<!-- custom: move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.), was TECH_POLYTHEISM -->
++			<!-- custom: Long_Comments_XML.txt #316, was TECH_POLYTHEISM -->
+ 			<TechPrereq>TECH_MONARCHY</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>0</iFreeUnits>
+
+diff --git a/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml b/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+index f1a5f81ad..736a706b9 100644
+--- a/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
++++ b/Assets/XML/GameInfo/CIV4SeaLevelInfo.xml
+@@ -11,7 +11,7 @@
+ 			<Description>TXT_KEY_SEALEVEL_LOW</Description>
+ 			<iSeaLevelChange>-8</iSeaLevelChange>
+ 			<!-- advc.910 -->
+-			<!-- custom: i don't care about this shit, make it reproducible please ffs; not my problem if they pick a land or water heavy map, costs will be same, was 117 -->
++			<!-- custom: i don't care about this, please make it reproducible rather, was 117 -->
+ 			<iResearchPercent>100</iResearchPercent>
+ 		</SeaLevelInfo>
+ 		<SeaLevelInfo>
+@@ -26,7 +26,7 @@
+ 			<Description>TXT_KEY_SEALEVEL_HIGH</Description>
+ 			<iSeaLevelChange>6</iSeaLevelChange>
+ 			<!-- advc.910 -->
+-			<!-- custom: i don't care about this shit, make it reproducible please ffs; not my problem if they pick a land or water heavy map, costs will be same, was 87 -->
++			<!-- custom: i don't care about this, please make it reproducible rather, was 87 -->
+ 			<iResearchPercent>100</iResearchPercent>
+ 		</SeaLevelInfo>
+ 	</SeaLevelInfos>
+
+diff --git a/Assets/XML/Interface/CIV4ColorVals.xml b/Assets/XML/Interface/CIV4ColorVals.xml
+index 8c2c35538..d2e75b0ee 100644
+--- a/Assets/XML/Interface/CIV4ColorVals.xml
++++ b/Assets/XML/Interface/CIV4ColorVals.xml
+@@ -146,16 +146,7 @@
+ 			<fBlue>0.25</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+-		<!--ColorVal>
+-			<Type>COLOR_CITY_BROWN</Type>
+-			<fRed>0.70</fRed>
+-			<fGreen>0.45</fGreen>
+-			<fBlue>0.00</fBlue>
+-			<fAlpha>1.00</fAlpha>
+-		</ColorVal-->
+-		<!-- advc.210a: White for now.
+-			 Replacing the unused color above in order to stay compatible
+-			 with the BtS replay format. -->
++		<!-- custom: Long_Comments_XML.txt #315 -->
+ 		<ColorVal>
+ 			<Type>COLOR_WAR_TRADE_ALERT</Type>
+ 			<fRed>1.00</fRed>
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 2c8a25f75..9aaa56ccd 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -5,44 +5,29 @@
+ <!-- Detail Manager -->
+ <!-- Defines level-of-detail controllers for Civ4 graphical elements -->
+ <!-- Useful hint: values in this file can be changed on the fly (i.e. effects will be noticeable w/o restarting the game) -->
++<!-- custom: comments moved to as of now to (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\ for concision and as they were too lengthy. Values not updated there, see this XML file here for updated values -->
+ <DetailManagerInfos xmlns="x-schema:CIV4DetailManagerSchema.xml">
+ 	<Fader>
+ 		<Name>DF_DETAIL</Name>
+ 		<Key>700, 0.00</Key>
+ 		<Key>750, 1.00</Key>
+ 	</Fader>
+-	<!-- advc.004m: Was 6000,0.00;6400,1.0. The second key appears to affect
+-		 the lighting. I get dark shadows on some hills when I set both keys to
+-		 the same value. -->
+ 	<Fader>
+ 		<Name>DF_SKY</Name>
+ 		<Key>7200, 0.00</Key>
+ 		<Key>7680, 1.0</Key>
+ 		<Key>%CAMERA_MAX_DISTANCE, 1.00</Key>
+ 	</Fader>
+-	<!-- advc.004m: Was also 6000,0.00;6400,1.0. I'd rather set this to a lower
+-		 value, which results in a more top down angle, but this causes artifacts: one zoom level getting skipped depending on whether one 
+-		 zooms in or out, flickering Mine improvements when moving the camera
+-		 by left-clicking a tile or even a black flash when entering globe
+-		 view. In fact, 7680 for the second value also gives me that black flash. -->
+ 	<Fader>
+ 		<Name>DF_GLOBE_TERRAIN</Name>
+ 		<Key>7200, 0.00</Key>
+ 		<Key>7200, 1.00</Key>
+ 	</Fader>
+-	<!-- advc.004m: 1st key was 6400; should generally match the values above.
+-		 advc.137: Coefficient in the 2nd key increased, was 0.97.
+-		 That 2nd key seems responsible for a second stage of morphing
+-		 (from something closer to a cylinder into something closer to a
+-		 sphere) when zooming out all the way. Values above
+-		 CAMERA_MAX_DISTANCE suppress that stage. -->
+ 	<Fader>
+ 		<Name>DF_GLOBE_MORPH</Name>
+ 		<Key>7200,	0.00</Key>
+ 		<Key>%CAMERA_MAX_DISTANCE*1.1, 1.00</Key>
+ 	</Fader>
+-	<!-- advc.002j, advc.004m:
+-		 Was (700, 1), (1500, 1.3), (3000, 1.6), (5000, 2.0) -->
+ 	<Fader>
+ 		<Name>UNIT_SCALE</Name>
+ 		<Key>500.0,  0.85</Key>
+@@ -54,11 +39,8 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_LAYOUT_UNIT_CUT_RADIUS</Name>
+-		<!-- controls the radius of space to leave around fortified unit in a city layout -->
+ 		<Value>20</Value>
+ 	</Fader>
+-	<!-- advc.002j, advc.004m:
+-		 Was (700, 0.6), (1500, 0.7), (3000, 0.9), (5000, 1.2) -->
+ 	<Fader>
+ 		<Name>FLAG_SCALE</Name>
+ 		<Key>700.0,  0.5</Key>
+@@ -66,13 +48,6 @@
+ 		<Key>3000.0, 0.81</Key>
+ 		<Key>5000.0, 1.15</Key>
+ 	</Fader>
+-	<!-- advc.092b: Only affects Globe view. The last value, changed by me
+-		 from originally 1.0, is the only one that has a straightforward effect.
+-		 The values in the second column of the first and second row seem to
+-		 have an effect only if the values in the first column are increased.
+-		 What's the difference between the rows? Seems to have something to do
+-		 with the sphere effect; certain combinations of values lead to
+-		 misplaced indicators when zooming all the way out. -->
+ 	<Fader>
+ 		<Name>F_PLOTINDICATOR_SCALE</Name>
+ 		<Key>0.0,  0.0</Key>
+@@ -88,15 +63,10 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_GLOBEVIEW_ZOOM</Name>
+-		<!-- cities grow synthetically in the globe view to this size -->
+ 		<Value>2.0f</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_SCALE</Name>
+-		<!-- changes the size of the billboards based on the camera distance -->
+-		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67).
+-			 Some 10% bigger for the medium distances to accommodate large
+-			 displays better. More enlargement close up. -->
+ 		<Key>500,    1.72</Key>
+ 		<Key>2500,   1.18</Key>
+ 		<Key>3800,   1.06</Key>
+@@ -107,61 +77,50 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_HEIGHT</Name>
+-		<!-- changes the height of the city billboards ***toward the camera*** based on camera distnace -->
+ 		<Key>700, 300.0</Key>
+ 		<Key>5000, 300.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_RADIUS</Name>
+-		<!-- the billboard is placed a certain distance out from the center of the city ... this is the distance used, again vs. camera distance -->
+ 		<Key>700, 90.0</Key>
+ 		<Key>5000, 35.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_TURN_BIAS</Name>
+-		<!-- as you turn the camera left and right, the city billboard gets placed in the local south, i.e. "down on your screen"... but this bias pushes the placement left and right from there... the -.784 is a full 45 degree left-tilt, +.784 is right -->
+ 		<Key>-0.785,0.0</Key>
+ 		<Key> 0.000,0.0</Key>
+ 		<Key>+0.785,0.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_TURN_BIAS2</Name>
+-		<!-- as the camera zooms out, the city billboard sometimes appears to move left and right ... this allows you to force it to the left or right slightly based upon zoom ... -->
+ 		<Key>700,0.0</Key>
+ 		<Key>5000,0.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_ANGLE_SCALE</Name>
+-		<!-- as the city billboard moves to the edge of the globe, it shrinks ... play with these values while in globeview to get an idea of what this fader does in practice. -->
+ 		<Key>0.0,  0.0</Key>
+ 		<Key>0.2,  0.75</Key>
+ 		<Key>1.0,  1.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_ANGLE_HEIGHT_BIAS</Name>
+-		<!-- as the city billboard moves to the edge of the globe, it gets lower in the sky... play with these values while in globeview to get an idea of what this fader does in practice. -->
+ 		<Key>0.0,  -250.0</Key>
+ 		<Key>1.0,  0.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_TWIST</Name>
+ 		<Value>-0.7853981633</Value>
+-		<!-- how much to rotate cities about their axis -->
+-		<!-- make sure you keep CITY_WALLS and CITY_AQUEDUCT sync'd to this in CityLSystem.xml -->
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_LAYOUT_SIZE</Name>
+-		<!-- controls how big a city is, in terms of numbers of plots -->
+ 		<Value>0.72</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_LAYOUT_NODE_WATERINESS</Name>
+-		<!-- roughly speaking, the percent of area allowed to be in-water for a node to finalize -->
+ 		<Value>0.5</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_LAYOUT_PRODUCTION_WATERINESS</Name>
+-		<!-- the percent of area in a production allowed for it to be finalized -->
+ 		<Value>0.5</Value>
+ 	</Fader>
+ 	<Fader>
+@@ -190,12 +149,10 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_TREECUT_SCALE</Name>
+-		<!-- multiplies plot size to obtain the radius of the treecut on cities -->
+ 		<Value>1.0</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_TREECUT_ZONE_BEGIN</Name>
+-		<!-- if a node lies outside this radius from the city center, then it gets a treecut added to it when finalized -->
+ 		<Value>100</Value>
+ 	</Fader>
+ 	<Fader>
+@@ -212,57 +169,46 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_BUILDING_SCALE</Name>
+-		<!-- controls the scale applied to buildings in the city ... keep in mind that the actual size of a building is this value multiplied by CITY_SCALE -->
+ 		<Value>0.33</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>WALL_DEPTH</Name>
+-		<!-- controls how high walls are off of the ground -->
+ 		<Value>-5.0</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>WALL_TWEAK_X</Name>
+-		<!-- small translation factor for walls to keep them aligned with the city -->
+ 		<Value>0.50</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>WALL_TWEAK_Y</Name>
+-		<!-- small translation factor for walls to keep them aligned with the city-->
+ 		<Value>.5</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>WALL_OFFSET_AMOUNT</Name>
+-		<!-- how far are the walls away from the core city outline? -->
+ 		<Value>8</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>WALL_MIN_POST_DISTANCE</Name>
+-		<!-- how far are the walls away from the core city outline? -->
+ 		<Value>40</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_WALLS_MAX_RADIUS</Name>
+-		<!-- the maximum radius of the wall, in Civ4CityLSystem units -->
+ 		<Value>6</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>BONUS_DYNSCALE</Name>
+-		<!-- nothing to see here... move on folks, move on... -->
+ 		<Value>0.5</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>PLOT_LAYOUT_SIZE</Name>
+-		<!-- nothing to see here... move on folks, move on... -->
+ 		<Value>0.5</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>PLOT_LAYOUT_NODE_WATERINESS</Name>
+-		<!-- roughly speaking, the percent of area allowed to be in-water for a node to finalize -->
+ 		<Value>0.2</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>PLOT_LAYOUT_PRODUCTION_WATERINESS</Name>
+-		<!-- the percent of area in a production allowed for it to be finalized -->
+ 		<Value>0.5</Value>
+ 	</Fader>
+ 	<Fader>
+@@ -271,11 +217,6 @@
+ 		<Key>1800.0, 1.6</Key>
+ 		<Key>5000.0, 2.8</Key>
+ 	</Fader>
+-	<!-- PlotBuilder node priority is computed in one of two ways:
+-		   1) By the distance of the node from the center of the plot
+-		   2) By the minimum distnace of one of the node's corners to the plot cente
+-		 At F_PLOTBUILDER_PBLEND=0.0, the first metric will dominate node priority and at
+-		 F_PLOTBUILDER_PBLEND=1.0, the second will dominate. -->
+ 	<Fader>
+ 		<Name>F_PLOTBUILDER_PBLEND</Name>
+ 		<Value>0.5</Value>
+@@ -290,25 +231,14 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>GLOBE_CAP_RADIUS</Name>
+-		<!-- what ART_GLOBEVIEW_WORLD_CAP -->
+ 		<Value>83.0</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>GLOBE_CAP_BIAS</Name>
+-		<!-- displaces the icecap vertices +GLOBE_CAP_BIAS units along their normal -->
+ 		<Value>0.0</Value>
+ 	</Fader>
+-	<!-- the following three parameters control how the Civ4 globe is lit.
+-	     Since the size and position of the globe varies from map to map, it is necessary
+-	     for these values to vary somewhat from map-to-map. This is accomplished with a fader whose
+-	     X values are the "world size" and the Y values are the resulting value for that world size.
+-	     Generally speaking, common values for world sizes are 7000 in the case of small maps to 15000 for large maps.
+-	     The general rule, however, is hand-tuning: just tweak these numbers for different keyings to get the effect you want
+-	     -->
+ 	<Fader>
+-		<!-- maps from current globe radius to lighting angle -->
+ 		<Name>GLOBE_SPOTLIGHT_ANGLE</Name>
+-		<!--<Key>%MAX_CAMERA_DISTANCE,24</Key>-->
+ 		<Key>3810,22</Key>
+ 		<Key>7619,26</Key>
+ 		<Key>9908,30</Key>
+@@ -317,18 +247,15 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>GLOBE_SPOTLIGHT_XTRANS</Name>
+-		<!--- in/out of globe light in screenspace versus max camera distance -->
+ 		<Key>10000,0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>GLOBE_SPOTLIGHT_YTRANS</Name>
+-		<!-- up/down of globe light in screenspace -->
+ 		<Key>10000,250</Key>
+ 		<Key>23803,350</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>GLOBE_SPOTLIGHT_ZTRANS</Name>
+-		<!-- left/right of globe light in screenspace -->
+ 		<Key>10000,2000</Key>
+ 		<Key>23803,2200</Key>
+ 	</Fader>
+@@ -356,7 +283,6 @@
+ 		<Name>GLOBE_NIGHTSKY_SCALE</Name>
+ 		<Value>4.0</Value>
+ 	</Fader>
+-	<!-- advc.137: was 0.75 -->
+ 	<Fader>
+ 		<Name>CAMERA_MAX_DISTANCE_FADER </Name>
+ 		<Value>0.7</Value>
+@@ -367,31 +293,26 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>UNIT_HEALTH_BILLBOARD_SCALE</Name>
+-		<!-- changes the size of the billboards based on the camera distance -->
+ 		<Key>700,	 3.0</Key>
+ 		<Key>2500,   2.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>UNIT_HEALTH_BILLBOARD_Z</Name>
+-		<!-- changes the height of the city billboards ***toward the camera*** based on camera distnace -->
+ 		<Key>700, 80.0</Key>
+ 		<Key>5000,70.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>UNIT_HEALTH_BILLBOARD_RADIUS</Name>
+-		<!-- the billboard is placed a certain distance out from the center of the city ... this is the distance used, again vs. camera distance -->
+ 		<Key>700, 0.0</Key>
+ 		<Key>2000,-60</Key>
+ 		<Key>5000, -80.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>UNIT_HEALTH_BILLBOARD_Z_VS_TURN</Name>
+-		<!-- as you turn the camera left and right, the city billboard gets placed in the local south, i.e. "down on your screen"... but this bias pushes the placement left and right from there... the -.784 is a full 45 degree left-tilt, +.784 is right -->
+ 		<Key>-0.785,-25.0</Key>
+ 		<Key> 0.000,0.0</Key>
+ 		<Key>+0.785,0.0</Key>
+ 	</Fader>
+-	<!-- Controllers for how the aqueduct sourc eand sink is found -->
+ 	<Fader>
+ 		<Name>AQUEDUCT_SINK_MIN_DIST</Name>
+ 		<Value>50.0</Value>
+@@ -417,42 +338,32 @@
+ 		<Value>2</Value>
+ 	</Fader>
+ 	<Fader>
+-		<Name>AQUEDUCT_HEIGHT_CUTOFF</Name> <!-- points in the aqueduct won't be created above this altitutde -->
++		<Name>AQUEDUCT_HEIGHT_CUTOFF</Name>
+ 		<Value>100</Value>
+ 	</Fader>
+-
+-	<!-- controllers for how the path between source and sink is found ... 
+-		we recursively split the line between source and sink until it reaches and ideal length,
+-		adding noise to each split vertex in the tangent (X) and normal (Y) directions -->
+ 	<Fader>
+ 		<Name>AQUEDUCT_MIN_SEGMENT_LENGTH</Name>
+-		<!-- how big is each segement in the aqueduct -->
+ 		<Value>20.0</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>AQUEDUCT_SPLIT_NOISE_TANGENT</Name>
+-		<!-- segment length VERSUS midpoint position in percentage from segment midpoint -->
+ 		<Key>32,	0.0</Key>
+ 		<Key>128,	0.1</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>AQUEDUCT_SPLIT_NOISE_NORMAL</Name>
+-		<!-- segment length VERSUS offset in tangent direction in percentage of length -->
+ 		<Key>32,	0.0</Key>
+ 		<Key>90,	0.4</Key>
+ 		<Key>128,	0.4</Key>
+ 	</Fader>
+-	<!-- controllers for how trees and buildings interact with the aqueduct -->
+ 	<Fader>
+ 		<Name>AQUEDUCT_CUT_DENSITY</Name>
+-		<!-- add a cut every few units along the aqueduct length -->
+ 		<Value>10.0f</Value>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>AQUEDUCT_CUT_RADIUS</Name>
+ 		<Value>5.0f</Value>
+ 	</Fader>
+-	<!-- controllers for the overall size of the aqueduct -->
+ 	<Fader>
+ 		<Name>AQUEDUCT_BASEMENT_DEPTH</Name>
+ 		<Value>-20.0f</Value>
+@@ -473,8 +384,6 @@
+ 		<Name>CITY_LAYOUT_REGIONQUERY_SWELL</Name>
+ 		<Value>10.0f</Value>
+ 	</Fader>
+-	<!-- these faders control how fast the globe pans in response to mouse movement in the x and y directions respectively...
+-	     the first value is the width and height of the map being played -->
+ 	<Fader>
+ 		<Name>GLOBE_PAN_RATE_X</Name>
+ 		<Key>3810,0.005</Key>
+@@ -485,12 +394,8 @@
+ 		<Key>3810,0.005</Key>
+ 		<Key>19799,0.005</Key>
+ 	</Fader>
+-	<!-- cities visible on globe -->
+ 	<Fader>
+ 		<Name>CITY_VISIBILITY</Name>
+ 		<Key>6000, 1.0</Key>
+-		<!-- uncomment this to hide cities on maps wider than 6000 units
+-		<Key>6001,0.0</Key>
+-		-->
+ 	</Fader>
+ </DetailManagerInfos>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 12ec4ff60..476967046 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4310,7 +4310,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</OrPreReqs>
+-			<!-- custom: added this extra as of now tech_electricity prereq nicely i mean recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking. Also, as i explained to chatgpt 5 as it asked me i mean, tech_nationalism also seems to be a great fit as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time)) though), and tech_liberalism is a bit too soon for that (tech chatgpt 5 suggested as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time -->
++			<!-- custom: Long_Comments_XML.txt #313 -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+ 			</AndPreReqs>
+@@ -5660,7 +5660,7 @@
+ 			<bGoldTrading>0</bGoldTrading>
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+-			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or startegically interesting as such, was 0 -->
++			<!-- custom: Long_Comments_XML.txt #314, was 0 -->
+ 			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+
+diff --git a/Long_Comments/CIV4DetailManager_for_comments.xml b/Long_Comments/CIV4DetailManager_for_comments.xml
+new file mode 100644
+index 000000000..afe428560
+--- /dev/null
++++ b/Long_Comments/CIV4DetailManager_for_comments.xml
+@@ -0,0 +1,497 @@
++<!-- custom: comments moved as of now here in this file for concision and as they were too lengthy. Values not updated here, see there in the real XML file for updated values -->
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Detail Manager -->
++<!-- Defines level-of-detail controllers for Civ4 graphical elements -->
++<!-- Useful hint: values in this file can be changed on the fly (i.e. effects will be noticeable w/o restarting the game) -->
++<!-- <DetailManagerInfos xmlns="x-schema:CIV4DetailManagerSchema.xml"> -->
++	<Fader>
++		<Name>DF_DETAIL</Name>
++		<Key>700, 0.00</Key>
++		<Key>750, 1.00</Key>
++	</Fader>
++	<!-- advc.004m: Was 6000,0.00;6400,1.0. The second key appears to affect
++		 the lighting. I get dark shadows on some hills when I set both keys to
++		 the same value. -->
++	<Fader>
++		<Name>DF_SKY</Name>
++		<Key>7200, 0.00</Key>
++		<Key>7680, 1.0</Key>
++		<Key>%CAMERA_MAX_DISTANCE, 1.00</Key>
++	</Fader>
++	<!-- advc.004m: Was also 6000,0.00;6400,1.0. I'd rather set this to a lower
++		 value, which results in a more top down angle, but this causes artifacts: one zoom level getting skipped depending on whether one 
++		 zooms in or out, flickering Mine improvements when moving the camera
++		 by left-clicking a tile or even a black flash when entering globe
++		 view. In fact, 7680 for the second value also gives me that black flash. -->
++	<Fader>
++		<Name>DF_GLOBE_TERRAIN</Name>
++		<Key>7200, 0.00</Key>
++		<Key>7200, 1.00</Key>
++	</Fader>
++	<!-- advc.004m: 1st key was 6400; should generally match the values above.
++		 advc.137: Coefficient in the 2nd key increased, was 0.97.
++		 That 2nd key seems responsible for a second stage of morphing
++		 (from something closer to a cylinder into something closer to a
++		 sphere) when zooming out all the way. Values above
++		 CAMERA_MAX_DISTANCE suppress that stage. -->
++	<Fader>
++		<Name>DF_GLOBE_MORPH</Name>
++		<Key>7200,	0.00</Key>
++		<Key>%CAMERA_MAX_DISTANCE*1.1, 1.00</Key>
++	</Fader>
++	<!-- advc.002j, advc.004m:
++		 Was (700, 1), (1500, 1.3), (3000, 1.6), (5000, 2.0) -->
++	<Fader>
++		<Name>UNIT_SCALE</Name>
++		<Key>500.0,  0.85</Key>
++		<Key>1000.0, 1.07</Key>
++		<Key>1500.0, 1.21</Key>
++		<Key>3000.0, 1.45</Key>
++		<Key>4500.0, 1.75</Key>
++		<Key>6000.0, 2.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_UNIT_CUT_RADIUS</Name>
++		<!-- controls the radius of space to leave around fortified unit in a city layout -->
++		<Value>20</Value>
++	</Fader>
++	<!-- advc.002j, advc.004m:
++		 Was (700, 0.6), (1500, 0.7), (3000, 0.9), (5000, 1.2) -->
++	<Fader>
++		<Name>FLAG_SCALE</Name>
++		<Key>700.0,  0.5</Key>
++		<Key>1500.0, 0.67</Key>
++		<Key>3000.0, 0.81</Key>
++		<Key>5000.0, 1.15</Key>
++	</Fader>
++	<!-- advc.092b: Only affects Globe view. The last value, changed by me
++		 from originally 1.0, is the only one that has a straightforward effect.
++		 The values in the second column of the first and second row seem to
++		 have an effect only if the values in the first column are increased.
++		 What's the difference between the rows? Seems to have something to do
++		 with the sphere effect; certain combinations of values lead to
++		 misplaced indicators when zooming all the way out. -->
++	<Fader>
++		<Name>F_PLOTINDICATOR_SCALE</Name>
++		<Key>0.0,  0.0</Key>
++		<Key>0.2,  0.9</Key>
++		<Key>1.0,  0.8</Key>
++	</Fader>
++	<Fader>
++		<Name>F_PLOTINDICATOR_ALPHA</Name>
++		<Key>0.0,  0.0</Key>
++		<Key>0.2,  0.5</Key>
++		<Key>0.7,  0.8</Key>
++		<Key>1.0,  1.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITY_GLOBEVIEW_ZOOM</Name>
++		<!-- cities grow synthetically in the globe view to this size -->
++		<Value>2.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_SCALE</Name>
++		<!-- changes the size of the billboards based on the camera distance -->
++		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67).
++			 Some 10% bigger for the medium distances to accommodate large
++			 displays better. More enlargement close up. -->
++		<Key>500,    1.72</Key>
++		<Key>2500,   1.18</Key>
++		<Key>3800,   1.06</Key>
++		<Key>6000,   0.81</Key>
++		<Key>8500,   0.75</Key>
++		<Key>11500,  0.70</Key>
++		<Key>13500,  0.67</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_HEIGHT</Name>
++		<!-- changes the height of the city billboards ***toward the camera*** based on camera distnace -->
++		<Key>700, 300.0</Key>
++		<Key>5000, 300.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_RADIUS</Name>
++		<!-- the billboard is placed a certain distance out from the center of the city ... this is the distance used, again vs. camera distance -->
++		<Key>700, 90.0</Key>
++		<Key>5000, 35.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_TURN_BIAS</Name>
++		<!-- as you turn the camera left and right, the city billboard gets placed in the local south, i.e. "down on your screen"... but this bias pushes the placement left and right from there... the -.784 is a full 45 degree left-tilt, +.784 is right -->
++		<Key>-0.785,0.0</Key>
++		<Key> 0.000,0.0</Key>
++		<Key>+0.785,0.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_TURN_BIAS2</Name>
++		<!-- as the camera zooms out, the city billboard sometimes appears to move left and right ... this allows you to force it to the left or right slightly based upon zoom ... -->
++		<Key>700,0.0</Key>
++		<Key>5000,0.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_ANGLE_SCALE</Name>
++		<!-- as the city billboard moves to the edge of the globe, it shrinks ... play with these values while in globeview to get an idea of what this fader does in practice. -->
++		<Key>0.0,  0.0</Key>
++		<Key>0.2,  0.75</Key>
++		<Key>1.0,  1.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_ANGLE_HEIGHT_BIAS</Name>
++		<!-- as the city billboard moves to the edge of the globe, it gets lower in the sky... play with these values while in globeview to get an idea of what this fader does in practice. -->
++		<Key>0.0,  -250.0</Key>
++		<Key>1.0,  0.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITY_TWIST</Name>
++		<Value>-0.7853981633</Value>
++		<!-- how much to rotate cities about their axis -->
++		<!-- make sure you keep CITY_WALLS and CITY_AQUEDUCT sync'd to this in CityLSystem.xml -->
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_SIZE</Name>
++		<!-- controls how big a city is, in terms of numbers of plots -->
++		<Value>0.72</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_NODE_WATERINESS</Name>
++		<!-- roughly speaking, the percent of area allowed to be in-water for a node to finalize -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_PRODUCTION_WATERINESS</Name>
++		<!-- the percent of area in a production allowed for it to be finalized -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>	CITY_LAYOUT_COAST_FINDER_RADIUS</Name>
++		<Value>1.5</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_DENSITY</Name>
++		<Value>20</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_FILTER_SIZE</Name>
++		<Value>40</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_NOISE</Name>
++		<Value>0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_CLOSENESS</Name>
++		<Value>60</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_WATER_CLOSENESS</Name>
++		<Value>80</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_TREECUT_SCALE</Name>
++		<!-- multiplies plot size to obtain the radius of the treecut on cities -->
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_TREECUT_ZONE_BEGIN</Name>
++		<!-- if a node lies outside this radius from the city center, then it gets a treecut added to it when finalized -->
++		<Value>100</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_GROUND_SCALE</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_GROUND_ZOFFSET_PLAINS</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_GROUND_ZOFFSET_HILLS</Name>
++		<Value>4.5</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_BUILDING_SCALE</Name>
++		<!-- controls the scale applied to buildings in the city ... keep in mind that the actual size of a building is this value multiplied by CITY_SCALE -->
++		<Value>0.33</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_DEPTH</Name>
++		<!-- controls how high walls are off of the ground -->
++		<Value>-5.0</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_TWEAK_X</Name>
++		<!-- small translation factor for walls to keep them aligned with the city -->
++		<Value>0.50</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_TWEAK_Y</Name>
++		<!-- small translation factor for walls to keep them aligned with the city-->
++		<Value>.5</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_OFFSET_AMOUNT</Name>
++		<!-- how far are the walls away from the core city outline? -->
++		<Value>8</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_MIN_POST_DISTANCE</Name>
++		<!-- how far are the walls away from the core city outline? -->
++		<Value>40</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_WALLS_MAX_RADIUS</Name>
++		<!-- the maximum radius of the wall, in Civ4CityLSystem units -->
++		<Value>6</Value>
++	</Fader>
++	<Fader>
++		<Name>BONUS_DYNSCALE</Name>
++		<!-- nothing to see here... move on folks, move on... -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_SIZE</Name>
++		<!-- nothing to see here... move on folks, move on... -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_NODE_WATERINESS</Name>
++		<!-- roughly speaking, the percent of area allowed to be in-water for a node to finalize -->
++		<Value>0.2</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_PRODUCTION_WATERINESS</Name>
++		<!-- the percent of area in a production allowed for it to be finalized -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>SYMBOL_SCALE</Name>
++		<Key>700.0,  1.1</Key>
++		<Key>1800.0, 1.6</Key>
++		<Key>5000.0, 2.8</Key>
++	</Fader>
++	<!-- PlotBuilder node priority is computed in one of two ways:
++		   1) By the distance of the node from the center of the plot
++		   2) By the minimum distnace of one of the node's corners to the plot cente
++		 At F_PLOTBUILDER_PBLEND=0.0, the first metric will dominate node priority and at
++		 F_PLOTBUILDER_PBLEND=1.0, the second will dominate. -->
++	<Fader>
++		<Name>F_PLOTBUILDER_PBLEND</Name>
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_LANDSCAPE_BIAS</Name>
++		<Value>5.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SKY_HEIGHT</Name>
++		<Value>65.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_CAP_RADIUS</Name>
++		<!-- what ART_GLOBEVIEW_WORLD_CAP -->
++		<Value>83.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_CAP_BIAS</Name>
++		<!-- displaces the icecap vertices +GLOBE_CAP_BIAS units along their normal -->
++		<Value>0.0</Value>
++	</Fader>
++	<!-- the following three parameters control how the Civ4 globe is lit.
++	     Since the size and position of the globe varies from map to map, it is necessary
++	     for these values to vary somewhat from map-to-map. This is accomplished with a fader whose
++	     X values are the "world size" and the Y values are the resulting value for that world size.
++	     Generally speaking, common values for world sizes are 7000 in the case of small maps to 15000 for large maps.
++	     The general rule, however, is hand-tuning: just tweak these numbers for different keyings to get the effect you want
++	     -->
++	<Fader>
++		<!-- maps from current globe radius to lighting angle -->
++		<Name>GLOBE_SPOTLIGHT_ANGLE</Name>
++		<!--<Key>%MAX_CAMERA_DISTANCE,24</Key>-->
++		<Key>3810,22</Key>
++		<Key>7619,26</Key>
++		<Key>9908,30</Key>
++		<Key>19799,30</Key>
++		<Key>100000,90</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_XTRANS</Name>
++		<!--- in/out of globe light in screenspace versus max camera distance -->
++		<Key>10000,0</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_YTRANS</Name>
++		<!-- up/down of globe light in screenspace -->
++		<Key>10000,250</Key>
++		<Key>23803,350</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_ZTRANS</Name>
++		<!-- left/right of globe light in screenspace -->
++		<Key>10000,2000</Key>
++		<Key>23803,2200</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_EXPONENT</Name>
++		<Value>1.4</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_MATERIAL_SHININESS</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_MATERIAL_AMBIENT_DAMPING</Name>
++		<Value>0.15</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_MATERIAL_DIFFUSE_DAMPING</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_YROT</Name>
++		<Value>-.25</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_NIGHTSKY_SCALE</Name>
++		<Value>4.0</Value>
++	</Fader>
++	<!-- advc.137: was 0.75 -->
++	<Fader>
++		<Name>CAMERA_MAX_DISTANCE_FADER </Name>
++		<Value>0.7</Value>
++	</Fader>
++	<Fader>
++		<Name>CAMERA_FAR_PLANE_SCALE</Name>
++		<Value>10.0</Value>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_SCALE</Name>
++		<!-- changes the size of the billboards based on the camera distance -->
++		<Key>700,	 3.0</Key>
++		<Key>2500,   2.0</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_Z</Name>
++		<!-- changes the height of the city billboards ***toward the camera*** based on camera distnace -->
++		<Key>700, 80.0</Key>
++		<Key>5000,70.0</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_RADIUS</Name>
++		<!-- the billboard is placed a certain distance out from the center of the city ... this is the distance used, again vs. camera distance -->
++		<Key>700, 0.0</Key>
++		<Key>2000,-60</Key>
++		<Key>5000, -80.0</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_Z_VS_TURN</Name>
++		<!-- as you turn the camera left and right, the city billboard gets placed in the local south, i.e. "down on your screen"... but this bias pushes the placement left and right from there... the -.784 is a full 45 degree left-tilt, +.784 is right -->
++		<Key>-0.785,-25.0</Key>
++		<Key> 0.000,0.0</Key>
++		<Key>+0.785,0.0</Key>
++	</Fader>
++	<!-- Controllers for how the aqueduct sourc eand sink is found -->
++	<Fader>
++		<Name>AQUEDUCT_SINK_MIN_DIST</Name>
++		<Value>50.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SINK_MAX_DIST</Name>
++		<Value>80.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SINK_TWIST</Name>
++		<Value>0.15</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SOURCE_MIN_DIST</Name>
++		<Value>180.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SOURCE_MAX_DIST</Name>
++		<Value>256.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_PLOT_SEARCH_DIST</Name>
++		<Value>2</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_HEIGHT_CUTOFF</Name> <!-- points in the aqueduct won't be created above this altitutde -->
++		<Value>100</Value>
++	</Fader>
++
++	<!-- controllers for how the path between source and sink is found ... 
++		we recursively split the line between source and sink until it reaches and ideal length,
++		adding noise to each split vertex in the tangent (X) and normal (Y) directions -->
++	<Fader>
++		<Name>AQUEDUCT_MIN_SEGMENT_LENGTH</Name>
++		<!-- how big is each segement in the aqueduct -->
++		<Value>20.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SPLIT_NOISE_TANGENT</Name>
++		<!-- segment length VERSUS midpoint position in percentage from segment midpoint -->
++		<Key>32,	0.0</Key>
++		<Key>128,	0.1</Key>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SPLIT_NOISE_NORMAL</Name>
++		<!-- segment length VERSUS offset in tangent direction in percentage of length -->
++		<Key>32,	0.0</Key>
++		<Key>90,	0.4</Key>
++		<Key>128,	0.4</Key>
++	</Fader>
++	<!-- controllers for how trees and buildings interact with the aqueduct -->
++	<Fader>
++		<Name>AQUEDUCT_CUT_DENSITY</Name>
++		<!-- add a cut every few units along the aqueduct length -->
++		<Value>10.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_CUT_RADIUS</Name>
++		<Value>5.0f</Value>
++	</Fader>
++	<!-- controllers for the overall size of the aqueduct -->
++	<Fader>
++		<Name>AQUEDUCT_BASEMENT_DEPTH</Name>
++		<Value>-20.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_MAIN_SCALE</Name>
++		<Value>0.4f</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_HEIGHT_SCALE</Name>
++		<Value>0.5f</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_REGIONQUERY_SWELL</Name>
++		<Value>0.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_REGIONQUERY_SWELL</Name>
++		<Value>10.0f</Value>
++	</Fader>
++	<!-- these faders control how fast the globe pans in response to mouse movement in the x and y directions respectively...
++	     the first value is the width and height of the map being played -->
++	<Fader>
++		<Name>GLOBE_PAN_RATE_X</Name>
++		<Key>3810,0.005</Key>
++		<Key>19799,0.0075</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_PAN_RATE_Y</Name>
++		<Key>3810,0.005</Key>
++		<Key>19799,0.005</Key>
++	</Fader>
++	<!-- cities visible on globe -->
++	<Fader>
++		<Name>CITY_VISIBILITY</Name>
++		<Key>6000, 1.0</Key>
++		<!-- uncomment this to hide cities on maps wider than 6000 units
++		<Key>6001,0.0</Key>
++		-->
++	</Fader>
++<!-- </DetailManagerInfos> -->
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index cae35c5b5..266d3fbc5 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -4508,3 +4508,88 @@ and opens the door to having camel mounts multiple/many ones/units, may also hav
+ ----- Comment #312 -----
+ 
+ <!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely, may as well remove it now) -->
++
++===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
++----- Comment #313 -----
++
++<!-- custom: added this extra as of now tech_electricity prereq nicely i mean recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking. Also, as i explained to chatgpt 5 as it asked me i mean, tech_nationalism also seems to be a great fit as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time)) though), and tech_liberalism is a bit too soon for that (tech chatgpt 5 suggested as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time -->
++
++===== \Assets/XML/Technologies/CIV4TechInfos.xml =====
++----- Comment #314 -----
++
++move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or incentivize maybe rather to pay more attention or give more weight to non-military techs for players (would need to change flavors or such for AIs); also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability for example, one tech for build process culture for example too, maybe it is more balanced or startegically interesting as such
++
++===== \Assets/XML/Interface/CIV4ColorVals.xml =====
++----- Comment #315 -----
++
++		<!--ColorVal>
++			<Type>COLOR_CITY_BROWN</Type>
++			<fRed>0.70</fRed>
++			<fGreen>0.45</fGreen>
++			<fBlue>0.00</fBlue>
++			<fAlpha>1.00</fAlpha>
++		</ColorVal-->
++		<!-- advc.210a: White for now.
++			 Replacing the unused color above in order to stay compatible
++			 with the BtS replay format. -->
++
++===== \Assets/XML/GameInfo/CIV4ReligionInfo.xml =====
++----- Comment #316 -----
++
++move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC.)
++
++===== \Assets/XML/GameInfo/CIV4ProcessInfo.xml =====
++----- Comment #317 -----
++
++since we can build libraries with writing, it would not be too weird if research could be built from that time/tech too. Maybe would allow more strategic diversity/depth especially at higher levels. Would need testing to see how AIs would handle it but is maybe fine (would need to test to see / be sure). Plus, we have removed alphabet from our new tech tree now (as is an inefficient tech, and replaced it much later with tech naturalism todo see dcs for details)
++
++===== \Assets/XML/GameInfo/CIV4ProcessInfo.xml =====
++----- Comment #318 -----
++
++<!-- custom: ideally we'd want it to be tech_mysticism assuming we have one or a few techs before it (i.e. before tech_mysticism), but using tech_polytheism instead so some civ can compete for it rather than a random one seemingly getting it at start if many start with mysticism -->
++
++===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
++----- Comment #319 -----
++
++			<!-- advc.910: Changed most of the turn count. Now sum up to a
++				 max turn of 335 instead of 330. -->
++			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
++			<!--
++			Awesome�sticking with Quick = 330 turns makes sense. Here�s a clean, monotonic, integer-years-per-turn Quick calendar that mirrors your Normal/Epic/Marathon pivots (ends at 2105 CE), uses only 12-month multiples, and totals 330 turns.
++
++			Why this works:
++			- Total turns = 330 exactly.
++			- Keeps your pivots (1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
++			- Integer years/turn everywhere (?1y), no odd 1.3/1.5 steps.
++			- Monotonic: years/turn never go up as time advances (they step down to 1y/turn at the end).
++			- Late game uses 24 or 12 months/turn only, so the calendar feels clean.
++			-->
++
++===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
++----- Comment #320 -----
++
++			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
++			<!--
++			ya, gotcha � your Epic should �fade fast� in Prehistory like Normal/Marathon, keep only clean integer years/turn (?1), never speed back up, and use 0.5y/turn only at the very end. Here�s a redesigned EPIC (750 turns) block that matches that vibe. Early bands use the same coarse steps as Normal (so it fades quickly), then we add resolution from Classical ? Medieval ? Renaissance to land exactly at 750.
++
++			Why this fixes the feel:
++			- Same early fade as Normal/Marathon. First 7 bands reuse Normal�s 5,000?2,500?1,000?�?125 y/turn steps, so Prehistory isn�t over-detailed.
++			- Clean math. Every ?1y step is an integer; months/turn are all multiples of 12; only the two final bands use 6-month turns.
++			- Monotonic. Years/turn never increase as time advances.
++			- Pivots line up. 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105 stay intact.
++			- Exactly 750 turns. (I checked the sum.)
++			-->
++
++===== \Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
++----- Comment #321 -----
++
++			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5), check if accurate -->
++			<!--
++			love it�here�s a Marathon = 1000 turns timeline that keeps everything clean (integer years/turn whenever >1), strictly monotonic (never speeds up later), and uses 6-month steps for all sub-year pacing (no need for 4-month trimesters).
++
++			Notes:
++			- Total turns = 1000 (checked).
++			- Years/turn never increase as time moves forward.
++			- All >1y steps are integers; sub-year steps are 6 months.
++			- Same historical pivots as your Normal/Epic (e.g., 1500/1750/1790/1880/1900/1980/1990/2040/2070/2080/2105).
++			-->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e8d82f583..c9ce2d651 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -104,7 +104,7 @@ See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-a
+ - (Requires AdvCiv-SAS 5348+) **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+-- Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
++- Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. (Requires AdvCiv-SAS 5381+) > ~500k characters reduced and still ongoing.
+ - (Requires AdvCiv-SAS 5353+) Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=87972

@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4695
+# Commit: 9e83913396268068a1dc26c146c091c8bcc4305b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b9c251f019b97d59199e5edea3fe5c29be88e2de
+# Title: minor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	README.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 6c30328d1..4902da2b8 100644
+--- a/README.md
++++ b/README.md
+@@ -49,7 +49,7 @@ So far i am thinking of (non exhaustive, no source or explanation provided, it w
+ 
+ For some i don't mind if they are masculine, indeed an axe is heavier and more brutal of a weapon (todo check though), so makes more sense for a man to wield it. Not that no women ever did or would want to, but less likely, so may keep man here. But i found a more epic and badass (i think but anyways) name after a quick bit of research so using this instead, see below, anyways.
+ 
+-Some other units have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knigth (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry could be in any era if i'm not mistaken but need to check too or/and more, anyways:
++Some other units have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry could be in any era if i'm not mistaken but need to check too or/and more, anyways:
+ 
+ - Axeman: Battle Axe Warrior
+ - Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2058

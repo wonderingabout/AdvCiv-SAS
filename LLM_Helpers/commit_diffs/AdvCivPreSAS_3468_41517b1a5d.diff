@@ -1,0 +1,460 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3468
+# Commit: 41517b1a5da89d85b13c92a1f62069fbf423428b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 33d1ad193326268d4724b3dd14d6d384dc357f0f
+# Title: Use default value for iDeclareWarTradeRand (LeaderHead XML)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+1	52	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+index d4a2be616..10fba3130 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+@@ -230,7 +230,7 @@
+ 		<element type="iLimitedWarPowerRatio"/>
+ 		<element type="iDogpileWarRand"/>
+ 		<element type="iMakePeaceRand"/>
+-		<element type="iDeclareWarTradeRand"/>
++		<element type="iDeclareWarTradeRand" minOccurs="0"/>
+ 		<element type="iDemandRebukedSneakProb"/>
+ 		<element type="iDemandRebukedWarProb"/>
+ 		<element type="iRazeCityProb"/>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 07436568f..20f1c510e 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -211,7 +211,7 @@
+ 			<iLimitedWarPowerRatio>0</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>0</iDogpileWarRand>
+ 			<iMakePeaceRand>0</iMakePeaceRand>
+-			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
++			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -875,7 +875,6 @@
+ 			<iLimitedWarPowerRatio>130</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -1077,7 +1076,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -1319,7 +1317,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -1534,7 +1531,6 @@
+ 			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -1743,7 +1739,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>30</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
+ 			<iRazeCityProb>20</iRazeCityProb>
+@@ -1948,7 +1943,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>80</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
+ 			<iRazeCityProb>50</iRazeCityProb>
+@@ -2154,7 +2148,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -2391,7 +2384,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>75</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -2599,7 +2591,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -2811,7 +2802,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -3030,7 +3020,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -3253,7 +3242,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>20</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>10</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -3467,7 +3455,6 @@
+ 			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -3680,7 +3667,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -3892,7 +3878,6 @@
+ 			<iLimitedWarPowerRatio>80</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -4148,7 +4133,6 @@
+ 			<iLimitedWarPowerRatio>130</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>80</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
+ 			<iRazeCityProb>75</iRazeCityProb>
+@@ -4368,7 +4352,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>30</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>25</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -4573,7 +4556,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>15</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -4774,7 +4756,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>10</iRazeCityProb>
+@@ -4979,7 +4960,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -5216,7 +5196,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>10</iRazeCityProb>
+@@ -5438,7 +5417,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>25</iRazeCityProb>
+@@ -5678,7 +5656,6 @@
+ 			<iLimitedWarPowerRatio>80</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -5884,7 +5861,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -6090,7 +6066,6 @@
+ 			<iLimitedWarPowerRatio>80</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -6302,7 +6277,6 @@
+ 			<iLimitedWarPowerRatio>120</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>25</iRazeCityProb>
+@@ -6559,7 +6533,6 @@
+ 			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>150</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -6766,7 +6739,6 @@
+ 			<iLimitedWarPowerRatio>130</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -6989,7 +6961,6 @@
+ 			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -7193,7 +7164,6 @@
+ 			<iLimitedWarPowerRatio>120</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -7401,7 +7371,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>60</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
+ 			<iRazeCityProb>25</iRazeCityProb>
+@@ -7603,7 +7572,6 @@
+ 			<iLimitedWarPowerRatio>130</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>80</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>50</iRazeCityProb>
+@@ -7831,7 +7799,6 @@
+ 			<iLimitedWarPowerRatio>120</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -8256,7 +8223,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>50</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -8466,7 +8432,6 @@
+ 			<iLimitedWarPowerRatio>120</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -8706,7 +8671,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -8936,7 +8900,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -9172,7 +9135,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>80</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>50</iRazeCityProb>
+@@ -9374,7 +9336,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -9595,7 +9556,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -9832,7 +9792,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>80</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
+ 			<iRazeCityProb>50</iRazeCityProb>
+@@ -10026,7 +9985,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>120</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>20</iRazeCityProb>
+@@ -10231,7 +10189,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>60</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>25</iRazeCityProb>
+@@ -10471,7 +10428,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
+ 			<iRazeCityProb>5</iRazeCityProb>
+@@ -10678,7 +10634,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>60</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>25</iRazeCityProb>
+@@ -10916,7 +10871,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>25</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
+ 			<iRazeCityProb>25</iRazeCityProb>
+@@ -11167,7 +11121,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -11365,7 +11318,6 @@
+ 			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>10</iRazeCityProb>
+@@ -11574,7 +11526,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>20</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>100</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -11811,7 +11762,6 @@
+ 			<!-- advc.005a: was 80 -->
+ 			<iDogpileWarRand>100</iDogpileWarRand>
+ 			<iMakePeaceRand>40</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
+ 			<iRazeCityProb>0</iRazeCityProb>
+@@ -12020,7 +11970,6 @@
+ 			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
+ 			<iDogpileWarRand>50</iDogpileWarRand>
+ 			<iMakePeaceRand>10</iMakePeaceRand>
+-			<iDeclareWarTradeRand>40</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
+ 			<iRazeCityProb>5</iRazeCityProb>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=19644

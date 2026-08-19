@@ -1,0 +1,1013 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 466
+# Commit: 35b8d7ad221c2ef343a47344e1c3fddf0ecb33e7
+# History segment: K-Mod history
+# Parent used for diff: 4940ebf4440c894424b5640baa3f3f57abb771c6
+# Title: Completely redesigned the system for handling stranded units. The new system is less likely to cause OOS errors, it is faster, and it fixes several bugs in t...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvEnums.h
+1	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+4	134	CvGameCoreDLL/CvSelectionGroup.cpp
+5	15	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvSelectionGroupAI.h
+197	274	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 219e88c1b..2cb6c2ed9 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1486,6 +1486,7 @@ enum MissionAITypes		// Exposed to Python
+ 	MISSIONAI_DEFEND,
+ 	MISSIONAI_COUNTER_ATTACK,
+ 	MISSIONAI_UPGRADE,
++	MISSIONAI_STRANDED,
+ 	// MISSIONAI_GOLDEN_AGE, // ie. waiting for more golden age units.
+ 	// note: MISSIONAI_GUARD_TRADE_NET is currently not being used:
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 14930f232..4b9a2989e 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2609,6 +2609,7 @@ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI)
+ 	mission_string(MISSIONAI_DEFEND)
+ 	mission_string(MISSIONAI_COUNTER_ATTACK)
+ 	mission_string(MISSIONAI_UPGRADE)
++	mission_string(MISSIONAI_STRANDED)
+ #undef mission_string
+ // K-Mod end
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index a5923f494..a92a32adf 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -98,17 +98,6 @@ void CvSelectionGroup::reset(int iID, PlayerTypes eOwner, bool bConstructorCall)
+ 	m_eAutomateType = NO_AUTOMATE;
+ 	m_bIsBusyCache = false;
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-	m_bIsStrandedCache = false;
+-	m_bIsStrandedCacheValid = false;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 	if (!bConstructorCall)
+ 	{
+ 		AI_reset();
+@@ -183,16 +172,6 @@ void CvSelectionGroup::doTurn()
+ 
+ 	if (getNumUnits() > 0)
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-		invalidateIsStrandedCache();
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 		bool bHurt = false;
+ 		
+ 		// do unit's turns (checking for damage)
+@@ -3002,9 +2981,9 @@ bool CvSelectionGroup::isHasPathToAreaEnemyCity( bool bIgnoreMinors, int iFlags,
+ 	return false;
+ }
+ 
+-bool CvSelectionGroup::isStranded()
++bool CvSelectionGroup::isStranded() const
+ {
+-	PROFILE_FUNC();
++	/*PROFILE_FUNC();
+ 
+ 	if( !(m_bIsStrandedCacheValid) )
+ 	{
+@@ -3012,115 +2991,9 @@ bool CvSelectionGroup::isStranded()
+ 		m_bIsStrandedCacheValid = true;
+ 	}
+ 
+-	return m_bIsStrandedCache;
+-}
+-
+-void CvSelectionGroup::invalidateIsStrandedCache()
+-{
+-	m_bIsStrandedCacheValid = false;
+-}
+-
+-bool CvSelectionGroup::calculateIsStranded()
+-{
+-	PROFILE_FUNC();
+-
+-	FAssert(!isHuman()); // K-Mod
+-
+-	if( getNumUnits() <= 0 )
+-	{
+-		return false;
+-	}
+-
+-	if( plot() == NULL )
+-	{
+-		return false;
+-	}
+-
+-	if( getDomainType() != DOMAIN_LAND )
+-	{
+-		return false;
+-	}
+-
+-	if( (getActivityType() != ACTIVITY_AWAKE) && (getActivityType() != ACTIVITY_HOLD) )
+-	{
+-		return false;
+-	}
+-
+-	if( AI_getMissionAIType() != NO_MISSIONAI )
+-	{
+-		return false;
+-	}
+-
+-	if( getLengthMissionQueue() > 0 )
+-	{
+-		return false;
+-	}
+-	
+-	if( !canAllMove() )
+-	{
+-		return false;
+-	}
+-
+-	if( getHeadUnit()->isCargo() )
+-	{
+-		return false;
+-	}
+-
+-	if( plot()->area()->getNumUnrevealedTiles(getTeam()) > 0 )
+-	{
+-		if( (getHeadUnitAI() == UNITAI_ATTACK) || (getHeadUnitAI() == UNITAI_EXPLORE) )
+-		{
+-			return false;
+-		}
+-	}
+-
+-	int iBestValue;
+-	if( (getHeadUnitAI() == UNITAI_SETTLE) && (GET_PLAYER(getOwner()).AI_getNumAreaCitySites(getArea(), iBestValue) > 0) )
+-	{
+-		return false;
+-	}
++	return m_bIsStrandedCache; */
+ 
+-	if( plot()->area()->getCitiesPerPlayer(getOwner()) == 0 )
+-	{
+-		int iBestValue;
+-		if( (plot()->area()->getNumAIUnits(getOwner(),UNITAI_SETTLE) > 0) && (GET_PLAYER(getOwner()).AI_getNumAreaCitySites(getArea(), iBestValue) > 0) )
+-		{
+-			return false;
+-		}
+-	}
+-
+-	if( plot()->area()->getNumCities() > 0 )
+-	{
+-		if( getHeadUnit()->AI_getUnitAIType() == UNITAI_SPY )
+-		{
+-			return false;
+-		}
+-
+-		if( plot()->getImprovementType() != NO_IMPROVEMENT )
+-		{
+-			if( GC.getImprovementInfo(plot()->getImprovementType()).isActsAsCity() && canDefend() )
+-			{
+-				return false;
+-			}
+-		}
+-
+-		if( plot()->isCity() && (plot()->getOwner() == getOwner()) )
+-		{
+-			return false;
+-		}
+-
+-		if( isHasPathToAreaPlayerCity(getOwner()) )
+-		{
+-			return false;
+-		}
+-
+-		if( isHasPathToAreaEnemyCity(false) )
+-		{
+-			return false;
+-		}
+-	}
+-
+-	return true;
++	return AI_getMissionAIType() == MISSIONAI_STRANDED; // K-Mod
+ }
+ 
+ bool CvSelectionGroup::canMoveAllTerrain() const
+@@ -3145,9 +3018,6 @@ bool CvSelectionGroup::canMoveAllTerrain() const
+ 
+ 	return true;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ void CvSelectionGroup::unloadAll()
+ {
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index db77227b0..4da4b8b84 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -82,9 +82,9 @@ public:
+ 	int getBombardTurns( CvCity* pCity );
+ 	bool isHasPathToAreaPlayerCity( PlayerTypes ePlayer, int iFlags = 0, int iMaxPathTurns = -1 );
+ 	bool isHasPathToAreaEnemyCity( bool bIgnoreMinors = true, int iFlags = 0, int iMaxPathTurns = -1 );
+-	bool isStranded();
+-	void invalidateIsStrandedCache();
+-	bool calculateIsStranded();
++	bool isStranded() const; // Note: K-Mod no longer uses the stranded cache. I have a new system.
++	//void invalidateIsStrandedCache(); // deleted by K-Mod
++	//bool calculateIsStranded();
+ 	bool canMoveAllTerrain() const;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -226,7 +226,8 @@ public:
+ 	virtual CvPlot* AI_getMissionAIPlot() = 0;
+ 	virtual bool AI_isForceSeparate() = 0;
+ 	virtual void AI_makeForceSeparate() = 0;
+-	virtual MissionAITypes AI_getMissionAIType() = 0;
++	//virtual MissionAITypes AI_getMissionAIType() = 0;
++	virtual MissionAITypes AI_getMissionAIType() const = 0; // K-Mod
+ 	virtual void AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit) = 0;
+ 	virtual CvUnit* AI_getMissionAIUnit() = 0;
+ 	virtual CvUnit* AI_ejectBestDefender(CvPlot* pTargetPlot) = 0;
+@@ -273,17 +274,6 @@ protected:
+ 	std::vector<CvUnit *> m_aDifferentUnitCache;
+ 	bool m_bIsBusyCache;
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-	bool m_bIsStrandedCache;
+-	bool m_bIsStrandedCacheValid;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 	void activateHeadMission();
+ 	void deactivateHeadMission();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 3d19e6cf5..847b17d70 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -818,7 +818,7 @@ void CvSelectionGroupAI::AI_makeForceSeparate()
+ }
+ 
+ 
+-MissionAITypes CvSelectionGroupAI::AI_getMissionAIType()
++MissionAITypes CvSelectionGroupAI::AI_getMissionAIType() const
+ {
+ 	return m_eMissionAIType;
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index bd6529e29..f6f825157 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -57,7 +57,7 @@ public:
+ 	bool AI_isForceSeparate();
+ 	void AI_makeForceSeparate();
+ 
+-	MissionAITypes AI_getMissionAIType();
++	MissionAITypes AI_getMissionAIType() const;
+ 	void AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
+ 	CvUnit* AI_ejectBestDefender(CvPlot* pTargetPlot);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7525f5b54..e23a9c672 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1581,7 +1581,7 @@ void CvUnitAI::AI_settleMove()
+ 
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+ 	{
+-		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, 0, MOVE_NO_ENEMY_TERRITORY))
++		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
+ 		{
+ 			return;
+ 		}
+@@ -1600,7 +1600,7 @@ void CvUnitAI::AI_settleMove()
+ 				{
+ 					int iPathTurns = MAX_INT;
+ 
+-					generatePath(pLoopSelectionGroup->plot(), 0, true, &iPathTurns, 2);
++					generatePath(pLoopSelectionGroup->plot(), MOVE_SAFE_TERRITORY, true, &iPathTurns, 2);
+ 					if (iPathTurns <= 2)
+ 					{
+ 						CvPlot* pEndTurnPlot = getPathEndTurnPlot();
+@@ -1616,11 +1616,11 @@ void CvUnitAI::AI_settleMove()
+ 							// if we were on our way to a site, keep the current mission plot.
+ 							if (getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND && getGroup()->AI_getMissionAIPlot() != NULL)
+ 							{
+-								getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), 0, false, false, MISSIONAI_FOUND, getGroup()->AI_getMissionAIPlot());
++								getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, getGroup()->AI_getMissionAIPlot());
+ 							}
+ 							else
+ 							{
+-								getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), 0, false, false, MISSIONAI_GROUP, 0, pLoopSelectionGroup->getHeadUnit());
++								getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_GROUP, 0, pLoopSelectionGroup->getHeadUnit());
+ 							}
+ 						}
+ 						return;
+@@ -1636,21 +1636,10 @@ void CvUnitAI::AI_settleMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Settler AI                                                                                   */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -2012,21 +2001,10 @@ void CvUnitAI::AI_workerMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Worker AI                                                                                    */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -2672,13 +2650,10 @@ void CvUnitAI::AI_attackMove()
+ 			return;
+ 		}
+ 
+-		if( getGroup()->isStranded() )
+-		{
+-			if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-			{
+-				return;
+-			}
+-		}
++		// K-Mod
++		if (AI_handleStranded())
++			return;
++		// K-Mod end
+ 
+ 		if( !bDanger && !isHuman() && plot()->isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
+ 		{
+@@ -2833,27 +2808,16 @@ void CvUnitAI::AI_paratrooperMove()
+ 	{
+ 		return;
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	//if (AI_protect(35))
++
+ 	if (AI_defendTeritory(50, 0, 5)) // K-Mod
+ 	{
+ 		return;
+ 	}
+ 
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -2864,11 +2828,7 @@ void CvUnitAI::AI_paratrooperMove()
+ 	return;
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/02/10                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI, Barbarian AI                                                                 */
+-/************************************************************************************************/
++// This function has been heavily edited by BBAI and K-Mod
+ void CvUnitAI::AI_attackCityMove()
+ {
+ 	PROFILE_FUNC();
+@@ -3622,25 +3582,10 @@ void CvUnitAI::AI_attackCityMove()
+ 		return;
+ 	}
+ 
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-
+-		if( !isHuman() && plot()->isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
+-		{
+-			// If no other desireable actions, wait for pickup
+-			getGroup()->pushMission(MISSION_SKIP);
+-			return;
+-		}
+-
+-		if (AI_patrol())
+-		{
+-			return;
+-		}
+-	}
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -3650,10 +3595,6 @@ void CvUnitAI::AI_attackCityMove()
+ 	getGroup()->pushMission(MISSION_SKIP);
+ 	return;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 
+ void CvUnitAI::AI_attackCityLemmingMove()
+ {
+@@ -3850,21 +3791,10 @@ void CvUnitAI::AI_collateralMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -4161,21 +4091,10 @@ void CvUnitAI::AI_reserveMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -4570,21 +4489,10 @@ void CvUnitAI::AI_cityDefenseMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -4796,20 +4704,10 @@ void CvUnitAI::AI_exploreMove()
+ 			}
+ 		}
+ 	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/03/08                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( !isHuman() && plot()->isCoastalLand() && GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
+-	{
+-		getGroup()->pushMission(MISSION_SKIP);
++	// K-Mod
++	if (AI_handleStranded())
+ 		return;
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod end
+ 
+ 	if (AI_patrol())
+ 	{
+@@ -4821,22 +4719,6 @@ void CvUnitAI::AI_exploreMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -4877,10 +4759,10 @@ void CvUnitAI::AI_missionaryMove()
+ 		
+ 		if (!isHuman())
+ 		{
+-			if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
++			/*if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
+ 			{
+ 				return;
+-			}
++			}*/
+ 
+ 			if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI, -1, -1, -1, 0, MOVE_NO_ENEMY_TERRITORY))
+ 			{
+@@ -4894,21 +4776,10 @@ void CvUnitAI::AI_missionaryMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -4997,21 +4868,10 @@ void CvUnitAI::AI_prophetMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -5121,21 +4981,10 @@ void CvUnitAI::AI_artistMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -5241,21 +5090,10 @@ void CvUnitAI::AI_scientistMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -5351,13 +5189,10 @@ void CvUnitAI::AI_generalMove()
+ 		return;
+ 	}
+ 
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -5454,21 +5289,10 @@ void CvUnitAI::AI_merchantMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -5562,21 +5386,10 @@ void CvUnitAI::AI_engineerMove()
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-	if( getGroup()->isStranded() )
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	if (AI_handleStranded())
++		return;
++	// K-Mod end
+ 
+ 	if (AI_safety())
+ 	{
+@@ -5604,13 +5417,8 @@ void CvUnitAI::AI_greatSpyMove()
+ 		}
+ 	}
+ 
+-	if (getGroup()->isStranded())
+-	{
+-		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+-		{
+-			return;
+-		}
+-	}
++	if (AI_handleStranded())
++		return;
+ 
+ 	getGroup()->pushMission(MISSION_SKIP);
+ 	return;
+@@ -11202,16 +11010,21 @@ bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBigg
+ 
+ // K-Mod
+ // Look for the nearest suitable transport. Return a pointer to the transport unit.
+-// (the bulk of this function was moved straight out of AI_load. I cleaned it up a bit, but I didn't write it.)
++// (the bulk of this function was moved straight out of AI_load. I've fixed it up a bit, but I didn't write most of it.)
+ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath, UnitAITypes eTransportedUnitAI, int iMinCargo, int iMinCargoSpace, int iMaxCargoSpace, int iMaxCargoOurUnitAI)
+ {
+-	if (getDomainType() == DOMAIN_LAND && !canMoveAllTerrain())
++	/*if (getDomainType() == DOMAIN_LAND && !canMoveAllTerrain())
+ 	{
+ 		if (area()->getNumAIUnits(getOwnerINLINE(), eUnitAI) == 0)
+ 		{
+ 			return false;
+ 		}
+-	}
++	}*/ // disabled, because this would exclude boats sailing on the coast.
++
++	// K-Mod
++	if (eUnitAI != NO_UNITAI && GET_PLAYER(getOwnerINLINE()).AI_getNumAIUnits(eUnitAI) == 0)
++		return false;
++	// K-Mod end
+ 
+ 	int iBestValue = MAX_INT;
+ 	CvUnit* pBestUnit = 0;
+@@ -11224,13 +11037,11 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath
+ 	int iLoop;
+ 	for (CvUnit* pLoopUnit = GET_PLAYER(getOwnerINLINE()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwnerINLINE()).nextUnit(&iLoop))
+ 	{
+-		if (pLoopUnit == this || !AI_plotValid(pLoopUnit->plot()) || !canLoadUnit(pLoopUnit, pLoopUnit->plot()))
++		if (pLoopUnit->cargoSpace() <= 0 || (pLoopUnit->getArea() != getArea() && !pLoopUnit->plot()->isAdjacentToArea(getArea())) || !canLoadUnit(pLoopUnit, pLoopUnit->plot())) // K-Mod
+ 			continue;
+ 
+-		// special case ASSAULT_SEA UnitAI, so that, if a unit is marked escort, but can load units, it will load them
+-		// transport units might have been built as escort, this most commonly happens with galleons
+ 		UnitAITypes eLoopUnitAI = pLoopUnit->AI_getUnitAIType();
+-		if (eLoopUnitAI == eUnitAI)// || (eUnitAI == UNITAI_ASSAULT_SEA && eLoopUnitAI == UNITAI_ESCORT_SEA))
++		if (eUnitAI == NO_UNITAI || eLoopUnitAI == eUnitAI)
+ 		{
+ 			int iCargoSpaceAvailable = pLoopUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType());
+ 			iCargoSpaceAvailable -= GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, aeLoadMissionAI, iLoadMissionAICount, getGroup());
+@@ -11402,8 +11213,8 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITyp
+ 			// split our group to fit on the transport
+ 			CvSelectionGroup* pOtherGroup = NULL;
+ 			CvSelectionGroup* pSplitGroup = getGroup()->splitGroup(iCargoSpaceAvailable, this, &pOtherGroup);			
+-			FAssertMsg(pSplitGroup != NULL, "splitGroup failed");
+-			FAssertMsg(m_iGroupID == pSplitGroup->getID(), "splitGroup failed to put unit in the new group");
++			FAssertMsg(pSplitGroup, "splitGroup failed");
++			FAssertMsg(getGroupID() == pSplitGroup->getID(), "splitGroup failed to put head unit in the new group");
+ 
+ 			if (pSplitGroup != NULL)
+ 			{
+@@ -20835,6 +20646,118 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bAirlift, int iMaxPath)
+ 	return false;
+ }
+ 
++// K-Mod
++// Decide whether or not this group is stranded.
++// If they are stranded, try to walk towards the coast.
++// If we're on the coast, wait to be rescued!
++bool CvUnitAI::AI_handleStranded(int iFlags)
++{
++	FAssert(!isHuman());
++	FAssert(!isCargo());
++
++	PROFILE_FUNC();
++
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++
++	// return false if the group is not stranded.
++	int iDummy;
++	if (area()->getNumAIUnits(getOwnerINLINE(), UNITAI_SETTLE) > 0 && kOwner.AI_getNumAreaCitySites(getArea(), iDummy) > 0)
++	{
++		return false;
++	}
++
++	if (area()->getNumCities() > 0)
++	{
++		if (plot()->getTeam() == getTeam())
++			return false;
++
++		if (getGroup()->isHasPathToAreaPlayerCity(getOwnerINLINE(), iFlags))
++		{
++			return false;
++		}
++
++		if ((canFight() || isSpy()) && getGroup()->isHasPathToAreaEnemyCity(false, iFlags))
++		{
++			return false;
++		}
++	}
++
++	// ok.. so the group is standed.
++	// Try to get to the coast.
++	if (!plot()->isCoastalLand())
++	{
++		// maybe we were already on our way?
++		CvPlot* pMissionPlot = 0;
++		CvPlot* pEndTurnPlot = 0;
++		if (getGroup()->AI_getMissionAIType() == MISSIONAI_STRANDED)
++		{
++			pMissionPlot = getGroup()->AI_getMissionAIPlot();
++			if (pMissionPlot && pMissionPlot->isCoastalLand() && !pMissionPlot->isVisibleEnemyUnit(this) && generatePath(pMissionPlot, iFlags, true))
++			{
++				// The current mission looks good enough. Don't bother searching for a better option.
++				pEndTurnPlot = getPathEndTurnPlot();
++			}
++			else
++			{
++				// the current mission plot is not suitable. We'll have to search.
++				pMissionPlot = 0;
++			}
++		}
++		if (!pMissionPlot)
++		{
++			// look for the clostest coastal plot in this area
++			int iShortestPath = MAX_INT;
++
++			for (int i = 0; i < GC.getMapINLINE().numPlotsINLINE(); i++)
++			{
++				CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(i);
++
++				if (pLoopPlot->getArea() == getArea() && pLoopPlot->isCoastalLand())
++				{
++					int iPathturns;
++					if (generatePath(pLoopPlot, iFlags, true, &iPathturns, iShortestPath))
++					{
++						FAssert(iPathturns <= iShortestPath);
++						iShortestPath = iPathturns;
++						pEndTurnPlot = getPathEndTurnPlot();
++						pMissionPlot = pLoopPlot;
++						if (iPathturns <= 1)
++							break;
++					}
++				}
++			}
++		}
++
++		if (pMissionPlot)
++		{
++			FAssert(pEndTurnPlot);
++			getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), iFlags, false, false, MISSIONAI_STRANDED, pMissionPlot);
++			return true;
++		}
++	}
++
++	// Hopefully we're on the coast. (but we might not be - if we couldn't find a path to the coast)
++	// try to load into a passing boat
++	// Calling AI_load will check all of our boats; so before we do that, I'm going to just see if there are any boats on adjacent plots.
++	for (int i = NO_DIRECTION; i < NUM_DIRECTION_TYPES; i++)
++	{
++		CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)i);
++
++		if (pAdjacentPlot && canLoad(pAdjacentPlot))
++		{
++			// ok. there is something we can load into - but lets use the (slow) official function to actually issue the load command.
++			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, iFlags, 1))
++				return true;
++			else // if that didn't do it, nothing will
++				break;
++		}
++	}
++
++	// raise the 'stranded' flag, and wait to be rescued.
++	getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_STRANDED);
++	return true;
++}
++// K-Mod end
+ 
+ // Returns true if a mission was pushed...
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index b76b4fdd0..5645926cc 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -223,6 +223,7 @@ protected:
+ 	bool AI_routeTerritory(bool bImprovementOnly = false);
+ 	bool AI_travelToUpgradeCity();
+ 	bool AI_retreatToCity(bool bPrimary = false, bool bAirlift = false, int iMaxPath = MAX_INT);
++	bool AI_handleStranded(int iFlags = 0); // K-mod
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      01/15/09                                jdog5000      */
+ /*                                                                                              */
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=38723

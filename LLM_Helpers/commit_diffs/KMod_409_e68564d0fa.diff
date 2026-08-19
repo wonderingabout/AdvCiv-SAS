@@ -1,0 +1,363 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 409
+# Commit: e68564d0faad340be587138b00b999de5bdc02f2
+# History segment: K-Mod history
+# Parent used for diff: 18f7e73a4344b25f0dbc8233c08cc1aa2d89f723
+# Title: Implemented a new system for evaluating different types of great people points. Disabled the old (basic) system.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	2	CvGameCoreDLL/CvCityAI.cpp
+19	9	CvGameCoreDLL/CvGameTextMgr.cpp
+166	1	CvGameCoreDLL/CvPlayerAI.cpp
+4	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 4e2aaacfc..c4751aca5 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -569,10 +569,11 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 			}
+ 		}
+ 		
+-		int iCurrentEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
++		/*
++		int iCurrentEra = kOwner.getCurrentEra();
+ 		int iTotalEras = GC.getNumEraInfos();
+ 		
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
++		if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2))
+ 		{
+ 			int iUnitClass = GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass();
+ 			FAssert(iUnitClass != NO_UNITCLASS);
+@@ -632,6 +633,13 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+             {
+                 iTempValue += 100 * iGreatPeopleRate * iBestSpreadValue;
+             }
++		} */
++
++		// K-Mod: I've replaced the above code with a new method for targeting particular great person types.
++		if (!isHuman())
++		{
++			iTempValue *= kOwner.AI_getGreatPersonWeight((UnitClassTypes)GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass());
++			iTempValue /= 100;
+ 		}
+ 
+ 		// Scale based on how often this city will actually get a great person.
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b80dc2a4c..89d210135 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6450,18 +6450,20 @@ void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, Specialis
+ 	int aiCommerces[NUM_COMMERCE_TYPES];
+ 	int iI;
+ 
++	const CvSpecialistInfo& kInfo = GC.getSpecialistInfo(eSpecialist); // K-Mod
++
+ 	if (eSpecialist != NO_SPECIALIST)
+ 	{
+ 		if (!bCivilopediaText)
+ 		{
+-			szHelpString.append(GC.getSpecialistInfo(eSpecialist).getDescription());
++			szHelpString.append(kInfo.getDescription());
+ 		}
+ 
+ 		for (iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+ 		{
+ 			if (GC.getGameINLINE().getActivePlayer() == NO_PLAYER)
+ 			{
+-				aiYields[iI] = GC.getSpecialistInfo(eSpecialist).getYieldChange(iI);
++				aiYields[iI] = kInfo.getYieldChange(iI);
+ 			}
+ 			else
+ 			{
+@@ -6475,7 +6477,7 @@ void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, Specialis
+ 		{
+ 			if (GC.getGameINLINE().getActivePlayer() == NO_PLAYER)
+ 			{
+-				aiCommerces[iI] = GC.getSpecialistInfo(eSpecialist).getCommerceChange(iI);
++				aiCommerces[iI] = kInfo.getCommerceChange(iI);
+ 			}
+ 			else
+ 			{
+@@ -6485,22 +6487,30 @@ void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, Specialis
+ 
+ 		setCommerceChangeHelp(szHelpString, L"", L"", L"", aiCommerces);
+ 
+-		if (GC.getSpecialistInfo(eSpecialist).getExperience() > 0)
++		if (kInfo.getExperience() > 0)
+ 		{
+ 			szHelpString.append(NEWLINE);
+-			szHelpString.append(gDLL->getText("TXT_KEY_SPECIALIST_EXPERIENCE", GC.getSpecialistInfo(eSpecialist).getExperience()));
++			szHelpString.append(gDLL->getText("TXT_KEY_SPECIALIST_EXPERIENCE", kInfo.getExperience()));
+ 		}
+ 
+-		if (GC.getSpecialistInfo(eSpecialist).getGreatPeopleRateChange() != 0)
++		if (kInfo.getGreatPeopleRateChange() != 0)
+ 		{
+ 			szHelpString.append(NEWLINE);
+-			szHelpString.append(gDLL->getText("TXT_KEY_SPECIALIST_BIRTH_RATE", GC.getSpecialistInfo(eSpecialist).getGreatPeopleRateChange()));
++			szHelpString.append(gDLL->getText("TXT_KEY_SPECIALIST_BIRTH_RATE", kInfo.getGreatPeopleRateChange()));
++
++			// K-Mod
++			if (!bCivilopediaText && gDLL->getChtLvl() > 0 && gDLL->ctrlKey())
++			{
++				szHelpString.append(NEWLINE);
++				szHelpString.append(CvWString::format(L"weight: %d", GET_PLAYER((pCity != NULL) ? pCity->getOwnerINLINE() : GC.getGameINLINE().getActivePlayer()).AI_getGreatPersonWeight((UnitClassTypes)kInfo.getGreatPeopleUnitClass())));
++			}
++			// K-Mod end
+ 		}
+ 
+-		if (!CvWString(GC.getSpecialistInfo(eSpecialist).getHelp()).empty() && !bCivilopediaText)
++		if (!CvWString(kInfo.getHelp()).empty() && !bCivilopediaText)
+ 		{
+ 			szHelpString.append(NEWLINE);
+-			szHelpString.append(GC.getSpecialistInfo(eSpecialist).getHelp());
++			szHelpString.append(kInfo.getHelp());
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9694a953e..2a6288b64 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -418,6 +418,7 @@ void CvPlayerAI::AI_doTurnPre()
+ /************************************************************************************************/
+ 
+ 	AI_updateBonusValue();
++	AI_updateGreatPersonWeights(); // K-Mod
+ 	
+ 	AI_doEnemyUnitData();
+ 
+@@ -17116,6 +17117,21 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumBonusInfos(), m_aiBonusValue);
+ 	pStream->Read(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Read(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
++	// K-Mod
++	m_GreatPersonWeights.clear();
++	if (uiFlag >= 5)
++	{
++		int iItems;
++		int iType, iWeight;
++		pStream->Read(&iItems);
++		for (int i = 0; i < iItems; i++)
++		{
++			pStream->Read(&iType);
++			pStream->Read(&iWeight);
++			m_GreatPersonWeights.insert(std::make_pair((UnitClassTypes)iType, iWeight));
++		}
++	}
++	// K-Mod end
+ 	pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
+ }
+ 
+@@ -17132,7 +17148,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	uint uiFlag=0;
+ */
+ 	// Flag for type of save
+-	uint uiFlag=4;
++	uint uiFlag=5;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -17200,6 +17216,18 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(GC.getNumBonusInfos(), m_aiBonusValue);
+ 	pStream->Write(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Write(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
++	// K-Mod. save great person weights. (uiFlag >= 5)
++	{
++		int iItems = m_GreatPersonWeights.size();
++		pStream->Write(iItems);
++		std::map<UnitClassTypes, int>::const_iterator it;
++		for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
++		{
++			pStream->Write((int)it->first);
++			pStream->Write(it->second);
++		}
++	}
++	// K-Mod end
+ 	pStream->Write(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
+ }
+ 
+@@ -20156,6 +20184,143 @@ void CvPlayerAI::AI_updateStrategyHash()
+ #undef log_strat2
+ }
+ 
++// K-Mod
++void CvPlayerAI::AI_updateGreatPersonWeights()
++{
++	PROFILE_FUNC();
++
++	m_GreatPersonWeights.clear();
++
++	for (int i = 0; i < GC.getNumSpecialistInfos(); i++)
++	{
++		//const CvSpecialistInfo& kSpecInfo = GC.getSpecialistInfo((SpecialistTypes)i);
++		UnitClassTypes eGreatPersonClass = (UnitClassTypes)GC.getSpecialistInfo((SpecialistTypes)i).getGreatPeopleUnitClass();
++
++		if (eGreatPersonClass == NO_UNITCLASS)
++			continue;
++
++		FAssert(GC.getSpecialistInfo((SpecialistTypes)i).getGreatPeopleRateChange() > 0);
++
++		bool bValid = false;
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			if (pLoopCity->isSpecialistValid((SpecialistTypes)i))
++			{
++				bValid = true;
++				break;
++			}
++		}
++
++		if (!bValid)
++			continue;
++
++		if (m_GreatPersonWeights.find(eGreatPersonClass) != m_GreatPersonWeights.end())
++			continue; // already evaluated
++
++		UnitTypes eGreatPerson = (UnitTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eGreatPersonClass);
++		if (eGreatPerson == NO_UNIT)
++			continue;
++
++		// We've estabilish that we can use this specialist, and that they provide great-person points for a unit which
++		// we have not yet evaluated. So now we just have to evaluate the unit!
++		const CvUnitInfo& kInfo = GC.getUnitInfo(eGreatPerson);
++
++		if (kInfo.getUnitCombatType() != NO_UNITCOMBAT)
++			continue; // don't try to evaluate combat units.
++
++		int iValue = 0;
++		for (int j = 0; j < GC.getNumSpecialistInfos(); j++)
++		{
++			// value of joining a city as a super-specialist
++			if (kInfo.getGreatPeoples((SpecialistTypes)j))
++			{
++				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++				{
++					// Note, specialistValue is roughly 400x the commerce it provides. So /= 4 to make it 100x.
++					int iTempValue = pLoopCity->AI_permanentSpecialistValue((SpecialistTypes)j)/4;
++					iValue = std::max(iValue, iTempValue);
++				}
++			}
++		}
++		// value of building something.
++		for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
++		{
++			BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(j);
++
++			if (eBuilding != NO_BUILDING)
++			{
++				if (kInfo.getForceBuildings(eBuilding) ||
++					(kInfo.getBuildings(eBuilding) && canConstruct(eBuilding, false, false, true)))
++				{
++					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++					{
++						// cf. conditions used in CvUnit::canConstruct
++						if (pLoopCity->getNumRealBuilding(eBuilding) > 0 ||
++							(!kInfo.getForceBuildings(eBuilding) && !pLoopCity->canConstruct(eBuilding, false, false, true)))
++						{
++							continue;
++						}
++
++						// Note, building value is roughly 4x the value of the commerce it provides.
++						// so we * 25 to match the scale of specialist value.
++						int iTempValue = pLoopCity->AI_buildingValue(eBuilding) * 25;
++
++						// if the building is a world wonder, increase the value.
++						if (isWorldWonderClass((BuildingClassTypes)j))
++							iTempValue = 3*iTempValue/2;
++
++						iValue = std::max(iValue, iTempValue);
++					}
++				}
++			}
++		}
++		// don't bother trying to evaluate bulbing etc. That kind of value is too volatile anyway.
++
++		// store the value in the weights map - but remember, this isn't yet the actual weight.
++		FAssert(iValue >= 0);
++		m_GreatPersonWeights[eGreatPersonClass] = iValue;
++	}
++
++	// find the mean value.
++	int iSum = 0;
++
++	std::map<UnitClassTypes, int>::iterator it;
++	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
++	{
++		iSum += it->second;
++	}
++	int iMean = iSum / std::max(1, (int)m_GreatPersonWeights.size());
++	iSum = 0;
++
++	// scale the values so that they are between 50 and 400, with the mean value translating to 100.
++	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
++	{
++		int iValue = it->second;
++		iValue = 100 * iValue / std::max(1, iMean);
++		iValue = (30000 + 400 * iValue) / (600 + iValue);
++		it->second = iValue;
++		iSum += iValue;
++	}
++
++	// finally, normalise so that 100 is the average value.
++	//iMean = iSum / std::max(1, (int)m_GreatPersonWeights.size());
++	//for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
++	//{
++	//	it->second = 100 * it->second / std::max(1, iMean);
++	//}
++}
++
++int CvPlayerAI::AI_getGreatPersonWeight(UnitClassTypes eGreatPerson) const
++{
++	std::map<UnitClassTypes, int>::const_iterator it = m_GreatPersonWeights.find(eGreatPerson);
++	if (it == m_GreatPersonWeights.end())
++		return 100;
++	else
++		return it->second;
++}
++// K-Mod end
++
+ void CvPlayerAI::AI_nowHasTech(TechTypes eTech)
+ {
+ 	// while its _possible_ to do checks, for financial trouble, and this tech adds financial buildings
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index dc33f233c..1f538dac6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -351,6 +351,9 @@ public:
+ 	bool AI_isDoStrategy(int iStrategy) const;
+ 	//void AI_forceUpdateStrategies(); // obsolete function from Original BtS
+ 
++	void AI_updateGreatPersonWeights(); // K-Mod
++	int AI_getGreatPersonWeight(UnitClassTypes eGreatPerson) const; // K-Mod
++
+ 	void AI_nowHasTech(TechTypes eTech);
+ 	
+     int AI_countDeadlockedBonuses(CvPlot* pPlot) const;
+@@ -510,7 +513,7 @@ protected:
+ 	int* m_aiBonusValue;
+ 	int* m_aiUnitClassWeights;
+ 	int* m_aiUnitCombatWeights;
+-	//std::vector<int> m_aiGreatPersonWeights; // K-Mod... todo.
++	std::map<UnitClassTypes, int> m_GreatPersonWeights; // K-Mod
+ 
+ 	mutable int* m_aiCloseBordersAttitudeCache;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=11931

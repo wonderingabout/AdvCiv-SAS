@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2154
+# Commit: 56bbe11ed34a915b38fa3758626a9ad7bec56b53
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2d04746ccd5030a9a875bb03d222e4605c8f7d1a
+# Title: Tweak UWAI affection cost
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	7	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index c8a1f857e..3b5c2b2e8 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2892,13 +2892,18 @@ void Affection::evaluate() {
+ 			log("No-war-chance for %s reduced by %d b/c of peace vassals",
+ 					report.leaderName(theyId), iVassalPenalty);
+ 		}
+-		uMinus = std::pow(noWarPercent / 100.0, 5.5) * 75;
+-	}
+-	if(noWarPercent >= 100) {
+-		uMinus += 5;
+-		if(towardsThem >= ATTITUDE_FRIENDLY)
+-			uMinus += 40;
+-	}
++		//uMinus = std::pow(noWarPercent / 100.0, 5.5) * 75;
++		// ^That progression is a bit too steep
++		// The new formula would go toward infinity for high noWarPercent
++		int noWarPercentCapped = std::min(noWarPercent, 94);
++		/*	Subtract 1 so that noWarPercent=0 yields 0. The exponent and
++			dividend (1) are magic constants. */
++		uMinus = 1 / (1 - std::pow(noWarPercentCapped / 100.0, 0.223)) - 1;
++		uMinus += noWarPercent - noWarPercentCapped;
++
++	}
++	if(towardsThem >= ATTITUDE_FRIENDLY)
++		uMinus += 34; // 40 prior to AdvCiv 0.97
+ 	bool const ignDistr = params.isIgnoreDistraction();
+ 	/*  The Catherine clause - doesn't make sense for her to consider sponsored
+ 		war on a friend if the cost is always prohibitive. */
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1268

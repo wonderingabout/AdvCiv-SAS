@@ -1,0 +1,202 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5596
+# Commit: 81f966e9299c9c41bd90d332b120617cd45777c8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9d31bbb8518a1e2d9214fbaaac2470cb501cf181
+# Title: use most of the screen for victory tabs, fix KI#115 (extra Requires vote spacing)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+53	21	Assets/Python/Screens/CvVictoryScreen.py
+5	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+19	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 0a7596bd3..a095be63a 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -92,29 +92,20 @@ class CvVictoryScreen:
+ 
+ 		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
+ 		someWRoomForCulturePercentages = 27
+-		self.TABLE_WIDTH_0 = 350 - (2 * someWRoomForCulturePercentages)
+-		self.TABLE_WIDTH_1 = 80
+-		self.TABLE_WIDTH_2 = 180
+-		self.TABLE_WIDTH_3 = 100 + someWRoomForCulturePercentages
+-		self.TABLE_WIDTH_4 = 180
+-		self.TABLE_WIDTH_5 = 100 + someWRoomForCulturePercentages
+-
+-		self.TABLE2_WIDTH_0 = 740
+-		self.TABLE2_WIDTH_1 = 265
++		self.TABLE_WIDTH_BASE = [
++			350 - (2 * someWRoomForCulturePercentages),
++			80,
++			180,
++			100 + someWRoomForCulturePercentages,
++			180,
++			100 + someWRoomForCulturePercentages
++		]
++		self.TABLE2_WIDTH_BASE = [740, 265]
+ 		# <advc.703>
+-		self.RF_TABLEW_0 = 125
+-		self.RF_TABLEW_1 = 150
+-		self.RF_TABLEW_2 = 250
+-		self.RF_TABLEW_3 = 260
+-		self.RF_TABLEW_4 = 205
++		self.RF_TABLEW_BASE = [125, 150, 250, 260, 205]
+ 		# </advc.703>
+ # BUG Additions Start
+-		self.TABLE3_WIDTH_0 = 450
+-		self.TABLE3_WIDTH_1 = 90
+-		self.TABLE3_WIDTH_2 = 90
+-		self.TABLE3_WIDTH_3 = 90
+-		self.TABLE3_WIDTH_4 = 90
+-		self.TABLE3_WIDTH_5 = 200
++		self.TABLE3_WIDTH_BASE = [450, 90, 90, 90, 90, 200]
+ 
+ 		self.Vote_Pope_ID = "BUGVotePope_Widget"
+ 		self.Vote_DipVic_ID = "BUGVoteDiplomaticVictory_Widget"
+@@ -138,6 +129,7 @@ class CvVictoryScreen:
+ 		# </advc.004>
+ 		self.SETTINGS_PANEL_Y = 150
+ 		self.SETTINGS_PANEL_HEIGHT = 500
++		self.SETTINGS_PANEL_OUTER_MARGIN = 30
+ 
+ 		self.nWidgetCount = 0
+ 		self.iActivePlayer = -1
+@@ -176,6 +168,44 @@ class CvVictoryScreen:
+ 		self.W_AREA = self.W_SCREEN - 14
+ 		self.H_AREA = self.H_SCREEN - 118
+ 
++		iTargetTableWidth = self.W_AREA - 5
++		self.TABLE_WIDTH_0, self.TABLE_WIDTH_1, self.TABLE_WIDTH_2, self.TABLE_WIDTH_3, self.TABLE_WIDTH_4, self.TABLE_WIDTH_5 = self.scaleColumnsToWidth(self.TABLE_WIDTH_BASE, iTargetTableWidth)
++		self.TABLE2_WIDTH_0, self.TABLE2_WIDTH_1 = self.scaleColumnsToWidth(self.TABLE2_WIDTH_BASE, iTargetTableWidth)
++		self.TABLE3_WIDTH_0, self.TABLE3_WIDTH_1, self.TABLE3_WIDTH_2, self.TABLE3_WIDTH_3, self.TABLE3_WIDTH_4, self.TABLE3_WIDTH_5 = self.scaleColumnsToWidth(self.TABLE3_WIDTH_BASE, iTargetTableWidth)
++		self.RF_TABLEW_0, self.RF_TABLEW_1, self.RF_TABLEW_2, self.RF_TABLEW_3, self.RF_TABLEW_4 = self.scaleColumnsToWidth(self.RF_TABLEW_BASE, iTargetTableWidth)
++		# <!-- custom: for Resolutions/Members readability, reduce the first column only (no reallocation); remaining width stays unused on the right. (GPT-5.3-Codex) -->
++		self.TABLE2_WIDTH_0 = self.TABLE2_WIDTH_0 / 2
++		self.TABLE3_WIDTH_0 = self.TABLE3_WIDTH_0 / 2
++
++		iGap = self.SETTINGS_PANEL_OUTER_MARGIN
++		self.SETTINGS_PANEL_WIDTH = (self.W_SCREEN - 4 * iGap) / 3
++		self.SETTINGS_PANEL_X1 = iGap
++		self.SETTINGS_PANEL_X2 = self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH + iGap
++		self.SETTINGS_PANEL_X3 = self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH + iGap
++		self.SETTINGS_PANEL_Y = self.Y_AREA + iGap + 10
++		self.SETTINGS_PANEL_HEIGHT = self.Y_BOTTOM_PANEL - self.Y_AREA - 2 * iGap
++
++	def scaleColumnsToWidth(self, aiBaseWidths, iTargetWidth):
++		iBaseTotal = sum(aiBaseWidths)
++		iColumnCount = len(aiBaseWidths)
++		if iColumnCount <= 0:
++			return []
++		if iTargetWidth < iColumnCount:
++			iTargetWidth = iColumnCount
++		aiScaled = []
++		iUsed = 0
++		for i in range(iColumnCount - 1):
++			iWidth = (aiBaseWidths[i] * iTargetWidth + iBaseTotal / 2) / iBaseTotal
++			if iWidth < 1:
++				iWidth = 1
++			aiScaled.append(iWidth)
++			iUsed += iWidth
++		iLast = iTargetWidth - iUsed
++		if iLast < 1:
++			iLast = 1
++		aiScaled.append(iLast)
++		return aiScaled
++
+ 	# <!-- custom: initialize text and image tags once for performance, based on Info Screen pattern (claude opus 4.5) -->
+ 	def initText(self):
+ 		# only execute this function once per language...
+@@ -532,7 +562,9 @@ class CvVictoryScreen:
+ 							if gc.getGame().isVotePassed(iLoop):
+ 								self.setTableTextScaled(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							else:
+-								self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_POPUP_ELECTION_OPTION", (u"", gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i))), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								# <!-- custom: use a dedicated key without the optional leading placeholder because this row only shows "(Requires X of Y total votes)" and should not depend on trimming localized text at runtime. (GPT-5.3-Codex) -->
++								szVoteReqText = localText.getText("TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY", (gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i)))
++								self.setTableTextScaled(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				iRow = screen.appendTableRow(szTable) # empty row between vote sources. (K-Mod)
+ 		# Remove the final empty row (K-Mod)
+ 		if screen.getTableNumRows(szTable) > 0:
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index d34aed747..0bf4d83b1 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -728,6 +728,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
+ 		<English>No voting members yet: requires one of the below.</English>
+ 	</TEXT>
++	<!-- custom: dedicated vote-requirement line for Victory screen tabs; unlike TXT_KEY_POPUP_ELECTION_OPTION, this key has no leading optional placeholder, so spacing remains stable without Python-side trimming. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY</Tag>
++		<English>(Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
+ 		<English>Not active</English>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index fffbf632a..579f56542 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -148,6 +148,7 @@ hopefully helpful, thanks thanks,
+ [112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#112---seemingly-fixed-base-advciv-issue-of-missing-getprereqorpromotion3-in-sevopedia-promotion)  
+ [113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
+ [114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
++[115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4428,3 +4429,21 @@ Fix:
+ Changed file:
+ 
+ - [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py)
++
++## 115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Op8y2q_cNPvHC3Gs87JlHtB7CTPsDUdK?usp=sharing).
++
++Observed issue:
++
++- In the Victory Advisor Resolutions tab, the `(Requires X of Y Total Votes)` line could show odd leading spacing.
++- We did not test this directly in base AdvCiv, hence the "Likely Base AdvCiv issue" wording.
++
++Why:
++
++- `TXT_KEY_POPUP_ELECTION_OPTION` is built for a longer format with a first placeholder (`%s1_VoteName`). Passing an empty first value in this context leaves unwanted spacing.
++
++Fix:
++
++- Added a dedicated key without the first placeholder: `TXT_KEY_SAS_VOTE_REQ_ONLY`.
++- Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7ba33ba99..baa451a9f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -335,7 +335,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
+ - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn. If table has more than max rows, table expands and Legend link moves to top right. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+-- Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tabs so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active for exhaustiveness and clarity. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py).
++- Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tabs so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active for exhaustiveness and clarity. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py). See also [KI#115](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15510

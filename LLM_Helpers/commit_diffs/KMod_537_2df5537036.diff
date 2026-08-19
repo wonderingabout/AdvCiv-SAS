@@ -1,0 +1,364 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 537
+# Commit: 2df55370363c2b2ee8347ea59d620ce5e66b8c2b
+# History segment: K-Mod history
+# Parent used for diff: 40b4fe261d4259202265034fb14de1e1e676f40d
+# Title: The AI is now less likely to start building things which will be obsoleted by their current research. Changed the way the AI weights unit value based on how...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.h
+90	76	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index b972b6789..314de5aec 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1010,7 +1010,7 @@ public:
+ 	virtual UnitTypes AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) = 0;
+ 	virtual BuildingTypes AI_bestBuilding(int iFocusFlags = 0, int iMaxTurns = MAX_INT, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) = 0;
+ 	//virtual int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0) const = 0;
+-	virtual int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0, bool bConstCache = false) const = 0; // K-Mod
++	virtual int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0, bool bConstCache = false, bool bAllowRecursion = true) const = 0; // K-Mod
+ 	virtual int AI_projectValue(ProjectTypes eProject) = 0;
+ 	virtual int AI_neededSeaWorkers() = 0;
+ 	virtual bool AI_isDefended(int iExtra = 0) = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index bf9ba240d..1a14f3d0f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3225,8 +3225,19 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 									iValue += getUnitProduction(eLoopUnit);
+ 								}
+ 
++								/* original bts code
+ 								iValue *= (GET_PLAYER(getOwnerINLINE()).getNumCities() * 2);
+-								iValue /= (GET_PLAYER(getOwnerINLINE()).getUnitClassCountPlusMaking((UnitClassTypes)iI) + GET_PLAYER(getOwnerINLINE()).getNumCities() + 1);
++								iValue /= (GET_PLAYER(getOwnerINLINE()).getUnitClassCountPlusMaking((UnitClassTypes)iI) + GET_PLAYER(getOwnerINLINE()).getNumCities() + 1); */
++								// K-Mod
++								{
++									int iUnits = GET_PLAYER(getOwnerINLINE()).getUnitClassCountPlusMaking((UnitClassTypes)iI);
++									int iCities = GET_PLAYER(getOwnerINLINE()).getNumCities();
++
++									iValue *= 6 + iUnits + 4*iCities;
++									iValue /= 3 + 3*iUnits + 2*iCities;
++									// this is a factor between 1/3 and 2. It's equal to 1 roughly when iUnits == iCities.
++								}
++								// K-Mod end
+ 
+ 								FAssert((MAX_INT / 1000) > iValue);
+ 								iValue *= 1000;
+@@ -3302,9 +3313,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 			if (NO_BUILDING != eLoopBuilding)
+ 			{
+-				CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding);
+-
+-				if (kBuilding.isCapital())
++				if (GC.getBuildingInfo(eLoopBuilding).isCapital())
+ 				{
+ 					if (canConstruct(eLoopBuilding))
+ 					{
+@@ -3332,6 +3341,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 			if ((eLoopBuilding != NO_BUILDING) && (getNumBuilding(eLoopBuilding) < GC.getCITY_MAX_NUM_BUILDINGS())
+ 			&&  (!isProductionAutomated() || !(isWorldWonderClass((BuildingClassTypes)iI) || isNationalWonderClass((BuildingClassTypes)iI))))
+ 			{
++				const CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding); // K-Mod
++
+ 				//don't build wonders?
+ 				// BBAI TODO: Temp testing, remove once centralized building is working
+ 				bool bWonderOk = false;
+@@ -3342,27 +3353,39 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 				if (bWonderOk || !isLimitedWonderClass((BuildingClassTypes)iI))
+ 				{
+-					if ((eIgnoreAdvisor == NO_ADVISOR) || (GC.getBuildingInfo(eLoopBuilding).getAdvisorType() != eIgnoreAdvisor))
++					if ((eIgnoreAdvisor == NO_ADVISOR) || (kBuilding.getAdvisorType() != eIgnoreAdvisor))
+ 					{
+ 						if (canConstruct(eLoopBuilding))
+ 						{
+ 							//iValue = AI_buildingValueThreshold(eLoopBuilding, iFocusFlags, iMinThreshold);
+ 							int iValue = AI_buildingValue(eLoopBuilding, iFocusFlags, iMinThreshold, bAsync); // K-Mod
+ 
+-							if (GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass() != NO_BUILDINGCLASS)
++							/* original bts code
++							if (kBuilding.getFreeBuildingClass() != NO_BUILDINGCLASS)
+ 							{
+-								BuildingTypes eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass());
++								BuildingTypes eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(kBuilding.getFreeBuildingClass());
+ 								if (NO_BUILDING != eFreeBuilding)
+ 								{
+-									//iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags) * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass())));
+-									iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags, 0, bAsync) * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass())));
++									//iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags) * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)kBuilding.getFreeBuildingClass())));
++									iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags, 0, bAsync) * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)kBuilding.getFreeBuildingClass())));
+ 								}
+-							}
++							} */ // Moved into AI_buildingValue
++
++							// K-Mod
++							TechTypes eObsoleteTech = (TechTypes)kBuilding.getObsoleteTech();
++							TechTypes eSpObsoleteTech = kBuilding.getSpecialBuildingType() == NO_SPECIALBUILDING
++								? NO_TECH
++								: (TechTypes)GC.getSpecialBuildingInfo((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType())).getObsoleteTech();
++
++							if ((eObsoleteTech != NO_TECH && kOwner.getCurrentResearch() == eObsoleteTech) || (eSpObsoleteTech != NO_TECH && kOwner.getCurrentResearch() == eSpObsoleteTech))
++								iValue /= 2;
++							// K-Moe end
++
+ 							if (isProductionAutomated())
+ 							{
+ 								for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+ 								{
+-									if (GC.getBuildingInfo(eLoopBuilding).getPrereqNumOfBuildingClass(iJ) > 0)
++									if (kBuilding.getPrereqNumOfBuildingClass(iJ) > 0)
+ 									{
+ 										iValue = 0;
+ 										break;
+@@ -3385,7 +3408,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 										// We're not out of the woods yet. Check for prereq buildings.
+ 										for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+ 										{
+-											if (GC.getBuildingInfo(eLoopBuilding).getPrereqNumOfBuildingClass(iJ) > 0)
++											if (kBuilding.getPrereqNumOfBuildingClass(iJ) > 0)
+ 											{
+ 												// I wish this was easier to calculate...
+ 												int iBuilt = kOwner.getBuildingClassCount((BuildingClassTypes)iI);
+@@ -3528,7 +3551,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const
+ // XXX should some of these count cities, buildings, etc. based on teams (because wonders are shared...)
+ // XXX in general, this function needs to be more sensitive to what makes this city unique (more likely to build airports if there already is a harbor...)
+ // This function has been heavily edited for K-Mod
+-int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache) const
++int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache, bool bAllowRecursion) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3549,8 +3572,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 		return m_aiConstructionValue[eBuildingClass];
+ 	}
+ 
+-	int iCountMaking = kOwner.getBuildingClassMaking(eBuildingClass); // K-Mod
+-
+ 	ReligionTypes eStateReligion = kOwner.getStateReligion();
+ 
+ 	bool bAreaAlone = kOwner.AI_isAreaAlone(area());
+@@ -3627,6 +3648,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 	int iValue = 0;
+ 
++	// K-Mod (moved from AI_bestBuildingThreshold)
++	if (kBuilding.getFreeBuildingClass() != NO_BUILDINGCLASS && bAllowRecursion)
++	{
++		BuildingTypes eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(kBuilding.getFreeBuildingClass());
++		if (NO_BUILDING != eFreeBuilding)
++		{
++			iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags, 0, bConstCache, false) * (kOwner.getNumCities() - kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)kBuilding.getFreeBuildingClass())));
++		}
++	}
++	// K-Mod end
++
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{
+ 		if ((iFocusFlags == 0) || (iValue > 0) || (iPass == 0))
+@@ -4442,82 +4474,63 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				}
+ 				
+ 				// is this building needed to build other buildings?
+-				// for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+-				// K-Mod, loop through building classes, not buildings.
+-				// Otherwise we'll be considering a bunch of buildings that we can't have anyway.
+-				for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+-				{
+-					BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings((BuildingClassTypes)iI); // K-Mod
+-					if (eLoopBuilding == NO_BUILDING)
+-						continue;
+ 
+-					//int iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(((BuildingTypes) iI), eBuildingClass);
+-					// K-Mod
+-					int iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eLoopBuilding, eBuildingClass, iCountMaking);
++				// K-Mod
++				// (I've deleted the original code for this section.)
++				if (bAllowRecursion)
++				{
++					int iCountMaking = -1; // we'll count it when it is first needed.
+ 
+-					// if we need some of us to build iI building, and we dont need more than we have cities
+-					if (iPrereqBuildings > 0 && iPrereqBuildings <= iNumCities)
++					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 					{
+-						// do we need more than what we are currently building?
+-						//if (iPrereqBuildings > kOwner.getBuildingClassCountPlusMaking(eBuildingClass))
+-						// K-Mod
+-						iPrereqBuildings -= kOwner.getBuildingClassCountPlusMaking(eBuildingClass);
+-						if (iPrereqBuildings > 0)
+-						{
+-							/* original bts code
+-							iValue += (iNumCities * 3);
++						BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings((BuildingClassTypes)iI); // K-Mod
++						if (eLoopBuilding == NO_BUILDING)
++							continue;
+ 
+-							if (bCulturalVictory1)
+-							{
+-								BuildingTypes eLoopBuilding = (BuildingTypes) iI;
+-								CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+-								int iLoopBuildingCultureModifier = kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE);
+-								if (iLoopBuildingCultureModifier > 0)
+-								{
+-									int iLoopBuildingsBuilt = kOwner.getBuildingClassCount((BuildingClassTypes) kLoopBuilding.getBuildingClassType());
++						if (GC.getBuildingInfo(eLoopBuilding).getPrereqNumOfBuildingClass(eBuildingClass) <= 0)
++							continue;
+ 
+-									// if we have less than the number needed in culture cities
+-									//		OR we are one of the top cities and we do not have the building
+-									if (iLoopBuildingsBuilt < iCulturalVictoryNumCultureCities || 
+-										(iCultureRank <= iCulturalVictoryNumCultureCities && 0 == getNumBuilding(eLoopBuilding)))
+-									{
+-										iValue += iLoopBuildingCultureModifier;
++						if (iCountMaking < 0)
++							iCountMaking = kOwner.getBuildingClassMaking(eBuildingClass);
+ 
+-										if (bCulturalVictory3)
+-										{
+-											iValue += iLoopBuildingCultureModifier * 2;
+-										}
+-									}
+-								}
+-							}*/
+-
+-							// K-Mod, lets do it the long and slow way...
+-							CvCity* pLoopCity;
+-							int iLoop;
+-							int iHighestValue = 0;
+-							int iCanBuildPrereq = 0;
+-							for (pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
+-							{
+-								if (canConstruct(eBuilding) && getProductionBuilding() != eBuilding)
+-									iCanBuildPrereq++;
+-							}
+-							if (iCanBuildPrereq >= iPrereqBuildings)
++						int iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eLoopBuilding, eBuildingClass, iCountMaking);
++
++						// if we need some of us to build iI building, and we dont need more than we have cities
++						if (iPrereqBuildings > 0 && iPrereqBuildings <= iNumCities)
++						{
++							// do we need more than what we are currently building?
++							iPrereqBuildings -= kOwner.getBuildingClassCountPlusMaking(eBuildingClass);
++							if (iPrereqBuildings > 0)
+ 							{
++								// K-Mod, lets do it the long and slow way...
++								CvCity* pLoopCity;
++								int iLoop;
++								int iHighestValue = 0;
++								int iCanBuildPrereq = 0;
+ 								for (pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
+ 								{
+-									if (canConstruct(eLoopBuilding, false, true) && getProductionBuilding() != eLoopBuilding)
+-										iHighestValue = std::max(pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache), iHighestValue);
++									if (canConstruct(eBuilding) && getProductionBuilding() != eBuilding)
++										iCanBuildPrereq++;
+ 								}
++								if (iCanBuildPrereq >= iPrereqBuildings)
++								{
++									for (pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
++									{
++										if (canConstruct(eLoopBuilding, false, true) && getProductionBuilding() != eLoopBuilding)
++											iHighestValue = std::max(pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache, false), iHighestValue);
++									}
+ 
+-								int iTempValue = iHighestValue;
+-								iTempValue *= iCanBuildPrereq + 3*iPrereqBuildings;
+-								iTempValue /= (iPrereqBuildings+1)*(3*iCanBuildPrereq + iPrereqBuildings);
+-								// That's between 1/(iPrereqBuildings+1) and 1/3*(iPrereqBuildings+1), depending on # needed and # buildable
+-								iValue += iTempValue;
++									int iTempValue = iHighestValue;
++									iTempValue *= iCanBuildPrereq + 3*iPrereqBuildings;
++									iTempValue /= (iPrereqBuildings+1)*(3*iCanBuildPrereq + iPrereqBuildings);
++									// That's between 1/(iPrereqBuildings+1) and 1/3*(iPrereqBuildings+1), depending on # needed and # buildable
++									iValue += iTempValue;
++								}
+ 							}
+ 						}
+ 					}
+ 				}
++				// K-Mod end (prereqs)
+ 				
+ 				for (int iI = 0; iI < GC.getNumVoteSourceInfos(); ++iI)
+ 				{
+@@ -5368,6 +5381,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			}
+ 		}
+ 	}
++
+ //	
+ //	// obsolete checks
+ //	bool bCanResearchObsoleteTech = false;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 30d0cd80b..e050bc070 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -41,7 +41,7 @@ public:
+ 	
+ 	/* int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0) const;
+ 	int AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0) const; */
+-	int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0, bool bConstCache = false) const;
++	int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0, bool bConstCache = false, bool bAllowRecursion = true) const;
+ 
+ 	ProjectTypes AI_bestProject();
+ 	int AI_projectValue(ProjectTypes eProject);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3a0a31c7d..76ec2e654 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15117,7 +15117,7 @@ void CvPlayerAI::AI_doCommerce()
+ 					}
+ 				}
+ 
+-				iRateDivisor += 4*iAttitude/(5*iTargetTurns);
++				iRateDivisor += 4*std::max(-4, iAttitude)/(5*iTargetTurns);
+ 				iRateDivisor += AI_totalUnitAIs(UNITAI_SPY) == 0 ? 4 : 0;
+ 				aiWeight[iTeam] -= (iAttitude/3);
+ 				if (GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+@@ -15193,8 +15193,8 @@ void CvPlayerAI::AI_doCommerce()
+ 					int iTheirTotal = std::max(4, kLoopTeam.getEspionagePointsEver());
+ 
+ 					iTheirEspPoints *= (3*iOurTotal + iTheirTotal);
+-					iTheirEspPoints /= (2*iOurTotal + 3*iTheirTotal);
+-					// That's a factor between 3/2 and 1/3, centered at 4/5
++					iTheirEspPoints /= (2*iOurTotal + 4*iTheirTotal);
++					// That's a factor between 3/2 and 1/4, centered at 4/6
+ 					iDesiredMissionPoints = std::max(iTheirEspPoints, iDesiredMissionPoints);
+ 				}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f21f78ef2..5308803fc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3479,7 +3479,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			int iPathTurns;
+ 			if (!generatePath(pTargetCity->plot(), iMoveFlags, true, &iPathTurns))
+ 			{
+-				FAssertMsg(false, "failed to find path to target city.");
++				//FAssertMsg(false, "failed to find path to target city."); // AI_pickTargetCity now allows boat-only paths, so this assertion no longer holds.
+ 				iPathTurns = 100;
+ 			}
+ 			if (!pTargetCity->isBarbarian() || iPathTurns < (bAnyWarPlan ? 7 : 12)) // don't bother with long-distance barb attacks
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=17118

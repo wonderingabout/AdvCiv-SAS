@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5879
+# Commit: fee7a8170b7691567d3142db9e03980c0cc02717
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 230e455497b304ffa137ce5de1a28d86e8bc36fd
+# Title: fix ruff E703 (Remove unnecessary semicolons)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	LLM_Helpers/singleline_pass3_comments_and_long.py
+1	1	PrivateMaps/PerfectMongoose.py
+1	1	PrivateMaps/Tectonics.py
+
+[PATCHES]
+
+diff --git a/LLM_Helpers/singleline_pass3_comments_and_long.py b/LLM_Helpers/singleline_pass3_comments_and_long.py
+index 56cf3316b..648fdd89c 100644
+--- a/LLM_Helpers/singleline_pass3_comments_and_long.py
++++ b/LLM_Helpers/singleline_pass3_comments_and_long.py
+@@ -15,7 +15,7 @@ Adds two conservative behaviors on top of the previous passes:
+   bracket-continuation code comments. Normal prose comments are left alone.
+ 
+ Verification:
+-- significant real-code token sequence is unchanged;
++- significant real-code token sequence is unchanged
+ - output compiles under Python 3's parser for this file.
+ """
+ from __future__ import print_function
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 180fb1b24..463d6c7a2 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -6617,7 +6617,7 @@ def addLakes():
+ 		for x in range(mc.width):
+ 			i = GetIndex(x, y)
+ 			makeHarbor(x, y, oceanMap)
+-	mmap.recalculateAreas(); # advc.opt: No longer done in makeChannel
++	mmap.recalculateAreas() # advc.opt: No longer done in makeChannel
+ 
+ def addFeatures():
+ 	print("========================")
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index ae9bb7976..09c3e1fe4 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -1814,7 +1814,7 @@ def findStartingPlot(argsList):
+ 						players = 2
+ 				value = areaValue[area.getID()] / (1 + 2*players )
+ 				if (value > bestAreaValue):
+-					bestAreaValue = value;
++					bestAreaValue = value
+ 					bestArea = area.getID()
+ 			def isValid(playerID, x, y):
+ 				global bestArea
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1607

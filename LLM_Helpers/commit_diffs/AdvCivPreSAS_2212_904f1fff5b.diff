@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2212
+# Commit: 904f1fff5be0be2efe5d18e803d57bd63c2acdc0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 43a8f70974a1010e427822b3b4be2ebb2c46fd26
+# Title: Fix an AdvCiv issue with negative turns to research
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	CvGameCoreDLL/CvGameTextMgr.cpp
+4	0	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d62624e92..6b38ef4db 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8958,11 +8958,13 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 			szBuffer.append(NEWLINE);
+ 			// <advc.004x>
+ 			bool bShowTurns = GET_PLAYER(eActivePlayer).isResearch();
++			int iTurnsLeft = (bShowTurns ? GET_PLAYER(eActivePlayer).
++					getResearchTurnsLeft(eTech, GC.ctrlKey() || !GC.shiftKey()) : -1);
++			if (iTurnsLeft < 0)
++				bShowTurns = false;
+ 			if(bShowTurns)
+ 			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_TECH_NUM_TURNS",
+-						GET_PLAYER(eActivePlayer).getResearchTurnsLeft(eTech,
+-						GC.ctrlKey() || !GC.shiftKey())));
++				szBuffer.append(gDLL->getText("TXT_KEY_TECH_NUM_TURNS", iTurnsLeft));
+ 				szBuffer.append(L' '); // advc.004x: Append this separately
+ 			} // </advc.004x>
+ 			szTempBuffer.Format(L"%s%d/%d %c%s",
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 71da5ae6d..6bb50a02d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6828,6 +6828,10 @@ int CvPlayer::getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) cons
+ 	int iResearchLeft = GET_TEAM(getTeam()).getResearchLeft(eTech);
+ 	if(bOverflow)
+ 		iResearchLeft -= iOverflow;
++	// <advc.004>
++	if (iResearchLeft <= 0)
++		return 1; // 1/100. getResearchTurnsLeft will round that up.
++	// </advc.004x>
+ 	iResearchLeft *= 100;
+ 	if(iResearchRate <= 0)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1542

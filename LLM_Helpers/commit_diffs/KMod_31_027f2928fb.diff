@@ -1,0 +1,283 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 31
+# Commit: 027f2928fb96b7d6e34b2e9892491d85b4945895
+# History segment: K-Mod history
+# Parent used for diff: d0a44eb13274c29a63b465d96bc7b8f47d641d8f
+# Title: Tweaked the AI: for technology choice, improvement bonuses are worth more and free tech is worth more; for city placement, grassland hills and lakeside is wo...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	Assets/xml/buildings/CIV4BuildingInfos.xml
+9	2	CvGameCoreDLL/CvCityAI.cpp
+8	5	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+18	5	CvGameCoreDLL/CvPlayerAI.cpp
+5	2	changelog.txt
+
+[PATCHES]
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/xml/buildings/CIV4BuildingInfos.xml
+index 3c07822af..f4bb1ecba 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/xml/buildings/CIV4BuildingInfos.xml
+@@ -13927,7 +13927,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14645,7 +14645,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -15363,7 +15363,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16081,7 +16081,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16799,7 +16799,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17517,7 +17517,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -18235,7 +18235,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>300</iCost>
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index bd1637fbc..f5a2af4c6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7255,7 +7255,8 @@ void CvCityAI::AI_updateBestBuild()
+ 		iFoodMultiplier += 10 * (2 - iBonusFoodDiff);
+ 	}
+ 	
+-	int iExtraFoodForGrowth = (std::max(0, iTargetSize - getPopulation()) + 3) / 4;
++	// int iExtraFoodForGrowth = (std::max(0, iTargetSize - getPopulation()) + 3) / 4;
++	int iExtraFoodForGrowth = (std::max(0, iTargetSize - getPopulation() + 3)) / 4; // K-Mod!!
+ 	if (getPopulation() < iTargetSize)
+ 	{
+ 		iExtraFoodForGrowth ++;
+@@ -11486,9 +11487,15 @@ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ 	
+ 	if (eYield == YIELD_COMMERCE)
+ 	{
++		/* original code
+ 		iMultiplier += (getCommerceRateModifier(COMMERCE_RESEARCH) * 60) / 100;
+ 		iMultiplier += (getCommerceRateModifier(COMMERCE_GOLD) * 35) / 100;
+-		iMultiplier += (getCommerceRateModifier(COMMERCE_CULTURE) * 15) / 100;
++		iMultiplier += (getCommerceRateModifier(COMMERCE_CULTURE) * 15) / 100; */
++		// K-Mod
++		// this breakdown seems wrong... but I'm not bold enough to change it yet.
++		iMultiplier += (getCommerceRateModifier(COMMERCE_RESEARCH) * 60 + 
++			getCommerceRateModifier(COMMERCE_GOLD) * 35 +
++			getCommerceRateModifier(COMMERCE_CULTURE) * 15) / 100;
+ 	}
+ 	
+ 	return iMultiplier;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e97ec48b9..855718b32 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5581,7 +5581,8 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 		{
+ 			if (GC.getTechInfo((TechTypes) iI).isGoodyTech())
+ 			{
+-				if (canResearch((TechTypes)iI))
++				//if (canResearch((TechTypes)iI))
++				if (canResearch((TechTypes)iI, false, true)) // K-Mod
+ 				{
+ 					bTechFound = true;
+ 					break;
+@@ -5776,7 +5777,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 		{
+ 			if (GC.getTechInfo((TechTypes) iI).isGoodyTech())
+ 			{
+-				if (canResearch((TechTypes)iI))
++				//if (canResearch((TechTypes)iI))
++				if (canResearch((TechTypes)iI, false, true)) // K-Mod
+ 				{
+ 					iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "Goody Tech"));
+ 
+@@ -7720,7 +7722,7 @@ bool CvPlayer::canEverResearch(TechTypes eTech) const
+ }
+ 
+ 
+-bool CvPlayer::canResearch(TechTypes eTech, bool bTrade) const
++bool CvPlayer::canResearch(TechTypes eTech, bool bTrade, bool bFree) const
+ {
+ 	bool bFoundPossible;
+ 	bool bFoundValid;
+@@ -7740,7 +7742,7 @@ bool CvPlayer::canResearch(TechTypes eTech, bool bTrade) const
+ 		}
+ 	}
+ 
+-	if (!isResearch() && getAdvancedStartPoints() < 0)
++	if (!isResearch() && !bFree && getAdvancedStartPoints() < 0)
+ 	{
+ 		return false;
+ 	}
+@@ -21744,7 +21746,8 @@ bool CvPlayer::canStealTech(PlayerTypes eTarget, TechTypes eTech) const
+ {
+ 	if (GET_TEAM(GET_PLAYER(eTarget).getTeam()).isHasTech(eTech))
+ 	{
+-		if (canResearch(eTech))
++		//if (canResearch(eTech))
++		if (canResearch(eTech, false, true)) // K-Mod
+ 		{
+ 			return true;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 159cc6922..caf3c6c92 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -286,7 +286,8 @@ public:
+ 
+ 	bool isResearch() const;																																							// Exposed to Python
+ 	DllExport bool canEverResearch(TechTypes eTech) const;																								// Exposed to Python
+-	DllExport bool canResearch(TechTypes eTech, bool bTrade = false) const;																// Exposed to Python
++	// K-Mod, added "bFree" argument
++	DllExport bool canResearch(TechTypes eTech, bool bTrade = false, bool bFree = false) const;																// Exposed to Python
+ 	DllExport TechTypes getCurrentResearch() const;																												// Exposed to Python
+ 	bool isCurrentResearchRepeat() const;																																	// Exposed to Python
+ 	bool isNoResearchAvailable() const;																																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 47867256c..d65eceeea 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2917,7 +2917,11 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 
+ 	if (pPlot->isHills())
+ 	{
+-		iValue += 200;
++		// iValue += 200;
++		// K-Mod
++		iValue += 100;
++		if (pPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM, true) > 1)
++			iValue += 100;
+ 	}
+ 
+ 	if (pPlot->isRiver())
+@@ -2927,7 +2931,9 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ /*                                                                                              */
+ /* Settler AI                                                                                   */
+ /************************************************************************************************/
+-		iValue += 60;
++		//iValue += 60;
++		// K-Mod
++		iValue += 100;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -2935,7 +2941,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 
+ 	if (pPlot->isFreshWater())
+ 	{
+-		iValue += 40;
++		// iValue += 40; // K-Mod (commented this out)
+ 		iValue += (GC.getDefineINT("FRESH_WATER_HEALTH_CHANGE") * 30);
+ 	}
+ 
+@@ -4410,7 +4416,13 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 		{
+ 			iTempValue = 0;
+ 
+-			iTempValue += (GC.getImprovementInfo((ImprovementTypes)iJ).getTechYieldChanges(eTech, iK) * getImprovementCount((ImprovementTypes)iJ) * 50);
++			/* original code
++			iTempValue += (GC.getImprovementInfo((ImprovementTypes)iJ).getTechYieldChanges(eTech, iK) * getImprovementCount((ImprovementTypes)iJ) * 50); */
++			// Often, an improvment only becomes viable after it gets the tech bonus.
++			// So it's silly to score the bonus proportionally to how many of the improvements we already have.
++			iTempValue += (GC.getImprovementInfo((ImprovementTypes)iJ).getTechYieldChanges(eTech, iK)
++				* (getImprovementCount((ImprovementTypes)iJ)+getNumCities()) * 70);
++			// This new version is still bork, but at least it won't be worthless.
+ 
+ 			iTempValue *= AI_yieldWeight((YieldTypes)iK);
+ 			iTempValue /= 100;
+@@ -4584,6 +4596,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 					for (int iL = 0; iL < GC.getNumImprovementInfos(); iL++)
+ 					{
+ 						iTempValue += (GC.getImprovementInfo((ImprovementTypes)iL).getRouteYieldChanges(eRoute, iK) * 50);
++						// wtf? c.f. the improvement upgrade evaluation - which adds 50 for every improvement!
+ 					}
+ 
+ 					iTempValue *= AI_yieldWeight((YieldTypes)iK);
+@@ -4938,7 +4951,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 
+ 			//iValue += (GC.getTechInfo(eTech).getFirstFreeTechs() * (200 + ((bCapitalAlone) ? 400 : 0) + ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Free Tech ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Free Tech"))));
+ 			// K-Mod, 22/jan/11, karadoc: more ad-hoc adjustments... this stuff sucks so much.
+-			iValue += (GC.getTechInfo(eTech).getFirstFreeTechs() * (500 + ((bCapitalAlone) ? 400 : 0) + ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Free Tech ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Free Tech"))));
++			iValue += (GC.getTechInfo(eTech).getFirstFreeTechs() * (500 + ((bCapitalAlone) ? 400 : 0) + ((bAsync) ? GC.getASyncRand().get(6000, "AI Research Free Tech ASYNC") : GC.getGameINLINE().getSorenRandNum(6000, "AI Research Free Tech"))));
+ 		}
+ 	}
+
+diff --git a/changelog.txt b/changelog.txt
+index cddb41aed..78e7786b0 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -5,8 +5,11 @@ If you have any questions, comments, suggetsions, bug reports, etc. Post here: h
+ 
+ v0.94* changelist
+ 
+- + drafted units are now included in the stats screen's units-built tally.
+- + global warming can no longer turn desert (or anything else) into coast. [I don't think this feature made the game more fun, and there were a few minor problems with it.]
++ + Changed the game initialization to set the game handicap level to be the minimum of the human players' handicap levels. This is so that the AI does not default to "noble" in multiplayer games.
++ + Free technology bonuses from goody huts are now allowed without settling a city.
++ + Decreased production cost of cathedrals (etc) from 300 to 240.
++ + Drafted units are now included in the stats screen's units-built tally.
++ + Global warming can no longer turn desert (or anything else) into coast. [I don't think this feature made the game more fun, and there were a few minor problems with it.]
+  + Cottages and hamlets destroyed by the volcano will no longer leave city ruins.
+  + The volcano event now has a chance of increasing the food yield of adjacent tiles (in addition to the original effects); as part of this change, I also fixed the Pythong API so that calculateNatureYield() actually works. I see that the same bug exists in serveral other python functions, but I'll only fix it when I need the functions; also, getPlotExtraYield() is now available in python.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=11969

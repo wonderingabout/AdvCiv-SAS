@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3193
+# Commit: cad7831489046904574aa7af0a3e8c1876eb1d26
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 881638fb455b77247d99ce68be7e5cd62cc29711
+# Title: Make AI quicker to cancel trades with worst enemy
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 88276484c..6a304aa91 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19736,7 +19736,8 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
+ 			// <kekm.3> Cancel DP immediately when war no longer shared
+ 			(((pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+ 			eDenial == DENIAL_JOKING)) || // </kekm.3>
+-			fixp(0.2).bernoulliSuccess(GC.getGame().getSRand(), "deal cancellation")))
++			(eDenial == DENIAL_WORST_ENEMY ? 2 : 1 * fixp(0.2)).
++			bernoulliSuccess(GC.getGame().getSRand(), "deal cancellation")))
+ 		{
+ 			if (gDealCancelLogLevel > 1) logBBAICancel(kDeal, getID(), L"dual denial");
+ 			return DO_CANCEL;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=764

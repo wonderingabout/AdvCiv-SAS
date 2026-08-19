@@ -1,0 +1,3860 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1469
+# Commit: e3a91c0d51cabdd82af2b11671710ac91e5173e6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ee8fb7aa89e1f147dd53d114e7e5e32bb3acb65b
+# Title: Included headers revised
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+3	0	CvGameCoreDLL/ArmamentForecast.cpp
+1	5	CvGameCoreDLL/CvArea.cpp
+0	1	CvGameCoreDLL/CvArea.h
+0	1	CvGameCoreDLL/CvArtFileMgr.cpp
+3	3	CvGameCoreDLL/CvBugOptions.cpp
+5	22	CvGameCoreDLL/CvCity.cpp
+0	1	CvGameCoreDLL/CvCity.h
+4	18	CvGameCoreDLL/CvCityAI.cpp
+3	6	CvGameCoreDLL/CvDLLButtonPopup.cpp
+2	1	CvGameCoreDLL/CvDLLButtonPopup.h
+0	2	CvGameCoreDLL/CvDLLEngineIFaceBase.h
+0	1	CvGameCoreDLL/CvDLLEntity.cpp
+0	2	CvGameCoreDLL/CvDLLEntity.h
+0	1	CvGameCoreDLL/CvDLLEntityIFaceBase.h
+2	0	CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+1	1	CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+2	2	CvGameCoreDLL/CvDLLPythonIFaceBase.h
+1	1	CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+1	1	CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+7	12	CvGameCoreDLL/CvDLLWidgetData.cpp
+0	1	CvGameCoreDLL/CvDLLWidgetData.h
+2	4	CvGameCoreDLL/CvDeal.cpp
+2	1	CvGameCoreDLL/CvDeal.h
+4	0	CvGameCoreDLL/CvDiploParameters.cpp
+0	1	CvGameCoreDLL/CvDiploParameters.h
+8	2	CvGameCoreDLL/CvDllPythonEvents.cpp
+3	0	CvGameCoreDLL/CvDllTranslator.cpp
+2	0	CvGameCoreDLL/CvEventReporter.cpp
+1	0	CvGameCoreDLL/CvEventReporter.h
+0	3	CvGameCoreDLL/CvFractal.cpp
+22	10	CvGameCoreDLL/CvGame.cpp
+5	2	CvGameCoreDLL/CvGame.h
+0	1	CvGameCoreDLL/CvGameAI.cpp
+0	5	CvGameCoreDLL/CvGameCoreDLL.cpp
+17	22	CvGameCoreDLL/CvGameCoreDLL.h
+17	17	CvGameCoreDLL/CvGameCoreUtils.cpp
+11	182	CvGameCoreDLL/CvGameCoreUtils.h
+7	3	CvGameCoreDLL/CvGameInterface.cpp
+12	14	CvGameCoreDLL/CvGameTextMgr.cpp
+0	1	CvGameCoreDLL/CvGameTextMgr.h
+4	6	CvGameCoreDLL/CvGlobals.cpp
+0	1	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvHallOfFameInfo.cpp
+0	1	CvGameCoreDLL/CvInfoWater.cpp
+24	16	CvGameCoreDLL/CvInfos.cpp
+14	1	CvGameCoreDLL/CvInfos.h
+2	3	CvGameCoreDLL/CvInitCore.cpp
+1	19	CvGameCoreDLL/CvInitCore.h
+4	11	CvGameCoreDLL/CvMap.cpp
+188	27	CvGameCoreDLL/CvMap.h
+2	8	CvGameCoreDLL/CvMapGenerator.cpp
+0	2	CvGameCoreDLL/CvMapGenerator.h
+1	0	CvGameCoreDLL/CvMessageControl.cpp
+5	1	CvGameCoreDLL/CvMessageData.cpp
+12	19	CvGameCoreDLL/CvPlayer.cpp
+24	33	CvGameCoreDLL/CvPlayerAI.cpp
+15	29	CvGameCoreDLL/CvPlot.cpp
+0	1	CvGameCoreDLL/CvPlot.h
+0	3	CvGameCoreDLL/CvPlotGroup.cpp
+0	1	CvGameCoreDLL/CvPlotGroup.h
+0	2	CvGameCoreDLL/CvPopupInfo.h
+1	1	CvGameCoreDLL/CvRandom.cpp
+3	3	CvGameCoreDLL/CvReplayInfo.cpp
+8	13	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvSelectionGroup.h
+1	5	CvGameCoreDLL/CvSelectionGroupAI.cpp
+0	1	CvGameCoreDLL/CvStatistics.cpp
+0	2	CvGameCoreDLL/CvStatistics.h
+1	1	CvGameCoreDLL/CvStructs.cpp
+0	1	CvGameCoreDLL/CvStructs.h
+1	1	CvGameCoreDLL/CvTalkingHeadMessage.cpp
+6	18	CvGameCoreDLL/CvTeam.cpp
+0	2	CvGameCoreDLL/CvTeam.h
+15	9	CvGameCoreDLL/CvTeamAI.cpp
+4	5	CvGameCoreDLL/CvTeamAI.h
+9	24	CvGameCoreDLL/CvUnit.cpp
+0	2	CvGameCoreDLL/CvUnit.h
+9	25	CvGameCoreDLL/CvUnitAI.cpp
+0	2	CvGameCoreDLL/CvXMLLoadUtility.cpp
+0	1	CvGameCoreDLL/CvXMLLoadUtility.h
+0	2	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+0	2	CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+1	4	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+0	1	CvGameCoreDLL/CyCity.cpp
+0	1	CvGameCoreDLL/CyCity.h
+0	3	CvGameCoreDLL/CyDeal.h
+0	1	CvGameCoreDLL/CyGame.cpp
+0	2	CvGameCoreDLL/CyGame.h
+5	2	CvGameCoreDLL/CyGameCoreUtils.cpp
+0	1	CvGameCoreDLL/CyGameInterface.cpp
+3	4	CvGameCoreDLL/CyGlobalContext.cpp
+0	2	CvGameCoreDLL/CyGlobalContextInterface1.cpp
+0	2	CvGameCoreDLL/CyGlobalContextInterface2.cpp
+0	2	CvGameCoreDLL/CyGlobalContextInterface3.cpp
+0	2	CvGameCoreDLL/CyGlobalContextInterface4.cpp
+1	2	CvGameCoreDLL/CyMap.cpp
+0	1	CvGameCoreDLL/CyMap.h
+1	2	CvGameCoreDLL/CyMapGenerator.cpp
+0	1	CvGameCoreDLL/CyMapInterface.cpp
+1	4	CvGameCoreDLL/CyPlayer.cpp
+0	3	CvGameCoreDLL/CyPlayer.h
+0	2	CvGameCoreDLL/CyPlot.h
+0	1	CvGameCoreDLL/CyRandomInterface.cpp
+0	1	CvGameCoreDLL/CySelectionGroup.cpp
+0	2	CvGameCoreDLL/CySelectionGroup.h
+0	1	CvGameCoreDLL/CySelectionGroupInterface.cpp
+0	1	CvGameCoreDLL/CyStructsInterface1.cpp
+1	1	CvGameCoreDLL/CyTeam.cpp
+1	1	CvGameCoreDLL/CyTeam.h
+0	1	CvGameCoreDLL/CyUnit.cpp
+0	3	CvGameCoreDLL/CyUnit.h
+4	3	CvGameCoreDLL/InvasionGraph.cpp
+5	2	CvGameCoreDLL/KmodPathFinder.cpp
+2	0	CvGameCoreDLL/KmodPathFinder.h
+3	2	CvGameCoreDLL/MilitaryAnalyst.cpp
+4	2	CvGameCoreDLL/MilitaryBranch.cpp
+1	1	CvGameCoreDLL/Project/AdvCiv.vcxproj
+3	0	CvGameCoreDLL/RFChapter.cpp
+4	1	CvGameCoreDLL/RFChapterScore.cpp
+0	2	CvGameCoreDLL/RFChapterScore.h
+4	1	CvGameCoreDLL/RFTotalScore.cpp
+7	3	CvGameCoreDLL/RiseFall.cpp
+2	1	CvGameCoreDLL/RiseFall.h
+5	1	CvGameCoreDLL/Shelf.cpp
+4	5	CvGameCoreDLL/StartPointsAsHandicap.cpp
+0	3	CvGameCoreDLL/StartPointsAsHandicap.h
+2	0	CvGameCoreDLL/WarAndPeaceAI.cpp
+4	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+3	1	CvGameCoreDLL/WarAndPeaceReport.cpp
+2	0	CvGameCoreDLL/WarEvalParameters.cpp
+1	0	CvGameCoreDLL/WarEvaluator.cpp
+5	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 9103670ca..4a7b1112a 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -2,8 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "AdvCiv4lerts.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+-
+ #include <iterator>
+ 
+ using std::set;
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index b60b1a68d..b8d22307a 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -2,6 +2,9 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "ArmamentForecast.h"
++#include "CvGameAI.h"
++#include "CvTeamAI.h"
++#include "CvMap.h"
+ #include <sstream>
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 615f35bae..da6e3ef3d 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -1,15 +1,11 @@
+ // area.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvArea.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvGlobals.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvInfos.h"
+-
+ #include "CvDLLInterfaceIFaceBase.h"
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 0d61395f2..25d87044c 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -5,7 +5,6 @@
+ #ifndef CIV4_AREA_H
+ #define CIV4_AREA_H
+ 
+-//#include "CvStructs.h"
+ 
+ class CvCity;
+ class CvPlot;
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index 099b78729..8b324af4a 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -14,7 +14,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvArtFileMgr.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvGlobals.h"
+ #include "CvInfos.h"
+ #include "CvDLLUtilityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvBugOptions.cpp b/CvGameCoreDLL/CvBugOptions.cpp
+index 23bf2cb3b..890ebc36d 100644
+--- a/CvGameCoreDLL/CvBugOptions.cpp
++++ b/CvGameCoreDLL/CvBugOptions.cpp
+@@ -11,11 +11,11 @@ Created:	2009-01-21
+ // This file has been edited for K-Mod
+ 
+ #include "CvGameCoreDLL.h"
++#include "CvBugOptions.h"
++#include "CvGameAI.h"
+ #include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "FVariableSystem.h"
+-
+-#include "CvBugOptions.h"
++#include "CvDLLPythonIFaceBase.h"
+ 
+ bool getDefineBOOL(const char* xmlKey, bool bDefault)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 425427449..2e36e63fd 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1,44 +1,27 @@
+ // city.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvGlobals.h"
+ #include "CvCity.h"
+-#include "CvArea.h"
+-#include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvTeamAI.h"
+-#include "CvGameCoreUtils.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CvUnit.h"
+ #include "CvInfos.h"
+-#include "CvRandom.h"
+ #include "CvArtFileMgr.h"
+ #include "CvPopupInfo.h"
+ #include "CyCity.h"
+ #include "CyArgsList.h"
+-#include "FProfiler.h"
+ #include "CvGameTextMgr.h"
++#include "CvEventReporter.h"
+ #include "CvBugOptions.h" // advc.060
+ #include "CvInitCore.h" // advc.001: Needed for bugfix in getCityBillboardSizeIconColors
+-
+-// interfaces used
++#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+-#include "CvEventReporter.h"
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+-// Public Functions...
+ 
+ CvCity::CvCity()
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 59bd39f2f..fe6020fdb 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -6,7 +6,6 @@
+ #define CIV4_CITY_H
+ 
+ #include "CvDLLEntity.h"
+-#include "LinkedList.h"
+ 
+ class CvPlot;
+ class CvPlotGroup;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c9ff94cbe..650cea80d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1,34 +1,21 @@
+ // cityAI.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvGlobals.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvCityAI.h"
+-#include "CvPlot.h"
+-#include "CvArea.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CyCity.h"
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
+-#include "FProfiler.h"
++#include "CvStatistics.h" // advc.310
++#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+ 
+-// advc.310
+-#include "CvStatistics.h"
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ #define BUILDINGFOCUS_FOOD					(1 << 1)
+ #define BUILDINGFOCUS_PRODUCTION			(1 << 2)
+@@ -49,7 +36,6 @@
+ #define BUILDINGFOCUS_WONDEROK				(1 << 16)
+ #define BUILDINGFOCUS_CAPITAL				(1 << 17)
+ 
+-// Public Functions...
+ 
+ CvCityAI::CvCityAI()
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 556cd5d5e..22a40535e 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2,11 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLButtonPopup.h"
+-#include "CvGlobals.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+ #include "CvArtFileMgr.h"
+ #include "CyCity.h"
+ #include "CyArgsList.h"
+@@ -14,15 +13,13 @@
+ #include "CvInfos.h"
+ #include "CvInitCore.h"
+ #include "CvGameTextMgr.h"
++#include "CvEventReporter.h"
++#include "CvMessageControl.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvDLLEngineIFaceBase.h"
+-#include "CvEventReporter.h"
+-#include "CvMessageControl.h"
+ 
+-// Public Functions...
+ 
+ #define PASSWORD_DEFAULT (L"*****")
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.h b/CvGameCoreDLL/CvDLLButtonPopup.h
+index 610934887..6f46c4211 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.h
++++ b/CvGameCoreDLL/CvDLLButtonPopup.h
+@@ -5,10 +5,11 @@
+ #ifndef CIV4_DLL_BUTTON_POPUP_H
+ #define CIV4_DLL_BUTTON_POPUP_H
+ 
+-//#include "CvEnums.h"
++
+ #include "CvPopupInfo.h"
+ #include "CvPopupReturn.h"
+ 
++
+ class CvPopup;
+ class CvDLLButtonPopup
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLEngineIFaceBase.h b/CvGameCoreDLL/CvDLLEngineIFaceBase.h
+index d71e667a3..47eb4b29d 100644
+--- a/CvGameCoreDLL/CvDLLEngineIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEngineIFaceBase.h
+@@ -3,8 +3,6 @@
+ #ifndef CvDLLEngineIFaceBase_h
+ #define CvDLLEngineIFaceBase_h
+ 
+-//#include "CvEnums.h"
+-//#include "CvStructs.h"
+ 
+ //
+ // abstract interface for CvEngine functions used by DLL
+
+diff --git a/CvGameCoreDLL/CvDLLEntity.cpp b/CvGameCoreDLL/CvDLLEntity.cpp
+index faf8afa57..4a5f94e3e 100644
+--- a/CvGameCoreDLL/CvDLLEntity.cpp
++++ b/CvGameCoreDLL/CvDLLEntity.cpp
+@@ -1,7 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLEntity.h"
+ #include "CvDLLEntityIFaceBase.h"
+-#include "CvGlobals.h"
+ 
+ CvDLLEntity::CvDLLEntity() : m_pEntity(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLEntity.h b/CvGameCoreDLL/CvDLLEntity.h
+index 9fe0a3442..5a7c0f432 100644
+--- a/CvGameCoreDLL/CvDLLEntity.h
++++ b/CvGameCoreDLL/CvDLLEntity.h
+@@ -13,8 +13,6 @@
+ // 3. Add a wrapper function (for convenience) to this file and implement it in the corresponding cpp
+ //
+ 
+-//#include "CvEnums.h"
+-
+ class CvCityEntity;
+ class CvEntity;
+ class CvUnitEntity;
+
+diff --git a/CvGameCoreDLL/CvDLLEntityIFaceBase.h b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+index fbf921db9..92dbd5628 100644
+--- a/CvGameCoreDLL/CvDLLEntityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+@@ -5,7 +5,6 @@
+ 
+ #pragma warning(disable:4100) 
+ 
+-//#include "CvEnums.h"
+ 
+ //
+ // abstract class containing entity-related functions that the DLL needs
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp b/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+index 8b25ebe72..a1b1002f0 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
++++ b/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+@@ -3,6 +3,8 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLInterfaceIFaceBase.h" // </advc.127>
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
+ 
+ void CvDLLInterfaceIFaceBase::addHumanMessage(PlayerTypes ePlayer, bool bForce,
+ 		int iLength, CvWString szString, LPCTSTR pszSound,
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+index a3acd40b3..925e6d39d 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+@@ -7,7 +7,7 @@
+ // abstract class containing CvInterface functions that the DLL needs
+ //
+ 
+-//#include "CvStructs.h"
++
+ #include "LinkedList.h"
+ 
+ class CvUnit;
+
+diff --git a/CvGameCoreDLL/CvDLLPythonIFaceBase.h b/CvGameCoreDLL/CvDLLPythonIFaceBase.h
+index cda71b640..b732f77da 100644
+--- a/CvGameCoreDLL/CvDLLPythonIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLPythonIFaceBase.h
+@@ -9,8 +9,8 @@
+ // Copyright 2005 Firaxis Games
+ //
+ 
+-//#include "CvEnums.h"
+-# include <boost/python/object.hpp>
++
++#include <boost/python/object.hpp>
+ namespace python = boost::python;
+ 
+ class CvUnit;
+
+diff --git a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+index a74f95a08..207663994 100644
+--- a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+@@ -3,7 +3,7 @@
+ #ifndef CvDLLSymbolIFaceBase_h
+ #define CvDLLSymbolIFaceBase_h
+ 
+-//#include "CvEnums.h"
++
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGlobals.h"	// for gDLL
+
+diff --git a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+index 9d2389081..063293845 100644
+--- a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+@@ -3,7 +3,7 @@
+ #ifndef CvDLLUtilityIFaceBase_h
+ #define CvDLLUtilityIFaceBase_h
+ 
+-//#include "CvEnums.h"
++
+ #include "LinkedList.h"
+ 
+ //
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 0faade656..98655ff79 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1,26 +1,21 @@
+ #include "CvGameCoreDLL.h"
+-#include "CvGameCoreUtils.h"
++#include "CvDLLWidgetData.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvCity.h"
+ #include "CvUnit.h"
+-#include "CvGlobals.h"
+-#include "CvGameAI.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvTeamAI.h"
+-#include "CvPlayerAI.h"
+-#include "CvGameCoreUtils.h"
+ #include "CyArgsList.h"
+ #include "CvGameTextMgr.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+ #include "CvEventReporter.h"
+-#include "CvDLLWidgetData.h"
+ #include "CvPopupInfo.h"
+-#include "FProfiler.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
+ #include "WarEvaluator.h" // advc.104l
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLPythonIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h"
+ 
+ CvDLLWidgetData* CvDLLWidgetData::m_pInst = NULL;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index f368d6ec7..cf53b479b 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -3,7 +3,6 @@
+ #ifndef _CVDLLWIDGETDATA_H_
+ #define _CVDLLWIDGETDATA_H_
+ 
+-//#include "CvEnums.h"
+ 
+ class CvDLLWidgetData
+ {
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 49d0b9a8f..ee159c153 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -1,12 +1,10 @@
+ // CvDeal.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvGlobals.h"
+-#include "CvTeamAI.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvGameTextMgr.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvEventReporter.h"
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index f7f47111f..eb6a1c73e 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -5,9 +5,10 @@
+ #ifndef CIV4_DEAL_H
+ #define CIV4_DEAL_H
+ 
+-//#include "CvStructs.h"
++
+ #include "LinkedList.h"
+ 
++
+ class CvDeal
+ {
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.cpp b/CvGameCoreDLL/CvDiploParameters.cpp
+index 8fb2ce1e4..5ab0a9dc1 100644
+--- a/CvGameCoreDLL/CvDiploParameters.cpp
++++ b/CvGameCoreDLL/CvDiploParameters.cpp
+@@ -1,5 +1,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDiploParameters.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++
+ 
+ CvDiploParameters::CvDiploParameters(PlayerTypes ePlayer) :
+ 	m_eWhoTalkingTo(ePlayer),
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.h b/CvGameCoreDLL/CvDiploParameters.h
+index 36ad45797..771a1bc93 100644
+--- a/CvGameCoreDLL/CvDiploParameters.h
++++ b/CvGameCoreDLL/CvDiploParameters.h
+@@ -3,7 +3,6 @@
+ #define CVDIPLOPARAMETERS_H
+ 
+ #include "LinkedList.h"
+-//#include "CvStructs.h"
+ #include "FVariableSystem.h"
+ 
+ class CvDiploParameters
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index a41cf831e..9418859ee 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -1,10 +1,16 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDllPythonEvents.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
++#include "CvGameAI.h"
+ #include "CyArgsList.h"
+ #include "CyUnit.h"
+ #include "CyPlot.h"
++#include "CvPlot.h"
++#include "CyCity.h"
++#include "CvSelectionGroup.h"
++#include "CvUnit.h"
++#include "CvDLLPythonIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h"
+ 
+ bool CvDllPythonEvents::preEvent()
+ {
+
+diff --git a/CvGameCoreDLL/CvDllTranslator.cpp b/CvGameCoreDLL/CvDllTranslator.cpp
+index 7870aacd0..8d16dc33d 100644
+--- a/CvGameCoreDLL/CvDllTranslator.cpp
++++ b/CvGameCoreDLL/CvDllTranslator.cpp
+@@ -1,5 +1,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDllTranslator.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvInfos.h"
+ 
+ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTagStartOur, CvWString& szTagStartCT, CvWString& szTagStartColor, CvWString& szTagStartLink, CvWString& szTagEndLink, CvWString& szEndLinkReplacement, std::map<std::wstring, CvWString>& aIconMap, std::map<std::wstring, CvWString>& aColorMap)
+ {
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 47afee442..5098bd544 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -1,5 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvEventReporter.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
+ #include "CvDllPythonEvents.h"
+ #include "CvInitCore.h"
+ #include "CvDLLInterfaceIFaceBase.h" // advc.106l
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index 8a72a2fee..c57ed973a 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -5,6 +5,7 @@
+ 
+ #include "CvStatistics.h"
+ #include "CvDllPythonEvents.h"
++#include "CvPlayer.h" // advc.make: for K-Mod's friend declaration
+ 
+ //
+ // A singleton class which is used to track game events.
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index 870735fbd..311ce88ca 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -2,10 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvFractal.h"
+-#include "CvRandom.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvInitCore.h" // advc.tsl
+-#include "FProfiler.h"
+ 
+ 
+ #define FLOAT_PRECISION		(1000)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 0971f7db0..d2f1d1514 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1,14 +1,11 @@
+ // game.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvGame.h"
+-#include "CvMap.h"
+-#include "CvPlot.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvRandom.h"
+ #include "CvTeamAI.h"
+-#include "CvGlobals.h"
++#include "CvMap.h"
+ #include "CvInitCore.h"
+ #include "CvMapGenerator.h"
+ #include "CvArtFileMgr.h"
+@@ -17,12 +14,11 @@
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+-#include "FProfiler.h"
+ #include "CvReplayInfo.h"
+ #include "CvGameTextMgr.h"
+-#include <set>
+ #include "CvEventReporter.h"
+ #include "CvMessageControl.h"
++#include "CvHallOfFameInfo.h" // advc.106i
+ 
+ // interface uses
+ #include "CvDLLInterfaceIFaceBase.h"
+@@ -286,7 +282,7 @@ void CvGame::setInitialItems()
+ 				distr.push_back(civ.getAdvancedStartPoints());
+ 		}
+ 		iStartTurn = getStartTurn();
+-		double maxMean = (::max(distr) + ::mean(distr)) / 2.0;
++		double maxMean = (::dMax(distr) + ::dMean(distr)) / 2.0;
+ 		if(maxMean > 370) {
+ 			iStartTurn += ::roundToMultiple(std::pow(std::max(0.0, maxMean - 325),
+ 					0.58), 5);
+@@ -491,6 +487,7 @@ void CvGame::uninit()
+ 	m_aPlotExtraCosts.clear();
+ 	m_mapVoteSourceReligions.clear();
+ 	m_aeInactiveTriggers.clear();
++	applyOptionEffects(true); // advc.310
+ 	/*  advc.700: Need to call this explicitly due to the unusual way that
+ 		RiseFall is initialized (from updateBlockadedPlots) */
+ 	m_riseFall.reset();
+@@ -868,6 +865,7 @@ void CvGame::initFreeState()
+ 			}
+ 		}
+ 	}
++	applyOptionEffects(); // advc.310
+ 	for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+ 		for (int iJ = 0; iJ < MAX_TEAMS; iJ++)
+@@ -1008,6 +1006,19 @@ void CvGame::initFreeUnits_bulk() { // </advc.051>
+ 	}
+ }
+ 
++/*  <advc.310> For building (or other) effects that only apply when certain
++	game options are set. */
++void CvGame::applyOptionEffects(bool bEnableAll) {
++
++	CvBuildingInfo::setDomesticGreatGeneralRateModifierEnabled(bEnableAll ||
++			isOption(GAMEOPTION_RAGING_BARBARIANS) || isOption(GAMEOPTION_NO_BARBARIANS));
++	CvBuildingInfo::setGlobalTradeRoutesEnabled(bEnableAll ||
++			!isOption(GAMEOPTION_RAGING_BARBARIANS) || isOption(GAMEOPTION_NO_BARBARIANS));
++	CvBuildingInfo::setAreaBorderObstacleEnabled(bEnableAll ||
++			!isOption(GAMEOPTION_NO_BARBARIANS));
++} // </advc.310>
++
++
+ void CvGame::assignStartingPlots()
+ {
+ 	PROFILE_FUNC();
+@@ -5571,7 +5582,7 @@ int CvGame::getDifficultyForEndScore() const {
+ 	std::vector<double> distr;
+ 	for(size_t i = 0; i < aiStartPointDistrib.size(); i++)
+ 		distr.push_back(aiStartPointDistrib[i]);
+-	return r + ::round((::max(distr) + ::mean(distr)) /
++	return r + ::round((::dMax(distr) + ::dMean(distr)) /
+ 			h.getAIAdvancedStartPercent());
+ } // </advc.250>
+ 
+@@ -8213,7 +8224,7 @@ UnitTypes CvGame::randomBarbUnit(UnitAITypes ai, CvArea const& a) {
+ 		CvUnitInfo& u = GC.getUnitInfo(ut);
+ 		DomainTypes dom = (DomainTypes)u.getDomainType();
+ 		if(u.getCombat() <= 0 || dom == DOMAIN_AIR ||
+-				::isMostlyDefensive(u) || // advc.315
++				u.isMostlyDefensive() || // advc.315
+ 				(dom == DOMAIN_SEA) != sea ||
+ 				!GET_PLAYER(BARBARIAN_PLAYER).canTrain(ut))
+ 			continue;
+@@ -9653,6 +9664,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	if(uiFlag >= 3)
+ 		pStream->Read(&m_bScenario); // </advc.052>
+ 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
++	applyOptionEffects(); // advc.310
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 7cba359b4..b5656058d 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -5,18 +5,20 @@
+ #ifndef CIV4_GAME_H
+ #define CIV4_GAME_H
+ 
+-//#include "CvStructs.h"
+ #include "CvDeal.h"
+ #include "CvRandom.h"
+ #include "StartPointsAsHandicap.h" // advc.250b
+ #include "RiseFall.h" // advc.700
+-#include "CvHallOfFameInfo.h" // advc.106i
+ 
+ class CvPlot;
+ class CvCity;
+ class CvReplayMessage;
+ class CvReplayInfo;
++class CvArtInfoBuilding;
++class CvArea;
++class CvHallOfFameInfo; // advc.106i
+ class CvGameAI; // advc.003: Needed for AI(void) functions
++class Shelf; // advc.300
+ 
+ typedef std::vector<const CvReplayMessage*> ReplayMessageList;
+ 
+@@ -803,6 +805,7 @@ protected:
+ 	void initFreeState();
+ 	void assignStartingPlots();
+ 	void normalizeStartingPlots(); // </advc.003i>
++	void applyOptionEffects(bool bEnableAll = false); // advc.310
+ 	void doTurn();
+ 	void doDeals();
+ 	void doGlobalWarming();
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index e0536b727..50c6abb97 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -4,7 +4,6 @@
+ #include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+-#include "CvGlobals.h"
+ #include "CvInfos.h"
+ // advc.137:
+ #include "CvInitCore.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 8d0152aeb..7292981ce 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -1,11 +1,6 @@
+ #include "CvGameCoreDLL.h"
+-
+ #include "CvGameCoreDLLUndefNew.h"
+-
+ #include <new>
+-
+-#include "CvGlobals.h"
+-#include "FProfiler.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ 
+ #include <psapi.h>
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index f9f4dc9fe..7b869a0b4 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -245,32 +245,11 @@ namespace python = boost::python;
+ #include "CvDLLUtilityIFaceBase.h"
+ 
+ //jason tests
+-#include "CvPlayerAI.h"
++// advc.make: Removed most of these. (Don't know what the comment above means.)
+ #include "CvGameCoreUtils.h"
+-#include "CvMap.h"
+-#include "CvGameAI.h"
+-#include "CvPlot.h"
+-#include "CvUnit.h"
+ #include "CvGlobals.h"
+-#include "CvCity.h"
+ #include "FProfiler.h"
+-#include "CyCity.h"
+-#include "CvInfos.h"
+-#include "CvTeamAI.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvRandom.h"
+-#include "CvArea.h"
+-#include "CvDllEntity.h"
+-#include "CvDeal.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvGame.h"
+-#include "CyGlobalContext.h"
+-#include "CvSelectionGroup.h"
+-#include "CvTalkingHeadMessage.h"
+-#include "CvPlotGroup.h"
+-#include "CvCityAI.h"
+-#include "CvSelectionGroupAI.h"
+-#include "CvUnitAI.h"
+ 
+ #ifdef FINAL_RELEASE
+ // Undefine OutputDebugString in final release builds
+@@ -278,4 +257,20 @@ namespace python = boost::python;
+ #define OutputDebugString(x)
+ #endif //FINAL_RELEASE
+ 
++/*  <advc.make> Cut from CvGameCoreUtils.h. The undefs make more sense to me here b/c
++	this is the file that includes windows.h, which contains the bothersome min/max defines. */
++#undef max
++#undef min
++#ifndef _USRDLL
++// use non inline functions when not in the dll
++#define getMapINLINE	getMap
++#define getGridHeightINLINE	getGridHeight
++#define getGridWidthINLINE	getGridWidth
++#define isWrapYINLINE	isWrapY
++#define isWrapXINLINE	isWrapX
++#define plotINLINE	plot
++#define getX_INLINE	getX
++#define getY_INLINE	getY
++#endif // </advc.make>
++
+ #endif	// CvGameCoreDLL_h
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 250a3cb53..564804fe0 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1,18 +1,13 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameCoreUtils.h"
+-#include <algorithm>
+-#include "CvUnit.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++#include "CvUnit.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvRandom.h"
+ #include "FAStarNode.h"
+ #include "CvCity.h"
+-#include "CvTeamAI.h"
+ #include "CvInfos.h"
+-#include "CvGlobals.h"
+-#include "FProfiler.h"
+-
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+@@ -61,7 +56,7 @@ bool bernoulliSuccess(double pr, char const* pszLog, bool bAsync, int iData1, in
+ 			getSorenRandNum(10000, pszLog, iData1, iData2) < chancePerMyriad;
+ }
+ 
+-double median(vector<double>& distribution, bool bSorted) {
++double dMedian(vector<double>& distribution, bool bSorted) {
+ 
+ 	FAssert(!distribution.empty());
+ 	if(!bSorted)
+@@ -72,7 +67,7 @@ double median(vector<double>& distribution, bool bSorted) {
+ 	return (distribution[medianIndex] + distribution[medianIndex - 1]) / 2;
+ }
+ 
+-double mean(vector<double>& distribution) {
++double dMean(vector<double>& distribution) {
+ 
+ 	FAssert(!distribution.empty());
+ 	double r = 0;
+@@ -81,7 +76,7 @@ double mean(vector<double>& distribution) {
+ 	return r / distribution.size();
+ }
+ 
+-double max(vector<double>& distribution) {
++double dMax(vector<double>& distribution) {
+ 
+ 	FAssert(!distribution.empty());
+ 	double r = distribution[0];
+@@ -91,7 +86,7 @@ double max(vector<double>& distribution) {
+ 	return r;
+ }
+ 
+-double min(vector<double>& distribution) {
++double dMin(vector<double>& distribution) {
+ 
+ 	FAssert(!distribution.empty());
+ 	double r = distribution[0];
+@@ -271,7 +266,9 @@ int plotCityXY(int iDX, int iDY)
+ 
+ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
+ {
+-	return plotCityXY(dxWrap(pPlot->getX_INLINE() - pCity->getX_INLINE()), dyWrap(pPlot->getY_INLINE() - pCity->getY_INLINE()));
++	CvMap const& m = GC.getMapINLINE();
++	return plotCityXY(m.dxWrap(pPlot->getX_INLINE() - pCity->getX_INLINE()),
++			m.dyWrap(pPlot->getY_INLINE() - pCity->getY_INLINE()));
+ }
+ 
+ /* <advc.303> Has to include the city tile in order to be compatible with
+@@ -337,7 +334,10 @@ DirectionTypes estimateDirection(int iDX, int iDY)
+ 
+ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
+ {
+-	return estimateDirection(dxWrap(pToPlot->getX_INLINE() - pFromPlot->getX_INLINE()), dyWrap(pToPlot->getY_INLINE() - pFromPlot->getY_INLINE()));
++	CvMap const& m = GC.getMapINLINE();
++	return estimateDirection(
++			m.dxWrap(pToPlot->getX_INLINE() - pFromPlot->getX_INLINE()),
++			m.dyWrap(pToPlot->getY_INLINE() - pFromPlot->getY_INLINE()));
+ }
+ 
+ 
+@@ -509,8 +509,8 @@ int groupCycleDistance(const CvSelectionGroup* pFirstGroup, const CvSelectionGro
+ 					iPenalty += 2;
+ 				if (pFirstHead->canAttack() != pSecondHead->canAttack()
+ 						// <advc.315>
+-						|| ::isMostlyDefensive(pFirstHead->getUnitInfo()) !=
+-						::isMostlyDefensive(pSecondHead->getUnitInfo()))
++						|| pFirstHead->getUnitInfo().isMostlyDefensive() !=
++						pSecondHead->getUnitInfo().isMostlyDefensive())
+ 						// </advc.315>
+ 					iPenalty += 1;
+ 			}
+@@ -1278,7 +1278,7 @@ void setTradeItem(TradeData* pItem, TradeableItems eItemType, int iData)
+ 	pItem->m_bOffering = false;
+ 	pItem->m_bHidden = false;
+ }
+-/*  <advc.071> Don't want to include CvPlot.h and CvUnit.h header files in CvStructs.h.
++/*  <advc.071> Don't want to include CvPlot and CvUnit header files in CvStructs.h.
+ 	Don't need to worry here about which unit is where and who sees whom - can
+ 	figure that out when we know which teams are meeting. */
+ void setFirstContactData(FirstContactData& kData, CvPlot const* pAt1, CvPlot const* pAt2,
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 5c2148f20..f1c2ad6bc 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -5,40 +5,20 @@
+ #ifndef CIV4_GAMECORE_UTILS_H
+ #define CIV4_GAMECORE_UTILS_H
+ 
+-
+-//#include "CvStructs.h"
+-#include "CvGlobals.h"
+-#include "CvMap.h"
+-
+-#ifndef _USRDLL
+-// use non inline functions when not in the dll
+-#define getMapINLINE	getMap
+-#define getGridHeightINLINE	getGridHeight
+-#define getGridWidthINLINE	getGridWidth
+-#define isWrapYINLINE	isWrapY
+-#define isWrapXINLINE	isWrapX
+-#define plotINLINE	plot
+-#define getX_INLINE	getX
+-#define getY_INLINE	getY
+-
+-#endif
+-
+ class CvPlot;
+ class CvCity;
+ class CvUnit;
++class CvSelectionGroup;
+ class CvString;
+ class CvRandom;
+ class FAStarNode;
+ class FAStar;
+ class CvInfoBase;
+ 
+-
+-#ifndef SQR
+-#define SQR(x) ( (x)*(x))
+-#endif
+-
+-#undef max
+-#undef min
++// advc.003j: Unused here and elsewhere; still defined in CvGameCoreDLL.
++//#ifndef SQR
++//#define SQR(x) ( (x)*(x))
++//#endif*
+ 
+ // <advc.003g> floating point utility
+ inline int round(double d) { return (int)((d >= 0 ? 0.5 : -0.5) + d); }
+@@ -46,10 +26,10 @@ int roundToMultiple(double d, int iMultiple);
+ bool bernoulliSuccess(double pr, // 0 <= pr <= 1
+ 		char const* pszLog = "", bool bAsync = false,
+ 		int iData1 = INT_MIN, int iData2 = INT_MIN);
+-double median(std::vector<double>& distribution, bool bSorted = false);
+-double mean(std::vector<double>& distribution);
+-double max(std::vector<double>& distribution);
+-double min(std::vector<double>& distribution);
++double dMedian(std::vector<double>& distribution, bool bSorted = false);
++double dMean(std::vector<double>& distribution);
++double dMax(std::vector<double>& distribution);
++double dMin(std::vector<double>& distribution);
+ // see e.g. wikipedia: "percentile rank"
+ double percentileRank(std::vector<double>& distribution, double score,
+ 		bool bSorted = false, // Is the distribution sorted (ascending)?
+@@ -131,153 +111,7 @@ inline double dRange(double d, double low, double high) {
+ 	return d;
+ } // </advc.003g>
+ 
+-inline int coordDistance(int iFrom, int iTo, int iRange, bool bWrap)
+-{
+-	if (bWrap && (abs(iFrom - iTo) > (iRange / 2)))
+-	{
+-		return (iRange - abs(iFrom - iTo));
+-	}
+-
+-	return abs(iFrom - iTo);
+-}
+-
+-inline int wrapCoordDifference(int iDiff, int iRange, bool bWrap)
+-{
+-	if (bWrap)
+-	{
+-		if (iDiff > (iRange / 2))
+-		{
+-			return (iDiff - iRange);
+-		}
+-		else if (iDiff < -(iRange / 2))
+-		{
+-			return (iDiff + iRange);
+-		}
+-	}
+-
+-	return iDiff;
+-}
+-
+-inline int xDistance(int iFromX, int iToX)
+-{
+-	return coordDistance(iFromX, iToX, GC.getMapINLINE().getGridWidthINLINE(), GC.getMapINLINE().isWrapXINLINE());
+-}
+-
+-inline int yDistance(int iFromY, int iToY)
+-{
+-	return coordDistance(iFromY, iToY, GC.getMapINLINE().getGridHeightINLINE(), GC.getMapINLINE().isWrapYINLINE());
+-}
+-
+-inline int dxWrap(int iDX)																													// Exposed to Python
+-{
+-	return wrapCoordDifference(iDX, GC.getMapINLINE().getGridWidthINLINE(), GC.getMapINLINE().isWrapXINLINE());
+-}
+-
+-inline int dyWrap(int iDY)																													// Exposed to Python
+-{
+-	return wrapCoordDifference(iDY, GC.getMapINLINE().getGridHeightINLINE(), GC.getMapINLINE().isWrapYINLINE());
+-}
+-
+-// 4 | 4 | 3 | 3 | 3 | 4 | 4
+-// -------------------------
+-// 4 | 3 | 2 | 2 | 2 | 3 | 4
+-// -------------------------
+-// 3 | 2 | 1 | 1 | 1 | 2 | 3
+-// -------------------------
+-// 3 | 2 | 1 | 0 | 1 | 2 | 3
+-// -------------------------
+-// 3 | 2 | 1 | 1 | 1 | 2 | 3
+-// -------------------------
+-// 4 | 3 | 2 | 2 | 2 | 3 | 4
+-// -------------------------
+-// 4 | 4 | 3 | 3 | 3 | 4 | 4
+-//
+-// Returns the distance between plots according to the pattern above...
+-inline int plotDistance(int iX1, int iY1, int iX2, int iY2)													// Exposed to Python
+-{
+-	int iDX;
+-	int iDY;
+-
+-	iDX = xDistance(iX1, iX2);
+-	iDY = yDistance(iY1, iY2);
+-
+-	return (std::max(iDX, iDY) + (std::min(iDX, iDY) / 2));
+-}
+-
+-// K-Mod, plot-to-plot alias for convenience:
+-inline int plotDistance(const CvPlot* plot1, const CvPlot* plot2)
+-{
+-	return plotDistance(plot1->getX_INLINE(), plot1->getY_INLINE(), plot2->getX_INLINE(), plot2->getY_INLINE());
+-}
+-// K-Mod end
+-
+-// 3 | 3 | 3 | 3 | 3 | 3 | 3
+-// -------------------------
+-// 3 | 2 | 2 | 2 | 2 | 2 | 3
+-// -------------------------
+-// 3 | 2 | 1 | 1 | 1 | 2 | 3
+-// -------------------------
+-// 3 | 2 | 1 | 0 | 1 | 2 | 3
+-// -------------------------
+-// 3 | 2 | 1 | 1 | 1 | 2 | 3
+-// -------------------------
+-// 3 | 2 | 2 | 2 | 2 | 2 | 3
+-// -------------------------
+-// 3 | 3 | 3 | 3 | 3 | 3 | 3
+-//
+-// Returns the distance between plots according to the pattern above...
+-inline int stepDistance(int iX1, int iY1, int iX2, int iY2)													// Exposed to Python
+-{
+-	return std::max(xDistance(iX1, iX2), yDistance(iY1, iY2));
+-}
+-
+-// K-Mod, plot-to-plot alias for convenience:
+-inline int stepDistance(const CvPlot* plot1, const CvPlot* plot2)
+-{
+-	return stepDistance(plot1->getX_INLINE(), plot1->getY_INLINE(), plot2->getX_INLINE(), plot2->getY_INLINE());
+-}
+-// K-Mod end
+-
+-inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)							// Exposed to Python
+-{
+-	if(eDirection == NO_DIRECTION)
+-	{
+-		return GC.getMapINLINE().plotINLINE(iX, iY);
+-	}
+-	else
+-	{
+-		return GC.getMapINLINE().plotINLINE((iX + GC.getPlotDirectionX()[eDirection]), (iY + GC.getPlotDirectionY()[eDirection]));
+-	}
+-}
+-
+-inline CvPlot* plotCardinalDirection(int iX, int iY, CardinalDirectionTypes eCardinalDirection)	// Exposed to Python
+-{
+-	return GC.getMapINLINE().plotINLINE((iX + GC.getPlotCardinalDirectionX()[eCardinalDirection]), (iY + GC.getPlotCardinalDirectionY()[eCardinalDirection]));
+-}
+-
+-inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)																// Exposed to Python
+-{
+-	return GC.getMapINLINE().plotINLINE((iX + iDX), (iY + iDY));
+-}
+-
+-inline CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) { return plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY); } // K-Mod
+-
+-inline DirectionTypes directionXY(int iDX, int iDY)																		// Exposed to Python
+-{
+-	if ((abs(iDX) > DIRECTION_RADIUS) || (abs(iDY) > DIRECTION_RADIUS))
+-	{
+-		return NO_DIRECTION;
+-	}
+-	else
+-	{
+-		return GC.getXYDirection((iDX + DIRECTION_RADIUS), (iDY + DIRECTION_RADIUS));
+-	}
+-}
+-
+-inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)			// Exposed to Python
+-{
+-	return directionXY(dxWrap(pToPlot->getX_INLINE() - pFromPlot->getX_INLINE()), dyWrap(pToPlot->getY_INLINE() - pFromPlot->getY_INLINE()));
+-}
++// (advc.make: Distance functions moved into CvMap.h)
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex);																			// Exposed to Python
+ int plotCityXY(int iDX, int iDY);																									// Exposed to Python
+@@ -297,16 +131,11 @@ bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam);			// Exposed to
+ DllExport CvCity* getCity(IDInfo city);	// Exposed to Python
+ DllExport CvUnit* getUnit(IDInfo unit);	// Exposed to Python
+ 
+-inline bool isCycleGroup(const CvSelectionGroup* pGroup) { return pGroup->getNumUnits() > 0 && !pGroup->isWaiting() && !pGroup->isAutomated(); } // K-Mod
++// (advc.make: inlined isCycleGroup moved to CvSelectionGroup to avoid a dependency)
+ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit);
+ bool isBeforeGroupOnPlot(const CvSelectionGroup* pFirstGroup, const CvSelectionGroup* pSecondGroup); // K-Mod
+ int groupCycleDistance(const CvSelectionGroup* pFirstGroup, const CvSelectionGroup* pSecondGroup); // K-Mod
+ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader);	// Exposed to Python
+-// <advc.315>
+-inline bool isMostlyDefensive(CvUnitInfo const& u) {
+-
+-	return u.isOnlyDefensive() || u.isOnlyAttackAnimals() || u.isOnlyAttackBarbarians();
+-} // </advc.315>
+ 
+ int getPopulationAsset(int iPopulation);								// Exposed to Python
+ int getLandPlotsAsset(int iLandPlots);									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 66f7bf309..86d5eb7f2 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1,17 +1,21 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CvInitCore.h"
+ #include "CyPlot.h"
+ #include "CyArgsList.h"
+ #include "CvPopupInfo.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+ #include "FAStarNode.h"
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
+ #include "CvEventReporter.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h"
++#include "CvDLLFAStarIFaceBase.h"
++#include "CvDLLPythonIFaceBase.h"
+ #include <fstream> // advc.003d
+ 
+ /*  advc: This file was, reportedly, added by patch 3.17.
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index cd2364659..f075ecce2 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -11,28 +11,26 @@
+ //---------------------------------------------------------------------------------------
+ 
+ #include "CvGameCoreDLL.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvGameTextMgr.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvDLLUtilityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLSymbolIFaceBase.h"
+ #include "CvInfos.h"
+ #include "CvXMLLoadUtility.h"
+ #include "CvCity.h"
+-#include "CvPlayerAI.h"
+-#include "CvTeamAI.h"
++#include "CvArtFileMgr.h"
+ #include "CvSelectionGroup.h"
+ #include "CvMap.h"
+-#include "CvArea.h"
+-#include "CvPlot.h"
+ #include "CvPopupInfo.h"
+-#include "FProfiler.h"
+ #include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvBugOptions.h"
+ // <advc.050>
+ #include "CvInitCore.h"
+ #include <sstream> // </advc.050>
++#include "CvDLLPythonIFaceBase.h"
++#include "CvDLLUtilityIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLSymbolIFaceBase.h"
+ 
+ int shortenID(int iId)
+ {
+@@ -2166,9 +2164,9 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 						if (!pMissionPlot->isCity())
+ 						{
+ 							DirectionTypes eDirection = estimateDirection(
+-									dxWrap(pMissionPlot->getX_INLINE() -
++									m.dxWrap(pMissionPlot->getX_INLINE() -
+ 									pCity->plot()->getX_INLINE()),
+-									dyWrap(pMissionPlot->getY_INLINE() -
++									m.dyWrap(pMissionPlot->getY_INLINE() -
+ 									pCity->plot()->getY_INLINE()));
+ 							getDirectionTypeString(szTempString, eDirection);
+ 							szString.append(CvWString::format(L"%s of ",
+@@ -2185,9 +2183,9 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 						if (pMissionPlot != &kPlot)
+ 						{
+ 							DirectionTypes eDirection = estimateDirection(
+-									dxWrap(pMissionPlot->getX_INLINE() -
++									m.dxWrap(pMissionPlot->getX_INLINE() -
+ 									kPlot.getX_INLINE()),
+-									dyWrap(pMissionPlot->getY_INLINE() -
++									m.dyWrap(pMissionPlot->getY_INLINE() -
+ 									kPlot.getY_INLINE()));
+ 							getDirectionTypeString(szTempString, eDirection);
+ 							szString.append(CvWString::format(L" (%s)", szTempString.GetCString()));
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 048667afc..3a4a49936 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -16,7 +16,6 @@
+ #define CIV4_GAME_TEXT_MGR_H
+ 
+ #include "CvInfos.h"
+-//#include "CvEnums.h"
+ 
+ #pragma warning( disable: 4251 )	// needs to have dll-interface to be used by clients of class
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index e5f2e9771..78af4b9e3 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -3,22 +3,20 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CvGlobals.h"
+-#include "CvRandom.h"
+ #include "CvGameAI.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvMap.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CvDLLUtilityIFaceBase.h"
+ #include "CvArtFileMgr.h"
+-#include "CvDLLXMLIFaceBase.h"
+ #include "CvPlayerAI.h"
+ #include "CvInfoWater.h"
+ #include "CvGameTextMgr.h"
+-#include "FProfiler.h"
+ #include "FVariableSystem.h"
+ #include "CvInitCore.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLUtilityIFaceBase.h"
++#include "CvDLLXMLIFaceBase.h"
+ 
+ #define COPY(dst, src, typeName) \
+ 	{ \
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index c9a4997d9..1f40e36ae 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -12,7 +12,6 @@ static inline int ROUND_DIVIDE(int a, int b)
+ }
+ // K-Mod end
+ 
+-//#include "CvStructs.h"
+ //
+ // 'global' vars for Civ IV.  singleton class.
+ // All globals and global types should be contained in this class
+
+diff --git a/CvGameCoreDLL/CvHallOfFameInfo.cpp b/CvGameCoreDLL/CvHallOfFameInfo.cpp
+index c90a6eb76..aa72b4b33 100644
+--- a/CvGameCoreDLL/CvHallOfFameInfo.cpp
++++ b/CvGameCoreDLL/CvHallOfFameInfo.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvHallOfFameInfo.h"
+-#include "CvGlobals.h"
++#include "CvGameAI.h"
+ 
+ CvHallOfFameInfo::CvHallOfFameInfo()
+ {
+
+diff --git a/CvGameCoreDLL/CvInfoWater.cpp b/CvGameCoreDLL/CvInfoWater.cpp
+index 9dcc3a7a2..67c78e58f 100644
+--- a/CvGameCoreDLL/CvInfoWater.cpp
++++ b/CvGameCoreDLL/CvInfoWater.cpp
+@@ -16,7 +16,6 @@
+ #include "CvInfoWater.h"
+ #include "CvXMLLoadUtility.h"
+ #include "CvDLLXMLIFaceBase.h"
+-#include "CvGlobals.h"
+ 
+ //======================================================================================================
+ //					CvWaterPlaneInfo
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index aebb152c2..bdbd76bbe 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -11,12 +11,11 @@
+ //------------------------------------------------------------------------------------------------
+ #include "CvGameCoreDLL.h"
+ #include "CvInfos.h"
+-#include "CvGlobals.h"
+ #include "CvArtFileMgr.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvDLLXMLIFaceBase.h"
+ #include "CvGameTextMgr.h"
+-#include "CvGameCoreUtils.h"
++#include "CvDLLXMLIFaceBase.h"
++
+ 
+ //------------------------------------------------------------------------------------------------------
+ //
+@@ -6942,11 +6941,8 @@ int CvBuildingInfo::getGreatGeneralRateModifier() const
+ }
+ 
+ int CvBuildingInfo::getDomesticGreatGeneralRateModifier() const
+-{
+-	// <advc.310> Dynamic ability of Great Wall
+-	CvGame const& g = GC.getGameINLINE();
+-	if(!g.isOption(GAMEOPTION_RAGING_BARBARIANS) &&
+-			!g.isOption(GAMEOPTION_NO_BARBARIANS))
++{	// <advc.310>
++	if(!m_bEnabledDomesticGreatGeneralRateModifier)
+ 		return 0; // </advc.310>
+ 	return m_iDomesticGreatGeneralRateModifier;
+ }
+@@ -7077,11 +7073,8 @@ int CvBuildingInfo::getCoastalTradeRoutes() const
+ }
+ 
+ int CvBuildingInfo::getGlobalTradeRoutes() const	
+-{
+-	// <advc.310> Dynamic ability of Great Wall
+-	CvGame const& g = GC.getGameINLINE();
+-	if(g.isOption(GAMEOPTION_RAGING_BARBARIANS) &&
+-			!g.isOption(GAMEOPTION_NO_BARBARIANS))
++{	// <advc.310>
++	if(!m_bEnabledGlobalTradeRoutes)
+ 		return 0; // </advc.310>
+ 	return m_iGlobalTradeRoutes;
+ }
+@@ -7297,9 +7290,9 @@ bool CvBuildingInfo::isAreaCleanPower() const
+ }
+ 
+ bool CvBuildingInfo::isAreaBorderObstacle() const
+-{
+-	// advc.310: Dynamic ability of Great Wall
+-	if(GC.getGameINLINE().isOption(GAMEOPTION_NO_BARBARIANS)) return false;
++{	// <advc.310>
++	if(!m_bEnabledAreaBorderObstacle)
++		return false; // </advc.310>
+ 	return m_bAreaBorderObstacle;
+ }
+ 
+@@ -8964,6 +8957,21 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	return true;
+ }
++// <advc.310>
++bool CvBuildingInfo::m_bEnabledDomesticGreatGeneralRateModifier = true;
++bool CvBuildingInfo::m_bEnabledGlobalTradeRoutes = true;
++bool CvBuildingInfo::m_bEnabledAreaBorderObstacle = true;
++void CvBuildingInfo::setDomesticGreatGeneralRateModifierEnabled(bool b) {
++	m_bEnabledDomesticGreatGeneralRateModifier = b;
++}
++void CvBuildingInfo::setGlobalTradeRoutesEnabled(bool b) {
++	m_bEnabledGlobalTradeRoutes = b;
++}
++void CvBuildingInfo::setAreaBorderObstacleEnabled(bool b) {
++	m_bEnabledAreaBorderObstacle = b;
++} // </advc.310>
++
++
+ 
+ //======================================================================================================
+ //					CvSpecialBuildingInfo
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 27832ae12..2fcc98893 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -1008,6 +1008,10 @@ public:
+ 	void write(FDataStreamBase* );
+ 	#endif
+ 	bool read(CvXMLLoadUtility* pXML);
++	// <advc.315>
++	inline bool isMostlyDefensive() const {
++		return isOnlyDefensive() || isOnlyAttackAnimals() || isOnlyAttackBarbarians();
++	} // </advc.315>
+ 
+ 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
+ 
+@@ -1786,7 +1790,11 @@ public:
+ 	void write(FDataStreamBase*);
+ 	#endif
+ 	bool read(CvXMLLoadUtility* pXML);
+-
++	// <advc.310>
++	static void setDomesticGreatGeneralRateModifierEnabled(bool b);
++	static void setGlobalTradeRoutesEnabled(bool b);
++	static void setAreaBorderObstacleEnabled(bool b);
++	// </advc.310>
+ 	//---------------------------------------PUBLIC MEMBER VARIABLES---------------------------------
+ protected:
+ 
+@@ -1960,6 +1968,11 @@ protected:
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+ /************************************************************************************************/
++	// <advc.310>
++	static bool m_bEnabledAreaBorderObstacle;
++	static bool m_bEnabledGlobalTradeRoutes;
++	static bool m_bEnabledDomesticGreatGeneralRateModifier;
++	// </advc.310>
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index d1f647c5d..70077fe15 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -2,12 +2,11 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvInitCore.h"
+-#include "CvDLLPythonIFaceBase.h"
++#include "CvPlayerAI.h"
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
+-#include "CvGlobals.h"
++#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvDLLInterfaceIFaceBase.h" // advc.001m
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index 5f55816df..e748441fa 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -5,27 +5,9 @@
+ #ifndef CIV4_INITCORE_H
+ #define CIV4_INITCORE_H
+ 
+-//#include "CvEnums.h"
+-
+ /*
+ ** K-Mod, 8/dec/10, karadoc
+-** moved this macro to CvGlobals.h (and modified it)
+-*
+-#define FASSERT_BOUNDS(lower,upper,index,fnString)\
+-	if (index < lower)\
+-	{\
+-		char acOut[256];\
+-		sprintf(acOut, "Index in %s expected to be >= %d", fnString, lower);\
+-		FAssertMsg(index >= lower, acOut);\
+-	}\
+-	else if (index >= upper)\
+-	{\
+-		char acOut[256];\
+-		sprintf(acOut, "Index in %s expected to be < %d", fnString, upper);\
+-		FAssertMsg(index < upper, acOut);\
+-	}
+-**
+-** K-Mod end
++** moved FASSERT_BOUNDS to CvGlobals.h (and modified it)
+ */
+ 
+ class CvInitCore
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 41aa2b257..120a0787f 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -10,23 +10,16 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvMap.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
+ #include "CvCity.h"
+ #include "CvPlotGroup.h"
+-#include "CvGlobals.h"
+-#include "CvPlayerAI.h"
+-#include "CvRandom.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvFractal.h"
+-#include "CvPlot.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvMap.h"
+ #include "CvMapGenerator.h"
+ #include "FAStarNode.h"
+ #include "CvInitCore.h"
+ #include "CvInfos.h"
+-#include "FProfiler.h"
+ #include "CyArgsList.h"
+-
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLIniParserIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+@@ -1511,7 +1504,7 @@ void CvMap::calculateReprAreas() {
+ 			int const x = p.getX_INLINE();
+ 			int const y = p.getY_INLINE();
+ 			for(int j = 0; j < NUM_DIRECTION_TYPES; j++) {
+-				CvPlot* qp = ::plotDirection(x, y, (DirectionTypes)j);
++				CvPlot* qp = plotDirection(x, y, (DirectionTypes)j);
+ 				if(qp == NULL)
+ 					continue;
+ 				CvPlot& q = *qp;
+@@ -1559,7 +1552,7 @@ void CvMap::calculateAreas_DFS(CvPlot const& kStart) {
+ 		int const x = p.getX_INLINE();
+ 		int const y = p.getY_INLINE();
+ 		for(int i = 0; i < NUM_DIRECTION_TYPES; i++) {
+-			CvPlot* qp = ::plotDirection(x, y, (DirectionTypes)i);
++			CvPlot* qp = plotDirection(x, y, (DirectionTypes)i);
+ 			if(qp == NULL)
+ 				continue;
+ 			CvPlot& q = *qp;
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 9826a79ae..9062b43ec 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -12,7 +12,6 @@
+ //-----------------------------------------------------------------------------
+ //
+ 
+-
+ #include "CvArea.h"
+ #include "CvPlot.h"
+ // <advc.300>
+@@ -20,31 +19,9 @@
+ #include <map>
+ // </advc.300>
+ 
+-
+ class FAStar;
+ class CvPlotGroup;
+-
+-
+-inline int coordRange(int iCoord, int iRange, bool bWrap)
+-{
+-	if (bWrap)
+-	{
+-		if (iRange != 0)
+-		{
+-			if (iCoord < 0 )
+-			{
+-				return (iRange + (iCoord % iRange));
+-			}
+-			else if (iCoord >= iRange)
+-			{
+-				return (iCoord % iRange);
+-			}
+-		}
+-	}
+-
+-	return iCoord;
+-}
+-
++class CvSelectionGroup;
+ 
+ //
+ // holds initialization info
+@@ -64,17 +41,168 @@ struct CvMapInitData
+ 	{ }
+ };
+ 
+-
+ //
+ // CvMap
+ //
+-class CvSelectionGroup;
+ class CvMap
+ 		: private boost::noncopyable // advc.003e
+ {
++	/*  <advc.make> All the inline functions below used to be global functions
++		in CvGameCoreUtils.h except for coordRange, which was already in CvMap.h,
++		but as a global function. I've made some minor style changes.
++		Since I don't want to change all the call locations, I'm adding
++		global (inline) wrappers at the end of this file. */
++public:
++	// 4 | 4 | 3 | 3 | 3 | 4 | 4
++	// -------------------------
++	// 4 | 3 | 2 | 2 | 2 | 3 | 4
++	// -------------------------
++	// 3 | 2 | 1 | 1 | 1 | 2 | 3
++	// -------------------------
++	// 3 | 2 | 1 | 0 | 1 | 2 | 3
++	// -------------------------
++	// 3 | 2 | 1 | 1 | 1 | 2 | 3
++	// -------------------------
++	// 4 | 3 | 2 | 2 | 2 | 3 | 4
++	// -------------------------
++	// 4 | 4 | 3 | 3 | 3 | 4 | 4
++	//
++	// Returns the distance between plots according to the pattern above...
++	inline int plotDistance(int iX1, int iY1, int iX2, int iY2) const
++	{
++		int iDX = xDistance(iX1, iX2);
++		int iDY = yDistance(iY1, iY2);
++		return std::max(iDX, iDY) + (std::min(iDX, iDY) / 2);
++	}
+ 
+-	friend class CyMap;
++	// K-Mod, plot-to-plot alias for convenience:
++	inline int plotDistance(const CvPlot* plot1, const CvPlot* plot2) const
++	{
++		return plotDistance(
++				plot1->getX_INLINE(), plot1->getY_INLINE(),
++				plot2->getX_INLINE(), plot2->getY_INLINE());
++	}
++	// K-Mod end
++
++	// 3 | 3 | 3 | 3 | 3 | 3 | 3
++	// -------------------------
++	// 3 | 2 | 2 | 2 | 2 | 2 | 3
++	// -------------------------
++	// 3 | 2 | 1 | 1 | 1 | 2 | 3
++	// -------------------------
++	// 3 | 2 | 1 | 0 | 1 | 2 | 3
++	// -------------------------
++	// 3 | 2 | 1 | 1 | 1 | 2 | 3
++	// -------------------------
++	// 3 | 2 | 2 | 2 | 2 | 2 | 3
++	// -------------------------
++	// 3 | 3 | 3 | 3 | 3 | 3 | 3
++	//
++	// Returns the distance between plots according to the pattern above...
++	inline int stepDistance(int iX1, int iY1, int iX2, int iY2) const
++	{
++		return std::max(xDistance(iX1, iX2), yDistance(iY1, iY2));
++	}
++
++	// K-Mod, plot-to-plot alias for convenience:
++	inline int stepDistance(const CvPlot* plot1, const CvPlot* plot2) const
++	{
++		return stepDistance(
++				plot1->getX_INLINE(), plot1->getY_INLINE(),
++				plot2->getX_INLINE(), plot2->getY_INLINE());
++	} // K-Mod end
++
++	inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection) const
++	{
++		if(eDirection == NO_DIRECTION)
++			return plotINLINE(iX, iY);
++		else return plotINLINE(
++				iX + GC.getPlotDirectionX()[eDirection],
++				iY + GC.getPlotDirectionY()[eDirection]);
++	}
++
++	inline CvPlot* plotCardinalDirection(int iX, int iY, CardinalDirectionTypes eCardinalDirection) const
++	{
++		return plotINLINE(
++			iX + GC.getPlotCardinalDirectionX()[eCardinalDirection],
++			iY + GC.getPlotCardinalDirectionY()[eCardinalDirection]);
++	}
++
++	inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY) const
++	{
++		return plotINLINE(iX + iDX, iY + iDY);
++	}
++	// K-Mod start
++	inline CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) const
++	{
++		return plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++	} // K-Mod end 
++
++	inline DirectionTypes directionXY(int iDX, int iDY) const
++	{
++		if (abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS)
++			return NO_DIRECTION;
++		else return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
++	}
++
++	inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot) const
++	{
++		return directionXY(
++				dxWrap(pToPlot->getX_INLINE() - pFromPlot->getX_INLINE()),
++				dyWrap(pToPlot->getY_INLINE() - pFromPlot->getY_INLINE()));
++	}
++
++	inline int dxWrap(int iDX) const
++	{
++		return wrapCoordDifference(iDX, getGridWidthINLINE(), isWrapXINLINE());
++	}
++
++	inline int dyWrap(int iDY) const
++	{
++		return wrapCoordDifference(iDY, getGridHeightINLINE(), isWrapYINLINE());
++	}
++
++	inline int xDistance(int iFromX, int iToX) const
++	{
++		return coordDistance(iFromX, iToX, getGridWidthINLINE(), isWrapXINLINE());
++	}
++
++	inline int yDistance(int iFromY, int iToY) const
++	{
++		return coordDistance(iFromY, iToY, getGridHeightINLINE(), isWrapYINLINE());
++	}
++private: // Auxiliary functions
++	inline int coordDistance(int iFrom, int iTo, int iRange, bool bWrap) const
++	{
++		if (bWrap && abs(iFrom - iTo) > iRange / 2)
++			return iRange - abs(iFrom - iTo);
++		return abs(iFrom - iTo);
++	}
+ 
++	inline int wrapCoordDifference(int iDiff, int iRange, bool bWrap) const
++	{
++		if (!bWrap)
++			return iDiff;
++		if (iDiff > iRange / 2)
++			return iDiff - iRange;
++		else if (iDiff < -(iRange / 2))
++			return iDiff + iRange;
++		return iDiff;
++	}
++
++	inline int coordRange(int iCoord, int iRange, bool bWrap) const
++	{
++		if (!bWrap || iRange == 0)
++			return iCoord;
++		if (iCoord < 0 )
++			return (iRange + (iCoord % iRange));
++		else if (iCoord >= iRange)
++			return (iCoord % iRange);
++		return iCoord;
++	}
++	// </advc.make>
++
++	friend class CyMap;
+ public:
+ 
+ 	CvMap();
+@@ -336,4 +464,37 @@ private:
+ 	void calculateAreas_DFS(CvPlot const& p); // advc.030
+ };
+ 
++/* <advc.make> Global wrappers for distance functions. The int versions are
++	exposed to Python */
++inline int plotDistance(int iX1, int iY1, int iX2, int iY2) {
++	return GC.getMapINLINE().plotDistance(iX1, iY1, iX2, iY2);
++}
++inline int plotDistance(const CvPlot* plot1, const CvPlot* plot2) {
++	return GC.getMapINLINE().plotDistance(plot1, plot2);
++}
++inline int stepDistance(int iX1, int iY1, int iX2, int iY2) {
++	return GC.getMapINLINE().stepDistance(iX1, iY1, iX2, iY2);
++}
++inline int stepDistance(const CvPlot* plot1, const CvPlot* plot2) {
++	return GC.getMapINLINE().stepDistance(plot1, plot2);
++}
++inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection) {
++	return GC.getMapINLINE().plotDirection(iX, iY, eDirection);
++}
++inline CvPlot* plotCardinalDirection(int iX, int iY, CardinalDirectionTypes eCardinalDirection)	{
++	return GC.getMapINLINE().plotCardinalDirection(iX, iY, eCardinalDirection);
++}
++inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)	{
++	return GC.getMapINLINE().plotXY(iX, iY, iDX, iDY);
++}
++inline CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) {
++	return GC.getMapINLINE().plotXY(pPlot, iDX, iDY);
++}
++inline DirectionTypes directionXY(int iDX, int iDY)	{
++	return GC.getMapINLINE().directionXY(iDX, iDY);
++}
++inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot) {
++	return GC.getMapINLINE().directionXY(pFromPlot, pToPlot);
++}
++// </advc.make>
+ #endif
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 6258c4a70..fa70782d1 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -1,18 +1,12 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvMapGenerator.h"
++#include "CvGameAI.h"
+ #include "CvMap.h"
+ #include "CvFractal.h"
+-#include "CvPlot.h"
+-#include "CvGlobals.h"
+-#include "CvRandom.h"
+-#include "CvGameCoreUtils.h"
+-//#include "CvEnums.h"
+ #include "CvInfos.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "FProfiler.h"
+ #include "CyPlot.h"
+ #include "CyArgsList.h"
+-#include <set> // K-Mod
++#include "CvDLLPythonIFaceBase.h"
+ 
+ //
+ // static
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.h b/CvGameCoreDLL/CvMapGenerator.h
+index f30c08e7d..73782dee1 100644
+--- a/CvGameCoreDLL/CvMapGenerator.h
++++ b/CvGameCoreDLL/CvMapGenerator.h
+@@ -3,8 +3,6 @@
+ #ifndef CIV4_MAPGENERATOR_H
+ #define CIV4_MAPGENERATOR_H
+ 
+-//#include "CvEnums.h"
+-
+ #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
+ 
+ class CvFractal;
+
+diff --git a/CvGameCoreDLL/CvMessageControl.cpp b/CvGameCoreDLL/CvMessageControl.cpp
+index 4c51f95b6..d6f714a83 100644
+--- a/CvGameCoreDLL/CvMessageControl.cpp
++++ b/CvGameCoreDLL/CvMessageControl.cpp
+@@ -1,6 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvMessageControl.h"
+ #include "CvMessageData.h"
++#include "CvGameAI.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ 
+ CvMessageControl& CvMessageControl::getInstance()
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index 89ac9e4ab..9edd639fd 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -1,9 +1,13 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvMessageData.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++#include "CvEventReporter.h"
+ #include "FDataStreamBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+-#include "CvEventReporter.h"
++
+ 
+ CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 40cc44878..c72a4d604 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1,16 +1,11 @@
+ // player.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvGlobals.h"
+-#include "CvArea.h"
+-#include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvRandom.h"
+-#include "CvTeamAI.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvPlayerAI.h"
+ #include "CvPlayer.h"
+-#include "CvGameCoreUtils.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CvArtFileMgr.h"
+ #include "CvDiploParameters.h"
+ #include "CvInitCore.h"
+@@ -18,13 +13,12 @@
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+ #include "CvDiploParameters.h"
+-#include "FProfiler.h"
+ #include "CvGameTextMgr.h"
+ #include "CyCity.h"
+ #include "CyPlot.h"
+ #include "CyUnit.h"
+ #include "CvEventReporter.h"
+-
++#include "CvBugOptions.h" // advc.106b
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLEngineIFaceBase.h"
+@@ -34,7 +28,7 @@
+ #include "CvDLLFlagEntityIFaceBase.h"
+ #include "BetterBTSAI.h"
+ //bbai end
+-#include "CvBugOptions.h" // advc.106b
++
+ 
+ // Public Functions...
+ 
+@@ -5940,8 +5934,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 			return false;
+ 		}
+ 		CvUnitInfo const& u = GC.getUnitInfo(eUnit); // advc.003
+-		if (u.getCombat() > 0 &&
+-				!::isMostlyDefensive(u)) // advc.315
++		if (u.getCombat() > 0 && /* advc.315: */ !u.isMostlyDefensive()) 
+ 		{
+ 			if (earlyMP || // advc.314
+ 					//GC.getGameINLINE().getElapsedGameTurns() < 20
+@@ -13817,7 +13810,7 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 
+ 	CvPlot* pPlot = pGroup->plot();
+ 
+-	if (!pPlot || !isCycleGroup(pGroup))
++	if (!pPlot || !pGroup->isCycleGroup())
+ 		return;
+ 
+ 	CvUnit* pUnit = pGroup->getHeadUnit();
+@@ -13842,7 +13835,7 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 		{
+ 			pSelectionGroupNode = deleteGroupCycleNode(pSelectionGroupNode);
+ 		}
+-		else if (isCycleGroup(pNextGroup) && pNextGroup->canAllMove())
++		else if (pNextGroup->isCycleGroup() && pNextGroup->canAllMove())
+ 		{
+ 			//int iCost = groupCycleDistance(pPreviousGroup, pGroup) + groupCycleDistance(pGroup, pNextGroup) - groupCycleDistance(pPreviousGroup, pNextGroup);
+ 			int iCost = groupCycleDistance(pGroup, pNextGroup) + (pPreviousGroup ? groupCycleDistance(pPreviousGroup, pGroup) - groupCycleDistance(pPreviousGroup, pNextGroup) : 3);
+@@ -13861,7 +13854,7 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 	}
+ 	if (pPreviousGroup)
+ 	{
+-		FAssert(isCycleGroup(pPreviousGroup) && pPreviousGroup->canAllMove());
++		FAssert(pPreviousGroup->isCycleGroup() && pPreviousGroup->canAllMove());
+ 		int iCost = groupCycleDistance(pPreviousGroup, pGroup) + 3; // cost for being at the end of the list.
+ 		if (iCost < iBestCost)
+ 		{
+@@ -13910,7 +13903,7 @@ void CvPlayer::refreshGroupCycleList()
+ 	{
+ 		CvSelectionGroup* pLoopGroup = getSelectionGroup(pNode->m_data);
+ 		CvUnit* pLoopHead = pLoopGroup->getHeadUnit();
+-		if (pLoopHead && isCycleGroup(pLoopGroup) && pLoopGroup->canAllMove() && (pLoopHead->hasMoved() || (pLoopHead->isCargo() && pLoopHead->getTransportUnit()->hasMoved())))
++		if (pLoopHead && pLoopGroup->isCycleGroup() && pLoopGroup->canAllMove() && (pLoopHead->hasMoved() || (pLoopHead->isCargo() && pLoopHead->getTransportUnit()->hasMoved())))
+ 		{
+ 			update_list.push_back(pLoopGroup);
+ 			pNode = deleteGroupCycleNode(pNode);
+@@ -24809,7 +24802,7 @@ double CvPlayer::estimateYieldRate(YieldTypes yield, int iSamples) const {
+ 	}
+ 	if(samples.empty())
+ 		return 0;
+-	return ::median(samples);
++	return ::dMedian(samples);
+ } // </advc.104>
+ 
+ // <advc.004x>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 63d21a730..8087495c9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2,35 +2,25 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvPlayerAI.h"
+-#include "CvRandom.h"
+-#include "CvGlobals.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvMap.h"
+-#include "CvArea.h"
+-#include "CvPlot.h"
++#include "CvGameAI.h"
+ #include "CvTeamAI.h"
+-#include "CvGameCoreUtils.h"
++#include "BetterBTSAI.h"
++#include "CvMap.h"
+ #include "CvDiploParameters.h"
+ #include "CvInitCore.h"
++#include "CvInfos.h"
++#include "CvPopupInfo.h"
++#include "CvEventReporter.h"
+ #include "CyArgsList.h"
++#include "FAStarNode.h"
++#include "CvDLLFAStarIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLEngineIFaceBase.h"
+-#include "CvInfos.h"
+-#include "CvPopupInfo.h"
+-#include "FProfiler.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "FAStarNode.h"
+-#include "CvEventReporter.h"
+-
+-#include "BetterBTSAI.h"
+ #include <iterator> // advc.036
+-// <k146>
+-#include <vector>
+-#include <set>
+-#include <queue>
+-// </k146>
++#include <queue> // k146
++
+ //#define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY			(20) // was 25
+ #define RELIGION_CHANGE_DELAY		(15)
+@@ -14357,7 +14347,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		case UNITAI_ATTACK:
+ 			if (u.getCombat() > 0)
+ 			{
+-				if (!::isMostlyDefensive(u)) // advc.315
++				if (!u.isMostlyDefensive()) // advc.315
+ 				{
+ 					bValid = true;
+ 				}
+@@ -14367,7 +14357,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		case UNITAI_ATTACK_CITY:
+ 			if (u.getCombat() > 0)
+ 			{
+-				if (!::isMostlyDefensive(u)) // advc.315
++				if (!u.isMostlyDefensive()) // advc.315
+ 				{
+ 					if (!u.isNoCapture())
+ 					{
+@@ -14380,7 +14370,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		case UNITAI_COLLATERAL:
+ 			if (u.getCombat() > 0)
+ 			{
+-				if (!::isMostlyDefensive(u)) // advc.315
++				if (!u.isMostlyDefensive()) // advc.315
+ 				{
+ 					if (u.getCollateralDamage() > 0)
+ 					{
+@@ -14393,7 +14383,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		case UNITAI_PILLAGE:
+ 			if (u.getCombat() > 0)
+ 			{
+-				if (!::isMostlyDefensive(u)) // advc.315
++				if (!u.isMostlyDefensive()) // advc.315
+ 				{
+ 					bValid = true;
+ 				}
+@@ -14403,7 +14393,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		case UNITAI_RESERVE:
+ 			if (u.getCombat() > 0)
+ 			{
+-				if (!::isMostlyDefensive(u)) // advc.315
++				if (!u.isMostlyDefensive()) // advc.315
+ 				{
+ 						bValid = true;
+ 					}
+@@ -14413,7 +14403,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		case UNITAI_COUNTER:
+ 			if (u.getCombat() > 0)
+ 			{
+-				if (!::isMostlyDefensive(u)) // advc.315
++				if (!u.isMostlyDefensive()) // advc.315
+ 				{
+ 					if (u.getInterceptionProbability() > 0)
+ 					{
+@@ -14922,7 +14912,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 				const CvUnitInfo& kLoopInfo = GC.getUnitInfo(eLoopUnit);
+ 
+ 				if (kLoopInfo.getDomainType() == DOMAIN_LAND && kLoopInfo.getCombat() > 0 &&
+-						!::isMostlyDefensive(kLoopInfo)) // advc.315
++						!kLoopInfo.isMostlyDefensive()) // advc.315
+ 				{
+ 					if (kLoopInfo.getCombatLimit() < 100)
+ 						iLimitedUnits += getUnitClassCount(i);
+@@ -16065,7 +16055,7 @@ int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot* pPlot, bool bTestCanMove)
+ 							Explorer has OnlyAttackBarbarians and I don't think
+ 							the AI will or should use Explorers for any
+ 							coordinated attacks anyway. */
+-						&& !::isMostlyDefensive(pLoopUnit->getUnitInfo()))
++						&& !pLoopUnit->getUnitInfo().isMostlyDefensive())
+ 				{
+ 					if (!bTestCanMove || pLoopUnit->canMove())
+ 					{
+@@ -16684,7 +16674,7 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 						if (!pLoopUnit->canAttack()) // bCheckCanAttack means something else.
+ 							continue;
+ 						// <advc.315> See comment in AI_adjacentPotentialAttackers
+-						if(::isMostlyDefensive(pLoopUnit->getUnitInfo()))
++						if(pLoopUnit->getUnitInfo().isMostlyDefensive())
+ 							continue; // </advc.315>
+ 						if (bCheckMoves)
+ 						{
+@@ -18481,10 +18471,11 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				// K-Mod - both offensive & defensive use of spread culture mission. (The first "if" is really just for effeciency.)
+ 				if (pCity->calculateCulturePercent(getID()) >= 8)
+ 				{
+-					const CvCity* pOurClosestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), getID());
++					CvMap& m = GC.getMapINLINE(); // advc.003
++					const CvCity* pOurClosestCity = m.findCity(pPlot->getX(), pPlot->getY(), getID());
+ 					if (pOurClosestCity != NULL)
+ 					{
+-						int iDistance = pCity->cultureDistance(xDistance(pPlot->getX(), pOurClosestCity->getX()), yDistance(pPlot->getY(), pOurClosestCity->getY()));
++						int iDistance = pCity->cultureDistance(m.xDistance(pPlot->getX(), pOurClosestCity->getX()), m.yDistance(pPlot->getY(), pOurClosestCity->getY()));
+ 						if (iDistance < 6)
+ 						{	// advc.003:
+ 							int iPressure = std::max(pCity->AI().AI_culturePressureFactor() -
+@@ -26125,7 +26116,7 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 		}*/
+ 		
+ 		if (!pLoopUnit->canAttack() || (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_SPECIAL)
+-				|| ::isMostlyDefensive(pLoopUnit->getUnitInfo())) // advc.315
++				|| pLoopUnit->getUnitInfo().isMostlyDefensive()) // advc.315
+ 		{
+ 			bValid = false;
+ 		}
+@@ -28031,7 +28022,7 @@ void CvPlayerAI::AI_doEnemyUnitData()
+ 					{
+ 						int tmp = ((pLoopUnit->canAttack() &&
+ 								// advc.315:
+-								!::isMostlyDefensive(pLoopUnit->getUnitInfo())) ?
++								!pLoopUnit->getUnitInfo().isMostlyDefensive()) ?
+ 								4 : 1);
+ 						iUnitValue += tmp;
+ 						if (pLoopPlot->getCulture(getID()) > 0)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6f94286ee..bba5a1d7c 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2,37 +2,25 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvPlot.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvCity.h"
+ #include "CvUnit.h"
+-#include "CvGlobals.h"
+-#include "CvArea.h"
++#include "CvMap.h"
++#include "CvInfos.h"
++#include "CvArtFileMgr.h"
++#include "CyArgsList.h"
++#include "CvEventReporter.h"
++#include "FAStarNode.h" // BETTER_BTS_AI_MOD, General AI, 11/30/08, jdog5000
++#include "CvDLLFAStarIFaceBase.h"
++#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLSymbolIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLPlotBuilderIFaceBase.h"
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLFlagEntityIFaceBase.h"
+-#include "CvMap.h"
+-#include "CvPlayerAI.h"
+-#include "CvTeamAI.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvRandom.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvInfos.h"
+-#include "FProfiler.h"
+-#include "CvArtFileMgr.h"
+-#include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvEventReporter.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-#include "FAStarNode.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ #define STANDARD_MINIMAP_ALPHA		(0.75f) // advc.002a: was 0.6
+ bool CvPlot::m_bAllFog = false; // advc.706
+@@ -481,8 +469,7 @@ if (GC.getImprovementInfo(getImprovementType()).getImprovementBonusDiscoverRand(
+ 					if(iOdds > 0)
+ 					{	// <advc.rom3>
+ 						//Afforess: check for valid terrains for this bonus before discovering it
+-						if(!canHaveBonus((BonusTypes)iI), false,
+-								true) // advc.129
++						if(!canHaveBonus((BonusTypes)iI), false, /* advc.129: */ true) 
+ 							continue; // </advc.rom3>
+ 						iOdds *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
+ 						iOdds /= 100;
+@@ -1877,15 +1864,14 @@ bool CvPlot::canSeePlot(CvPlot *pPlot, TeamTypes eTeam, int iRange, DirectionTyp
+ 	iRange++;
+ 
+ 	if (pPlot == NULL)
+-	{
+ 		return false;
+-	}
+ 
+ 	//find displacement
+ 	int dx = pPlot->getX() - getX();
+ 	int dy = pPlot->getY() - getY();
+-	dx = dxWrap(dx); //world wrap
+-	dy = dyWrap(dy);
++	CvMap const& m = GC.getMapINLINE();
++	dx = m.dxWrap(dx); //world wrap
++	dy = m.dyWrap(dy);
+ 
+ 	//check if in facing direction
+ 	if (shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index a19c66f75..8cf843f3f 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -5,7 +5,6 @@
+ #ifndef CIV4_PLOT_H
+ #define CIV4_PLOT_H
+ 
+-//#include "CvStructs.h"
+ #include "LinkedList.h"
+ #include <bitset>
+ #include <set> // advc.300
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index 758b26056..308b7d732 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -2,13 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvPlotGroup.h"
+-#include "CvPlot.h"
+-#include "CvGlobals.h"
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+ #include "CvCity.h"
+ #include "CvDLLFAStarIFaceBase.h"
+-#include "FProfiler.h"
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.h b/CvGameCoreDLL/CvPlotGroup.h
+index dd7527196..c22c116dd 100644
+--- a/CvGameCoreDLL/CvPlotGroup.h
++++ b/CvGameCoreDLL/CvPlotGroup.h
+@@ -5,7 +5,6 @@
+ #ifndef CIV4_PLOT_GROUP_H
+ #define CIV4_PLOT_GROUP_H
+ 
+-//#include "CvStructs.h"
+ #include "LinkedList.h"
+ 
+ class CvPlot;
+
+diff --git a/CvGameCoreDLL/CvPopupInfo.h b/CvGameCoreDLL/CvPopupInfo.h
+index 48f1f21c6..62999d193 100644
+--- a/CvGameCoreDLL/CvPopupInfo.h
++++ b/CvGameCoreDLL/CvPopupInfo.h
+@@ -2,8 +2,6 @@
+ #ifndef CVPOPUPINFO_H
+ #define CVPOPUPINFO_H
+ 
+-//#include "CvEnums.h"
+-
+ struct CvPopupButtonPython
+ {
+ 	CvWString szText;
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index bd80333e8..a184a4b37 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvRandom.h"
+-#include "CvGlobals.h"
++#include "CvGameAI.h"
+ #include "CyArgsList.h"
+ 
+ #define RANDOM_A      (1103515245)
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 74872856b..c1c5c2dfa 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -1,13 +1,13 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvReplayInfo.h"
+-#include "CvInfos.h"
+-#include "CvGlobals.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvInfos.h"
+ #include "CvMap.h"
+ #include "CvReplayMessage.h"
+ #include "CvGameTextMgr.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include "CvInitCore.h"
++#include "CvDLLInterfaceIFaceBase.h"
+ 
+ int CvReplayInfo::REPLAY_VERSION = 6; // advc.707, advc.106i: 4 in BtS
+ bool CvReplayInfo::STORE_REPLAYS_AS_BTS = false; // advc.106i
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index b548bdb34..8ff84460c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1,29 +1,24 @@
+ // selectionGroup.cpp
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CvGlobals.h"
+ #include "CvSelectionGroup.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvUnit.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h" // advc.102
+-#include "CvDLLFAStarIFaceBase.h"
++#include "BetterBTSAI.h"
+ #include "FAStarNode.h"
+ #include "CvInfos.h"
+-#include "FProfiler.h"
++#include "CvEventReporter.h"
+ #include "CyPlot.h"
+ #include "CySelectionGroup.h"
+ #include "CyArgsList.h"
+ #include "CvDLLPythonIFaceBase.h"
+-#include <set>
+-#include "CvEventReporter.h"
+-
+-#include "BetterBTSAI.h"
++#include "CvDLLEntityIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h" // advc.102
++#include "CvDLLFAStarIFaceBase.h"
+ 
+ KmodPathFinder CvSelectionGroup::path_finder; // K-Mod
+ 
+@@ -309,7 +304,7 @@ void CvSelectionGroup::doTurn()
+ 		}
+ 	}
+ 	// K-Mod
+-	if (!bCouldAllMove && isCycleGroup(this))
++	if (!bCouldAllMove && isCycleGroup())
+ 		GET_PLAYER(getOwnerINLINE()).updateGroupCycle(this);
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 5875c9ff7..de594669b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -5,7 +5,6 @@
+ #ifndef CIV4_GROUP_H
+ #define CIV4_GROUP_H
+ 
+-//#include "CvStructs.h"
+ #include "LinkedList.h"
+ #include "KmodPathFinder.h"
+ 
+@@ -69,6 +68,8 @@ public:
+ 	int maxMoves() const; // K-Mod
+ 	int movesLeft() const; // K-Mod
+ 	bool isWaiting() const;																																							// Exposed to Python
++	// advc.make: Cut from CvGameCoreUtils
++	inline bool isCycleGroup() const { return getNumUnits() > 0 && !isWaiting() && !isAutomated(); } // K-Mod
+ 	bool isFull();																																											// Exposed to Python
+ 	bool hasCargo();																																										// Exposed to Python
+ 	int getCargo() const;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index b5c157be7..9cef61b08 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -3,13 +3,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvSelectionGroupAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvMap.h"
+-#include "CvPlot.h"
+ #include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CvDLLEntityIFaceBase.h"
+-#include "CvGameCoreUtils.h"
+-#include "FProfiler.h"
+-#include "CVInfos.h"
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvStatistics.cpp b/CvGameCoreDLL/CvStatistics.cpp
+index b5b9f15b8..996899b73 100644
+--- a/CvGameCoreDLL/CvStatistics.cpp
++++ b/CvGameCoreDLL/CvStatistics.cpp
+@@ -2,7 +2,6 @@
+ #include "CvStatistics.h"
+ #include "CvUnit.h"
+ #include "CvCity.h"
+-#include "CvGlobals.h"
+ #include "CvPlayerAI.h"
+ 
+ CvGameRecord::CvGameRecord()
+
+diff --git a/CvGameCoreDLL/CvStatistics.h b/CvGameCoreDLL/CvStatistics.h
+index fa6b3cb1a..d08998fd4 100644
+--- a/CvGameCoreDLL/CvStatistics.h
++++ b/CvGameCoreDLL/CvStatistics.h
+@@ -3,8 +3,6 @@
+ #ifndef _CVSTATISTICS_H_
+ #define _CVSTATISTICS_H_
+ 
+-//#include "CvEnums.h"
+-
+ class CvCity;
+ class CvUnit;
+
+diff --git a/CvGameCoreDLL/CvStructs.cpp b/CvGameCoreDLL/CvStructs.cpp
+index 5c0dbf6c2..6a843fe7c 100644
+--- a/CvGameCoreDLL/CvStructs.cpp
++++ b/CvGameCoreDLL/CvStructs.cpp
+@@ -12,8 +12,8 @@
+ //------------------------------------------------------------------------------------------------
+ 
+ #include "CvGameCoreDLL.h"
++#include "CvStructs.h"
+ #include "CvUnit.h"
+-//#include "CvStructs.h"
+ 
+ int EventTriggeredData::getID() const 
+ {
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 99d2bbade..69382c41a 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -5,7 +5,6 @@
+ 
+ // structs.h
+ 
+-//#include "CvEnums.h"
+ #include "CvString.h"
+ 
+ // XXX these should not be in the DLL per se (if the user changes them, we are screwed...)
+
+diff --git a/CvGameCoreDLL/CvTalkingHeadMessage.cpp b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+index 3847fe08f..4a5104e97 100644
+--- a/CvGameCoreDLL/CvTalkingHeadMessage.cpp
++++ b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+@@ -1,6 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvTalkingHeadMessage.h"
+-#include "CvGlobals.h"
++#include "CvGameAI.h"
+ 
+ CvTalkingHeadMessage::CvTalkingHeadMessage(int iMessageTurn, int iLen, LPCWSTR pszDesc, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCTSTR pszIcon, ColorTypes eColor, int iX, int iY, bool bShowOffScreenArrows, bool bShowOnScreenArrows) :
+ 	m_iTurn(iMessageTurn),
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 2bd2ad535..67950458d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1,35 +1,23 @@
+ // team.cpp
+ 
+ #include "CvGameCoreDLL.h"
++#include "CvTeam.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvDefines.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvGlobals.h"
+ #include "CvTeamAI.h"
+-#include "CvPlayerAI.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvTeam.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include "CvEventReporter.h"
+-#include "CvDLLEngineIFaceBase.h"
+ #include "CvArtFileMgr.h"
+ #include "CvDiploParameters.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CyArgsList.h"
+-#include "FProfiler.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "CvInitCore.h" // advc.003m
+ #include "CvBugOptions.h" // advc.071
++#include "CvDLLPythonIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h"
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index df9998a61..2b499ff92 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -7,8 +7,6 @@
+ 
+ #include <queue> // dlph.26
+ 
+-//#include "CvEnums.h"
+-
+ class CvArea;
+ 
+ class CvTeam
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 9920d1224..7c5e72730 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2,19 +2,14 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvTeamAI.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvRandom.h"
+-#include "CvGlobals.h"
+-#include "CvGameCoreUtils.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include "CvInfos.h"
+-#include "FProfiler.h"
+ #include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+-
+ #include "BetterBTSAI.h" // bbai
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h" // K-Mod (currently used in AI_isLandTarget)
+ #include <numeric> // K-Mod. used in AI_warSpoilsValue
+ 
+@@ -2867,7 +2862,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier,
+ 		}
+ 	}
+ 	// advc.112: Probably not much of an improvement over using the mean
+-	double medianPow = ::median(powerValues);
++	double medianPow = ::dMedian(powerValues);
+ 	int iAveragePower = iTotalPower / std::max(1, iNumNonVassals);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -5392,6 +5387,17 @@ void CvTeamAI::AI_setStrengthMemory(int x, int y, int value)
+ 	FAssert(m_aiStrengthMemory.size() == GC.getMapINLINE().numPlotsINLINE());
+ 	m_aiStrengthMemory[GC.getMapINLINE().plotNumINLINE(x, y)] = value;
+ }
++// <advc.make> Was inlined in CvTeamAI.h
++int CvTeamAI::AI_getStrengthMemory(const CvPlot* pPlot) {
++	//return AI_getStrengthMemory(pPlot->getX_INLINE(), pPlot->getY_INLINE());
++	// To make sure that it won't be slower than before
++	return m_aiStrengthMemory[GC.getMapINLINE().plotNumINLINE(pPlot->getX_INLINE(), pPlot->getY_INLINE())];
++}
++
++void CvTeamAI::AI_setStrengthMemory(const CvPlot* pPlot, int value) {
++	//AI_setStrengthMemory(pPlot->getX_INLINE(), pPlot->getY_INLINE(), value);
++	m_aiStrengthMemory[GC.getMapINLINE().plotNumINLINE(pPlot->getX_INLINE(), pPlot->getY_INLINE())] = value;
++} // </advc.make>
+ 
+ void CvTeamAI::AI_updateStrengthMemory()
+ {
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 36a49bd30..8115ed06b 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -6,9 +6,7 @@
+ #define CIV4_TEAM_AI_H
+ 
+ #include "CvTeam.h"
+-
+-// advc.104
+-#include "WarAndPeaceAI.h"
++#include "WarAndPeaceAI.h" // advc.104
+ 
+ 
+ class CvTeamAI : public CvTeam
+@@ -273,9 +271,10 @@ public:
+ 
+ 	// K-Mod. Strength Memory - a very basic and rough reminder-map of how strong the enemy presence is on each plot.
+ 	int AI_getStrengthMemory(int x, int y) const;
+-	inline int AI_getStrengthMemory(const CvPlot* pPlot) { return AI_getStrengthMemory(pPlot->getX_INLINE(), pPlot->getY_INLINE()); }
+ 	void AI_setStrengthMemory(int x, int y, int value);
+-	inline void AI_setStrengthMemory(const CvPlot* pPlot, int value) { AI_setStrengthMemory(pPlot->getX_INLINE(), pPlot->getY_INLINE(), value); }
++	// <advc.make> No longer inlined. To avoid including CvPlot.h.
++	int AI_getStrengthMemory(const CvPlot* pPlot);
++	void AI_setStrengthMemory(const CvPlot* pPlot, int value); // </advc.make>
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a64bf3e1a..df11be2f4 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2,40 +2,25 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvUnit.h"
+-#include "CvArea.h"
+-#include "CvPlot.h"
+-#include "CvCity.h"
+-#include "CvGlobals.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvMap.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvRandom.h"
+ #include "CvTeamAI.h"
+-#include "CvGameCoreUtils.h"
++#include "CvCity.h"
++#include "CvMap.h"
+ #include "CyUnit.h"
+ #include "CyArgsList.h"
+ #include "CyPlot.h"
++#include "CvInfos.h"
++#include "CvPopupInfo.h"
++#include "CvArtFileMgr.h"
++#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
++#include "CvBugOptions.h" // advc.002e
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvEventReporter.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+-#include "CvInfos.h"
+-#include "FProfiler.h"
+-#include "CvPopupInfo.h"
+-#include "CvArtFileMgr.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-#include "CvBugOptions.h" // advc.002e
+-
+-// Public Functions...
+ 
+ 
+ CvUnit::CvUnit()
+@@ -13822,7 +13807,7 @@ bool CvUnit::canApplyEvent(EventTypes eEvent) const
+ 	{
+ 		if (!canAttack()
+ 				// advc.315: Farm Bandits and Toxcatl random events
+-				|| ::isMostlyDefensive(*m_pUnitInfo))
++				|| m_pUnitInfo->isMostlyDefensive())
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 0c52cbdf3..47fe19214 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -6,8 +6,6 @@
+ #define CIV4_UNIT_H
+ 
+ #include "CvDLLEntity.h"
+-//#include "CvEnums.h"
+-//#include "CvStructs.h"
+ 
+ #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 184f3dcac..d7484605c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2,35 +2,19 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvUnitAI.h"
+-#include "CvMap.h"
+-#include "CvArea.h"
+-#include "CvPlot.h"
+-#include "CvGlobals.h"
+-#include "CvTeamAI.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvGameCoreUtils.h"
+-#include "CvRandom.h"
++#include "CvTeamAI.h"
++#include "CvMap.h"
+ #include "CyUnit.h"
+ #include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvInfos.h"
+-#include "FProfiler.h"
++#include "BetterBTSAI.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "FAStarNode.h"
+-
+-// interface uses
++#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ #define FOUND_RANGE				(7)
+ 
+ // Public Functions...
+@@ -2966,7 +2950,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			//if( !pLoopUnit->isOnlyDefensive() )
+ 			if (pLoopUnit->canAttack() // K-Mod
+ 					// advc.315:
+-					&& !::isMostlyDefensive(pLoopUnit->getUnitInfo()))
++					&& !pLoopUnit->getUnitInfo().isMostlyDefensive())
+ 			{
+ 				iCityCapture += pLoopUnit->isNoCapture() ? 0 : 1;
+ 				iNoCombatLimit += pLoopUnit->combatLimit() < 100 ? 0 : 1;
+@@ -15104,8 +15088,8 @@ bool CvUnitAI::AI_explore() // advc.003: refactored
+ 			continue;
+ 
+ 		iValue += g.getSorenRandNum(250 *
+-				abs(xDistance(getX_INLINE(), pLoopPlot->getX_INLINE())) +
+-				abs(yDistance(getY_INLINE(), pLoopPlot->getY_INLINE())), "AI explore 2");
++				abs(m.xDistance(getX_INLINE(), pLoopPlot->getX_INLINE())) +
++				abs(m.yDistance(getY_INLINE(), pLoopPlot->getY_INLINE())), "AI explore 2");
+ 
+ 		if (pLoopPlot->isAdjacentToLand())
+ 			iValue += 10000;
+@@ -16587,7 +16571,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 				CvUnit const& u = *::getUnit(pNode->m_data);
+ 				pNode = p.nextUnitNode(pNode);
+ 				if(u.getDomainType() == DOMAIN_SEA && u.canFight() &&
+-						!::isMostlyDefensive(u.getUnitInfo()) &&
++						!u.getUnitInfo().isMostlyDefensive() &&
+ 						isEnemy(u.getTeam(), pp) &&
+ 						!u.isInvisible(getTeam(), false) &&
+ 						u.currEffectiveStr(NULL, NULL, NULL) > iCurrEffStr + 50) {
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 2effd6a34..a95f1bdb0 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -14,8 +14,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLXMLIFaceBase.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvGlobals.h"
+-#include "FProfiler.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ 
+ static const int kBufSize = 2048;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index e4811dd18..d6c4afdaf 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -15,7 +15,6 @@
+ #ifndef XML_LOAD_UTILITY_H
+ #define XML_LOAD_UTILITY_H
+ 
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CvGlobals.h"
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index 14118cf13..4521d4ee2 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -5,10 +5,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLXMLIFaceBase.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvGlobals.h"
+ #include "CvArtFileMgr.h"
+ #include "FInputDevice.h"
+-#include "FProfiler.h"
+ 
+ //
+ // STATIC
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp b/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+index 2b001e243..cb6a4091f 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+@@ -3,11 +3,9 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvGlobals.h"
+ #include "CvArtFileMgr.h"
+ #include "CvGameTextMgr.h"
+ #include "CvInfoWater.h"
+-#include "FProfiler.h"
+ 
+ //------------------------------------------------------------------------------------------------------
+ //
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index ec53e2c34..4ac5140ae 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -5,14 +5,11 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLXMLIFaceBase.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvGlobals.h"
+ #include "CvArtFileMgr.h"
+ #include "CvGameTextMgr.h"
+-#include <algorithm>
+ #include "CvInfoWater.h"
+-#include "FProfiler.h"
+ #include "FVariableSystem.h"
+-#include "CvGameCoreUtils.h"
++
+ 
+ // Macro for Setting Global Art Defines
+ #define INIT_XML_GLOBAL_LOAD(xmlInfoPath, infoArray, numInfos)  SetGlobalClassInfo(infoArray, xmlInfoPath, numInfos);
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index c41b6ec20..2357cad36 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -8,7 +8,6 @@
+ #include "CyArea.h"
+ #include "CyUnit.h"
+ #include "CvDLLPythonIFaceBase.h"
+-#include "CvGlobals.h"
+ 
+ CyCity::CyCity() : m_pCity(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index af46d54a2..a19c4c7f1 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -6,7 +6,6 @@
+ // Python wrapper class for CvCity 
+ // 
+ 
+-//#include "CvEnums.h"
+ #include <string>
+ # include <boost/python/tuple.hpp>
+ namespace python = boost::python;
+
+diff --git a/CvGameCoreDLL/CyDeal.h b/CvGameCoreDLL/CyDeal.h
+index 49cf56bba..c21ebf3e4 100644
+--- a/CvGameCoreDLL/CyDeal.h
++++ b/CvGameCoreDLL/CyDeal.h
+@@ -6,9 +6,6 @@
+ #ifndef CY_DEAL_H
+ #define CY_DEAL_H
+ 
+-//#include "CvEnums.h"
+-//#include "CvStructs.h"
+-
+ class CvDeal;
+ 
+ class CyDeal
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 26887d6d8..b980574ba 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -7,7 +7,6 @@
+ #include "CvGameAI.h"
+ #include "CyGlobalContext.h"
+ #include "CyPlayer.h"
+-//#include "CvEnums.h"
+ #include "CyCity.h"
+ #include "CyDeal.h"
+ #include "CyReplayInfo.h"
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 87a339d16..6f8d62c10 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -7,8 +7,6 @@
+ // SINGLETON
+ // updated 6-5
+ 
+-//#include "CvEnums.h"
+-
+ class CvGame;
+ class CvGameAI;
+ class CyCity;
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.cpp b/CvGameCoreDLL/CyGameCoreUtils.cpp
+index d7abaf0d8..03e046ca9 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtils.cpp
+@@ -4,6 +4,9 @@
+ #include "CyPlot.h"
+ #include "CyCity.h"
+ #include "CyUnit.h"
++/*  advc.make (would be nicer to move the respective functions to the
++	Python interface of CvMap) */
++#include "CvMap.h"
+ 
+ int cyIntRange(int iNum, int iLow, int iHigh)
+ {
+@@ -17,12 +20,12 @@ float cyFloatRange(float fNum, float fLow, float fHigh)
+ 
+ int cyDxWrap(int iDX)
+ {
+-	return dxWrap(iDX);
++	return GC.getMapINLINE().dxWrap(iDX);
+ }
+ 
+ int cyDyWrap(int iDY)
+ {
+-	return dyWrap(iDY);
++	return GC.getMapINLINE().dyWrap(iDY);
+ }
+ 
+ int cyPlotDistance(int iX, int iY, int iX2, int iY2)
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index c2e3a5771..4a108ca4a 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -1,6 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyGame.h"
+-#include "CvRandom.h"
+ #include "CyCity.h"
+ #include "CyDeal.h"
+ #include "CyReplayInfo.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 136cc1a29..f14e1e6d6 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -5,15 +5,14 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CyGlobalContext.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CyGame.h"
+ #include "CyPlayer.h"
+ #include "CyMap.h"
+-#include "CvGlobals.h"
+-#include "CvPlayerAI.h"
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+-#include "CvTeamAI.h"
+ #include "CyArtFileMgr.h"
+ 
+ CyGlobalContext::CyGlobalContext()
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface1.cpp b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+index 8cc82776c..0b9a1ac1d 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface1.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+@@ -8,8 +8,6 @@
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+ #include "CyGlobalContext.h"
+-#include "CvRandom.h"
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface2.cpp b/CvGameCoreDLL/CyGlobalContextInterface2.cpp
+index 69f4f7eec..6a1c7cb30 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface2.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface2.cpp
+@@ -8,8 +8,6 @@
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+ #include "CyGlobalContext.h"
+-#include "CvRandom.h"
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface3.cpp b/CvGameCoreDLL/CyGlobalContextInterface3.cpp
+index 5ae69d914..5d6628201 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface3.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface3.cpp
+@@ -7,8 +7,6 @@
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+ #include "CyGlobalContext.h"
+-#include "CvRandom.h"
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface4.cpp b/CvGameCoreDLL/CyGlobalContextInterface4.cpp
+index 5ec418b05..717ad85dc 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface4.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface4.cpp
+@@ -8,8 +8,6 @@
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+ #include "CyGlobalContext.h"
+-#include "CvRandom.h"
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index ba99df84b..15e557906 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -3,14 +3,13 @@
+ // 
+ 
+ #include "CvGameCoreDLL.h"
+-#include "cyMap.h"
++#include "CyMap.h"
+ #include "CyPlot.h"
+ #include "CvMap.h"
+ #include "CyCity.h"
+ #include "CySelectionGroup.h"
+ #include "CyUnit.h"
+ #include "CyArea.h"
+-#include "CvGlobals.h"
+ #include "CvMapGenerator.h"
+ #include "CvInitCore.h"
+
+diff --git a/CvGameCoreDLL/CyMap.h b/CvGameCoreDLL/CyMap.h
+index eb6a0c94f..0e3d14cb0 100644
+--- a/CvGameCoreDLL/CyMap.h
++++ b/CvGameCoreDLL/CyMap.h
+@@ -3,7 +3,6 @@
+ #ifndef CyMap_h
+ #define CyMap_h
+ 
+-//#include "CvEnums.h"
+ //
+ // Python wrapper class for CvMap 
+ // SINGLETON
+
+diff --git a/CvGameCoreDLL/CyMapGenerator.cpp b/CvGameCoreDLL/CyMapGenerator.cpp
+index dec6ca4d7..d0f12c301 100644
+--- a/CvGameCoreDLL/CyMapGenerator.cpp
++++ b/CvGameCoreDLL/CyMapGenerator.cpp
+@@ -11,10 +11,9 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CyMapGenerator.h"
+-#include "CvGlobals.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvMapGenerator.h"
+ #include "CyPlot.h"
++#include "CvDLLPythonIFaceBase.h"
+ 
+ CyMapGenerator::CyMapGenerator() : m_pMapGenerator(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index 8bf9913fe..764c17a4d 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -5,7 +5,6 @@
+ #include "CySelectionGroup.h"
+ #include "CyUnit.h"
+ #include "CyPlot.h"
+-//#include "CvStructs.h"
+ //# include <boost/python/manage_new_object.hpp>
+ //# include <boost/python/return_value_policy.hpp>
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 8c8744000..1bbf5fbbd 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -9,14 +9,11 @@
+ #include "CyArea.h"
+ #include "CyPlot.h"
+ #include "CvPlayerAI.h"
+-//#include "CvEnums.h"
+ #include "CvCity.h"
+ #include "CvMap.h"
+-#include "CvPlot.h"
+ #include "CySelectionGroup.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvGlobals.h"
+ #include "WarEvaluator.h" // advc.104l
++#include "CvDLLPythonIFaceBase.h"
+ 
+ CyPlayer::CyPlayer() : m_pPlayer(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index a738d7620..4ddf9b314 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -6,9 +6,6 @@
+ // Python wrapper class for CvPlayer 
+ // 
+ 
+-//#include "CvEnums.h"
+-//#include "CvStructs.h"
+-
+ class CyUnit;
+ class CvPlayer;
+ class CyCity;
+
+diff --git a/CvGameCoreDLL/CyPlot.h b/CvGameCoreDLL/CyPlot.h
+index 5b7002086..ebb18aaad 100644
+--- a/CvGameCoreDLL/CyPlot.h
++++ b/CvGameCoreDLL/CyPlot.h
+@@ -3,8 +3,6 @@
+ #ifndef CyPlot_h
+ #define CyPlot_h
+ 
+-//#include "CvEnums.h"
+-
+ //
+ // Python wrapper class for CvPlot
+ //
+
+diff --git a/CvGameCoreDLL/CyRandomInterface.cpp b/CvGameCoreDLL/CyRandomInterface.cpp
+index 6a54e1184..b62f52bbf 100644
+--- a/CvGameCoreDLL/CyRandomInterface.cpp
++++ b/CvGameCoreDLL/CyRandomInterface.cpp
+@@ -1,5 +1,4 @@
+ #include "CvGameCoreDLL.h"
+-#include "CvRandom.h"
+ # include <boost/python/overloads.hpp>
+ using namespace boost::python;
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.cpp b/CvGameCoreDLL/CySelectionGroup.cpp
+index a7602270a..a2b317147 100644
+--- a/CvGameCoreDLL/CySelectionGroup.cpp
++++ b/CvGameCoreDLL/CySelectionGroup.cpp
+@@ -10,7 +10,6 @@
+ #include "CvArea.h"
+ #include "CyArea.h"
+ #include "CyUnit.h"
+-//#include "CvStructs.h"
+ 
+ CySelectionGroup::CySelectionGroup() : m_pSelectionGroup(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.h b/CvGameCoreDLL/CySelectionGroup.h
+index 1db839ebe..fede142b4 100644
+--- a/CvGameCoreDLL/CySelectionGroup.h
++++ b/CvGameCoreDLL/CySelectionGroup.h
+@@ -7,8 +7,6 @@
+ //  
+ //
+ 
+-//#include "CvEnums.h"
+-
+ struct MissionData;
+ 
+ class CyPlot;
+
+diff --git a/CvGameCoreDLL/CySelectionGroupInterface.cpp b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+index 2574e1045..a588e292e 100644
+--- a/CvGameCoreDLL/CySelectionGroupInterface.cpp
++++ b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+@@ -3,7 +3,6 @@
+ #include "CyPlot.h"
+ #include "CyArea.h"
+ #include "CyUnit.h"
+-//#include "CvStructs.h"
+ //# include <boost/python/manage_new_object.hpp>
+ //# include <boost/python/return_value_policy.hpp>
+
+diff --git a/CvGameCoreDLL/CyStructsInterface1.cpp b/CvGameCoreDLL/CyStructsInterface1.cpp
+index e4f5d84fc..28a361397 100644
+--- a/CvGameCoreDLL/CyStructsInterface1.cpp
++++ b/CvGameCoreDLL/CyStructsInterface1.cpp
+@@ -1,6 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvUnit.h"
+-//#include "CvStructs.h"
+ #include "CvInfos.h"
+ 
+ //
+
+diff --git a/CvGameCoreDLL/CyTeam.cpp b/CvGameCoreDLL/CyTeam.cpp
+index f8441f35d..b672dd024 100644
+--- a/CvGameCoreDLL/CyTeam.cpp
++++ b/CvGameCoreDLL/CyTeam.cpp
+@@ -4,8 +4,8 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CyTeam.h"
++#include "CvTeamAI.h"
+ #include "CyArea.h"
+-#include "CvTeam.h"
+ 
+ CyTeam::CyTeam() : m_pTeam(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyTeam.h b/CvGameCoreDLL/CyTeam.h
+index 3fd01bdeb..4953e9aee 100644
+--- a/CvGameCoreDLL/CyTeam.h
++++ b/CvGameCoreDLL/CyTeam.h
+@@ -6,7 +6,7 @@
+ // Python wrapper class for CvTeam
+ // 
+ 
+-// //#include "CvEnums.h"
++#include "CvTeam.h"
+ 
+ class CvTeam;
+ class CyArea;
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 02f9da74b..629d4f659 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -13,7 +13,6 @@
+ #include "CvArtFileMgr.h"
+ #include "CySelectionGroup.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+-#include "CvGlobals.h"
+ 
+ CyUnit::CyUnit() : m_pUnit(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyUnit.h b/CvGameCoreDLL/CyUnit.h
+index 459b8b21f..fd427d789 100644
+--- a/CvGameCoreDLL/CyUnit.h
++++ b/CvGameCoreDLL/CyUnit.h
+@@ -6,15 +6,12 @@
+ // Python wrapper class for CvUnit
+ // 
+ 
+-//#include "CvEnums.h"
+-
+ class CyArea;
+ class CyPlot;
+ class CyCity;
+ class CvUnit;
+ class CySelectionGroup;
+ class CvArtInfoUnit;
+-//class CyUnitEntity;
+ class CyUnit
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 2893a3b4f..bc816594f 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -2,11 +2,12 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "InvasionGraph.h"
++#include "CvGameAI.h"
++#include "CvTeamAI.h"
+ #include "ArmamentForecast.h"
+-#include <set>
+-#include <vector>
++#include "CvPlot.h"
++#include "CvArea.h"
+ #include <sstream>
+-#include <limits>
+ 
+ using std::ostringstream;
+ using std::set;
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 9bb491101..b1a6c661a 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -1,8 +1,11 @@
+ 
+-
+ #include "CvGameCoreDLL.h"
+ #include "KmodPathFinder.h"
+-#include "CvGameCoreUtils.h"
++#include "CvGameAI.h"
++#include "CvTeamAI.h"
++#include "CvInfos.h"
++#include "CvSelectionGroup.h"
++#include "CvMap.h"
+ 
+ int KmodPathFinder::admissible_scaled_weight = 1;
+ int KmodPathFinder::admissible_base_weight = 1;
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 90ea5a39d..e73831ea1 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -3,6 +3,8 @@
+ #include <vector>
+ #include "FAStarNode.h"
+ 
++class CvSelectionGroup;
++
+ struct CvPathSettings
+ {
+ 	CvPathSettings(const CvSelectionGroup* pGroup = 0, int iFlags = 0, int iMaxPath = -1, int iHW = -1);
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 065fc4654..0ef0b6d99 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -2,9 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "MilitaryAnalyst.h"
+-#include <set>
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include <sstream>
+-#include <algorithm>
+ #include <iterator>
+ 
+ using std::set;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 05656f854..eac14ac11 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -2,6 +2,8 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "MilitaryBranch.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
+ 
+ using std::ostream;
+ using std::vector;
+@@ -323,7 +325,7 @@ double MilitaryBranch::Army::unitPower(CvUnitInfo const& u, bool modify) const {
+ 		return -1;*/
+ 	double r = u.getPowerValue();
+ 	if(modify) {
+-		if(::isMostlyDefensive(u)) // advc.315
++		if(u.isMostlyDefensive()) // advc.315
+ 			return -1;
+ 		// Prefer potential city raiders
+ 		for(int i = 0; i < GC.getNumPromotionInfos(); i++) {
+@@ -343,7 +345,7 @@ double MilitaryBranch::Army::unitPower(CvUnitInfo const& u, bool modify) const {
+ double MilitaryBranch::Cavalry::unitPower(CvUnitInfo const& u, bool modify) const {
+ 
+ 	if(u.getMoves() <= 1 || u.getProductionCost() >= 150 ||
+-			::isMostlyDefensive(u)) // advc.315
++			u.isMostlyDefensive()) // advc.315
+ 		return -1;
+ 	return GET_PLAYER(ownerId).warAndPeaceAI().militaryPower(u);
+ }
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 4bfd4dab0..a654141d1 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -382,7 +382,7 @@ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=DebugMem
+ nmake clean  /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+
+diff --git a/CvGameCoreDLL/RFChapter.cpp b/CvGameCoreDLL/RFChapter.cpp
+index 82578bd1f..51e78cab9 100644
+--- a/CvGameCoreDLL/RFChapter.cpp
++++ b/CvGameCoreDLL/RFChapter.cpp
+@@ -2,6 +2,9 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "RFChapter.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ 
+ 
+ RFChapter::RFChapter() { reset(); }
+
+diff --git a/CvGameCoreDLL/RFChapterScore.cpp b/CvGameCoreDLL/RFChapterScore.cpp
+index 01584a7b4..d6ad91002 100644
+--- a/CvGameCoreDLL/RFChapterScore.cpp
++++ b/CvGameCoreDLL/RFChapterScore.cpp
+@@ -1,7 +1,10 @@
+ // <advc.700> New class; see header file for description.
+ 
+-#include "RFChapterScore.h"
+ #include "CvGameCoreDLL.h"
++#include "RFChapterScore.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ 
+ 
+ RFChapterScore::RFChapterScore() {
+
+diff --git a/CvGameCoreDLL/RFChapterScore.h b/CvGameCoreDLL/RFChapterScore.h
+index df81da719..2c8478018 100644
+--- a/CvGameCoreDLL/RFChapterScore.h
++++ b/CvGameCoreDLL/RFChapterScore.h
+@@ -3,8 +3,6 @@
+ #ifndef RF_CHAPTER_SCORE_H
+ #define RF_CHAPTER_SCORE_H
+ 
+-#include "CvGameCoreDLL.h"
+-
+ class RFChapter;
+ 
+ /*  <advc.700>: New class. Computes and stores the score awarded for a
+
+diff --git a/CvGameCoreDLL/RFTotalScore.cpp b/CvGameCoreDLL/RFTotalScore.cpp
+index fab9e516e..7ee547992 100644
+--- a/CvGameCoreDLL/RFTotalScore.cpp
++++ b/CvGameCoreDLL/RFTotalScore.cpp
+@@ -3,6 +3,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "RFTotalScore.h"
+ #include "RFChapterScore.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ 
+ 
+ RFTotalScore::RFTotalScore() {
+@@ -91,7 +94,7 @@ void RFTotalScore::update(std::vector<RFChapter*> const& chapters) {
+ 		}
+ 	}
+ 	int victoryBase = 150;
+-	CvGame& g = GC.getGame();
++	CvGame& g = GC.getGameINLINE();
+ 	if(g.getGameState() != GAMESTATE_ON) {
+ 		// Once we know that the human player doesn't win
+ 		TeamTypes winner = g.getWinner();
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 8a0c4e93c..f9226d912 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -2,11 +2,15 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "RiseFall.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvPopupInfo.h"
+ #include "CvInitCore.h"
+ #include "CvReplayInfo.h"
++#include "CvPlot.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h"
+ 
+ using std::wstringstream;
+ using std::vector;
+@@ -43,7 +47,7 @@ void RiseFall::init() {
+ 	// Caller can't tell whether initialization already done
+ 	if(!chapters.empty())
+ 		return;
+-	CvGame& g = GC.getGame();
++	CvGame& g = GC.getGameINLINE();
+ 	if(g.isGameMultiPlayer()) {
+ 		shutOff(gDLL->getText("TXT_KEY_RF_SINGLEPL_ONLY"));
+ 		return;
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index 1ae8d5e72..561f5a09b 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -3,11 +3,12 @@
+ #ifndef RISE_FALL_H
+ #define RISE_FALL_H
+ 
+-#include "CvString.h"
+ #include "RFChapter.h"
+ #include "RFTotalScore.h"
+ 
+ class CvPopup;
++class CvDiplomacyResponse;
++class CvWString;
+ 
+ // <advc.700>: Main class for the Rise & Fall mod component
+ class RiseFall {
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index d1c2dfc64..7f16bedaf 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -1,7 +1,11 @@
+ // <advc.300> New class; see Shelf.h for description
+ 
+-#include "Shelf.h"
+ #include "CvGameCoreDLL.h"
++#include "Shelf.h"
++#include "CvGameAI.h"
++#include "CvPlot.h"
++#include "CvUnit.h"
++
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/StartPointsAsHandicap.cpp b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+index eca1adc08..9847004e5 100644
+--- a/CvGameCoreDLL/StartPointsAsHandicap.cpp
++++ b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+@@ -2,14 +2,13 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "StartPointsAsHandicap.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
+ #include "CvInitCore.h"
+-
+-#include <climits>
++#include "CvMap.h"
+ #include <cmath>
+-#include <algorithm>
+-#include <vector>
+-#include <string>
+ #include <sstream>
++
+ using std::vector;
+ using std::wstring;
+ using std::wostringstream;
+
+diff --git a/CvGameCoreDLL/StartPointsAsHandicap.h b/CvGameCoreDLL/StartPointsAsHandicap.h
+index e01dd2137..6bb2bf37e 100644
+--- a/CvGameCoreDLL/StartPointsAsHandicap.h
++++ b/CvGameCoreDLL/StartPointsAsHandicap.h
+@@ -3,9 +3,6 @@
+ #ifndef SPAH_H
+ #define SPAH_H
+ 
+-#include "CvEnums.h"
+-#include "CvGameCoreUtils.h"
+-
+ //  <advc.250b> New class
+ class StartPointsAsHandicap {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index f08890c49..564fe8327 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2,8 +2,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "WarAndPeaceAI.h"
++#include "CvGameAI.h"
+ #include "WarEvaluator.h"
+ #include "CvDiploParameters.h"
++#include "CvMap.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include <iterator>
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 45a893bca..ff837c83a 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -3,7 +3,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "WarAndPeaceCache.h"
+ #include "WarAndPeaceAI.h"
++#include "CvGameAI.h"
+ #include "CvPlayerAI.h"
++#include "CvMap.h"
+ #include "MilitaryBranch.h"
+ #include "WarEvalParameters.h"
+ #include "WarEvaluator.h"
+@@ -342,10 +344,10 @@ double WarAndPeaceCache::goldPerProdBuildings() {
+ 	// Cities about to be founded; will soon need buildings.
+ 	for(int i = 0; i < ::round(0.6 * std::min(owner.AI_getNumAIUnits(UNITAI_SETTLE),
+ 			owner.AI_getNumCitySites())); i++)
+-		buildingCounts.push_back(::max(buildingCounts));
++		buildingCounts.push_back(::dMax(buildingCounts));
+ 	int era = owner.getCurrentEra();
+ 	CvLeaderHeadInfo const& lh = GC.getLeaderHeadInfo(owner.getPersonalityType());
+-	double missing = ::median(buildingCounts) + std::max(0.0, ::median(wonderCounts) -
++	double missing = ::dMedian(buildingCounts) + std::max(0.0, ::dMedian(wonderCounts) -
+ 			/*  Assume one useless (small or great) wonder per era, but two for
+ 				Classical and none for Future. */
+ 			(std::min(5, era) + (era > 0 ? 1 : 0))) *
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.cpp b/CvGameCoreDLL/WarAndPeaceReport.cpp
+index 29fa85c23..25e00ee85 100644
+--- a/CvGameCoreDLL/WarAndPeaceReport.cpp
++++ b/CvGameCoreDLL/WarAndPeaceReport.cpp
+@@ -2,7 +2,9 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "WarAndPeaceReport.h"
+-
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include <sstream>
+ 
+ using std::ostringstream;
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.cpp b/CvGameCoreDLL/WarEvalParameters.cpp
+index e21e1f0c4..277bab80d 100644
+--- a/CvGameCoreDLL/WarEvalParameters.cpp
++++ b/CvGameCoreDLL/WarEvalParameters.cpp
+@@ -2,6 +2,8 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "WarEvalParameters.h"
++#include "CvGameAI.h"
++#include "CvTeamAI.h"
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index b793034e9..012854a39 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "WarEvaluator.h"
++#include "CvGameAI.h"
+ #include "WarUtilityAspect.h"
+ #include "MilitaryAnalyst.h"
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index d45789360..f81b5c1c0 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2,7 +2,11 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "WarUtilityAspect.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvStatistics.h"
++#include "CvMap.h"
+ 
+ using std::vector;
+ using std::string;
+@@ -743,7 +747,7 @@ double GreedForAssets::medianDistFromOurConquests(PlayerTypes civId) {
+ 	}
+ 	double r = INT_MAX;
+ 	if(!distances.empty())
+-		r = ::median(distances);
++		r = ::dMedian(distances);
+ 	return r;
+ }
+
+[PATCH COVERAGE]
+patchFiles=133 embeddedFiles=133 omittedFiles=0 embeddedPatchBytes=114732

@@ -1,0 +1,967 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1320
+# Commit: b5cb45f4b6885861b0c4c7f1b29ee0519bbd14df
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a3a6037f12273e113120a88a1861a17d8ff04930
+# Title: Added AI code for evaluating the production bonus from Apostolic Palace. [advc.079]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	19	Assets/Python/Screens/CvInfoScreen.py
+97	0	Assets/XML/Text/CIV4GameText_advc.008e.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.008.xml
+57	13	Assets/xml/Text/CIV4GameText_advc.xml
+207	91	CvGameCoreDLL/CvCityAI.cpp
+3	1	CvGameCoreDLL/CvCityAI.h
+8	3	CvGameCoreDLL/CvPlayer.cpp
+5	4	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index cc9684028..a1dc7d3f7 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1678,8 +1678,8 @@ class CvInfoScreen:
+ 				iDistance = 350
+ 
+ 			self.szCityAnimWidgets.append(self.getNextWidgetName())
+-			
+-			if (pCity.isRevealed(gc.getGame().getActiveTeam(), false)):			
++			# advc.001d: Replaced gc.getGame().getActiveTeam() with self.iActiveTeam
++			if (pCity.isRevealed(self.iActiveTeam, false)):			
+ 				screen.addPlotGraphicGFC(self.szCityAnimWidgets[iWidgetLoop], self.X_CITY_ANIMATION, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITY_ANIMATION_BUFFER - self.H_CITY_ANIMATION / 2, self.W_CITY_ANIMATION, self.H_CITY_ANIMATION, pPlot, iDistance, false, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# Draw Wonder icons
+@@ -1808,8 +1808,8 @@ class CvInfoScreen:
+ 					szTurnFounded = localText.getText("TXT_KEY_TIME_BC", (-iTurnYear,))#"%d %s" %(-iTurnYear, self.TEXT_BC)
+ 				else:
+ 					szTurnFounded = localText.getText("TXT_KEY_TIME_AD", (iTurnYear,))#"%d %s" %(iTurnYear, self.TEXT_AD)
+-				# advc.001d: hasMet clause commented out
+-				if (pCity.isRevealed(gc.getGame().getActiveTeam())):# or gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getGame().getActiveTeam())):
++				# advc.001d: hasMet clause commented out, replaced gc.getGame().getActiveTeam() with self.iActiveTeam
++				if (pCity.isRevealed(self.iActiveTeam)):# or gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getGame().getActiveTeam())):
+ 					self.szCityNames[iRankLoop] = pCity.getName().upper()
+ 					self.szCityDescs[iRankLoop] = ("%s, %s" %(pPlayer.getCivilizationAdjective(0), localText.getText("TXT_KEY_MISC_FOUNDED_IN", (szTurnFounded,))))
+ 				else:
+@@ -2055,7 +2055,8 @@ class CvInfoScreen:
+ 					szStatsText += "\n"
+ 
+ 				if (pProjectInfo.getProductionCost() > 0):
+-					szCost = localText.getText("TXT_KEY_PEDIA_COST", (gc.getActivePlayer().getProjectProductionNeeded(self.iWonderID),))
++					# advc.001d: Replaced gc.getActivePlayer with self.pActivePlayer
++					szCost = localText.getText("TXT_KEY_PEDIA_COST", (self.pActivePlayer.getProjectProductionNeeded(self.iWonderID),))
+ 					szStatsText += szCost.upper() + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + "\n"
+ 
+ 				if (isWorldProject(self.iWonderID)):
+@@ -2138,7 +2139,8 @@ class CvInfoScreen:
+ 				# Building attributes
+ 
+ 				if (pWonderInfo.getProductionCost() > 0):
+-					szCost = localText.getText("TXT_KEY_PEDIA_COST", (gc.getActivePlayer().getBuildingProductionNeeded(self.iWonderID),))
++					# advc.001d: Replaced gc.getActivePlayer with self.pActivePlayer
++					szCost = localText.getText("TXT_KEY_PEDIA_COST", (self.pActivePlayer.getBuildingProductionNeeded(self.iWonderID),))
+ 					szStatsText += szCost.upper() + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + "\n"
+ 
+ 				for k in range(CommerceTypes.NUM_COMMERCE_TYPES):
+@@ -2206,8 +2208,8 @@ class CvInfoScreen:
+ 		self.aaWondersBeingBuilt = []
+ 		self.aaWondersBuilt = []
+ 		self.iNumWonders = 0
+-
+-		self.pActivePlayer = gc.getPlayer(CyGame().getActivePlayer())
++		# advc.001d: Commented out. Already set properly by caller.
++		#self.pActivePlayer = gc.getPlayer(CyGame().getActivePlayer())
+ 
+ 		# Loop through players to determine Wonders
+ 		for iPlayerLoop in range(gc.getMAX_PLAYERS()):
+@@ -2372,8 +2374,8 @@ class CvInfoScreen:
+ 
+ 								if (self.pActiveTeam.isHasMet(iPlayerTeam)
+ 								and self.iInvestigateCityMission != -1 # K-Mod, bugfix
+-								and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1)
+-								and pCity.isRevealed(gc.getGame().getActiveTeam())):
++								and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1) # advc.001d: Replaced gc.getGame().getActiveTeam with self.iActiveTeam
++								and pCity.isRevealed(self.iActiveTeam)):
+ 									self.aaWondersBeingBuilt_BUG.append([iProjectLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 
+ 					# Loop through buildings
+@@ -2395,8 +2397,8 @@ class CvInfoScreen:
+ 
+ 									if (self.pActiveTeam.isHasMet(iPlayerTeam)
+ 									and self.iInvestigateCityMission != -1 # K-Mod, bugfix
+-									and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1)
+-									and pCity.isRevealed(gc.getGame().getActiveTeam())):
++									and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1) # advc.001d: Replaced gc.getGame().getActiveTeam with self.iActiveTeam
++									and pCity.isRevealed(self.iActiveTeam)):
+ 										self.aaWondersBeingBuilt_BUG.append([iBuildingLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 
+ 								if (pCity.getNumBuilding(iBuildingLoop) > 0):
+@@ -2419,8 +2421,8 @@ class CvInfoScreen:
+ 
+ 									if (self.pActiveTeam.isHasMet(iPlayerTeam)
+ 									and self.iInvestigateCityMission != -1 # K-Mod, bugfix
+-									and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1)
+-									and pCity.isRevealed(gc.getGame().getActiveTeam())):
++									and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1) # advc.001d: Replaced gc.getGame().getActiveTeam with self.iActiveTeam
++									and pCity.isRevealed(self.iActiveTeam)):
+ 										self.aaWondersBeingBuilt_BUG.append([iBuildingLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 
+ 								# Has this city built a wonder?
+@@ -2431,7 +2433,7 @@ class CvInfoScreen:
+ 									# advc.001d (comment): To hide (finished)
+ 									# national wonders of other teams, remove
+ 									# this code block:
+-									elif (self.pActiveTeam.isHasMet(iPlayerTeam) and pCity.isRevealed(gc.getGame().getActiveTeam())):
++									elif (self.pActiveTeam.isHasMet(iPlayerTeam) and pCity.isRevealed(self.iActiveTeam)):
+ 										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 										self.iNumWonders += 1
+ 
+@@ -2524,7 +2526,8 @@ class CvInfoScreen:
+ 			szTurnYearBuilt = u"<font=2>%c</font>" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+ 
+ 			# Check to see if active player can see this city
+-			if pCity and pCity.isRevealed(gc.getGame().getActiveTeam()):
++			# advc.001d: replaced gc.getGame().getActiveTeam with self.iActiveTeam
++			if pCity and pCity.isRevealed(self.iActiveTeam):
+ 				szCityName = pCity.getName()
+ 			else:
+ 				szCityName = u""
+@@ -2571,7 +2574,8 @@ class CvInfoScreen:
+ 				szTurnYearBuilt = BugUtil.getDisplayYear(iTurnYearBuilt)
+ 
+ 			# Check to see if active player can see this city
+-			if pCity and pCity.isRevealed(gc.getGame().getActiveTeam()):
++			# advc.001d: Replaced gc.getGame().getActiveTeam with self.iActiveTeam
++			if pCity and pCity.isRevealed(self.iActiveTeam):
+ 				szCityName = pCity.getName()
+ 			else:
+ 				szCityName = u""
+@@ -2581,7 +2585,8 @@ class CvInfoScreen:
+ 				szCityName = localText.changeTextColor(szCityName, color)
+ 
+ 			screen.appendTableRow(self.szWondersTable)
+-			if bKnown and pCity and pCity.isRevealed(gc.getGame().getActiveTeam()):
++			# advc.001d: Replaced gc.getGame().getActiveTeam with self.iActiveTeam
++			if bKnown and pCity and pCity.isRevealed(self.iActiveTeam):
+ 				screen.setTableText(self.szWondersTable, 0, iWonderLoop+iWBB, "", zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 			screen.setTableText(self.szWondersTable, 1, iWonderLoop+iWBB, szWonderName   , "", iWidget, iWonderType, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			screen.setTableInt (self.szWondersTable, 2, iWonderLoop+iWBB, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+@@ -3026,7 +3031,7 @@ class CvInfoScreen:
+ 			if (inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID):
+ 				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+ 				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+-
++				self.reset() # advc.001d
+ 				self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 				self.iActiveTeam = self.pActivePlayer.getTeam()
+ 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008e.xml b/Assets/XML/Text/CIV4GameText_advc.008e.xml
+index b49ec7035..703d9ff01 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008e.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008e.xml
+@@ -918,5 +918,102 @@
+ 			<Plural>0:1</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- Projects -->
++	<TEXT>
++		<Tag>TXT_KEY_PROJECT_MANHATTAN_PROJECT</Tag>
++		<English>Manhattan Project</English>
++		<French>
++			<Text>Projet Manhattan</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Manhattan-Projekt</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Manhattan Project</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Proyecto Manhattan</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROJECT_THE_INTERNET</Tag>
++		<English>Internet</English>
++		<French>
++			<Text>Internet</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Internet</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Internet</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Internet</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROJECT_SDI</Tag>
++		<English>SDI</English>
++		<French>
++			<Text>IDS</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>SDI</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>SDI</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>SDI</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROJECT_APOLLO_PROGRAM</Tag>
++		<English>Apollo Program</English>
++		<French>
++			<Text>Programme Apollo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Apollo-Programm</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Programma Apollo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Programa Apollo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ 		 
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008.xml b/Assets/xml/Text/CIV4GameText_advc.008.xml
+index 87e19606d..3f6440f60 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008.xml
+@@ -614,4 +614,14 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: Dropped mention of Quechua -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_INCA_PEDIA</Tag>
++		<English>[TAB]Hundreds of years ago, a group of people calling themselves the Inca settled the Cuzco Valley high in the Andes Mountains of South America. Where they had come from was a mystery that still remains unsolved. Although their purpose for settling such a rugged and inhospitable landscape was unclear, the end result of their arrival is without doubt. In time, the Inca built an empire that spanned the Pacific coast as far south as Argentina and as far north as Ecuador, some 2000 miles of hills, mountains, valleys, and coastline. In just a short time (roughly 100 years), the Incan Empire dominated South America and is, to this day, considered one of the finest empires the world has ever known. Starting with the ninth ruler, Pachacuti Inca Yupanqui, the Inca began their expansion. Pachacuti won his first military campaign against the Chanca people, consolidated control over his cultural base of Cuzco, then turned his army south and conquered the Colla and Lupaca tribes. Though not the first Incan ruler, Pachacuti was by many accounts one of the finest Pre-Columbian persons that ever lived. It was under the rule of Huayna Capac, however, that the Incan Empire reached its greatest height. When his father died in 1483 and he became emperor in his own right, Capac continued the campaigns of the previous emperor, eventually extending the empire's borders into what is modern Colombia. A dedicated ruler, Huayna did much to improve the lives of his people. In addition to building temples and other works, Huayna greatly expanded the road network, along which he built storehouses for food so that aid could be quickly rushed to any who were in danger of starvation.[PARAGRAPH:2]Like many other groups that preceded the Inca (the Chimu, the Nazca, the Moche), Incan society was heavily dipped in the worship of powerful gods. Their pantheon contained such lofty omnipotents as Viracocha (the god of creation), Inti (the sun and father of the Inca Dynasty), Illapa (god of rain, thunder, and lightening), Pacha Mama (mother of the earth), and Mama Cocha (mother of the lakes). Grand ceremonies were held frequently to honor these gods, for the Inca believed that if one did not give thanks and obedience to the gods, bad things would happen. The world of the Andes Mountains is full of ecological wonders - and ecological disasters such as earthquakes, severe storms, and volcanic activity. The gods held sway with these events and thus the proper respect had to be paid at all times. [PARAGRAPH:2]The Inca called their empire Tahuantinsuyu (Land of the Four Quarters?), which was divided into four provinces. Each province was controlled by a local governor called the apu; below him were the local rulers - the curacas - and even lower still the district headsmen - the camayoc. Through this governmental structure, the Sapa-Inca could rule the empire with impunity. Additional structures were also put in place, such as the Imperial road system, which was built along the steep inclines of mountains, interspersing bridges and stone walkways, stone steps, and flat brick highways. In addition, way-stations known as tambos were constructed at strategic points along the roads, giving travelers and important dignitaries a place to rest and prepare for the next leg of their journey.[PARAGRAPH:2]The Incan army was also well organized. When called upon to fight, each province would muster squadrons of men armed with maces, bows and arrows, slings, darts, and spears. These fierce Incan warriors conquered much of the Andes and coastal regions of what is now Peru and Ecuador in the period between 1440 and 1530 . During a battle, slingers would let fly a shower of rocks to soften the enemy lines. Then, archers would release their shafts, darts would fly, and then the shock troops would hit, in a torrent of screams and shouts meant to confuse and terrify the wavering opposition. Incan warfare was very successful. But nothing could prepare the empire for what was coming.[PARAGRAPH:2]After the glorious reign of Huayna Capac, the empire began to erode under a series of internal and external disasters. A bitter civil war between half brothers Huascar and Atahuallpa, the sons of Capac, stretched the empire to the breaking point. Atahuallpa won the war, quickly killed his half-brother, and declared himself king. But, in 1532 AD, Spanish Conquistadors, under the command of Francisco Pizarro, entered the Cajamarca Valley and brutally attacked Atahuallpa and his subjects, killing many and taking the Sapa-Inca hostage. Eventually, Pizarro killed Atahuallpa, pillaged the empire of its riches, and brought an end to the mighty Incan civilization. </English>
++		<French>[TAB]Il y a des centaines d'ann&#233;es, un groupe de personnes se nommant les Incas s'installe dans la vall&#233;e de Cuzco, sur les flancs des Andes, en Am&#233;rique du Sud. Leur origine reste aujourd'hui encore un myst&#232;re. Si l'objectif qu'ils recherchent en s'installant sur un territoire si accident&#233; et si inhospitalier est incertain, leur h&#233;ritage ne fait aucun doute. Au fil du temps, les Incas construisent un empire le long de la c&#244;te Pacifique, qui s'&#233;tend de l'Argentine &#224; l'Equateur et qui couvre pr&#232;s de 3 200 km de collines, montagnes, vall&#233;es et rivages. En tr&#232;s peu de temps (environ 100 ans), l'empire Inca domine l'Am&#233;rique du Sud et reste, &#224; ce jour, consid&#233;r&#233; comme l'un des plus beaux empires au monde. A partir de leur neuvi&#232;me dirigeant, Inca Yupanqui, qui r&#232;gne sous le nom de Pachac&#250;tec, les Incas commencent leur expansion. Inca Yupanqui gagne sa premi&#232;re campagne militaire contre le peuple Chanca, consolide son pouvoir autour de sa base culturelle de Cuzco et dirige son arm&#233;e vers le sud pour conqu&#233;rir les tribus Colla et Lupaca. M&#234;me s'il n'est pas le premier dirigeant inca, Pachac&#250;tec est, selon de nombreux r&#233;cits, l'un des plus importants personnages pr&#233;colombiens. C'est toutefois sous le r&#232;gne de Huayna Cap&#225;c que l'empire inca atteint son apog&#233;e. A la mort de son p&#232;re, en 1483, il devient empereur &#224; son tour et poursuit les campagnes de son p&#232;re, finissant par &#233;tendre les fronti&#232;res de l'empire &#224; ce qui correspond actuellement &#224; la Colombie. Dirigeant z&#233;l&#233;, Huayna fait beaucoup pour am&#233;liorer les conditions de vie de son peuple. Il ne se contente pas de b&#226;tir des temples et autres &#233;difices, il d&#233;veloppe consid&#233;rablement le r&#233;seau routier, le long duquel il construit des entrep&#244;ts de nourriture afin qu'une aide puisse &#234;tre rapidement apport&#233;e &#224; toute personne menac&#233;e de famine.[PARAGRAPH:2]Comme de nombreuses autres civilisations ayant pr&#233;c&#233;d&#233; les Incas (les Chimus, les Nazcas, les Moches), la soci&#233;t&#233; inca accorde une tr&#232;s grande importance &#224; la v&#233;n&#233;ration de dieux puissants. Leur panth&#233;on contient des dieux importants omnipr&#233;sents tels que Viracocha (le Dieu cr&#233;ateur), Inti (le Soleil et p&#232;re de la dynastie Inca), Illapa (le dieu de la pluie, du tonnerre et de l'&#233;clair), Pacha Mama (la Terre-m&#232;re) et Mama Cocha (la m&#232;re des lacs). De grandioses c&#233;r&#233;monies honorent fr&#233;quemment ces divinit&#233;s car les Incas croient que l'absence de remerciements et de soumission aux dieux est de mauvais augure. Les montagnes andines sont le th&#233;&#226;tre de nombreux miracles et d&#233;sastres &#233;cologiques : tremblements de terre, fortes temp&#234;tes et activit&#233; volcanique intense. Les dieux influencent le cours des &#233;v&#233;nements et il faut donc leur offrir &#224; tout moment le respect qui leur est d&#251;.[PARAGRAPH:2]Les Incas appellent leur empire Tahuantinsuyu (l'Empire des quatre parties) ; il est divis&#233; en quatre provinces. Chacune d'elles est contr&#244;l&#233;e par un gouverneur local appel&#233; apo. Au niveau inf&#233;rieur, on trouve les chefs locaux, les curaca, et en dessous encore, les chefs de quartiers, les camayoc. Cette structure gouvernementale permet aux Sapa-Inca, les empereurs, de diriger leur empire en toute impunit&#233;. D'autres structures sont &#233;galement mises en place, telles que le syst&#232;me des routes imp&#233;riales construites le long des pentes abruptes des montagnes, parsem&#233;es de ponts et d'all&#233;es de pierre, d'escaliers de pierre et de chemins pav&#233;s. En outre, des auberges, appel&#233;es tambo, se d&#233;veloppent le long des routes, en des points strat&#233;giques, offrant ainsi aux voyageurs et aux dignitaires importants un lieu pour se reposer et pr&#233;parer les &#233;tapes suivantes de leur voyage.[PARAGRAPH:2]L'arm&#233;e inca est bien organis&#233;e. A l'appel au combat, chaque province doit former des escadrons d'hommes arm&#233;s de masses, d'arcs et de fl&#232;ches, de frondes, de fl&#232;ches et de lances. Ces f&#233;roces guerriers incas conqui&#232;rent entre 1440 et 1530 la majorit&#233; des r&#233;gions andines et c&#244;ti&#232;res de ce qui correspond actuellement au P&#233;rou et &#224; l'Equateur. Au cours de la bataille, les frondeurs envoient une pluie de pierres pour r&#233;duire les lignes ennemies. Ensuite, les archers d&#233;cochent leurs fl&#232;ches qui se mettent &#224; voler. Les troupes de choc attaquent alors, dans un flot de cris et de hurlements destin&#233;s &#224; semer la confusion et la terreur chez les opposants en proie &#224; l'h&#233;sitation. L'art de la guerre des Incas leur apporte de nombreux succ&#232;s. Mais rien ne peut pr&#233;parer l'empire &#224; ce qui va advenir.[PARAGRAPH:2]Apr&#232;s le glorieux r&#232;gne de Huayna Cap&#225;c, l'empire commence &#224; d&#233;cliner en raison d'une s&#233;rie de catastrophes internes et externes. La f&#233;roce guerre civile entre les demi-fr&#232;res Huascar et Atahualpa m&#232;ne l'empire au bord de l'effondrement. Atahualpa remporte la guerre, tue rapidement son demi-fr&#232;re et se d&#233;clare empereur. Toutefois, en 1532 ap. J.-C., les Conquistadors espagnols, sous le commandement de Francisco Pizarro, entrent dans la vall&#233;e de Cajamarca et attaquent brutalement Atahualpa et ses sujets, tuant de nombreuses personnes et prenant en otage le Sapa-Inca. Pizarro finit par tuer Atahualpa, piller les richesses de l'empire et mettre fin &#224; la brillante civilisation inca.</French>
++		<German>[TAB]Vor mehreren Jahrhunderten besiedelten die Inka das Cuzco-Tal in den s&#252;damerikanischen Anden. Die Herkunft der Inka ist bis heute unbekannt. Trotz der schwierigen Lebensumst&#228;nde schufen die Inka ein Reich, das sich von der Pazifikk&#252;ste von Argentinien bis Ecuador &#252;ber mehr als 3000 Kilometer Berge, H&#252;gel, T&#228;ler und K&#252;sten erstreckte. Etwa 100 Jahre sp&#228;ter hatten die Inka ganz S&#252;damerika unterworfen. Die Expansion der Inka begann unter dem neunten Herrscher, Pachacuti Inca Yupanqui. Nach Pachacutis &#252;berraschendem Triumph &#252;ber die Chanca festigte er seine Macht in Cuzco, bevor er sich mit seiner Armee nach S&#252;den wandte, um die Colla und die Lupaca zu unterwerfen. Obwohl Pachacuti nicht der erste Inka-Herrscher war, gilt er heute als bedeutendster pr&#228;kolumbianischer Herrscher S&#252;damerikas. Unter der Herrschaft Huayna Capacs erlebte das Inkareich seine gr&#246;&#223;te Bl&#252;te. Nach dem Tod seines Vaters bestieg Huayna Capac 1483 den Thron und weitete die Grenzen seines Reichs schlie&#223;lich bis in das heutige Kolumbien aus. Gleichzeitig verbesserte Huayna die Lebensumst&#228;nde seiner Untertanen. Er baute Tempel und andere Bauwerke, erweiterte das Stra&#223;ennetz und errichtete im ganzen Land Nahrungsspeicher, um Hungersn&#246;ten vorzubeugen.[PARAGRAPH:2]Wie viele andere St&#228;mme (Chimu, Nazca, Moche) verehrten auch die Inka m&#228;chtige G&#246;tter, wie Viracocha (den Gott der Sch&#246;pfung), Inti (die Sonne und Mutter der Inka-Dynastie), Illapa (den Gott des Regens, des Donners und der Blitze), Pacha Mama (die Mutter der Erde) und Mama Cocha (die Mutter der Seen). Zu Ehren dieser G&#246;tter wurden regelm&#228;&#223;ig Zeremonien abgehalten, um die G&#246;tter zu bes&#228;nftigen und Katastrophen abzuwenden. Schlie&#223;lich waren und sind in den Anden Erdbeben, St&#252;rme und Vulkanausbr&#252;che keine Seltenheit. Da allein die G&#246;tter f&#252;r diese Katastrophen verantwortlich sind, mussten diese bes&#228;nftigt werden. [PARAGRAPH:2]Die Inka nannten ihr Reich Tahuantinsuyu ("Land der vier Viertel") und teilten es in vier Provinzen auf. Jede Provinz wurde von von einem Gouverneur (dem Apu) regiert. Diesem unterstanden &#246;rtliche Regenten (Curacas) und Distriktvorsteher (Camayoc). Diese Struktur erm&#246;glichte den Sapa-Inka die Verwaltung ihres riesigen Reich. Dar&#252;ber hinaus entstand ein Stra&#223;ensystem, f&#252;r das an den steilen Bergh&#228;ngen Br&#252;cken, Wege und Treppen angelegt wurden. Entlang der Stra&#223;en errichteten die Inka Wegstationen (Tambos), an denen sich Reisende ausruhen und auf die Weiterreise vorbereiten konnten. [PARAGRAPH:2]Die Armee der Inka war ebenfalls sehr gut organisiert. Kam es zum Kampf, wurden in jeder Provinz M&#228;nner mit Streitkolben, Pfeil und Bogen, Schleudern, Wurfpfeilen und Speeren rekrutiert. Zwischen 1440 und 1530 unterwarfen die entschlossenen Krieger der Inka weite Teile der Anden sowie der K&#252;stenregionen Perus und Equadors. In der Schlacht lie&#223;en Schleuderer einen Steinhagel auf die Feinde niederprasseln, bevor sich Bogensch&#252;tzen und Infanterie mit lautem Gebr&#252;ll auf die verbl&#252;fften Gegner st&#252;rzten. Trotz ihrer milit&#228;rischen Erfolge waren die Inka auf das, was folgen sollte, nicht vorbereitet. [PARAGRAPH:]Nach der ruhmreichen Herrschaft Huayna Capacs wurde das Reich von mehreren Katastrophen ersch&#252;ttert. Ein erbitterter Krieg zwischen Capacs S&#246;hnen, Huascar und Atahuallpa, drohte das Reich zu spalten. Doch Atahuallpa gewann den Krieg, t&#246;tete seinen Halbbruder und kr&#246;nte sich selbst zum K&#246;nig. Im Jahr 1532 kamen allerdings spanische Konquistadoren unter Francisco Pizarro in das Cajamarca-Tal, t&#246;teten Atahuallpas Untertanen und nahmen den K&#246;nig selbst gefangen. Wenig sp&#228;ter t&#246;tete Pizarro auch Atahuallpa, pl&#252;nderte das Reich und zerst&#246;rte die einst bl&#252;hende Kultur der Inka.</German>
++		<Italian>[TAB]Centinaia di anni fa, un popolo di nome Inca fior&#236; nella valle di Cusco sulle Ande, in Sud America. Da dove provenissero &#232; un mistero: inoltre, non &#232; chiaro perch&#233; volessero colonizzare una zona cos&#236; inospitale, ma lasciarono sicuramente un segno importante. In quell'epoca, gli Inca realizzarono un Impero che si estendeva lungo la costa del Pacifico, dall'Argentina all'Ecuador: circa 3.200 chilometri di colline, montagne, vallate e coste. In poco tempo (appena 100 anni), l'Impero Inca domin&#242; il Sud America e, oggi, &#232; considerato una delle civilt&#224; pi&#249; fiorenti del pianeta. Con l'avvento del loro nono sovrano, Pachacuti Inca Yupanqui, gli Inca cominciarono a espandersi: Pachacuti vinse la sua prima campagna militare contro il popolo Chanca, consolidando il suo controllo nella sua base culturale di Cusco, poi si mosse a sud per conquistare le trib&#249; Colla e Lupaca. Pachacuti &#232; considerato da molti una delle personalit&#224; pi&#249; eminenti della civilt&#224; Precolombiana. Tuttavia, fu con il dominio di Huayna Capac che l'Impero Inca raggiunse il suo massimo splendore. Quando suo padre mor&#236;, nel 1483, e divenne governatore, Capac continu&#242; le campagne militari del suo predecessore, estendendo i confini dell'impero in quella che &#232; l'attuale Colombia. Un geovernatore devoto, Huayna fece molto per migliorare la citt&#224; del suo popolo: oltre alla costruzione di templi e altre opere, Huayna espanse notevolmente la rete stradale e costru&#236; depositi di cibo, in modo da poter inviare provvidenziali aiuti alle zone a rischio di carestia.[PARAGRAPH:2]Come in molti altre etnie che li precedettero (i Chimo, i Nazco, i Moche), la societ&#224; Inca aveva un profondo senso della devozione nei confronti delle divinit&#224;: nel pantheon trovavano posto gli onnipotenti Viracocha (il dio della creazione), Inti (il sole e padre della dinastia Inca), Illapa (dio della pioggia, del tuono e del fulmine), Pacha Mama (la madre della terra) e Mama Cocha (la madre dei laghi). Venivano celebrate spesso delle grandi cerimonie in onore di queste divinit&#224;, poich&#233; gli Inca credevano che non portando il dovuto rispetto verso gli dei, avrebbero potuto verificarsi delle disgrazie. Il paradiso delle Ande &#232; ricco di meraviglie e disastri ecologici: terremoti, tempeste violente e attivit&#224; vulcanica. La devozione negli dei poteva tenere lontani questi pericoli.[PARAGRAPH:2]Gli Inca chiamavano il loro impero Tawantinsuyu ("la terra dei quattro quarti"), che era diviso in quattro province. Ciascuna provincia era controllata da un governatore locale chiamato apu: sotto di lui c'erano i governatori locali, i curacao e gli ancora pi&#249; inferiori camayoc. Attraverso questa struttura governativa, il Sapa-Inca poteva governare con impunit&#224;; vennero istituite nuove strutture governative, come il sistema di strade imperiali, che venne costruito sulle montagne scoscese, tra ponti pericolanti e passerelle di pietra, scalini e strade di mattoni. Inoltre, furono costruti in punti strategici lungo le strade degli edifici, noti come Tambos, dove viaggiatori e importanti dignitari potevano riposare e prepararsi alla tappa successiva del loro viaggio.[PARAGRAPH:2]L'esercito Inca era molto bene organizzato: quando era chiamato a combattere, ogni provincia schierava squadroni di uomini armati con mazze, archi e frecce, fionde, dardi e lance. Questi fieri guerrieri Inca conquistarono gran parte delle Ande e della regione costiera appartenenti all'attuale Peru e all'Equador, nel periodo tra il 1440 e il 1530. Durante una battaglia, le fionde tempestavano il nemico con una pioggia di pietre per fiaccare le linee avversarie. A quel punto potevano entrare in gioco le frecce, i dardi e finalmente le truppe d'assalto che urlavano e sbraitavano per confondere e terrificare l'avversario. La tecnica militare Inca era molto avanzata, ma nessuno si aspettava quello che sarebbe avvenuto di l&#236; a poco.[PARAGRAPH:2]Dopo il glorioso regno di Huayna Capac, l'Impero cominci&#242; a frantumarsi a causa di disastri interni ed esterni: una terribile guerra civile tra i figli di Capac, i fratellastri Huascar e Atahuallpa, condusse l'Impero all'orlo del collasso. Atahuallpa vinse la guerra, uccise rapidamente il suo fratellastro e si autoproclam&#242; il re. Ma nel 1532 d. C., i Conquistadores Spagnoli, sotto il comando di Francisco Pizarro, entrarono nella valle di Cajamarca, attaccarono brutalmente Atahuallpa e la sua gente, uccidendo molte persone e prendendo in ostaggio il Sapa-Inca. Infine, Pizarro uccise Atahuallpa, saccheggi&#242; le sue ricchezze e mise la parola fine al grande Impero Inca.</Italian>
++		<Spanish>[TAB]Hace cientos de a&#241;os, un grupo de pueblos que se llamaban a s&#237; mismos los incas colonizaron el valle de Cuzco, en la cordillera sudamericana de los Andes. Su procedencia original es un misterio que a&#250;n no se ha resuelto. Aunque su objetivo al asentarse en una tierra tan dura e inh&#243;spita como aqu&#233;lla no est&#225; claro, el resultado final de su aparici&#243;n es incuestionable. Con el tiempo, los incas construyeron un imperio extendido a lo largo de toda la costa del Pac&#237;fico (desde Argentina hasta Ecuador), m&#225;s de tres mil kil&#243;metros de colinas, monta&#241;as, valles y costas. En un corto periodo de tiempo (aproximadamente cien a&#241;os), el imperio inca domin&#243; toda Sudam&#233;rica, y en la actualidad se le considera uno de los m&#225;s notables imperios que ha conocido el mundo. Con su noveno gobernante, Pachacuti Inca Yupanqui, los incas iniciaron su expansi&#243;n. Pachacuti obtuvo su primera victoria militar en la campa&#241;a contra el pueblo chanca, consolid&#243; su control sobre la base cultural de Cuzco y despu&#233;s dirigi&#243; sus fuerzas hacia el sur, conquistando a las tribus colla y lupaca. Aunque no fue el primer se&#241;or de los incas, Pachacuti puede considerarse, desde muchos puntos de vista, una de las personas m&#225;s notables que han existido. Sin embargo, fue durante el reinado de Huayna C&#225;pac cuando el Imperio Inca alcanz&#243; su m&#225;xima expansi&#243;n. Tras la muerte de su padre, acaecida en 1483, y su ascenso al trono como sucesor leg&#237;timo, C&#225;pac continu&#243; con sus campa&#241;as, que permitieron extender las fronteras del imperio hasta la moderna Colombia. Huayna, un gobernante esforzado, hizo mucho por mejorar la vida de su pueblo. Adem&#225;s de levantar templos y otras construcciones, Huayna expandi&#243; la red viaria y estableci&#243; almacenes de comida en sus m&#225;rgenes para que pudiera socorrerse r&#225;pidamente a cualquier que corriese el riesgo de morir de hambre. [PARAGRAPH:2]Como muchos de los grupos que la precedieron (los chimu, los nazca, los moche), la veneraci&#243;n de dioses poderosos estaba fuertemente enraizada en la sociedad inca. Su pante&#243;n conten&#237;a seres omnipotentes como Viracocha (dios de la creaci&#243;n), Inti (el sol, padre de la dinast&#237;a inca), Illapa (dios de la lluvia, el trueno y el rayo), Pacha Mama (madre de la tierra), y Mama Cocha (madre de los lagos). Con frecuencia se celebraban grandes ceremonias en honor de estas deidades, pues los incas cre&#237;an que si no mostraban su agradecimiento y obediencia a los dioses, ocurrir&#237;an desgracias. La cordillera de los Andes est&#225; llena de maravillas y en ella abundan tambi&#233;n los desastres ecol&#243;gicos: terremotos, tormentas y volcanes. Los dioses eran los responsables de estas manifestaciones, as&#237; que hab&#237;a que mostrarles el debido respeto en todo momento. [PARAGRAPH:2]Los incas llamaban a su imperio Tawantinsuyu ("tierra de los cuatro cuartos"), pues estaba dividido en cuatro provincias. Cada provincia era controlada por un gobernador llamado apu; por debajo de &#233;l estaban las autoridades locales: los curacas, y m&#225;s abajo todav&#237;a, las comarcales: los camayoc. Por medio de esta estructura gubernamental, los sapa-inca pod&#237;an controlar su imperio sin dificultades. El imperio constaba de otras estructuras, como el sistema de carreteras, que recorr&#237;an las empinadas laderas de las monta&#241;as, alternando una mezcla de puentes colgantes, pasarelas y escalones de piedra y grandes v&#237;as de ladrillos lisos. Adem&#225;s, se constru&#237;an unas estaciones de paso conocidas como tambos en puntos estrat&#233;gicos de las carreteras, que los viajeros y dignatarios importantes pod&#237;an utilizar para descansar y preparar la siguiente etapa de su viaje.[PARAGRAPH:2]El ej&#233;rcito inca tambi&#233;n estaba muy bien organizado. Cuando estallaba la guerra, cada provincia reclutaba varios escuadrones de hombres armados con mazas, arcos, hondas, dardos y lanzas. Estos fieros guerreros incas conquistaron gran parte de los Andes y las regiones costeras de los actuales Per&#250; y Ecuador en el per&#237;odo comprendido entre 1440 y 1530. En las batallas, los honderos descargaban una lluvia de rocas para ablandar las l&#237;neas enemigas. A continuaci&#243;n, los arqueros disparaban, se lanzaban los dardos y finalmente atacaban las tropas de choque, en medio de un torrente de gritos y alaridos encaminado a confundir y aterrorizar al enemigo. La maquinaria b&#233;lica de los incas era muy eficaz. Pero nada pod&#237;a preparar al imperio para lo que se le ven&#237;a encima.[PARAGRAPH:2]Tras el glorioso reinado de Huayna C&#225;pac, el imperio empez&#243; a debilitarse por culpa de una serie de desastres tanto internos como externos.  Una encarnizada guerra civil entre los medio hermanos Huascar y Atahualpa, hijos de C&#225;pac, estuvo a punto de destruir el imperio. Atahualpa sali&#243; victorioso, ejecut&#243; a su medio hermano sin perder un segundo y se proclam&#243; rey. Pero en el a&#241;o 1532 d. C., los conquistadores espa&#241;oles, bajo el mando de Francisco Pizarro, entraron en el valle de Cajamarca y atacaron brutalmente a Atahualpa y a sus s&#250;bditos. Hubo numerosas bajas y los sapa-inca cayeron prisioneros. Al cabo de alg&#250;n tiempo, Pizarro matar&#237;a a Atahualpa, saquear&#237;a las riquezas de su imperio y pondr&#237;a el fin a la poderosa civilizaci&#243;n inca. </Spanish>
++	</TEXT>
++		 
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 55611cc09..3d2617d52 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -690,6 +690,32 @@
+ 		<Spanish>Para ver los radios urbanos al seleccionar a un colono</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.004g: Original in CIV4GameTextInfos_Objects.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_INCAN_QUECHUA</Tag>
++		<English>Quechua Warrior</English>
++		<French>
++			<Text>Quechua guerrier</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Quechua-Krieger</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Quechua guerriero:Quechua guerrieri</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Quechua guerrero:Quechua guerrero</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004s: Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+ 		 in CIV4GameText_Misc1.xml.
+@@ -1518,17 +1544,6 @@
+ 		<Spanish>La unidad permanecer&#225; inactiva hasta que recobre el total de su fuerza o una unidad enemiga se sit&#250;e al alcance de la visibilidad.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.106: Spelling "faraway" vs. "far away".
+-		 Copied from Civ4GameTextInfos.xml. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN</Tag>
+-		<English>%s1_WndrName has been built in a faraway land!</English>
+-		<French>Cette merveille (%s1_WndrName) a &#233;t&#233; construite dans un pays lointain !</French>
+-		<German>Das Wunder %s1_WndrName wurde in einem fernen Land errichtet!</German>
+-		<Italian>[NUM1:Il:La] %s1_WndrName &#232; [NUM1:stato costruito:stata costruita] in una terra lontana!</Italian>
+-		<Spanish>Han construido %s1_WndrName en una tierra muy lejana.</Spanish>
+-	</TEXT>
+-
+ 	<!-- advc.106: New keys for birth in unknown city of known civ,
+ 		 and wonder in known city. -->
+ 	<TEXT>
+@@ -1557,13 +1572,14 @@
+ 		<Italian>%s2_GPName (%s1_GPType)</Italian>
+ 		<Spanish>%s2_GPName (%s1_GPType)</Spanish>
+ 	</TEXT>
++	<!-- advc.008e -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_WONDER_COMPLETED_CITY</Tag>
+-		<English>%s1_PlyrName has completed %s2_WndrName in %s3_CityName!</English>
++		<English>%s1_PlyrName has completed the %s2_WndrName in %s3_CityName!</English>
+ 		<French>%s1_PlyrName a construit la merveille : %s2_WndrName dans %s3_CityName !</French>
+ 		<German>%s1_PlyrName hat das Wunder %s2_WndrName in %s3_CityName fertig gestellt!</German>
+ 		<Italian>%s1_PlyrName ha completato [NUM2:il:la] %s2_WndrName a %s3_CityName!</Italian>
+-		<Spanish>%s1_PlyrName ha terminado %s2_WndrName en %s3_CityName.</Spanish>
++		<Spanish>%s1_PlyrName ha terminado [NUM2:el:la] %s2_WndrName en %s3_CityName.</Spanish>
+ 	</TEXT>
+ 	<!-- Replacing "distant" with "faraway" for consistency. -->
+ 	<TEXT>
+@@ -3383,4 +3399,32 @@
+ 		<Spanish>[ICON_BULLET]Recolecta oro del saqueo cuando bloquea ciudades rivales</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.008e: From CIV4GameTextInfos.xml. "The" added b/c it no longer
++		 appears in wonder and project names. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_WONDER_COMPLETED</Tag>
++		<English>%s1_PlyrName has completed the %s2_WndrName!</English>
++		<French>%s1_PlyrName a construit la merveille : %s2_WndrName !</French>
++		<German>%s1_PlyrName hat das Wunder %s2_WndrName fertig gestellt!</German>
++		<Italian>%s1_PlyrName ha completato [NUM2:il:la] %s2_WndrName!</Italian>
++		<Spanish>%s1_PlyrName ha terminado [NUM2:el:la] %s2_WndrName.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN</Tag>
++		<English>The %s1_WndrName has been built in a faraway land!</English>
++		<French>Une merveille (%s1_WndrName) a &#233;t&#233; construite dans un pays lointain !</French>
++		<German>Das Wunder %s1_WndrName wurde in einem fernen Land errichtet!</German>
++		<Italian>[NUM1:Il:La] %s1_WndrName &#232; [NUM1:stato costruito:stata costruita] in una terra lontana!</Italian>
++		<Spanish>Han construido [NUM1:el:la] %s1_WndrName en una tierra muy lejana.</Spanish>
++	</TEXT>
++	<!-- For non-Space projects. Original in CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED</Tag>
++		<English>You have created the %s1_PrjctName in %s2_CityName.</English>
++		<French>Vous avez cr&#233;&#233; : %s1_PrjctName &#224; %s2_CityName.</French>
++		<German>Das Projekt %s1_PrjctName wurde in %s2_CityName fertig gestellt.</German>
++		<Italian>Hai creato il progetto %s1_PrjctName a %s2_CityName.</Italian>
++		<Spanish>Hab&#233;is creado [NUM1:el:la] %s1_PrjctName en %s2_CityName.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f0048bcaf..c8197ee20 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3640,6 +3640,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	CvTeamAI& kTeam = GET_TEAM(kOwner.getTeam()); // dlph.16
++	CvGame& g = GC.getGame(); // advc.003
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+ 	BuildingClassTypes eBuildingClass = (BuildingClassTypes) kBuilding.getBuildingClassType();
+ 	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
+@@ -3724,26 +3725,26 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	bool bIsHighProductionCity = (findBaseYieldRateRank(YIELD_PRODUCTION) <= std::max(3, (iNumCities / 2)));
+ 
+ 	int iCultureRank = findCommerceRateRank(COMMERCE_CULTURE);
+-	int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++	int iCulturalVictoryNumCultureCities = g.culturalVictoryNumCultureCities();
+ 
+-	bool bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
++	bool bFinancialTrouble = kOwner.AI_isFinancialTrouble();
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      03/08/10                                jdog5000      */
+ /*                                                                                              */
+ /* Victory Strategy AI                                                                          */
+ /************************************************************************************************/
+-	bool bCulturalVictory1 = GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1);
+-	bool bCulturalVictory2 = GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2);
+-	bool bCulturalVictory3 = GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3);
++	bool bCulturalVictory1 = kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1);
++	bool bCulturalVictory2 = kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2);
++	bool bCulturalVictory3 = kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3);
+ 
+-	bool bSpaceVictory1 = GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_SPACE1);
++	bool bSpaceVictory1 = kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE1);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/		
+ 
+-	bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+-	bool bWarPlan = GET_PLAYER(getOwnerINLINE()).isFocusWar(area()); // advc.105
++	bool bCanPopRush = kOwner.canPopRush();
++	bool bWarPlan = kOwner.isFocusWar(area()); // advc.105
+ 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
+ 
+ 	bool bForeignTrade = false;
+@@ -3776,7 +3777,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			// K-Mod. I've merged and modified the code from here and the code from higher up.
+ 			if (!bAreaAlone)
+ 			{
+-				if (GC.getGameINLINE().getBestLandUnit() == NO_UNIT || !GC.getUnitInfo(GC.getGameINLINE().getBestLandUnit()).isIgnoreBuildingDefense())
++				if (g.getBestLandUnit() == NO_UNIT || !GC.getUnitInfo(g.getBestLandUnit()).isIgnoreBuildingDefense())
+ 				{
+ 					int iTemp = 0;
+ 					// bombard reduction
+@@ -3802,7 +3803,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				iValue += iTemp;
+ 			}
+ 
+-			//iValue += -kBuilding.getNukeModifier() / (GC.getGameINLINE().isNukesValid() && !GC.getGameINLINE().isNoNukes() ? 4 : 40);
++			//iValue += -kBuilding.getNukeModifier() / (g.isNukesValid() && !g.isNoNukes() ? 4 : 40);
+ 			// K-Mod end
+ 			// <dlph.16> Replacing the line above.
+ 			// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
+@@ -3982,7 +3983,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			// If the GW threshold has been reached,
+ 			// add some additional value for pollution reduction
+ 			// Note. health benefits have already been evaluated
+-			if (iBad < 0 && GC.getGameINLINE().getGlobalWarmingIndex() > 0)
++			if (iBad < 0 && g.getGlobalWarmingIndex() > 0)
+ 			{
+ 				int iCleanValue = -2*iBad;
+ 
+@@ -4203,7 +4204,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			if (kBuilding.isAreaCleanPower() && !(area()->isCleanPower(getTeam())))
+ 			{
+ 				int iLoop;
+-				for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
++				for( CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop) )
+ 				{
+ 					if( pLoopCity->area() == area() )
+ 					{
+@@ -4229,23 +4230,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					/*  <advc.310> A check for GAMEOPTION_NO_BARBARIANS is
+ 						unnecessary b/c the GW ability is then disabled
+ 						via CvInfos. */
+-					&& (!GC.getEraInfo(GC.getGameINLINE().getCurrentEra()).
++					&& (!GC.getEraInfo(g.getCurrentEra()).
+ 					isNoBarbUnits() || area()->getCitiesPerPlayer(BARBARIAN_PLAYER)
+-					> GC.getGameINLINE().getCurrentEra()))
++					> g.getCurrentEra()))
+ 			{
+ 				//  Available city sites should correlate with nearby barb activity.
+ 				int dummy;
+ 				int iAreaCitySites = GET_PLAYER(getOwner()).AI_getNumAreaCitySites(
+ 						getArea(), dummy);
+-				if(GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS))
++				if(g.isOption(GAMEOPTION_RAGING_BARBARIANS))
+ 					iAreaCitySites *= 2;
+ 				iValue += 6 * iAreaCitySites;
+ 				// BBAI code:
+-				/*if( !GC.getGameINLINE().isOption(GAMEOPTION_NO_BARBARIANS) )
++				/*if( !g.isOption(GAMEOPTION_NO_BARBARIANS) )
+ 				{
+ 					iValue += (iNumCitiesInArea);
+ 				
+-					if(GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS))
++					if(g.isOption(GAMEOPTION_RAGING_BARBARIANS))
+ 					{
+ 						iValue += (iNumCitiesInArea);
+ 					}
+@@ -4461,7 +4462,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						int flavorBonus = -1;
+ 						for(int i = 0; i < GC.getNumFlavorTypes(); i++) {
+ 							// Mostly 5 or 2, occasionally 10
+-							flavorBonus += std::min(GC.getLeaderHeadInfo(GET_PLAYER(getOwnerINLINE()).
++							flavorBonus += std::min(GC.getLeaderHeadInfo(kOwner.
+ 									getPersonalityType()).getFlavorValue(i),
+ 									// GP flavor is at most 1
+ 									5 * GC.getUnitInfo(gpunit).getFlavorValue(i));
+@@ -4473,7 +4474,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				int iCityRate = getGreatPeopleRate();
+ 				int iHighestRate = 0;
+ 				int iLoop;
+-				for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
++				for( CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop) )
+ 				{
+ 					int x = pLoopCity->getGreatPeopleRate();
+ 					if (x > iHighestRate)
+@@ -4588,7 +4589,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 							//this gives a very large extra value if the religion is (nearly) unique
+ 							//to no extra value for a fully spread religion.
+ 							//I'm torn between huge boost and enough to bias towards the best monastery type.
+-							int iReligionCount = GET_PLAYER(getOwnerINLINE()).getHasReligionCount(eReligion);
++							int iReligionCount = kOwner.getHasReligionCount(eReligion);
+ 							iValue += (100 * (iNumCities - iReligionCount)) / (iNumCities * (iReligionCount + 1));
+ 						}
+ 					}
+@@ -4710,86 +4711,92 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			// K-Mod end (prereqs)
+ 
+ 			for (int iI = 0; iI < GC.getNumVoteSourceInfos(); ++iI)
+-			{
+-				if (kBuilding.getVoteSourceType() == iI)
+-				{
++			{	// <advc.003>
++				if(kBuilding.getVoteSourceType() != iI)
++					continue; // </advc.003>
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      05/24/10                              jdog5000        */
+ /*                                                                                              */
+ /* City AI, Victory Strategy AI                                                                 */
+ /************************************************************************************************/					
+-					int iTempValue = 0;
+-					if (kBuilding.isStateReligion())
++				int iTempValue = 0;
++				if (kBuilding.isStateReligion())
++				{
++					int iShareReligionCount = 0;
++					int iPlayerCount = 0;
++					for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+ 					{
+-						int iShareReligionCount = 0;
+-						int iPlayerCount = 0;
+-						for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
++						CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++						if ((iPlayer != getOwner()) && kLoopPlayer.isAlive())
+ 						{
+-							CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-							if ((iPlayer != getOwner()) && kLoopPlayer.isAlive())
++							iPlayerCount++;
++							if (kOwner.getStateReligion() == kLoopPlayer.getStateReligion())
+ 							{
+-								iPlayerCount++;
+-								if (GET_PLAYER(getOwnerINLINE()).getStateReligion() == kLoopPlayer.getStateReligion())
+-								{
+-									iShareReligionCount++;										
+-								}
++								iShareReligionCount++;										
+ 							}
+ 						}
+-						iTempValue += (200 * (1 + iShareReligionCount)) / (1 + iPlayerCount);
+-					}
+-					else
+-					{
+-						iTempValue += 100;
+ 					}
+-					// <advc.115b>
+-					CvPlayerAI const& owner = GET_PLAYER(getOwnerINLINE());
+-					int diploStage = 0;
+-					if(owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1))
+-						diploStage++;
+-					/*  Don't want to push AP as much b/c victory stage (so far)
+-						hardly meaningful for that */
++					//iTempValue += (200 * (1 + iShareReligionCount)) / (1 + iPlayerCount);
++					// <advc.178> Replacing the above
++					iTempValue += ::round((125 *
++							/*  Don't need everyone to share the religion
++								(but at least someone) */
++							std::min(iPlayerCount / 2.0, (double)iShareReligionCount)) /
++							std::max(1, iPlayerCount)); // </advc.178>
++				}
++				else
++				{
++					//iTempValue += 100;
++					iTempValue += 75; // advc.115b
++				}
++				// <advc.115b>
++				CvPlayerAI const& owner = kOwner;
++				int diploStage = 0;
++				if(owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1))
++					diploStage++;
++				/*  Don't want to push AP as much b/c victory stage (so far)
++				hardly meaningful for that */
++				if(!kBuilding.isStateReligion() &&
++						owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY2))
++					diploStage++;
++				// (3 and 4 aren't possible without the respective vote source)
++				iValue += iTempValue * 3 * diploStage;
++				/*  K-Mod code didn't factor in AI_VICTORY_DIPLOMACY2 b/c that
++				stage wasn't used at the time */
++				//iValue += (iTempValue * (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1) ? 5 : 1));
++				// Don't pave the way for rival victory
++				int highestRivalStage = 0;
++				bool humanRival = false;
++				for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++					PlayerTypes rivalId = (PlayerTypes)j;
++					CvPlayerAI const& rival = GET_PLAYER(rivalId);
++					if(!rival.isAlive() || rival.getTeam() == owner.getTeam() ||
++							// No worries about vassals (rival or not)
++							TEAMREF(rivalId).isAVassal())
++						continue;
++					int st = 0;
++					if(rival.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1))
++						st++;
+ 					if(!kBuilding.isStateReligion() &&
+-							owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY2))
+-						diploStage++;
+-					// (3 and 4 aren't possible without the respective vote source)
+-					iValue += iTempValue * 3 * diploStage;
+-					/*  K-Mod code didn't factor in AI_VICTORY_DIPLOMACY2 b/c that
+-						stage wasn't used at the time */
+-					//iValue += (iTempValue * (GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1) ? 5 : 1));
+-					// Don't pave the way for rival victory
+-					int highestRivalStage = 0;
+-					bool humanRival = false;
+-					for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+-						PlayerTypes rivalId = (PlayerTypes)i;
+-						CvPlayerAI const& rival = GET_PLAYER(rivalId);
+-						if(!rival.isAlive() || rival.getTeam() == owner.getTeam() ||
+-								// No worries about vassals (rival or not)
+-								TEAMREF(rivalId).isAVassal())
+-							continue;
+-						int st = 0;
+-						if(rival.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY1))
+-							st++;
+-						if(!kBuilding.isStateReligion() &&
+-								owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY2))
+-							st++;
+-						if(st > highestRivalStage || (st >= highestRivalStage &&
+-								rival.isHuman())) {
++						owner.AI_isDoVictoryStrategy(AI_VICTORY_DIPLOMACY2))
++						st++;
++					if(st > highestRivalStage || (st >= highestRivalStage &&
++						rival.isHuman())) {
+ 							highestRivalStage = st;
+ 							humanRival = rival.isHuman();
+-						}
+ 					}
+-					if(highestRivalStage > diploStage || (humanRival &&
+-							highestRivalStage >= diploStage))
+-						return 0; // Discouraging enough I hope
+-					// </advc.115b>
+ 				}
++				if(highestRivalStage > diploStage || (humanRival &&
++						highestRivalStage >= diploStage))
++					return 0; // Discouraging enough I hope
++				// </advc.115b>
+ 
+ 				// Value religion buildings based on AP gains
+-				if (GC.getGameINLINE().isDiploVote((VoteSourceTypes)iI))
++				if (g.isDiploVote((VoteSourceTypes)iI))
+ 				{
+-					if (GET_PLAYER(getOwnerINLINE()).isLoyalMember((VoteSourceTypes)iI))
++					if (kOwner.isLoyalMember((VoteSourceTypes)iI))
+ 					{
+-						ReligionTypes eReligion = GC.getGameINLINE().getVoteSourceReligion((VoteSourceTypes)iI);
++						ReligionTypes eReligion = g.getVoteSourceReligion((VoteSourceTypes)iI);
+ 
+ 						if (NO_RELIGION != eReligion && isHasReligion(eReligion))
+ 						{
+@@ -4827,7 +4834,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 									iTempValue /= 100;
+ 									// K-Mod end
+ 
+-									// +99 mirrors code below, I think because commerce weight can be pretty small. (It's so it rounds up, not down. - K-Mod)
++									// +99 mirrors code below, I think because commerce weight can be pretty small.
++									// (It's so it rounds up, not down. - K-Mod)
+ 									iTempValue *= kOwner.AI_commerceWeight((CommerceTypes)iCommerce, this);
+ 									iTempValue = (iTempValue + 99) / 100;
+ 
+@@ -4840,6 +4848,63 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
++				// <advc.179>
++				if(kBuilding.isStateReligion() && kOwner.isStateReligion()) {
++					ReligionTypes stateRel = kOwner.getStateReligion();
++					std::vector<BuildingTypes> relBuildings;
++					for(int j = 0; j < GC.getNumBuildingInfos(); j++) {
++						BuildingTypes bt = (BuildingTypes)j;
++						if(GC.getBuildingInfo(bt).getReligionType() == stateRel)
++							relBuildings.push_back(bt);
++					}
++					double ourBuildingCount = estimateReligionBuildings(
++							kOwner.getID(), stateRel, relBuildings);
++					double tempValue = ourBuildingCount;
++					double rivalFactor = 1.5 * std::sqrt((double)g.countCivPlayersAlive());
++					for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++						CvPlayer const& civ = GET_PLAYER((PlayerTypes)j);
++						if(!civ.isAlive() || civ.getID() == kOwner.getID() ||
++								civ.getStateReligion() != stateRel ||
++								!GET_TEAM(kOwner.getTeam()).isHasMet(civ.getTeam()))
++							continue;
++						AttitudeTypes towardThem = kOwner.AI_getAttitude(civ.getID());
++						if(civ.isMinorCiv())
++							towardThem = ATTITUDE_FURIOUS;
++						if(GET_TEAM(getTeam()).AI_getWarPlan(civ.getTeam()) !=
++								NO_WARPLAN) {
++							towardThem = (AttitudeTypes)std::min((int)towardThem,
++									(int)ATTITUDE_ANNOYED);
++						}
++						bool bTheyAhead = (g.getPlayerRank(civ.getID()) <
++								g.getPlayerRank(kOwner.getID()));
++						// Don't care if they benefit prom ReligionYield then
++						if(!bTheyAhead && towardThem <= ATTITUDE_CAUTIOUS &&
++								towardThem > ATTITUDE_FURIOUS)
++							continue;
++						double loopBuildingCount = estimateReligionBuildings(
++								civ.getID(), stateRel, relBuildings);
++						/*  Don't want to help competitors; let _them_ build
++							eBuilding. */
++						if(bTheyAhead && towardThem < ATTITUDE_FRIENDLY)
++							loopBuildingCount *= -1;
++						else  {
++							loopBuildingCount = std::min(ourBuildingCount,
++									loopBuildingCount);
++							loopBuildingCount /= rivalFactor;
++						}
++						tempValue += loopBuildingCount;
++					}
++					for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
++						int iChange = GC.getVoteSourceInfo((VoteSourceTypes)iI).
++								getReligionYield(iYield);
++						if(iChange == 0)
++							continue;
++						/*  Would be nicer to use CvPlayerAI::AI_commerceWeight,
++							but that would have to be applied earlier. */
++						tempValue *= iChange * (iYield == YIELD_COMMERCE ? 4 : 8); 
++					}
++					iValue += ::round(tempValue);
++				} // </advc.179>
+ 			}
+ 
+ 		}
+@@ -5215,7 +5280,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				iTempValue += iCommerceMultiplierValue;
+ 
+ 				// K-Mod. help get the ball rolling on espionage.
+-				if (iI == COMMERCE_ESPIONAGE && iTempValue > 0 && !GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++				if (iI == COMMERCE_ESPIONAGE && iTempValue > 0 && !g.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+ 					// priority += 1% per 1% increase in total espionage, more for big espionage strategy
+ 					iPriorityFactor += std::min(100, (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)?150 : 100) * iTempValue/std::max(1, 4*kOwner.getCommerceRate(COMMERCE_ESPIONAGE)));
+@@ -5258,15 +5323,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 				if (kBuilding.getGlobalReligionCommerce() != NO_RELIGION)
+ 				{
+-					/*iTempValue += (GC.getReligionInfo((ReligionTypes)(kBuilding.getGlobalReligionCommerce())).getGlobalReligionCommerce(iI) * GC.getGameINLINE().countReligionLevels((ReligionTypes)(kBuilding.getGlobalReligionCommerce())) * 2);
++					/*iTempValue += (GC.getReligionInfo((ReligionTypes)(kBuilding.getGlobalReligionCommerce())).getGlobalReligionCommerce(iI) * g.countReligionLevels((ReligionTypes)(kBuilding.getGlobalReligionCommerce())) * 2);
+ 					if (eStateReligion == (ReligionTypes)(kBuilding.getGlobalReligionCommerce()))
+ 					{
+ 					    iTempValue += 10;
+ 					}*/
+ 					// K-Mod
+-					int iExpectedSpread = GC.getGameINLINE().countReligionLevels((ReligionTypes)kBuilding.getGlobalReligionCommerce());
++					int iExpectedSpread = g.countReligionLevels((ReligionTypes)kBuilding.getGlobalReligionCommerce());
+ 					iExpectedSpread += (GC.getNumEraInfos() - kOwner.getCurrentEra() + (eStateReligion == (ReligionTypes)(kBuilding.getGlobalReligionCommerce())? 2 : 0)) *
+-							GC.getGameINLINE().getRecommendedPlayers(); // advc.137
++							g.getRecommendedPlayers(); // advc.137
+ 							//GC.getWorldInfo(GC.getMap().getWorldSize()).getDefaultPlayers();
+ 					iTempValue += GC.getReligionInfo((ReligionTypes)kBuilding.getGlobalReligionCommerce()).getGlobalReligionCommerce(iI) * iExpectedSpread * 4;
+ 				}
+@@ -5390,7 +5455,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 				if (kBuilding.getGlobalCorporationCommerce() != NO_CORPORATION)
+ 				{
+-					iExpectedSpread += GC.getGameINLINE().countCorporationLevels((CorporationTypes)(kBuilding.getGlobalCorporationCommerce()));
++					iExpectedSpread += g.countCorporationLevels((CorporationTypes)(kBuilding.getGlobalCorporationCommerce()));
+ 
+ 					if (iExpectedSpread > 0)
+ 					{
+@@ -5497,7 +5562,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			{
+ 				int iTempValue = (kBuilding.getCommerceChange(COMMERCE_CULTURE) * 3);
+ 				iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) * 3);
+-				if (GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++				if (g.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+ 					iTempValue += (kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) * 3);
+ 					iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE) * 3);
+@@ -5514,7 +5579,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 				// K-Mod, this stuff was moved from below
+ 				iTempValue += ((kBuilding.getCommerceModifier(COMMERCE_CULTURE) * getBaseCommerceRate(COMMERCE_CULTURE)) / 15);
+-				if (GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++				if (g.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+ 					iTempValue += ((kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE) * getBaseCommerceRate(COMMERCE_ESPIONAGE)) / 15);
+ 				}
+@@ -5557,7 +5622,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 				/* original bts code. (I've moved this stuff up to be before the limited wonder checks.
+ 				iValue += ((kBuilding.getCommerceModifier(COMMERCE_CULTURE) * getBaseCommerceRate(COMMERCE_CULTURE)) / 15);
+-				if (GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++				if (g.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+ 					iValue += ((kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE) * getBaseCommerceRate(COMMERCE_ESPIONAGE)) / 15);
+ 				}*/
+@@ -5585,9 +5650,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				}
+ 			}
+ 
+-			//if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE || (GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE) && (iFocusFlags & BUILDINGFOCUS_CULTURE)))
++			//if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE || (g.isOption(GAMEOPTION_NO_ESPIONAGE) && (iFocusFlags & BUILDINGFOCUS_CULTURE)))
+ 			// K-Mod: the "no espionage" stuff is already taken into account in the culture section.
+-			if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE && !GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))
++			if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE && !g.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 			{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      01/09/10                                jdog5000      */
+@@ -13024,6 +13089,57 @@ void CvCityAI::AI_updateWorkersNeededHere()
+ 	m_iWorkersHave = iWorkersHave;
+ }
+ 
++// <advc.179>
++double CvCityAI::estimateReligionBuildings(PlayerTypes civId, ReligionTypes eReligion,
++		std::vector<BuildingTypes> const& buildings) const {
++
++	/*  Civ whose buildings we're counting
++		(we = the owner of this CvCity) */
++	CvPlayer const& civ = GET_PLAYER(civId);
++	int iPotential = 0; int foo=-1;
++	int iCertain = 0;
++	for(CvCity* c = civ.firstCity(&foo); c != NULL; c = civ.nextCity(&foo)) {
++		if(!c->isRevealed(getTeam(), false)) {
++			iPotential++;
++			continue;
++		}
++		if(!c->isHasReligion(eReligion)) {
++			// As AP owner, we may well spread eReligion to all our cities.
++			if(civId == getOwnerINLINE() || c->getReligionCount() <= 0)
++				iPotential++;
++			continue;
++		}
++		if(c->getTeam() != getTeam() && !c->plot()->isInvestigate(getTeam())) {
++			iPotential += 3;
++			continue;
++		}
++		for(size_t i = 0; i < buildings.size(); i++) {
++			if(GET_TEAM(c->getTeam()).isObsoleteBuilding(buildings[i]))
++				continue;
++			iCertain += c->getNumBuilding(buildings[i]);
++			int cost = GC.getBuildingInfo(buildings[i]).getProductionCost();
++			// Anticipate only regular buildings
++			if(cost > 0 && cost < 100 && c->canConstruct(buildings[i]))
++				iPotential += 2;
++		}
++	}
++	double r = iCertain + iPotential / 4.0;
++	bool bObs = false;
++	for(size_t i = 0; i < buildings.size(); i++) {
++		TechTypes obsTech = (TechTypes)GC.getBuildingInfo(buildings[i]).
++				getObsoleteTech();
++		if(obsTech != NO_TECH && GC.getTechInfo(obsTech).getEra() <=
++				civ.getCurrentEra()) {
++			bObs = true;
++			break;
++		}
++	}
++	if(bObs)
++		r /= 2;
++	return r;
++} // </advc.179>
++
++
+ BuildingTypes CvCityAI::AI_bestAdvancedStartBuilding(int iPass)
+ {
+ 	int iFocusFlags = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 228cfe879..9f2b55162 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -250,7 +250,9 @@ protected:
+ 
+ 	void AI_cachePlayerCloseness(int iMaxDistance);
+ 	void AI_updateWorkersNeededHere();
+-
++	// advc.179:
++	double estimateReligionBuildings(PlayerTypes civId, ReligionTypes eReligion,
++			std::vector<BuildingTypes> const& buildings) const;
+ 	// added so under cheat mode we can call protected functions for testing
+ 	friend class CvGameTextMgr;
+ };
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9e11b44f9..7d5a4b85f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14030,9 +14030,14 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 								}
+ 							}
+ 						}
+-						// advc.106: Don't record civics changes in replays
+-						/*szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
+-						GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);*/
++						/*  <advc.106> Only record civics change if renounced
++							state religion implied */
++						if(!GC.getCivicInfo(getCivics(eIndex)).isStateReligion() &&
++								GC.getCivicInfo(eOldCivic).isStateReligion()) {
++									// </advc.106>
++							szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
++							GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
++						}
+ 					}
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 7828fabbf..889ce41cb 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2102,13 +2102,14 @@ void KingMaking::evaluate() {
+ 	double caughtUpBonus = 0;
+ 	set<PlayerTypes> presentWinners;
+ 	addLeadingCivs(presentWinners, scoreMargin, false);
+-	double const catchUpVal = 24.0 / std::pow((double)winning.size(), 0.75);
++	double catchUpVal = 24.0 / std::pow((double)winning.size(), 0.75);
++	catchUpVal *= std::pow((1 + weAI->amortizationMultiplier()) / 2, 2);
+ 	if(winning.count(weId) > 0) {
+ 		winningRivals--;
+ 		/*  If we're among the likely winners, then it's a showdown between us
+-			and them, and, then, we try to prevent their victory despite being
+-			Pleased. If we're out of contention (for the time being), we don't mind
+-			if they win at Pleased. */
++			and them, and we try to prevent their victory despite being Pleased.
++			If we're out of contention (for the time being), we don't mind if
++			they win at Pleased. */
+ 		attitudeMultiplier += 0.25;
+ 		if(presentWinners.count(weId) == 0) {
+ 			/*  We're not presently winning, but our predicted conquests bring us
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=68208

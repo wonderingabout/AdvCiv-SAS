@@ -1,0 +1,156 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3232
+# Commit: ad45834057f847872ef6719de8c1483f2ce90bb4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f395a264617f9c242a1399f7f68fa610692fa4c5
+# Title: Tweak Barbarian pacing further
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+35	29	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index cceb2f507..1fc65ff7c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7613,9 +7613,21 @@ void CvGame::createBarbarianUnits()
+ 		}
+ 		if (iUnownedTotal < iBaseTilesPerLandUnit / 2)
+ 			continue;
+-		int iBarbCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
++		int const iBarbarianCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
++		{
++			int const iInitialDefenders = GC.getInfo(getHandicapType()).
++					getBarbarianInitialDefenders();
++			iLandUnits = std::max(0, iLandUnits
++			/*  Don't count city defenders. Settled Barbarians being less aggressive
++				makes sense, but cities also reduce the number of unowned tiles;
++				that's enough.	(Alt. idea: Subtract half the Barbarian population
++				in this area.)	Old Firaxis to-do comment on this subject:
++				'XXX eventually need to measure	how many barbs of eBarbUnitAI we
++				have in this area...' */
++					- iBarbarianCities * std::max(0, iInitialDefenders));
++		}
+ 		int iNeededLand = numBarbariansToCreate(iBaseTilesPerLandUnit, iTiles,
+-				iUnowned, iLandUnits, iBarbCities);
++				iUnowned, iLandUnits);
+ 		for (size_t i = 0; i < shelves.size(); i++)
+ 		{
+ 			int iShips = shelves[i]->countBarbarians();
+@@ -7631,7 +7643,7 @@ void CvGame::createBarbarianUnits()
+ 			/* 'BETTER_BTS_AI_MOD 9/25/08 jdog5000
+ 				Limit construction of barb ships based on player navies' */
+ 			// advc: BBAI code deleted -- sanity check based on Barbarian cities instead:
+-			if (iShips > iBarbCities + 2)
++			if (iShips > iBarbarianCities + 2)
+ 				iNeededSea = 0;
+ 			// <advc.306> Keep spawning units on ships
+ 			if (iNeededSea <= 0 && iNeededLand <= 0 && a.getNumCivCities() > 0)
+@@ -7645,7 +7657,6 @@ void CvGame::createBarbarianUnits()
+ 		/*  Don't spawn Barbarian units on (or on shelves around) continents where
+ 			civs don't outnumber Barbarians */
+ 		int const iCivCities = a.getNumCivCities();
+-		int const iBarbarianCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
+ 		FAssert(iBarbarianCities >= 0);
+ 		if (iCivCities > iBarbarianCities && bCreateBarbarians)
+ 			createBarbarianUnits(iNeededLand, iLandUnits, a, NULL);
+@@ -7788,7 +7799,7 @@ int CvGame::getBarbarianStartTurn() const
+ 
+ // Based on code originally in createBarbarianUnits, but modified beyond recognition.
+ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+-		int iUnitsPresent, int iBarbarianCities)
++	int iUnitsPresent)
+ {
+ 	int const iOwned = iTiles - iUnowned;
+ 	scaled const rPeakRatio = barbarianPeakLandRatio();
+@@ -7833,15 +7844,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ 			"BARB_ACTIVITY_ADJUSTMENT"));
+ 	rTarget *= rAdjustment;
+ 
+-	int iInitialDefenders = GC.getInfo(getHandicapType()).
+-			getBarbarianInitialDefenders();
+-	scaled r = rTarget - std::max(0, iUnitsPresent
+-	/*  Don't count city defenders. Settled Barbarians being less aggressive makes
+-		sense, but cities also reduce the number of unowned tiles; that's enough.
+-		(Alt. idea: Subtract half the Barbarian population in this area.)
+-		Old Firaxis to-do comment on this subject: 'XXX eventually need to measure
+-		how many barbs of eBarbUnitAI we have in this area...' */
+-			- iBarbarianCities * std::max(0, iInitialDefenders));
++	scaled r = rTarget - iUnitsPresent;
+ 	if (r < 1)
+ 		return 0; // Avoid very small creation probabilities
+ 	scaled rCreationRate = fixp(0.25); // the BtS rate
+@@ -7905,27 +7908,30 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
+ 	{	// <advc.300>
+ 		int iValid=0;
+ 		CvPlot* pPlot = randomBarbarianPlot(iValid, kArea, pShelf);
+-		if (pPlot != NULL)
+ 		{
+-			FAssert(iValid > 0);
+-			// Skip creating the unit if too few valid tiles remain
+ 			int const iUnitsTarget = iUnitsPresent + 1; // About to create one more
+-			if ((pShelf != NULL && iValid * 100 < pShelf->size()) ||
+-				iUnitsTarget >= iValid)
+-			{
+-				pPlot = NULL;
+-			}
+-			else // Skip only probabilistically
++			if (pPlot != NULL)
+ 			{
+-				scaled rSkipProb = scaled(iUnitsTarget, iValid);
+-				// Especially don't want a constant stream of units from low-weight plots
+-				rSkipProb *= scaled::max(1, 2 - per100(getBarbarianWeightMap().get(*pPlot)));
+-				if (SyncRandSuccess(rSkipProb))
++				FAssert(iValid > 0);
++				// Don't create any units if far too few valid tiles remain
++				if ((pShelf != NULL && iValid * 100 < pShelf->size()) ||
++					iUnitsTarget >= iValid)
++				{
+ 					pPlot = NULL;
++				}
+ 			}
++			if (pPlot == NULL)
++				return iCreated;
++			/*	Skip only one unit, probabilistically. (This could probably
++				be simplified a bit.) */
++			scaled rSkipProb = std::max(scaled(iUnitsTarget, iValid),
++					// In case that both valid count and target number are very small
++					scaled(std::min(iUnitsTarget + 2, 3), iValid + 2));
++			// Especially don't want a constant stream of units from low-weight plots
++			rSkipProb *= scaled::max(1, 2 - per100(getBarbarianWeightMap().get(*pPlot)));
++			if (SyncRandSuccess(rSkipProb))
++				continue;
+ 		}
+-		if (pPlot == NULL)
+-			return iCreated;
+ 		UnitAITypes eUnitAI = UNITAI_ATTACK;
+ 		if (pShelf != NULL)
+ 			eUnitAI = UNITAI_ATTACK_SEA;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index b691ec9e6..d1b375443 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1064,7 +1064,7 @@ protected:
+ 	// <advc.300>
+ 	void createBarbarianCity(bool bNoCivCities, int iProbModifierPercent = 100);
+ 	int numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+-			int iUnitsPresent, int iBarbarianCities = 0);
++			int iUnitsPresent);
+ 	int createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea,
+ 			Shelf* pShelf = NULL, bool bCargoAllowed = false, bool bOnlyCargo = false);
+ 	CvPlot* randomBarbarianPlot(int& iValid, CvArea const& kArea,
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5841

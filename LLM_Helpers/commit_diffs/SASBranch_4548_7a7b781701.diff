@@ -1,0 +1,226 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4548
+# Commit: 7a7b7817019ef0226f30029a79e81e9794ef33fc
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fea6b552d5d9c8fa9dd8c0218a797da5f25ec351
+# Title: rename "Unit Upgrades Tree" to "Units Tree" in the sevopedia - It was not always about upgrading, also i intend to (if possible i mean about this and i do my...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	10	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+17	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+4	5	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+51	1	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 72580e896..ebcd25878 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -28,21 +28,43 @@
+ 		<Italian>Contenuto</Italian>
+ 		<Spanish>Contenido</Spanish>
+ 	</TEXT>
++	<!-- custom: rename "Unit Upgrades" to "Units Tree",
++	clearer and consistent with "Promotion Upgrades Tree",
++	while also short enough to fit in the sevopedia panel
++	if i am not mistaken that this is a panel indeed i
++	mean anyways, thanks
++	Also note that this/it is not necessarily about
++	upgrading units but showing them, even though
++	upgrading them may be the end result, but still,
++	this should not be a wrong way to present things,
++	regarding how this is just a tree that displays
++	units and how they relate to each other (think
++	of it as looking back maybe for example, not
++	necessarily upgrade only, or also looking at per
++	era units in a vertical way for example i mean
++	anyways (in AdvCiv-SAS the tech tree would be
++	designed in such a way that each era has one
++	type of unit, and each unit is aligned vertically
++	(in the colum corresponding to) where it starts,
++	maybe this can help this be more intuitive too)
++	thanks, ) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
+-		<English>Unit Upgrades</English>
+-		<French>Am�liorations des Unit�s</French>
+-		<German>Modernisierungen</German>
+-		<Italian>Avanzamenti</Italian>
+-		<Spanish>Modernizaciones</Spanish>
++		<English>Units Tree</English>
++		<French>Units Tree</French>
++		<German>Units Tree</German>
++		<Italian>Units Tree</Italian>
++		<Spanish>Units Tree</Spanish>
+ 	</TEXT>
++	<!-- custom: use the plural here too:
++	"Promotion Tree" -> "Promotions Tree" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
+-		<English>Promotion Tree</English>
+-		<French>Arborescence des Promotions</French>
+-		<German>Bef�rderungsbaum</German>
+-		<Italian>Albero Promoz.</Italian>
+-		<Spanish>�rbol de ascensos</Spanish>
++		<English>Promotions Tree</English>
++		<French>Promotions Tree</French>
++		<German>Promotions Tree</German>
++		<Italian>Promotions Tree</Italian>
++		<Spanish>Promotions Tree</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 6d3b0f38c..43b5d64e7 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+index 0d2c486f6..6c9ea2a8c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+@@ -63,3 +63,20 @@ degrade gameplay, even though i am free to choose design i want, i would like a
+ possible, but i mean, is about this i mean anyways, i focus if i want or do or not, about this i
+ mean anyways, i should focus or not but as is or not i mean anyways, anyways as is i mean anyways
+ maybe or not or yes etc i mean anyways, thanks,
++
++- i have put modern era and robotic era (on top/after existing atomic era, about this i mean
++anyways). This is because some edge units do not fit too well, also these eras are distinct
++enough in tech or overall features (appearence, units and such, etc i mean anyways). I have
++solved this by making these eras very short. This also fits well my idea to shorten later eras
++to give the player incentives to finish the game (also as it's quite tedious, i tend to skip
++these too if i may say but is talking about me, anyways). Also, this may be historically quite
++accurate, as as i said in other earlier notes about this mod in this directory, most of history
++happened indeed in the past, in stone age and such, however most of advances were made and continue
++to be made in recent times. It could be said history is "converging" or/and acccelerating, and
++designing the game and game tree in such a way is not wrong or flawed, if one were to judge based
++on quite objective standards, about this i mean anyways. If it can make it less tediosu to play
++the late game, all the better. As late turns can be very long with many instructions per turn,
++maybe in time spent (minutes/hour played by the player) per era/tech, it would amount to the
++same in the end, so willingly or not, maybe this may work quite well. I don't want history
++to be exhaustive (would be way too long to begin with if ever (practically) possible (should be
++but way too long/tedious, about this i mean anyways))
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index a2f118808..07fd9903d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -216,11 +216,10 @@ Example: more lancers, grenadier slightly before rifle (but would need to check
+ accurate or maybe would leave as is or not, but is about this i mean anyways, i mean, anyways,
+ i mean anwyays, thanks,)
+ 
+-- not sure the scout droid (scout/explorers upgrade) fits better in atomic/modern era or in
+-future era, but it would be a bit too ineffective in future era, however putting it at atomic/era
+-is a bit weird if next to ww2 fighters, maybe i can solve this by making it with a later tech
+-requirement that is still in modern era. Similar logic for all i mean anyways units in the
+-military upgrade tree i made about this i mean anyways, at least about this i mean anyways, thanks,
++- if some units do not fit too well at a specific era, especially edge of era units, i may solve
++this by giving them an early or late tech requirement in said era. Similar logic for all i mean
++anyways units in the military upgrade tree i made about this i mean anyways, at least about this
++i mean anyways, thanks,
+ 
+ - after all giving more siege units to AIs especially. AI is very fond of these, at least about
+ the game i mean anyways, in civ4 BTS/base advciv in particular (in particular base advciv i mean
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index d26995438..ac88844e3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -5,8 +5,9 @@ eras:
+ 4 = medieval
+ 5 = renaissance
+ 6 = industrial
+-7 = modern/atomic
+-8 = future
++7 = atomic
++8 = modern
++9 = robotic
+ 
+ _________________________________________________________________________
+ removed units:
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 44d914fb7..55d21e0d9 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -9,7 +9,25 @@ todo cleanup extensive comments and move them to a longer changes guide notes
+ 
+ ## Main Changes quick starter guide
+ 
+-- explore units can attack : but their strength should be quite low
++- game pace advances exponentially: later eras have fewer techs and units. This
++avoids the hassle of a long and tedious endgame, but is also realistic as most
++of history in the amount of years, happened in the past. Bronze Age alone was
++longer than most of our recent eras for example, and even more so for Stone Age.
++However, units and eras give exponentially bigger bonuses too, and tech costs
++and such have been adjusted. Taking also into account that players (should/generally
++i think) spend more time on the end game to manage all cities and units or other
++things, maybe this will even out and game will still feel the same speed for each
++era. Beware to not neglect tech as later ones will be key if no player still has
++yet won the game. There are also less units and buildings to fasten the end game
++(but trying to keep just enough techs to make it last long enough) time per turn
++in minutes/hour played.
++- as a result of the previous point, it should be even less likely for a "spearman"
++(now there are more units of this type in AdvCiv-SAS, see below at military reworks)
++to win against a tank, and also much less likely for a swordsman to every match a
++musketman, for example, which should also make more sense historically hopefully.
++Defenders may have a chance to prevail while being behind in tech but it will be
++(much) harder.
++- explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack,
+ maybe even workers too
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed
+@@ -18,6 +36,38 @@ to better accomodate its history and stats, can be built starting from a differe
+ tech, in particular the settler is now not freely available but requires agriculture
+ (is historical too, but for convenience first settler at starting game is provided
+ for free as it was in Civ4 BTS and AdvCiv)
++- another example is that there are some subclasses of units, for example for
++"spearmen", there are now "lance light" units, "lance medium" units, and "lance
++heavy" units. Each have different strengths and weaknesses, with generally the
++faster ones having less damage/strength but better at defense/avoiding/harassing
++other units quite freely, while the slower ones have high strength, can defend
++and attack well, but no such bonuses, and may cost a bit more too, see the
++[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
++, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
++too btw) in/at "Units Tree".
++- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
++than a medieval light swordsman, but the medieval light swordsman will have (much more)
++bonuses that should make him (or her but most often him i mean anyways) more valuable
++as a military unit. This is also realistic too, no reason why an ancient maceman could
++not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
++too extremely the case i think, in base advciv/bts, even accounting for armor and such,
++i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
++to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
++and not tedious experience too i mean anyways. The tech tree is fairly straightforward,
++with max one unit type per era, for example, which should hopefully help make sense
++of that and getting immersed into it, while not neglecting on strategy, hopefully,
++at least was my/one of my goal(s) making (and became as i was making too) this
++AdvCiv-SAS mod. Note also that this is not the case for all units and eras, only the
++ones i found most relevant ones and to not be tedious enough (there is no work boat
++1 work boat 2 workboat 3 etc for example, only one for all eras, but there are a few
++workers every few eras, but there are military units for each new era, at max one unit
++per class type (for example "sword light", "lance heavy", are each one type), and not
++for all types, also lesser in later stages of the game to simplify/rush/reach sooner
++the endgame)
++- some units can only be built under specific conditions, for example each religion
++has one unit (same for neo religions at later eras. See religion changes below for
++details), for example Buddhism is required to build monks (melee fist fighters)
++(yes such as shaolin but anyways..) and Christianism for Crusaders, etc.
+ - military units are rebalanced: some op units (according to me) are nerfed
+ slightly (for example: todo), some weaker ones buffed quite a lot (for example
+ the jaguar warrior)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=12073

@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5332
+# Commit: 8340dcb4d9276ae72f0d97c8a90f554ef55abb56
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d0360f3c4757a6b7a13181029bddd8fa2474ec3d
+# Title: (Fixed/Enhanced)Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated - fixed based advciv issue of obsoletes span...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+59	12	CvGameCoreDLL/CvGameTextMgr.cpp
+1	2	README.md
+9	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+4	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a9e082cc1..b6ebd8d14 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8118,7 +8118,10 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	if (bTreeInfo && NO_TECH != eFromTech)
+ 		buildTechTreeString(szBuffer, eTech, bPlayerContext, eFromTech);
+ 
++	// <!-- custom: consolidate obsolete buildings, bonuses, and special buildings into comma-separated lines for efficiency (Claude code Sonnet 4.5) -->
+ 	//	Obsolete Buildings
++	CvWString szObsoleteBuildings;
++	bool bAnyObsoleteBuildings = false;
+ 	FOR_EACH_ENUM(BuildingClass)
+ 	{
+ 		if (!bPlayerContext || (GET_PLAYER(eActivePlayer).
+@@ -8132,44 +8135,88 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 			{
+ 				//	Obsolete Buildings Check...
+ 				if (GC.getInfo(eLoopBuilding).getObsoleteTech() == eTech)
+-					buildObsoleteString(szBuffer, eLoopBuilding, true);
++				{
++					if (bAnyObsoleteBuildings)
++						szObsoleteBuildings += L", ";
++					szObsoleteBuildings += CvWString::format(L"<link=literal>%s</link>",
++							GC.getInfo(eLoopBuilding).getDescription());
++					bAnyObsoleteBuildings = true;
++				}
+ 			}
+ 		}
+ 	}
++	if (bAnyObsoleteBuildings)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
++				szObsoleteBuildings.GetCString()));
++	}
+ 
+ 	//	Obsolete Bonuses
++	CvWString szObsoleteBonuses;
++	bool bAnyObsoleteBonuses = false;
+ 	FOR_EACH_ENUM(Bonus)
+ 	{
+ 		if (GC.getInfo(eLoopBonus).getTechObsolete() == eTech)
+-			buildObsoleteBonusString(szBuffer, eLoopBonus, true);
++		{
++			if (bAnyObsoleteBonuses)
++				szObsoleteBonuses += L", ";
++			szObsoleteBonuses += CvWString::format(L"<link=literal>%s</link>",
++					GC.getInfo(eLoopBonus).getDescription());
++			bAnyObsoleteBonuses = true;
++		}
++	}
++	if (bAnyObsoleteBonuses)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
++				szObsoleteBonuses.GetCString()));
+ 	}
+ 
++	//	Obsolete Special Buildings
++	CvWString szObsoleteSpecialBuildings;
++	bool bAnyObsoleteSpecialBuildings = false;
+ 	FOR_EACH_ENUM(SpecialBuilding)
+ 	{
+ 		if (GC.getInfo(eLoopSpecialBuilding).getObsoleteTech() == eTech)
+-			buildObsoleteSpecialString(szBuffer, eLoopSpecialBuilding, true);
++		{
++			if (bAnyObsoleteSpecialBuildings)
++				szObsoleteSpecialBuildings += L", ";
++			szObsoleteSpecialBuildings += CvWString::format(L"<link=literal>%s</link>",
++					GC.getInfo(eLoopSpecialBuilding).getDescription());
++			bAnyObsoleteSpecialBuildings = true;
++		}
++	}
++	if (bAnyObsoleteSpecialBuildings)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES_NO_LINK",
++				szObsoleteSpecialBuildings.GetCString()));
+ 	}
+ 
+ 	if (!bTreeInfo)
+ 	{
++		// <!-- custom: consolidate obsolete units into a single comma-separated line instead of multiple bullets for efficiency -->
++		CvWString szObsoleteUnits;
+ 		bool bAnyObsoleteUnits = false;
+ 		FOR_EACH_ENUM(Unit)
+ 		{
+ 			CvUnitInfo const& kLoopUnitInfo = GC.getInfo(eLoopUnit);
+ 			if (kLoopUnitInfo.getObsoleteTech() == eTech)
+ 			{
+-				if (!bAnyObsoleteUnits)
+-				{
+-					bAnyObsoleteUnits = true;
+-				}
+-				szBuffer.append(NEWLINE);
+-				CvWString szUnitLink;
+-				szUnitLink.Format(L"<link=literal>%s</link>",
++				if (bAnyObsoleteUnits)
++					szObsoleteUnits += L", ";
++				szObsoleteUnits += CvWString::format(L"<link=literal>%s</link>",
+ 						kLoopUnitInfo.getDescription());
+-				szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
+-						szUnitLink.GetCString()));
++				bAnyObsoleteUnits = true;
+ 			}
+ 		}
++		if (bAnyObsoleteUnits)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_TECH_OBSOLETES",
++					szObsoleteUnits.GetCString()));
++		}
+ 		if (bCivilopediaText && bAnyObsoleteUnits)
+ 		{
+ 			// <!-- custom: keep tech tree uncluttered; add a pedia note only when relevant. (GPT-5.2-Codex) -->
+
+diff --git a/README.md b/README.md
+index d84a43206..a8342be29 100644
+--- a/README.md
++++ b/README.md
+@@ -260,7 +260,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.670_sevopedia_civilizations (1).JPG" alt="0.670_sevopedia_civilizations (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.690_sevopedia_buildings (1).JPG" alt="0.690_sevopedia_buildings (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.730_sevopedia_promotions (3).JPG" alt="0.730_sevopedia_promotions (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG" alt="0.750_sevopedia_projects.JPG" width="250"></img>
+@@ -391,7 +391,6 @@ The relevant files can be found in:
+ For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accomodate any XML that has this option enabled for a tech as in the screenshot) in sevopedia tech and in the tech advisor as show below:
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.5000_bTrade_bRepeat.JPG" alt="0.5000_bTrade_bRepeat.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
+ 
+ See also for details:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 9a8656415..efda83f1d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -129,6 +129,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping)  
+ [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
+ [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
++[96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4059,3 +4060,11 @@ See [commit/21f67530d536c6d93b42cf1223237b34e1ca7d0a](https://github.com/wonderi
+ After previous issue with exiting Sevopedia and reopening it, this also fixes Base AdvCiv issue of the Back Tab not leading back to last visited category when it was Hints or Index.
+ 
+ See [commit/044d26e918b6aa586807c6428fb770cb32f6324e](https://github.com/wonderingabout/AdvCiv-SAS/commit/044d26e918b6aa586807c6428fb770cb32f6324e).
++
++## 96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1taEek59g61fUYdfz3IwnlR5JaqBbY7Jc?usp=sharing).
++
++Also fixed the base advciv issue of obsolete bullets spanning vertically instead of horizontally being comma-separated. We only make anothee bullet for Obsolete units that are comma-separated too.
++
++This was a problem especially as we had many bullets. Now we only show one bullet per asset type (e.g. all obsolete buildings in one bullet, then all obsolete units in another bullet, etc.). Change with the help of Claude code Sonnet 4.5 in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 4e1dffc40..48afdf41e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -255,6 +255,8 @@ Also added the AI information now of as of now the UnitAI and iAIWeight informat
+ 
+ Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc.
+ 
++More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
++
+ <img src="../Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (2).JPG" alt="0.680_sevopedia_units (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (3).JPG" alt="0.680_sevopedia_units (3).JPG" width="250"></img>
+@@ -302,6 +304,8 @@ This is a more recent refactor and beautify that adds era information and such o
+ 
+ Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) with the help of gemini ai thanks; see similar precomputing logic or its explanation at sevoepdia reworks's sevopedia leader readme section for details.
+ 
++More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
++
+ <img src="../Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+index b40486673..dec3e1d71 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+index 212931a6f..aeabbd4dd 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+new file mode 100644
+index 000000000..5f03e8e79
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=12248

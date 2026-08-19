@@ -1,0 +1,1459 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2280
+# Commit: a70e4ce3a1db01c51da7fa370a706d8784191b38
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cf56c71d26483aa853212f2121171adc8168fc46
+# Title: Algorithm for fairer starting positions (wip)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/BBAILog.h
+319	71	CvGameCoreDLL/CitySiteEvaluator.cpp
+15	3	CvGameCoreDLL/CitySiteEvaluator.h
+2	1	CvGameCoreDLL/CvGame.cpp
+28	10	CvGameCoreDLL/CvPlayer.cpp
+4	2	CvGameCoreDLL/CvPlayer.h
+2	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+520	0	CvGameCoreDLL/StartingPositionIteration.cpp
+79	0	CvGameCoreDLL/StartingPositionIteration.h
+ create mode 100644 CvGameCoreDLL/StartingPositionIteration.cpp
+ create mode 100644 CvGameCoreDLL/StartingPositionIteration.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index da17a7359..72e99db92 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -35,6 +35,8 @@
+ #ifdef LOG_FOUND_VALUE
+ #define LOG_AI
+ #define gFoundLogLevel 1
++#undef gMapLogLevel
++#define gMapLogLevel 1 // (for starting site normalization)
+ #else
+ #define gFoundLogLevel 0
+ #endif // </advc.031c>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 676969318..c2ed1ca2d 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -23,7 +23,8 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
+ 	m_kPlayer(kPlayer), m_iMinRivalRange(iMinRivalRange), m_bStartingLoc(bStartingLoc),
+ 	m_bNormalize(bNormalize), m_bAmbitious(false), m_bFinancial(false), m_bDefensive(false),
+ 	m_bSeafaring(false), m_bExpansive(false), /* advc.007: */ m_bDebug(false),
+-	m_bAdvancedStart(false), /* advc.303: */ m_iBarbDiscouragedRange(iDEFAULT_BARB_DISCOURAGED_RANGE)
++	m_bAdvancedStart(false), /* advc.027: */ m_bIgnoreStartingSurroundings(false),
++	m_iBarbDiscouragedRange(iDEFAULT_BARB_DISCOURAGED_RANGE) // advc.303
+ {
+ 	m_bAdvancedStart = (kPlayer.getAdvancedStartPoints() > 0);
+ 	m_bEasyCulture = (kPlayer.getNumCities() <= 0 || // advc.108: from MNAI (was =bStartingLoc)
+@@ -197,13 +198,65 @@ short CitySiteEvaluator::evaluate(int iX, int iY) const
+ void CitySiteEvaluator::discourageBarbarians(int iRange)
+ {
+ 	m_iBarbDiscouragedRange = iRange;
+-} // </advc.300>
++}
++
++// <advc.027>
++void CitySiteEvaluator::setIgnoreStartingSurroundings(bool b)
++{
++	m_bIgnoreStartingSurroundings = b;
++}
+ 
+-// <advc.007>
++
++scaled CitySiteEvaluator::evaluateWorkablePlot(CvPlot const& kPlot) const
++{
++	// Should only be used for StartingPositionIteration
++	FAssert(isNormalizing() && !isDebug());
++	/*	The evaluation is going to be largely independent from any city tile,
++		but it could matter whether it's coastal and on the same landmass. */
++	CvPlot const* pBestCityPlot = NULL;
++	int iBestScore = 0;
++	int const iBestPossibleScore = (kPlot.isWater() ? 2 : 3);
++	for (CityPlotIter it(kPlot, false); it.hasNext(); ++it)
++	{
++		if (!m_kPlayer.canFound(it->getX(), it->getY()))
++			continue;
++		int iScore = 1;
++		if (kPlot.isWater())
++		{
++			if (it->isCoastalLand(-1))
++				iScore++;
++		}
++		else
++		{
++			if (kPlot.sameArea(*it))
++				iScore += 2;
++		}
++		if (iScore > iBestScore)
++		{
++			pBestCityPlot = &*it;
++			iBestScore = iScore;
++			if (iScore >= iBestPossibleScore)
++				break;
++		}
++	}
++	if (pBestCityPlot == NULL) // kPlot not workable
++		return 0;
++	AIFoundValue foundVal(*pBestCityPlot, *this);
++	CvGame& kGame = GC.getGame();
++	CvGame::StartingPlotNormalizationLevel eOldLevel = kGame.
++			getStartingPlotNormalizationLevel();
++	// Make sure that resources get revealed
++	kGame.setStartingPlotNormalizationLevel(CvGame::NORMALIZE_HIGH);
++	scaled r = foundVal.evaluateWorkablePlot(kPlot);
++	kGame.setStartingPlotNormalizationLevel(eOldLevel);
++	return r;
++} // </advc.027>
++
++// advc.007:
+ void CitySiteEvaluator::setDebug(bool b)
+ {
+ 	m_bDebug = b;
+-} // </advc.007>
++}
+ 
+ // <advc.031c>
+ short CitySiteEvaluator::evaluateWithLogging(int iX, int iY) const
+@@ -429,9 +482,8 @@ short AIFoundValue::evaluate()
+ 		FeatureTypes const eFeature = p.getFeatureType();
+ 		bRemovableFeature = isRemovableFeature(p, bPersistentFeature,
+ 					/* <advc.031> */ iFeatureProduction);
+-		bool bCanNeverImprove = false;
+-		if (eFeature != NO_FEATURE && GC.getInfo(eFeature).isNoImprovement())
+-			bCanNeverImprove = true;
++		bool const bCanNeverImprove = (eFeature != NO_FEATURE &&
++				GC.getInfo(eFeature).isNoImprovement());
+ 		/*  (Non-resource water also can't be improved; that's already covered by
+ 			K-Mod code in evaluateYield) </advc.031> */
+ 		if (!bHome)
+@@ -497,28 +549,21 @@ short AIFoundValue::evaluate()
+ 		}
+ 		else
+ 		{
++			if (!bPersistentFeature && eFeature != NO_FEATURE)
++			{
++				iPlotValue += removableFeatureYieldVal(eFeature,
++						bRemovableFeature, eBonus != NO_BONUS);
++			}
++			// <advc.031>
+ 			FOR_EACH_ENUM(Yield)
+ 			{
+-				// K-Mod (start): adjust for removable features
+-				if (eFeature != NO_FEATURE && !bPersistentFeature)
+-				{
+-					CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+-					if (bRemovableFeature)
+-						iPlotValue += 10 * kFeature.getYieldChange(eLoopYield);
+-					else if (kFeature.getYieldChange(eLoopYield) < 0)
+-					{
+-						iPlotValue -= (eBonus != NO_BONUS ? 25 : 5);
+-						// advc.031: was 30 *...
+-						iPlotValue += 25 * kFeature.getYieldChange(eLoopYield);
+-					}
+-				} // K-Mod end
+-				// <advc.031>
+-				if (kPlayer.getExtraYieldThreshold(eLoopYield) > 0 &&
++				if (!kSet.isStartingLoc() && // Don't factor traits into starting sites
++					kPlayer.getExtraYieldThreshold(eLoopYield) > 0 &&
+ 					aiNatureYield[eLoopYield] >= kPlayer.getExtraYieldThreshold(eLoopYield))
+ 				{
+ 					aiNatureYield[eLoopYield] += GC.getDefineINT(CvGlobals::EXTRA_YIELD);
+-				} // </advc.031>
+-			}
++				}
++			} // </advc.031>
+ 			// K-Mod. add non-home plot production to BaseProduction.
+ 			if (!bShare)
+ 				rBaseProduction += aiNatureYield[YIELD_PRODUCTION];
+@@ -576,7 +621,7 @@ short AIFoundValue::evaluate()
+ 			{
+ 				int iBonusValue = nonYieldBonusValue(p, eBonus,
+ 						bCanTradeBonus, bCanSoonTradeBonus, bEasyAccess,
+-						bAnyGrowthBonus, aiBonusCount, iCultureModifier);
++						bAnyGrowthBonus, &aiBonusCount, iCultureModifier);
+ 				IFLOG if(iBonusValue!=0) logBBAI("+%d non-yield resource value (%S)",
+ 						iBonusValue, GC.getInfo(eBonus).getDescription());
+ 				//iValue += (iBonusValue + 10);
+@@ -594,31 +639,11 @@ short AIFoundValue::evaluate()
+ 		}
+ 		if (!bHome) // (Home plot was handled upfront)
+ 		{
+-			int iEffectiveFood = aiNatureYield[YIELD_FOOD];
+-			// K-Mod: lighthouse kludge
+-			if (bCoastal && bEasyAccess && p.isWater() &&
+-				aiNatureYield[YIELD_COMMERCE] > 1)
+-			{
+-				iEffectiveFood++;
+-			}
+-			int iSpecialYieldModifier = iCultureModifier;
+-			// </advc.040>
+-			if (!bEasyAccess)
+-				iSpecialYieldModifier /= 2; // <advc.040>  <advc.031>
+-			if (eBonus != NO_BONUS)
+-			{
+-				if (!bCanSoonImproveBonus)
+-				{
+-					iSpecialYieldModifier = (iSpecialYieldModifier *
+-							// Don't want to discount e.g. Wine too much near capital
+-							(kSet.isStartingLoc() ? 4 : 3)) / 10;
+-				}
+-				else if (!bCanImproveBonus)
+-					iSpecialYieldModifier = (iSpecialYieldModifier * 3) / 4;
+-			} // </advc.031>
++			int iSpecialYieldModifier = calculateSpecialYieldModifier(iCultureModifier,
++					bEasyAccess, eBonus != NO_BONUS, bCanSoonImproveBonus, bCanImproveBonus);
+ 			calculateSpecialYields(p,
+ 					eBonusImprovement == NO_IMPROVEMENT ? NULL : aiBonusImprovementYield,
+-					aiNatureYield, iSpecialYieldModifier, iEffectiveFood,
++					aiNatureYield, iSpecialYieldModifier,
+ 					aiSpecialYield, iSpecialFoodPlus, iSpecialFoodMinus, iSpecialYieldTiles);
+ 		}
+ 	}
+@@ -697,7 +722,8 @@ short AIFoundValue::evaluate()
+ 		iValue /= 100;
+ 		IFLOG if(iModifier!=100) logBBAI("Times %d percent for starting on a resource", iModifier);
+ 	}
+-	if (kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing())
++	if ((kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing()) &&
++		!kSet.isIgnoreStartingSurroundings()) // advc.027
+ 	{
+ 		iValue = adjustToStartingSurroundings(iValue); // (advc: Moved down a bit)
+ 	}
+@@ -715,7 +741,8 @@ short AIFoundValue::evaluate()
+ 		iValue = adjustToBonusCount(iValue, aiBonusCount);
+ 
+ 	iValue = adjustToBadTiles(iValue, iBadTiles /* advc.031: */ + (4 * iTakenTiles) / 10
+-			-(bBarbarian ? 2 : (4 + iGreenTiles + iSpecialFoodPlus))); // advc.303
++			-(bBarbarian ? 2 : (4 + iGreenTiles + iSpecialFoodPlus)) // advc.303
++			/ (kSet.isStartingLoc() ? 2 : 1)); // advc.108
+ 	iValue = adjustToBadHealth(iValue, iHealth);
+ 	// <advc.031>
+ 	if (kSet.isNormalizing())
+@@ -855,8 +882,10 @@ bool AIFoundValue::computeOverlap()
+ 			{
+ 				CvPlot const* p = plotCity(iX, iY, eLoopCityPlot);
+ 				if(p != NULL && plotDistance(p->getX(), p->getY(),
+-						c->getX(), c->getY()) <= CITY_PLOTS_RADIUS)
++					c->getX(), c->getY()) <= CITY_PLOTS_RADIUS)
++				{
+ 					abOwnCityRadius[eLoopCityPlot] = true;
++				}
+ 			}
+ 		}
+ 		if (GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
+@@ -962,6 +991,9 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius,
+ 				p->calculateBestNatureYield(YIELD_COMMERCE, eTeam) <= 1)
+ 			{
+ 				iBadLoop++;
++				// <advc.108> Ocean can't be "normalized" away later on
++				if (kSet.isStartingLoc())
++					iBadLoop++; // </advc.108>
+ 			}
+ 			if(!bCoastal)
+ 				iBadLoop++; // </advc.031>
+@@ -1506,6 +1538,27 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
+ 	return r.round();
+ }
+ 
++// K-Mod: adjust for removable features (advc: moved into a subroutine)
++int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature,
++	bool bRemovableFeature, bool bBonus) const
++{
++	int iR = 0;
++	FOR_EACH_ENUM(Yield)
++	{
++		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
++		if (bRemovableFeature)
++			iR += 10 * kFeature.getYieldChange(eLoopYield);
++		else if (kFeature.getYieldChange(eLoopYield) < 0)
++		{
++			iR -= (bBonus ? 25 : 5);
++			// advc.031: was 30 *...
++			iR += 25 * kFeature.getYieldChange(eLoopYield);
++		}
++	}
++	if(iR!=0) logBBAI("From (removable) feature yield: %d", iR);
++	return iR;
++}
++
+ /*	An estimate of how much production an improvement might add
+ 	in the medium term if production is prioritized. Precision: times 100.
+ 	Note: Any additional production from improving a bonus resource
+@@ -1616,10 +1669,12 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p,
+ 	if (p != NULL && p->isWater())
+ 	{
+ 		// K-Mod. kludge to account for lighthouse and lack of improvements.
+-		r /= (bCoastal ? 2 : 3);
+-		r += (bCoastal ? 8 * (aiYield[YIELD_COMMERCE]
+-				+ aiYield[YIELD_PRODUCTION]) : 0);
+-
++		if (bCoastal)
++		{
++			r /= 2;
++			r += 8 * (aiYield[YIELD_COMMERCE] + aiYield[YIELD_PRODUCTION]);
++		}
++		else r /= 3;
+ 		if (kSet.isStartingLoc())
+ 		{
+ 			r += bCoastal ? 0 : -75; // advc.031: was -400 in BtS, -120 in K-Mod
+@@ -1682,8 +1737,10 @@ int AIFoundValue::evaluateFreshWater(CvPlot const& p, int const* aiYield, bool b
+ 		{
+ 			r += 6;
+ 			if (aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION() &&
+-					!bSteal)
++				!bSteal)
++			{
+ 				iGreenTiles++;
++			}
+ 		} // <advc.031>
+ 	}
+ 	return r;
+@@ -1730,7 +1787,7 @@ int AIFoundValue::applyCultureModifier(CvPlot const& p, int iPlotValue, int iCul
+ // Note: aiBonusCount is only a partial count (resources evaluated up to this point)
+ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus,
+ 	bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus,
+-	std::vector<int>& aiBonusCount, int iCultureModifier) const
++	std::vector<int>* paiBonusCount, int iCultureModifier) const
+ {
+ 	/*int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() &&
+ 			kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ?
+@@ -1741,11 +1798,17 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus,
+ 		I'll let AI_bonusVal handle the number of bonuses already connected (iChange=1).
+ 		A division by NumTradeableBonuses here won't work well for strategic resources. */
+ 	// Coefficient was 80
+-	int r = ::round(kPlayer.AI_bonusVal(eBonus, 1, true) * 57 /
+-			(1 + aiBonusCount[eBonus]));
+-	bool bSurplus = (kPlayer.getNumAvailableBonuses(eBonus) > 0 && aiBonusCount[eBonus] <= 0);
+-	// </advc.031>
+-	aiBonusCount[eBonus]++;
++	int r = kPlayer.AI_bonusVal(eBonus, 1, true) * 57;
++	bool bSurplus = (kPlayer.getNumAvailableBonuses(eBonus) > 0);
++	if (paiBonusCount != NULL)
++	{
++		if ((*paiBonusCount)[eBonus] > 0)
++		{
++			r = ROUND_DIVIDE(r, 1 + (*paiBonusCount)[eBonus]);
++			bSurplus = true;
++		} // </advc.031>
++		(*paiBonusCount)[eBonus]++;
++	}
+ 	// <advc.031>
+ 	bool bGrowthBonus = (!bAnyGrowthBonus && bCanTradeSoon && !bSurplus &&
+ 			(GC.getInfo(eBonus).getHappiness() +
+@@ -1877,11 +1940,36 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus,
+ }
+ 
+ 
++int AIFoundValue::calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess,
++	bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const
++{
++	int iR = iCultureModifier;
++	// </advc.040>
++	if (!bEasyAccess)
++		iR /= 2; // <advc.040>
++	// <advc.031>
++	if (bBonus)
++	{
++		if (!bCanSoonImproveBonus)
++		{
++			// Don't want to discount e.g. Wine too much near capital
++			iR = (iR * (kSet.isStartingLoc() ? 4 : 3)) / 10;	
++		}
++		else if (!bCanImproveBonus)
++			iR = (iR * 3) / 4;
++	} // </advc.031>
++	return iR;
++}
++
++
+ void AIFoundValue::calculateSpecialYields(CvPlot const& p,
+ 	int const* aiBonusImprovementYield, int const* aiNatureYield,
+-	int iModifier, int iEffectiveFood, int* aiSpecialYield,
++	int iModifier, int* aiSpecialYield,
+ 	int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const
+ {
++	int aiBuildingYield[NUM_YIELD_TYPES];
++	calculateBuildingYields(p, aiNatureYield, aiBuildingYield);
++	int const iEffectiveFood = aiNatureYield[YIELD_FOOD] + aiBuildingYield[YIELD_FOOD];
+ 	if (aiBonusImprovementYield == NULL) // K-Mod: non bonus related special food
+ 	{
+ 		int iSurplus = ::round( // advc.031
+@@ -1902,9 +1990,11 @@ void AIFoundValue::calculateSpecialYields(CvPlot const& p,
+ 	iSpecialFoodMinus -= std::min(0, iFoodTemp);
+ 	// <advc.031>
+ 	int iSpecialProd = aiNatureYield[YIELD_PRODUCTION] +
+-			aiBonusImprovementYield[YIELD_PRODUCTION];
++			aiBonusImprovementYield[YIELD_PRODUCTION] +
++			aiBuildingYield[YIELD_PRODUCTION];
+ 	int iSpecialComm = aiNatureYield[YIELD_COMMERCE] +
+-			aiBonusImprovementYield[YIELD_COMMERCE];
++			aiBonusImprovementYield[YIELD_COMMERCE] +
++			aiBuildingYield[YIELD_COMMERCE];
+ 	/*  No functional change above. Now count the tile as special and
+ 		apply culture modifier. */
+ 	bool const bSpecial =  (iSpecialFood > 0 || iSpecialComm > 0 || iSpecialProd > 0);
+@@ -1923,14 +2013,33 @@ void AIFoundValue::calculateSpecialYields(CvPlot const& p,
+ 	// </advc.031>
+ }
+ 
++// advc: Function for K-Mod's "lighthouse kludge"
++void AIFoundValue::calculateBuildingYields(CvPlot const& p, int const* aiNatureYield,
++	int* aiBuildingYield) const
++{
++	FOR_EACH_ENUM(Yield)
++		aiBuildingYield[eLoopYield] = 0;
++	int iEffectiveFood = aiNatureYield[YIELD_FOOD];
++	if (bCoastal && p.isWater() &&
++		aiNatureYield[YIELD_COMMERCE] > 1)
++	{
++		aiBuildingYield[YIELD_FOOD]++;
++	}
++}
++
+ // advc.031: Weighted sum
+ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues) const
+ {
+ 	std::sort(aiPlotValues.begin(), aiPlotValues.end(), std::greater<int>());
+ 	// CITY_HOME_PLOT should have 0 value here, others could have negative values.
+ 	FAssert(aiPlotValues[NUM_CITY_PLOTS - 1] <= 0);
+-	double const maxMultPercent = 153;
+-	double const minMultPercent = 47;
++	double maxMultPercent = 153;
++	double minMultPercent = 47;
++	if (iCities <= 0) // Capital will grow large
++	{
++		maxMultPercent -= 10;
++		minMultPercent += 10;
++	}
+ 	double const normalizMult = 1;
+ 	double const subtr = 29;
+ 	double const exp = std::log(maxMultPercent - minMultPercent) /
+@@ -2385,8 +2494,10 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
+ 	{
+ 		CvPlayer const& kOther = *it;
+ 		if (kArea.getCitiesPerPlayer(kOther.getID()) <= 0 ||
+-				GET_TEAM(kOther.getTeam()).isVassal(eTeam))
++			GET_TEAM(kOther.getTeam()).isVassal(eTeam))
++		{
+ 			continue;
++		}
+ 		int iProximity = 0;
+ 		FOR_EACH_CITY(pLoopCity, /* *this */ kOther) // advc.001: Not this player!
+ 		{
+@@ -2690,8 +2801,9 @@ int AIFoundValue::adjustToBadTiles(int iValue, int iBadTiles) const
+ 		/*	A scenario is more likely to mix some very good tiles with a lot of
+ 			bad ones. Better to be more conservative on regular maps. */
+ 		scaled const rExponent = (kGame.isScenario() ? fixp(1.385) : fixp(1.5));
+-		r -= scaled(iBadTiles).pow(rExponent) * (35 + (kSet.isStartingLoc() ?
+-				50 : 0) + (iCities <= 0 ? 50 : 0)); // advc.108
++		r -= scaled(iBadTiles).pow(rExponent) * 100 *  // <advc.108>
++				(fixp(1/3.) + (kSet.isStartingLoc() ?
++				fixp(1/3.) : 0) + (iCities <= 0 ? fixp(1/3.) : 0)); // </advc.108>
+ 		r.increaseTo(0);
+ 	} // </advc.031>
+ 	IFLOG if(r.round()!=iValue) logBBAI("%d from %d bad tiles too many", r.round() - iValue, iBadTiles);
+@@ -2716,6 +2828,11 @@ int AIFoundValue::adjustToBadHealth(int iValue, int iGoodHealth) const
+ 		{
+ 			iMult = 2;
+ 			iDiv = 3;
++			if (kSet.isStartingLoc())
++			{
++				iMult = 3;
++				iDiv = 4;
++			}
+ 		}
+ 		iValue = (iMult * iValue) / iDiv;
+ 		IFLOG if (iDiv>1) logBBAI("Times %d/%d for bad health", iMult, iDiv);
+@@ -2800,7 +2917,10 @@ void CitySiteEvaluator::logSettings() const
+ 	// <advc.031e>
+ 	if (isNormalizing())
+ 		logBBAI("Normalizing"); // </advc.031e>
+-	// <advc.007>
++	// <advc.007>  <advc.027>
++	if (isIgnoreStartingSurroundings())
++		logBBAI("Ignoring starting surroundings");
++	// <advc.027>
+ 	if (isDebug())
+ 		logBBAI("Ignoring other sites"); // </advc.007>
+ 	if (isAllSeeing())
+@@ -2893,3 +3013,131 @@ wchar const* AIFoundValue::cityName(CvCity const& kCity)
+ 	return szName;
+ }
+ // </advc.031c>
++
++/*	advc.027: Computes a hypothetical contribution that p could make to the
++	found value of some future city, e.g. in this->kPlot, but, for the most part,
++	it shouldn't matter where the city will be and we can't really tell. */
++scaled AIFoundValue::evaluateWorkablePlot(CvPlot const& p) const
++{
++	FAssert(!isLoggingEnabled()); // The output wouldn't make much sense
++
++	scaled r;
++
++	/*	This preamble is mostly copy-pasted from AIFoundValue::evaluate.
++		A bit different b/c we have a longer time horizon here. */
++	bool bRemovableFeature = false;
++	bool bPersistentFeature = false;
++	FeatureTypes const eFeature = p.getFeatureType();
++	{
++		int iFeatureProduction = 0;
++		bRemovableFeature = isRemovableFeature(p, bPersistentFeature, iFeatureProduction);
++		r += evaluateFeatureProduction(iFeatureProduction);
++	}
++	BonusTypes const eBonus = getBonus(p);
++	bool bCanTradeBonus = false;
++	bool bCanImproveBonus = false;
++	bool bCanSoonTradeBonus = false;
++	bool bCanSoonImproveBonus = false;
++	int aiBonusImprovementYield[NUM_YIELD_TYPES] = {0, 0, 0};
++	ImprovementTypes eBonusImprovement = NO_IMPROVEMENT;
++	{
++		bool abDummy[]={false, false};
++		bool bImprovementRemovesFeature = false;
++		eBonusImprovement = getBonusImprovement(eBonus, p,
++				bCanTradeBonus, bCanSoonTradeBonus, aiBonusImprovementYield,
++				bCanImproveBonus, bCanSoonImproveBonus, bImprovementRemovesFeature);
++	}
++	if (!bPersistentFeature && eFeature != NO_FEATURE)
++	{
++		r += scaled(
++				removableFeatureYieldVal(eFeature, bRemovableFeature, eBonus != NO_BONUS) +
++				removableFeatureYieldVal(eFeature, !bPersistentFeature, eBonus != NO_BONUS),
++				2);
++	}
++	int aiYield[NUM_YIELD_TYPES];
++	FOR_EACH_ENUM(Yield)
++	{
++		aiYield[eLoopYield] = p.calculateNatureYield(eLoopYield,
++				eBonus == NO_BONUS ? NO_TEAM : eTeam,
++				!bPersistentFeature);
++	}
++	scaled const rSpecialYieldModifier =
++			per100(calculateSpecialYieldModifier(100,
++			true, eBonus != NO_BONUS, true, bCanImproveBonus)) +
++			per100(calculateSpecialYieldModifier(100,
++			true, eBonus != NO_BONUS, bCanSoonImproveBonus, bCanImproveBonus));
++
++	/*	Here I deviate from AIFoundValue::evaluate b/c evaluating special yields
++		separately wouldn't work here (and it was a bad idea in the first place).
++		I'll apply the special yield modifier to the (whole) yield value in the end. */
++	int aiBuildingYield[NUM_YIELD_TYPES];
++	calculateBuildingYields(p, aiYield, aiBuildingYield);
++	bool bAnySpecial = false;
++	FOR_EACH_ENUM(Yield)
++	{
++		int iSpecial = aiBonusImprovementYield[eLoopYield] +
++				aiBuildingYield[eLoopYield];
++		if (iSpecial != 0)
++		{
++			aiYield[eLoopYield] += iSpecial;
++			bAnySpecial = true;
++		}
++	}
++	{
++		scaled rYieldVal;
++		// Equal weight for food and production, but penalize low food later.
++		int const aiYieldWeight[NUM_YIELD_TYPES] = {20, 20, 10};
++		FOR_EACH_ENUM(Yield)
++		{
++			scaled rWeight = aiYieldWeight[eLoopYield];
++			int iYield = aiYield[eLoopYield];
++			if (iYield < 0) // BonusImprovementYield can be negative
++				rWeight /= 2;
++			rYieldVal += aiYield[eLoopYield] * rWeight;
++		}
++		{
++			bool const bCanNeverImprove = (eFeature != NO_FEATURE &&
++					GC.getInfo(eFeature).isNoImprovement());
++			// Anticipate terrain improvement
++			if (!bCanNeverImprove && !bAnySpecial && !p.isWater())
++			{
++				rYieldVal *= (  // Too slow for what it accomplishes?
++						/*p.isFreshWater() && p.canHavePotentialIrrigation()) ? fixp(1.8) :*/
++						fixp(1.75));
++			}
++			if (bCanNeverImprove) // Not having to improve it is valuable
++				rYieldVal *= fixp(4/3.);
++		}
++		if (aiYield[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION())
++			rYieldVal *= fixp(0.9); // 0 food isn't necessarily worse
++		rYieldVal -= (GC.getFOOD_CONSUMPTION_PER_POPULATION() + fixp(1/3.))
++				* aiYieldWeight[YIELD_FOOD] + // for pop growth and sustenance
++				scaled(aiYieldWeight[YIELD_COMMERCE], 4); // expenses per population
++		if (rYieldVal > 0)
++		{
++			rYieldVal.exponentiate(fixp(1.3));
++			rYieldVal *= rSpecialYieldModifier;
++			r += rYieldVal;
++		}
++	}
++	if (eBonus != NO_BONUS)
++	{
++		bool bDummy=false;
++		/*	We want to look a bit farther ahead than "soon", but the BonusValues
++			(e.g. for Oil) seem high enough as it is. */
++		r += nonYieldBonusValue(p, eBonus, bCanTradeBonus,
++				bCanSoonTradeBonus, true, bDummy, NULL, 100);
++	}
++	{
++		int const iFeatureHealth = (eFeature == NO_FEATURE ? 0 :
++				GC.getInfo(eFeature).getHealthPercent());
++		if (iFeatureHealth > 0 || bPersistentFeature)
++			r += iFeatureHealth * fixp(1/6.);
++		else if (!bRemovableFeature)
++			r += iFeatureHealth * fixp(1/9.);
++	}
++	if (p.isGoody())
++		r += evaluateGoodies(1);
++
++	return scaled::max(r, 0);
++}
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index 60ba97769..d5995d32b 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -21,6 +21,7 @@ public:
+ 	short evaluate(CvPlot const& kPlot) const;
+ 	short evaluate(int iX, int iY) const;
+ 	short evaluateWithLogging(int iX, int iY) const; // advc.031c
++	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
+ 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
+ 	bool isStartingLoc() const { return m_bStartingLoc; }
+ 	bool isNormalizing() const { return m_bNormalize; } // advc.031e
+@@ -28,7 +29,10 @@ public:
+ 	// <advc.300>
+ 	void discourageBarbarians(int iRange);
+ 	int getBarbarianDiscouragedRange() const { return m_iBarbDiscouragedRange; }
+-	// </advc.300>
++	// </advc.300>  <advc.027>
++	void setIgnoreStartingSurroundings(bool b);
++	bool isIgnoreStartingSurroundings() const { return m_bIgnoreStartingSurroundings; }
++	// </advc.027>
+ 	bool isAdvancedStart() const { return m_bAdvancedStart; } // advc
+ 	/*  <advc.007> Ignores whether kPlot is close to another tentative city site
+ 		and treats kPlayer as non-human */
+@@ -64,6 +68,7 @@ private:
+ 	bool m_bNormalize;
+ 	int m_iMinRivalRange;
+ 	int m_iBarbDiscouragedRange; // advc.300
++	bool m_bIgnoreStartingSurroundings; // advc.027
+ 	bool m_bAdvancedStart; // advc
+ 	int m_bDebug; // advc.007
+ 	bool m_bAllSeeing;
+@@ -83,6 +88,7 @@ class AIFoundValue
+ public:
+ 	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings);
+ 	short get() const { return m_iResult; }
++	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
+ 
+ 	// <advc.031c> Will have to enable the found log in BBAILog.h in addition
+ 	static void setLoggingEnabled(bool b);
+@@ -147,6 +153,8 @@ private:
+ 	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare,
+ 			bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl,
+ 			int& iTakenTiles, int& iStealPercent) const;
++	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature,
++			bool bBonus) const;
+ 	scaled estimateImprovementProduction(CvPlot const& p, bool bPersistentFeature) const;
+ 	int evaluateYield(int const* aiYield, CvPlot const* p = NULL,
+ 			bool bCanNeverImprove = false) const;
+@@ -157,11 +165,15 @@ private:
+ 			bool bShare) const;
+ 	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade,
+ 			bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus,
+-			std::vector<int>& aiBonusCount, int iCultureModifier) const;
++			std::vector<int>* paiBonusCount, int iCultureModifier) const;
++	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess,
++			bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
+ 	void calculateSpecialYields(CvPlot const& p,
+ 			int const* aiBonusImprovementYield, int const* aiNatureYield,
+-			int iModifier, int iEffectiveFood, int* aiSpecialYield,
++			int iModifier, int* aiSpecialYield,
+ 			int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
++	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield,
++			int* aiBuildingYield) const;
+ 	int sumUpPlotValues(std::vector<int>& aiPlotValues) const;
+ 	int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles,
+ 			int iSpecialFoodPlus, int iSpecialFoodMinus) const;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 6814aa8c5..214de5c1a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -22,6 +22,7 @@
+ #include "CvReplayInfo.h"
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
++#include "StartingPositionIteration.h" // advc.027
+ #include "StartPointsAsHandicap.h" // advc.250b
+ #include "RiseFall.h" // advc.700
+ #include "CvHallOfFameInfo.h" // advc.106i
+@@ -1145,7 +1146,7 @@ void CvGame::assignStartingPlots()
+ 	else
+ 	{	/*	advc.027: If the map script allows it, StartingPositionIteration will
+ 			set starting locations that the code below may then shuffle around. */
+-		StartingPositionIteration();
++//		StartingPositionIteration(); // advc.tmp
+ 		int const iAlive = countCivPlayersAlive();
+ 		FAssert(playerOrder.empty());
+ 		playerOrder.resize(iAlive, NO_PLAYER); // advc (replacing loop)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a076da510..dcaffa238 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1477,17 +1477,23 @@ public:
+ // Returns the id of the best area, or -1 if it doesn't matter:
+ //int CvPlayer::findStartingArea() const
+ // dlph.35: "Returns a vector of all starting areas sorted by their value (instead of one best starting area)."
+-std::vector<std::pair<int,int> > CvPlayer::findStartingAreas() const  // advc: style changes
++std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(  // advc: style changes
++	bool* pbFoundByMapScript) const // advc.027
+ {
+ 	PROFILE_FUNC();
+-
++	// <advc.027>
++	if (pbFoundByMapScript != NULL)
++		*pbFoundByMapScript = false; // </advc.027>
+ 	std::vector<std::pair<int,int> > areas_by_value; // dlph.35
+ 	{
+ 		CvArea* pyArea = GC.getPythonCaller()->findStartingArea(getID());
+ 		if (pyArea != NULL)
+-		{	// <dlph.35>
+-			areas_by_value.push_back(std::make_pair(pyArea->getID(), 1));
+-			return areas_by_value; // </dlph.35>
++		{
++			areas_by_value.push_back(std::make_pair(pyArea->getID(), 1)); // dlph.35
++			// <advc.027>
++			if (pbFoundByMapScript != NULL)
++				*pbFoundByMapScript = true; // </advc.027>
++			return areas_by_value; // dlph.35
+ 		}
+ 	}
+ 	// find best land area
+@@ -1531,13 +1537,24 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas() const  // advc: s
+ }
+ 
+ 
+-CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
++CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
++	bool* pbPlotFoundByMapScript, bool* pbAreaFoundByMapScript) // advc.027
+ {
+ 	PROFILE_FUNC();
++	// <advc.027>
++	if (pbPlotFoundByMapScript != NULL)
++		*pbPlotFoundByMapScript = false;
++	if (pbAreaFoundByMapScript != NULL)
++		*pbAreaFoundByMapScript = false;
++	// </advc.027>
+ 	{
+ 		CvPlot* r = GC.getPythonCaller()->findStartingPlot(getID());
+ 		if (r != NULL)
++		{	// <advc.027>
++			if (pbPlotFoundByMapScript != NULL)
++				*pbPlotFoundByMapScript = true; // </advc.027>
+ 			return r;
++		}
+ 	}
+ 	//int iBestArea = -1;
+ 	// dlph.35: "This function is adjusted to work with a list of possible starting areas instead of a single one."
+@@ -1556,7 +1573,8 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 	if (!bNew)
+ 	{
+ 		//iBestArea = findStartingArea();
+-		areas_by_value = findStartingAreas(); // dlph.35
++		areas_by_value = findStartingAreas( // dlph.35
++				pbAreaFoundByMapScript); // advc.027
+ 	}
+ 	/*  <advc.140> Cut and pasted from CvMap::maxPlotDistance. I've changed that
+ 		function, but I think the original formula might be needed here.
+@@ -1570,7 +1588,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 	/*  <dlph.35> "First pass avoids starting locations that have very little food
+ 		(before normalization) to avoid starting on the edge of very bad terrain." */
+ 	int const iStartingRange = GC.getDefineINT("ADVANCED_START_SIGHT_RANGE");
+-	CvMap const& m = GC.getMap();
++	CvMap const& kMap = GC.getMap();
+ 	int const iMaxPass = 1;
+ 	for(int iPass = 0; iPass <= iMaxPass; iPass++)
+ 	{
+@@ -1578,9 +1596,9 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 		{ // </dlph.35>
+ 			CvPlot *pBestPlot = NULL;
+ 			int iBestValue = iMaxPass - iPass; // advc: was 0 flat
+-			for (int iI = 0; iI < m.numPlots(); iI++)
++			for (int iI = 0; iI < kMap.numPlots(); iI++)
+ 			{
+-				CvPlot* pLoopPlot = m.plotByIndex(iI);
++				CvPlot* pLoopPlot = kMap.plotByIndex(iI);
+ 				//if (iBestArea == -1 || pLoopPlot->getArea() == iBestArea)
+ 				// <dlph.35>
+ 				if (pLoopPlot->getArea().getID() != areas_by_value[iJ].first)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index c9827301a..0bd030d8c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -75,10 +75,12 @@ public:
+ 	bool startingPlotWithinRange(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange, int iPass) const;									// Exposed to Python
+ 	int startingPlotDistanceFactor(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange) const;
+ 	//int findStartingArea() const;
+-	std::vector<std::pair<int,int> > findStartingAreas() const; // dlph.35
++	std::vector<std::pair<int,int> > findStartingAreas( // dlph.35
++			bool* pbFoundByMapScript = NULL) const; // advc.027
+ 	// advc.027: New auxiliary function (public only for Debug mode info)
+ 	int coastRiverStartingAreaScore(CvArea const& a) const;
+-	CvPlot* findStartingPlot(bool bRandomize = false);																																									// Exposed to Python
++	CvPlot* findStartingPlot(bool bRandomize = false,																// Exposed to Python
++			bool* pbPlotFoundByMapScript = NULL, bool* pbAreaFoundByMapScript = NULL); // advc.027
+ 
+ 	CvPlotGroup* initPlotGroup(CvPlot* pPlot);
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index ed0437e6d..40dfaf160 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -179,6 +179,7 @@
+     <ClCompile Include="..\RiseFall.cpp" />
+     <ClCompile Include="..\ScaledNumTest.cpp" />
+     <ClCompile Include="..\Shelf.cpp" />
++    <ClCompile Include="..\StartingPositionIteration.cpp" />
+     <ClCompile Include="..\StartPointsAsHandicap.cpp" />
+     <ClCompile Include="..\TSCProfiler.cpp" />
+     <ClCompile Include="..\UWAIAgent.cpp" />
+@@ -331,6 +332,7 @@
+     <ClInclude Include="..\PlotRadiusIterator.h" />
+     <ClInclude Include="..\PlotRange.h" />
+     <ClInclude Include="..\ScaledNum.h" />
++    <ClInclude Include="..\StartingPositionIteration.h" />
+     <ClInclude Include="..\Trigonometry.h" />
+     <ClInclude Include="..\TSCProfiler.h" />
+     <ClInclude Include="..\TypeChoice.h" />
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+new file mode 100644
+index 000000000..849180e42
+--- /dev/null
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -0,0 +1,520 @@
++// advc.027: New file; see comment in header.
++
++#include "CvGameCoreDLL.h"
++#include "StartingPositionIteration.h"
++#include "CvPlayerAI.h"
++#include "CvGamePlay.h"
++#include "CitySiteEvaluator.h"
++#include "CvMap.h"
++#include "PlotRadiusIterator.h"
++
++using std::map;
++using std::vector;
++using std::make_pair;
++
++
++StartingPositionIteration::StartingPositionIteration() : m_bRestrictedAreas(false)
++{
++	CvMap const& kMap = GC.getMap();
++
++	/*	Generate a starting site for each civ, starting with humans,
++		otherwise in a random order - just as CvGame::assignStartingPlots does.
++		Map scripts might depend on this order. If a map script sets the
++		starting sites, then we have to bail anyway, but we don't know that yet. */
++	vector<CvPlayer*> civPlayers;
++	for (PlayerIter<HUMAN,ANY_AGENT_RELATION,true> it; it.hasNext(); ++it)
++		civPlayers.push_back(&(*it));
++	for (PlayerIter<CIV_ALIVE,ANY_AGENT_RELATION,true> it; it.hasNext(); ++it)
++	{
++		if (!it->isHuman())
++			civPlayers.push_back(&*it);
++	}
++	FAssert(!GC.getGame().isTeamGame());
++	// In non-team games, Pangaea shouldn't need custom code for starting sites.
++	bool const bIgnoreScript = (GC.getInitCore().getMapScriptName().compare(L"Pangaea") == 0);
++	size_t i = 0;
++	for (; i < civPlayers.size(); i++)
++	{
++		CvPlayer& kPlayer = *civPlayers[i];
++		if (kPlayer.getStartingPlot() != NULL)
++			break;
++		gDLL->callUpdater();
++		bool bSiteFoundByScript=false;
++		bool bRestrictedAreas=false;
++		CvPlot* pSite = kPlayer.findStartingPlot(false,
++				&bSiteFoundByScript, &bRestrictedAreas);
++		if (pSite == NULL || (bSiteFoundByScript && !bIgnoreScript))
++			break;
++		if (bRestrictedAreas)
++			m_bRestrictedAreas = true;
++		/*	Would rather not store sites at players until the end of our computations,
++			but then findStartingPlot will return the same site over and over. */
++		kPlayer.setStartingPlot(pSite, false);
++	}
++	if (i != civPlayers.size()) // Revert any changes and bail
++	{
++		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++			it->setStartingPlot(NULL, false);
++		return;
++	} // Past this point, we'll have set sensible starting plots; won't revert anymore.
++
++	// Precomputations (too costly to repeat in each iteration) ...
++
++	initSiteEvaluator();
++	PotentialSiteGen potentialSiteGen(*m_pEval, m_bRestrictedAreas);
++	if (potentialSiteGen.numSites() < civPlayers.size())
++		return;
++	// Remove the current solution. Just want the alternatives.
++	potentialSiteGen.removeOriginalSites();
++	vector<CvPlot const*> potentialSites;
++	potentialSiteGen.getPlots(potentialSites);
++	// Mark alt. sites with a ruin
++	/*for(size_t i = 0; i < potentialSites.size(); i++)
++		GC.getMap().getPlotByIndex(GC.getMap().plotNum(*potentialSites[i])).setImprovementType(GC.getRUINS_IMPROVEMENT());*/
++
++	EnumMap<PlotNumTypes,scaled> yieldValues;
++	CitySiteEvaluator yieldEval(m_pEval->getPlayer(), -1, /*bStartingLoc=*/false, true);
++	FOR_EACH_ENUM(PlotNum)
++	{
++		// CitySiteEvaluator has many useful subroutines for this; handle it there.
++		yieldValues.set(eLoopPlotNum, yieldEval.
++				evaluateWorkablePlot(kMap.getPlotByIndex(eLoopPlotNum)));
++		// Mark nonnegative-value plots with a ruin
++		//if(yieldValues.get(eLoopPlotNum)>0)GC.getMap().getPlotByIndex(i).setImprovementType(GC.getRUINS_IMPROVEMENT());
++	}
++
++	DistanceTable const* pathDists = NULL;
++	{	// Temp data that I want to go out of scope
++		// Need a vector of all sites. Add the original sites temporarily.
++		for (size_t i = 0; i < civPlayers.size(); i++)
++		{
++			potentialSites.push_back(civPlayers[i]->getStartingPlot());
++		}
++		// Also want inter-site distances
++		std::set<PlotNumTypes> sitePlotNums;
++		for (size_t i = 0; i < potentialSites.size(); i++)
++		{
++			sitePlotNums.insert(kMap.plotNum(*potentialSites[i]));
++		}
++		std::vector<CvPlot const*> relevantPlots;
++		FOR_EACH_ENUM(PlotNum)
++		{
++			if (yieldValues.get(eLoopPlotNum) > 0 ||
++				sitePlotNums.count(eLoopPlotNum) > 0)
++			{
++				relevantPlots.push_back(&kMap.getPlotByIndex(eLoopPlotNum));
++			}
++		}
++		gDLL->callUpdater(); // Dunno if these are needed or have any effect really
++		pathDists = new DistanceTable(potentialSites, relevantPlots);
++		gDLL->callUpdater();
++		// Remove the original sites again
++		for (size_t i = 0; i < civPlayers.size(); i++)
++			potentialSites.pop_back();
++	}
++
++	/*	Start value computation; let's first try it for the initial solution,
++		i.e. the starting plots currently set for the civ players alive. */
++	EnumMap<PlayerTypes,short> foundValues;
++	potentialSiteGen.getCurrentFoundValues(foundValues);
++	EnumMap<PlayerTypes,scaled> startValues;
++	computeStartValues(foundValues, yieldValues, *pathDists, startValues);
++
++	// tbd: iterate, stop criterion
++
++	delete pathDists; // (Move to destructor if we do nothing more here)
++}
++
++
++StartingPositionIteration::~StartingPositionIteration()
++{
++	SAFE_DELETE(m_pEval);
++}
++
++
++void StartingPositionIteration::initSiteEvaluator()
++{
++	/*	Teams have already received free tech at this point, so the player used
++		for city site evaluation isn't irrelevant. (Its personality should be though.)
++		Pick the player with the least tech, prefer human when breaking ties. */
++	CvPlayerAI const* pPlayer = NULL;
++	int iBestPlayerVal = MAX_INT;
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		int iVal = 10 * it->getTechScore();
++		if (it->isHuman())
++			iVal--;
++		if (iVal < iBestPlayerVal)
++		{
++			iBestPlayerVal = iVal;
++			pPlayer = &*it;
++		}
++	}
++	m_pEval = new CitySiteEvaluator(*pPlayer, -1, true);
++	// Evaluating the surroundings will be our job
++	m_pEval->setIgnoreStartingSurroundings(true);
++}
++
++
++StartingPositionIteration::PotentialSiteGen::PotentialSiteGen(
++	CitySiteEvaluator const& kEval, bool bRestrictedAreas) :
++	m_kEval(kEval), m_pVicinityPenaltiesPerPlot(NULL)
++{
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		m_sitesClosestToOriginalSite.insert(make_pair(
++				it->getID(), new VoronoiCell()));
++	}
++
++	scaled const rMinFoundVal = computeMinFoundValue();
++	std::set<CvArea const*> validAreas;
++	if (bRestrictedAreas)
++	{
++		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++		{
++			validAreas.insert(it->getStartingPlot()->area());
++		}
++	}
++	CvMap const& kMap = GC.getMap();
++	FOR_EACH_ENUM(PlotNum)
++	{
++		CvPlot const& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
++		if (bRestrictedAreas && validAreas.count(kPlot.area()) <= 0)
++			continue;
++		short iFoundValue = std::max<short>(0, m_kEval.evaluate(kPlot));
++		if (iFoundValue >= rMinFoundVal)
++			m_foundValuesPerSite.insert(make_pair(eLoopPlotNum, iFoundValue));
++	}
++	uint const iPlayers = (uint)PlayerIter<CIV_ALIVE>::count();
++	if (numSites() <= iPlayers)
++		return;
++
++	// "Clearing the neighborhood"
++
++	m_pVicinityPenaltiesPerPlot = new EnumMap<PlotNumTypes,scaled>();
++	for (map<PlotNumTypes,short>::const_iterator itSite = m_foundValuesPerSite.begin();
++		itSite != m_foundValuesPerSite.end(); ++itSite)
++	{
++		CvPlot const& p = kMap.getPlotByIndex(itSite->first);
++		recordSite(p, itSite->second, true);
++	}
++	while (numSites() > iPlayers * 8u)
++	{
++		/*	Stop earlier when running out of alternatives in some map region.
++			(Tbd. - Perhaps better: take Voronoi cells with few sites left off limits.) */
++		if (fewestPotentialSites() < 2 && numSites() < iPlayers * 15u)
++			break;
++		map<PlotNumTypes,short>::iterator minPos;
++		scaled rMinVal = scaled::MAX();
++		for (map<PlotNumTypes,short>::iterator it = m_foundValuesPerSite.begin();
++			it != m_foundValuesPerSite.end(); ++it)
++		{
++			scaled rVal = it->second * std::max(fixp(0.3),
++					1 - m_pVicinityPenaltiesPerPlot->get(it->first));
++			if (rVal < rMinVal)
++			{
++				rMinVal = rVal;
++				minPos = it;
++			}
++		}
++		CvPlot const& kMinPlot = kMap.getPlotByIndex(minPos->first);
++		int iMinFoundVal = minPos->second;
++		m_foundValuesPerSite.erase(minPos);
++		recordSite(kMinPlot, iMinFoundVal, false);
++	}
++	/*	Pointer member b/c I want to free the memory here; only the ctor and
++		its subroutines use it. */
++	delete m_pVicinityPenaltiesPerPlot;
++}
++
++
++StartingPositionIteration::PotentialSiteGen::~PotentialSiteGen()
++{
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		delete m_sitesClosestToOriginalSite[it->getID()];
++	}
++}
++
++
++scaled StartingPositionIteration::PotentialSiteGen::computeMinFoundValue() const
++{
++	vector<short> aiFoundValuesPerOriginalSite;
++	short iWorstCurrFoundVal= MAX_SHORT;
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		short iFoundVal = m_kEval.evaluate(*it->getStartingPlot());
++		aiFoundValuesPerOriginalSite.push_back(iFoundVal);
++		iWorstCurrFoundVal = std::min(iWorstCurrFoundVal, iFoundVal);
++	}
++	scaled r = iWorstCurrFoundVal * fixp(0.87);
++	r.increaseTo(stats::median(aiFoundValuesPerOriginalSite) * fixp(2/3.));
++	return r;
++}
++
++/*	(Could get the found value from m_foundValuesPerSite, but the callers
++	happen to have it at hand.) */
++void StartingPositionIteration::PotentialSiteGen::recordSite(
++	CvPlot const& kPlot, short iFoundValue, bool bAdd)
++{
++	CvMap const& kMap = GC.getMap();
++
++	// Update vicinity penalties
++	int const iSign = (bAdd ? 1 : -1);
++	for (PlotCircleIter it(kPlot, 8, false); it.hasNext(); ++it)
++	{
++		PlotNumTypes const eLoopPlot = kMap.plotNum(*it);
++		map<PlotNumTypes,short>::const_iterator pos = m_foundValuesPerSite.find(eLoopPlot);
++		if (pos != m_foundValuesPerSite.end() && pos->second < iFoundValue)
++		{
++			m_pVicinityPenaltiesPerPlot->add(eLoopPlot, iSign *
++					scaled(1, 4 << it.currPlotDist()));
++			FAssert(!m_pVicinityPenaltiesPerPlot->get(eLoopPlot).isNegative());
++		}
++	}
++
++	// Update Voronoi cells
++	PlayerTypes eClosestPlayer = NO_PLAYER;
++	int iShortestDist = MAX_INT;
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		int iDist = kMap.stepDistance(&kPlot, itPlayer->getStartingPlot());
++		if (iDist == 0) // Don't include the original sites themselves
++			return;
++		if (!kPlot.isArea(itPlayer->getStartingPlot()->getArea()))
++			iDist += 100;
++		if (iDist < iShortestDist)
++		{
++			iShortestDist = iDist;
++			eClosestPlayer = itPlayer->getID();
++		}
++	}
++	map<PlayerTypes,VoronoiCell*>::iterator pos = m_sitesClosestToOriginalSite.
++			find(eClosestPlayer);
++	VoronoiCell& kCell = *pos->second;
++	PlotNumTypes ePlotNum = kMap.plotNum(kPlot);
++	if (bAdd)
++		kCell.insert(ePlotNum);
++	else
++	{
++		VoronoiCell::iterator pos = kCell.find(ePlotNum);
++		if (pos != kCell.end())
++			kCell.erase(pos);
++		else FAssert(pos != kCell.end())
++	}
++}
++
++
++int StartingPositionIteration::PotentialSiteGen::fewestPotentialSites() const
++{
++	int r = MAX_INT;
++	for (map<PlayerTypes,VoronoiCell*>::const_iterator it =
++		m_sitesClosestToOriginalSite.begin();
++		it != m_sitesClosestToOriginalSite.end(); ++it)
++	{
++		r = std::min(r, (int)it->second->size());
++	}
++	return r;
++}
++
++
++void StartingPositionIteration::PotentialSiteGen::removeOriginalSites()
++{
++	CvMap const& kMap = GC.getMap();
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		map<PlotNumTypes,short>::iterator pos = m_foundValuesPerSite.find(
++				kMap.plotNum(*it->getStartingPlot()));
++		if (pos != m_foundValuesPerSite.end())
++			m_foundValuesPerSite.erase(pos);
++	}
++}
++
++
++void StartingPositionIteration::PotentialSiteGen::getPlots(
++	vector<CvPlot const*>& r) const
++{
++	FAssert(r.empty());
++	CvMap const& kMap = GC.getMap();
++	for (map<PlotNumTypes,short>::const_iterator it = m_foundValuesPerSite.begin();
++		it != m_foundValuesPerSite.end(); ++it)
++	{
++		r.push_back(&kMap.getPlotByIndex(it->first));
++	}
++}
++
++
++StartingPositionIteration::VoronoiCell* StartingPositionIteration::
++	PotentialSiteGen::getCell(PlayerTypes eOriginalSite) const
++{
++	map<PlayerTypes,VoronoiCell*>::const_iterator pos = m_sitesClosestToOriginalSite.
++			find(eOriginalSite);
++	if (pos == m_sitesClosestToOriginalSite.end())
++	{
++		FAssertMsg(false, "No original site found for given player");
++		return NULL;
++	}
++	return pos->second;
++}
++
++
++void StartingPositionIteration::PotentialSiteGen::getCurrentFoundValues(
++	EnumMap<PlayerTypes,short>& kFoundValuesPerPlayer) const
++{
++	CvMap const& kMap = GC.getMap();
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++	{
++		map<PlotNumTypes,short>::const_iterator pos = m_foundValuesPerSite.
++				find(kMap.plotNum(*it->getStartingPlot()));
++		if (pos != m_foundValuesPerSite.end())
++			kFoundValuesPerPlayer.set(it->getID(), pos->second);
++	}
++}
++
++
++StartingPositionIteration::DistanceTable::DistanceTable(
++	vector<CvPlot const*>& kapSources, vector<CvPlot const*>& kapDestinations)
++{
++	CvMap const& kMap = GC.getMap();
++	m_sourceIDs.resize(kMap.numPlots(), NOT_A_SOURCE);
++	for (size_t i = 0; i < kapSources.size(); i++)
++	{
++		m_sourceIDs[kMap.plotNum(*kapSources[i])] = (SourceID)i;
++	}
++	m_destinationIDs.resize(kMap.numPlots(), NOT_A_DESTINATION);
++	for (size_t i = 0; i < kapDestinations.size(); i++)
++	{
++		m_destinationIDs[kMap.plotNum(*kapDestinations[i])] = (DestinationID)i;
++	}
++	m_distances.resize(kapSources.size(),
++			vector<short>(kapDestinations.size(), MAX_SHORT));
++	for (size_t i = 0; i < kapSources.size(); i++)
++	{
++		computeDistances(*kapSources[i]);
++	}
++}
++
++
++short StartingPositionIteration::DistanceTable::d(
++	CvPlot const& kSource, CvPlot const& kDestination) const
++{
++	CvMap const& kMap = GC.getMap();
++	SourceID eSource = m_sourceIDs[kMap.plotNum(kSource)];
++	DestinationID eDestination = m_destinationIDs[kMap.plotNum(kSource)];
++	FAssertBounds(0, m_distances.size(), eSource);
++	FAssertBounds(0, m_distances[eSource].size(), eDestination);
++	return m_distances[eSource][eDestination];
++}
++
++
++void StartingPositionIteration::DistanceTable::setDistance(
++	CvPlot const& kSource, CvPlot const& kDestination, short iDistance)
++{
++	CvMap const& kMap = GC.getMap();
++	SourceID eSource = m_sourceIDs[kMap.plotNum(kSource)];
++	DestinationID eDestination = m_destinationIDs[kMap.plotNum(kDestination)];
++	if (eDestination != NOT_A_DESTINATION)
++	{
++		FAssertBounds(0, m_distances.size(), eSource);
++		FAssert(eDestination < (int)m_distances[eSource].size());
++		m_distances[eSource][eDestination] = iDistance;
++	}
++}
++
++
++namespace
++{
++	class Node
++	{
++		// No reference b/c that would block the implicit assignment operator
++		CvPlot const* m_pPlot;
++		short m_iDistance;
++	public:
++		Node(CvPlot const& kPlot, int iDistance) : m_pPlot(&kPlot), m_iDistance(iDistance) {}
++		CvPlot const& get() const { return *m_pPlot; }
++		short getDistance() const { return m_iDistance; }
++		// For inverse ordering by distance
++		bool operator<(Node const& kOther) const { return m_iDistance > kOther.m_iDistance; }
++	};
++}
++
++void StartingPositionIteration::DistanceTable::computeDistances(CvPlot const& kSource)
++{
++	CvMap const& kMap = GC.getMap();
++	// Plain old Dijkstra's algorithm
++	std::priority_queue<Node> q;
++	q.push(Node(kSource, 0));
++	/*	Keep track of visited nodes in order to save time. Can't use m_distances
++		for this b/c it only contains destinations; may have to visit all plots. */
++	vector<bool> abReached(kMap.numPlots(), false);
++	while (!q.empty())
++	{
++		Node v = q.top();
++		q.pop();
++		CvPlot const& kAt = v.get();
++		setDistance(kSource, kAt, v.getDistance());
++		{
++			int iAt = kMap.plotNum(kAt);
++			if (abReached[iAt])
++				continue;
++			abReached[iAt] = true;
++		}
++		FOR_EACH_ENUM(Direction)
++		{
++			CvPlot const* pAdj = kMap.plotDirection(
++					kAt.getX(), kAt.getY(), eLoopDirection);
++			if (pAdj == NULL ||
++				/*	Note: even if not yet reached, it may already be in q;
++					that's what the abReached[iAt] check above is for. */
++				abReached[kMap.plotNum(*pAdj)])
++			{
++				continue;
++			}
++			short iDistance = stepDist(kAt, *pAdj);
++			if (iDistance < MAX_SHORT)
++				q.push(Node(*pAdj, v.getDistance() + iDistance));
++		}
++		/*	Might be more efficient to call std::make_heap once after pushing
++			to the back of a vector (i.e. no priority_queue). Hard to say. */
++	}
++}
++
++
++short StartingPositionIteration::DistanceTable::stepDist(
++	CvPlot const& kFrom, CvPlot const& kTo)
++{
++	static const TerrainTypes eShallowTerrain = GC.getWATER_TERRAIN(true);
++	if (kTo.isImpassable() || GC.getMap().waterStepInvalid(kFrom, kTo))
++		return MAX_SHORT;
++
++	bool const bDiagonal = (kFrom.getX() != kTo.getX() && kFrom.getY() != kTo.getY());
++	if (!kTo.isWater()) // Land to land, water to land
++		return (bDiagonal ? 12 : 9);
++	if (!kFrom.isWater()) // Land to water
++	{
++		if (kTo.getTerrainType() == eShallowTerrain)
++			return 125;
++		return 250; // Land to ocean - can't normally be adjacent though
++	}
++	else if (kFrom.getTerrainType() == eShallowTerrain)
++	{
++		if (kTo.getTerrainType() == eShallowTerrain) // Shallow to shallow
++			return 5;
++		/*	Shallow to ocean: Here we could be more sophisticated by
++			shifting some of the cost to a case
++			'ocean adjacent to shallow water -> ocean not adjacent to shallow water'
++			-- to account for the possibility of border spread. Might be too slow. */
++		return 125;
++	}
++	return 4; // Ocean to water (shallow or deep)
++}
++
++
++void StartingPositionIteration::computeStartValues(
++	EnumMap<PlayerTypes,short> const& kFoundValues,
++	EnumMap<PlotNumTypes,scaled> const& kYieldValues,
++	DistanceTable const& kPathDists,
++	EnumMap<PlayerTypes,scaled>& kStartValues)
++{
++	
++}
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+new file mode 100644
+index 000000000..5d5a7c7ad
+--- /dev/null
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -0,0 +1,79 @@
++#pragma once
++
++#ifndef STARTING_POSITION_ITERATION_H
++#define STARTING_POSITION_ITERATION_H
++
++class CitySiteEvaluator;
++
++/*  advc.027: New file. A "starting position" is a selection of one starting tile
++	per civ player. This algorithm, inspired by Voronoi iteration, iteratively
++	tries to improve the fairness of an initial starting position. */
++
++class StartingPositionIteration
++{
++	class DistanceTable;
++
++public:
++	StartingPositionIteration();
++	~StartingPositionIteration();
++	void computeStartValues(
++			EnumMap<PlayerTypes,short> const& kFoundValues,
++			EnumMap<PlotNumTypes,scaled> const& kYieldValues,
++			DistanceTable const& kPathDists,
++			EnumMap<PlayerTypes,scaled>& kStartValues);
++
++private:
++	bool m_bRestrictedAreas;
++	CitySiteEvaluator* m_pEval;
++
++	void initSiteEvaluator();
++
++	typedef std::set<PlotNumTypes> VoronoiCell;
++	class PotentialSiteGen
++	{
++	public:
++		PotentialSiteGen(CitySiteEvaluator const& kEval, bool bRestrictedAreas);
++		~PotentialSiteGen();
++		size_t numSites() const { return m_foundValuesPerSite.size(); }
++		void removeOriginalSites();
++		void getPlots(std::vector<CvPlot const*>& r) const;
++		VoronoiCell* getCell(PlayerTypes eOriginalSite) const;
++		void getCurrentFoundValues(
++				EnumMap<PlayerTypes,short>& kFoundValuesPerPlayer) const;
++
++	private:
++		CitySiteEvaluator const& m_kEval;
++		std::map<PlotNumTypes,short> m_foundValuesPerSite;
++		std::map<PlayerTypes,VoronoiCell*> m_sitesClosestToOriginalSite;
++		EnumMap<PlotNumTypes,scaled>* m_pVicinityPenaltiesPerPlot;
++
++		scaled computeMinFoundValue() const;
++		void recordSite(CvPlot const& kPlot, short iFoundValue, bool bAdd);
++		int fewestPotentialSites() const;
++	};
++
++	class DistanceTable
++	{
++		/*	Internal ids so that m_aaiDistances can be a good deal smaller than
++			the map dimensions */
++		enum SourceID { NOT_A_SOURCE = -1 };
++		enum DestinationID { NOT_A_DESTINATION = -1 };
++	public:
++		DistanceTable(std::vector<CvPlot const*>& kSources,
++				std::vector<CvPlot const*>& kDestinations);
++		short d(CvPlot const& kSource, CvPlot const& kDestination) const;
++
++	private:
++		std::vector<std::vector<short> > m_distances;
++		std::vector<SourceID> m_sourceIDs;
++		std::vector<DestinationID> m_destinationIDs;
++
++		void computeDistances(CvPlot const& kSource);
++		void setDistance(CvPlot const& kSource, CvPlot const& kDestination,
++				short iDistance);
++		static short stepDist(CvPlot const& kFrom, CvPlot const& kTo);
++	};
++};
++
++
++#endif
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=51785

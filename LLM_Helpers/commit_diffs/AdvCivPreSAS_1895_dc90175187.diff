@@ -1,0 +1,105 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1895
+# Commit: dc901751879c1fbbc9476679ed4c7fc890993fa8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 93a786771110e0b6d49ef62ba23e938c345d0f86
+# Title: A few comment, variable name changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/BitUtil.h
+1	1	CvGameCoreDLL/CvDeal.cpp
+2	2	CvGameCoreDLL/InvasionGraph.cpp
+7	7	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+index a995cca45..66998f920 100644
+--- a/CvGameCoreDLL/BitUtil.h
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -69,7 +69,7 @@ namespace BitUtil
+ #endif
+ };
+ 
+-// advc.enum (not from WtP): Macro for (somehwat) typesafe bitmasks
++// advc.enum (not from WtP): Macro for (somehwat) type-safe bitmasks
+ #define OVERRIDE_BITMASK_OPERATORS(EnumType) \
+ 	inline EnumType operator|(EnumType eLeft, EnumType eRight) \
+ 	{ \
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index dfc4e2109..0a20ceb87 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -1007,7 +1007,7 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 	PlayerTypes eCancelPlayer) // advc.130p  advc: refactored
+ {
+ 	bool bTeamTradeEnded = false; // advc.133
+-	/*	<advc> Skip some steps when a trade ends throgh the defeat of one party -
++	/*	<advc> Skip some steps when a trade ends through the defeat of one party -
+ 		to avoid failed assertions */
+ 	bool bAlive = (GET_PLAYER(eFromPlayer).isAlive() && GET_PLAYER(eToPlayer).isAlive());
+ 	if (!bAlive)
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index da9b11a92..137dde9f4 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -291,8 +291,8 @@ PlayerTypes InvasionGraph::Node::findTarget(TeamTypes include) const {
+ 			return bestTarget;
+ 		// Otherwise, check unit missions, but may still fall back on bestTarget.
+ 	}
+-	/*	If unit missions can matter, then don't search the city cache for the
+-		likeliest target yet - b/c that's expensive. */
++	/*	If unit missions can matter, then don't search for the best target yet -
++		b/c that's expensive. */
+ 	PlayerTypes mostMissions = NO_PLAYER; // Against whom this Node has the most missions
+ 	// Tbd. possibly: Use a fraction of cache.numNonNavy as the threshold
+ 	int maxCount = 3;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 9591e9f35..53616ba0f 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1699,22 +1699,22 @@ double UWAI::Team::reparationsToHuman(double u) const {
+ 	double r = u;
+ 	/*  maxReparations is the upper limit for inter-AI peace;
+ 		be less generous with humans */
+-	double const cap = (4 * maxReparations) / 5;
++	double const top = (4 * maxReparations) / 5;
+ 	/*  If utility for reparations is above the cap, we become less
+ 		willing to pay b/c we don't believe that the peace can last. */
+-	if(r > cap) {
+-		double const bottom = cap / 4.0;
++	if(r > top) {
++		double const bottom = top / 4.0;
+ 		double const gradient = -1/6.0;
+-		double delta = (r - cap);
+-		/*	Decreasing linearly from cap to bottom seems a bit too
++		double delta = (r - top);
++		/*	Decreasing linearly from top to bottom seems a bit too
+ 			steep for small delta. Choose an exponent and divisor
+ 			so that the delta for which r reaches the bottom
+ 			remains unchanged (fixpoint). */
+-		double const deltaBottom = (-1 / gradient) * (cap - bottom);
++		double const deltaBottom = (-1 / gradient) * (top - bottom);
+ 		double const div = 3;
+ 		double const exponent = std::log(deltaBottom * div) / std::log(deltaBottom);
+ 		delta = std::pow(delta, exponent) / div;
+-		r = std::max(bottom, cap + delta * gradient);
++		r = std::max(bottom, top + delta * gradient);
+ 	}
+ 	// Trade value based on our economy
+ 	return utilityToTradeVal(r);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3410

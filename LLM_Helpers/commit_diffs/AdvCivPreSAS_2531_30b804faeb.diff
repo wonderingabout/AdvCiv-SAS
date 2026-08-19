@@ -1,0 +1,1016 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2531
+# Commit: 30b804faeb64f142bc493466fa73b0e8ad0ce08c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 131fe0578431b602b693649cda10d7dfe5302893
+# Title: Misc. refactoring, cleanup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	24	Assets/Python/Contrib/AIAutoPlay.py
+2	2	Assets/XML/GlobalDefines_advc.xml
+5	5	Assets/XML/Text/CIV4GameText_advc_hints.xml
+73	69	CvGameCoreDLL/CvEnums.h
+20	21	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvGame.h
+64	58	CvGameCoreDLL/CvGameTextMgr.cpp
+45	19	CvGameCoreDLL/CvInitCore.cpp
+16	15	CvGameCoreDLL/CvInitCore.h
+3	1	CvGameCoreDLL/CvMessageData.h
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+10	6	CvGameCoreDLL/CvPythonCaller.cpp
+4	4	CvGameCoreDLL/CvRandom.cpp
+6	6	CvGameCoreDLL/CyEnumsInterface.cpp
+7	7	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 4e30e7f2c..09e158ab6 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -40,11 +40,12 @@ class AIAutoPlay :
+ 		self.customEM = customEM
+ 
+ 		self.customEM.addEventHandler( "kbdEvent", self.onKbdEvent )
+-		self.customEM.addEventHandler( "EndGameTurn", self.onEndGameTurn )
++		# advc: Disable unused handler
++		#self.customEM.addEventHandler( "EndGameTurn", self.onEndGameTurn )
++		#self.customEM.addEventHandler( 'OnLoad', self.onGameLoad )
++		#self.customEM.addEventHandler( 'GameStart', self.onGameStart )
+ 		self.customEM.addEventHandler( 'BeginPlayerTurn', self.onBeginPlayerTurn )
+ 		self.customEM.addEventHandler( 'EndPlayerTurn', self.onEndPlayerTurn )
+-		self.customEM.addEventHandler( 'OnLoad', self.onGameLoad )
+-		self.customEM.addEventHandler( 'GameStart', self.onGameStart )
+ 		self.customEM.addEventHandler( 'victory', self.onVictory )
+ 		self.customEM.addEventHandler( 'AutoPlayComplete', self.onAutoPlayComplete ) # Erik (BM1)
+ 
+@@ -75,11 +76,12 @@ class AIAutoPlay :
+ 		print "Removing event handlers from AIAutoPlay"
+ 		
+ 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
+-		self.customEM.removeEventHandler( "EndGameTurn", self.onEndGameTurn )
++		# advc: Disable unused handlers
++		#self.customEM.removeEventHandler( "EndGameTurn", self.onEndGameTurn )
++		#self.customEM.removeEventHandler( 'OnLoad', self.onGameLoad )
++		#self.customEM.removeEventHandler( 'GameStart', self.onGameStart )
+ 		self.customEM.removeEventHandler( 'BeginPlayerTurn', self.onBeginPlayerTurn )
+ 		self.customEM.removeEventHandler( 'EndPlayerTurn', self.onEndPlayerTurn )
+-		self.customEM.removeEventHandler( 'OnLoad', self.onGameLoad )
+-		self.customEM.removeEventHandler( 'GameStart', self.onGameStart )
+ 		self.customEM.removeEventHandler( 'victory', self.onVictory )
+ 		self.customEM.addEventHandler( 'AutoPlayComplete', self.onAutoPlayComplete ) # Erik (BM1)
+ 
+@@ -97,24 +99,23 @@ class AIAutoPlay :
+ 		# Dummy handler to take the second event for popup
+ 		return
+ 
++	# advc: Disable unused handlers
++	#def onGameStart( self, argsList ) :
++	#	self.onGameLoad([])
+ 
+-	def onGameStart( self, argsList ) :
+-		self.onGameLoad([])
++	#def onGameLoad( self, argsList ) :
++	#	# Init things which require a game object or other game data to exist
++	#	pass
+ 
+-	def onGameLoad( self, argsList ) :
+-		# Init things which require a game object or other game data to exist
+-
+-		pass
++	#def onEndGameTurn( self, argsList ) :
++	#	if( game.getAIAutoPlay() == 1 ) :
++	#		# About to turn off automation
++	#		pass
+ 
+ 	def onVictory( self, argsList ) :
+ 		self.checkPlayer()
+ 		game.setAIAutoPlay(0)
+ 
+-	def onEndGameTurn( self, argsList ) :
+-		if( game.getAIAutoPlay() == 1 ) :
+-			# About to turn off automation
+-			pass
+-
+ 	def pickHumanHandler( self, iPlayerID, netUserData, popupReturn ) :
+ 
+ 		CvUtil.pyPrint('Handling pick human popup')
+@@ -288,13 +289,14 @@ class AIAutoPlay :
+ 		'City Built'
+ 		city = argsList[0]
+ 		#if (city.getOwner() == CyGame().getActivePlayer() and game.getAIAutoPlay() == 0 ):
+-		if (game.getAIAutoPlay() == 0): # K-Mod. Some mods may use the event for other player's cities too.
+-				self.customEM.onCityBuilt(argsList)
+-		else :
+-				try :
+-					CvUtil.pyPrint('City Built Event: %s' %(city.getName()))
+-				except :
+-					CvUtil.pyPrint('City Built Event: Error processing city name' )
++		# K-Mod. Some mods may use the event for other player's cities too.
++		if (game.getAIAutoPlay() == 0):
++			self.customEM.onCityBuilt(argsList)
++		else:
++			try :
++				CvUtil.pyPrint('City Built Event: %s' %(city.getName()))
++			except :
++				CvUtil.pyPrint('City Built Event: Error processing city name' )
+ 
+ 
+ 	def toAIChooser( self ) :
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index e5a83022c..b54006b54 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -351,8 +351,8 @@
+     </Define>
+ 
+ 	<!-- [advc.125]
+-		 A value of 1 or greater enables the culture-from-trade system that
+-		 K-Mod has introduced; 0 disables it.
++		 A value of 1 enables the culture-from-trade system that K-Mod
++		 has introduced; 0 disables it.
+ 		 -1 or less doesn't disable it altogether: Culture from trade is
+ 		 ignored when the respective trade partner has 0 culture in the
+ 		 city, i.e. only civs who's culture is already present (due to
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 9b5ac5eb1..83167e24a 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -1046,11 +1046,11 @@
+ <!-- advc.savem -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_41</Tag>
+-	<English>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</English>
+-	<French>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</French>
+-	<German>(experimentell) Mit [Shift + Alt + M] k�nnen Sie im laufenden Spiel die Weltkarte als Python-Skript exportieren, z.B. um mit anderen Spieloptionen von vorne anzufangen.</German>
+-	<Italian>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</Italian>
+-	<Spanish>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</Spanish>
++	<English>(Savemap) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</English>
++	<French>(Savemap) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</French>
++	<German>(Savemap) Mit [Shift + Alt + M] k�nnen Sie im laufenden Spiel die Weltkarte als Python-Skript exportieren, z.B. um mit anderen Spieloptionen von vorne anzufangen.</German>
++	<Italian>(Savemap) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</Italian>
++	<Spanish>(Savemap) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index b2f0e1ebd..6caa136e6 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1343,40 +1343,42 @@ ENUM_END(CivilopediaPage, CIVILOPEDIA_PAGE)
+ 
+ // advc (caveat): Should add only to the end of this enum
+ ENUM_START(GameMessage, GAMEMESSAGE)
+-	GAMEMESSAGE_NETWORK_READY,
+-	GAMEMESSAGE_SAVE_GAME_FLAG,
+-	GAMEMESSAGE_SAVE_FLAG_ACK,
+-	GAMEMESSAGE_VERIFY_VERSION,
+-	GAMEMESSAGE_VERSION_NACK,
+-	GAMEMESSAGE_VERSION_WARNING,
+-	GAMEMESSAGE_GAME_TYPE,
+-	GAMEMESSAGE_ID_ASSIGNMENT,
+-	GAMEMESSAGE_FILE_INFO,
+-	GAMEMESSAGE_PICK_YOUR_CIV,
+-	GAMEMESSAGE_CIV_CHOICE,
+-	GAMEMESSAGE_CONFIRM_CIV_CLAIM,
+-	GAMEMESSAGE_CLAIM_INFO,
+-	GAMEMESSAGE_CIV_CHOICE_ACK,
+-	GAMEMESSAGE_CIV_CHOICE_NACK,
+-	GAMEMESSAGE_CIV_CHOSEN,
+-	GAMEMESSAGE_INTERIM_NOTICE,
+-	GAMEMESSAGE_INIT_INFO,
+-	GAMEMESSAGE_MAPSCRIPT_CHECK,
+-	GAMEMESSAGE_MAPSCRIPT_ACK,
+-	GAMEMESSAGE_LOAD_GAME,
+-	GAMEMESSAGE_PLAYER_ID,
+-	GAMEMESSAGE_SLOT_REASSIGNMENT,
+-	GAMEMESSAGE_PLAYER_INFO,
+-	GAMEMESSAGE_GAME_INFO,
+-	GAMEMESSAGE_REASSIGN_PLAYER,
+-	GAMEMESSAGE_PITBOSS_INFO,
+-	GAMEMESSAGE_LAUNCHING_INFO,
+-	GAMEMESSAGE_INIT_GAME,
+-	GAMEMESSAGE_INIT_PLAYERS,
+-	GAMEMESSAGE_AUTH_REQUEST,
+-	GAMEMESSAGE_AUTH_RESPONSE,
+-	GAMEMESSAGE_SYNCH_START,
+-	GAMEMESSAGE_PLAYER_OPTION,
++	/*	advc (note): These are presumably used by the EXE during
++		game start. I don't think they pass through the DLL at all. */
++		GAMEMESSAGE_NETWORK_READY,
++		GAMEMESSAGE_SAVE_GAME_FLAG,
++		GAMEMESSAGE_SAVE_FLAG_ACK,
++		GAMEMESSAGE_VERIFY_VERSION,
++		GAMEMESSAGE_VERSION_NACK,
++		GAMEMESSAGE_VERSION_WARNING,
++		GAMEMESSAGE_GAME_TYPE,
++		GAMEMESSAGE_ID_ASSIGNMENT,
++		GAMEMESSAGE_FILE_INFO,
++		GAMEMESSAGE_PICK_YOUR_CIV,
++		GAMEMESSAGE_CIV_CHOICE,
++		GAMEMESSAGE_CONFIRM_CIV_CLAIM,
++		GAMEMESSAGE_CLAIM_INFO,
++		GAMEMESSAGE_CIV_CHOICE_ACK,
++		GAMEMESSAGE_CIV_CHOICE_NACK,
++		GAMEMESSAGE_CIV_CHOSEN,
++		GAMEMESSAGE_INTERIM_NOTICE,
++		GAMEMESSAGE_INIT_INFO,
++		GAMEMESSAGE_MAPSCRIPT_CHECK,
++		GAMEMESSAGE_MAPSCRIPT_ACK,
++		GAMEMESSAGE_LOAD_GAME,
++		GAMEMESSAGE_PLAYER_ID,
++		GAMEMESSAGE_SLOT_REASSIGNMENT,
++		GAMEMESSAGE_PLAYER_INFO,
++		GAMEMESSAGE_GAME_INFO,
++		GAMEMESSAGE_REASSIGN_PLAYER,
++		GAMEMESSAGE_PITBOSS_INFO,
++		GAMEMESSAGE_LAUNCHING_INFO,
++		GAMEMESSAGE_INIT_GAME,
++		GAMEMESSAGE_INIT_PLAYERS,
++		GAMEMESSAGE_AUTH_REQUEST,
++		GAMEMESSAGE_AUTH_RESPONSE,
++		GAMEMESSAGE_SYNCH_START,
++		GAMEMESSAGE_PLAYER_OPTION, // (end of external enumerators)
+ 	GAMEMESSAGE_EXTENDED_GAME,
+ 	GAMEMESSAGE_AUTO_MOVES,
+ 	GAMEMESSAGE_TURN_COMPLETE,
+@@ -1391,47 +1393,49 @@ ENUM_START(GameMessage, GAMEMESSAGE)
+ 	GAMEMESSAGE_PERCENT_CHANGE,
+ 	GAMEMESSAGE_ESPIONAGE_CHANGE,
+ 	GAMEMESSAGE_CONVERT,
+-	GAMEMESSAGE_CHAT,
++	// advc (note): Meta game stuff. Not used within the DLL except for PING.
++		GAMEMESSAGE_CHAT,
+ 	GAMEMESSAGE_PING,
+-	GAMEMESSAGE_SIGN,
+-	GAMEMESSAGE_LINE_ENTITY,
+-	GAMEMESSAGE_SIGN_DELETE,
+-	GAMEMESSAGE_LINE_ENTITY_DELETE,
+-	GAMEMESSAGE_LINE_GROUP_DELETE,
+-	GAMEMESSAGE_PAUSE,
+-	GAMEMESSAGE_MP_KICK,
+-	GAMEMESSAGE_MP_RETIRE,
+-	GAMEMESSAGE_CLOSE_CONNECTION,
+-	GAMEMESSAGE_NEVER_JOINED,
+-	GAMEMESSAGE_MP_DROP_INIT,
+-	GAMEMESSAGE_MP_DROP_VOTE,
+-	GAMEMESSAGE_MP_DROP_UPDATE,
+-	GAMEMESSAGE_MP_DROP_RESULT,
+-	GAMEMESSAGE_MP_DROP_SAVE,
+-	GAMEMESSAGE_TOGGLE_TRADE,
+-	GAMEMESSAGE_IMPLEMENT_OFFER,
++		GAMEMESSAGE_SIGN,
++		GAMEMESSAGE_LINE_ENTITY,
++		GAMEMESSAGE_SIGN_DELETE,
++		GAMEMESSAGE_LINE_ENTITY_DELETE,
++		GAMEMESSAGE_LINE_GROUP_DELETE,
++		GAMEMESSAGE_PAUSE,
++		GAMEMESSAGE_MP_KICK,
++		GAMEMESSAGE_MP_RETIRE,
++		GAMEMESSAGE_CLOSE_CONNECTION,
++		GAMEMESSAGE_NEVER_JOINED,
++		GAMEMESSAGE_MP_DROP_INIT,
++		GAMEMESSAGE_MP_DROP_VOTE,
++		GAMEMESSAGE_MP_DROP_UPDATE,
++		GAMEMESSAGE_MP_DROP_RESULT,
++		GAMEMESSAGE_MP_DROP_SAVE,
++		GAMEMESSAGE_TOGGLE_TRADE,
++		GAMEMESSAGE_IMPLEMENT_OFFER, // (end of external enumerators)
+ 	GAMEMESSAGE_CHANGE_WAR,
+ 	GAMEMESSAGE_CHANGE_VASSAL,
+ 	GAMEMESSAGE_CHOOSE_ELECTION,
+ 	GAMEMESSAGE_DIPLO_VOTE,
+-	GAMEMESSAGE_APPLY_EVENT,
+-	GAMEMESSAGE_CONTACT_CIV,
+-	GAMEMESSAGE_DIPLO_CHAT,
+-	GAMEMESSAGE_SEND_OFFER,
+-	GAMEMESSAGE_DIPLO_EVENT,
+-	GAMEMESSAGE_RENEGOTIATE,
+-	GAMEMESSAGE_RENEGOTIATE_ITEM,
+-	GAMEMESSAGE_EXIT_TRADE,
+-	GAMEMESSAGE_KILL_DEAL,
+-	GAMEMESSAGE_SAVE_GAME,
++	// advc (note): Not used within the DLL except UPDATE_CIVICS. Trade screen stuff.
++		GAMEMESSAGE_APPLY_EVENT,
++		GAMEMESSAGE_CONTACT_CIV,
++		GAMEMESSAGE_DIPLO_CHAT,
++		GAMEMESSAGE_SEND_OFFER,
++		GAMEMESSAGE_DIPLO_EVENT,
++		GAMEMESSAGE_RENEGOTIATE,
++		GAMEMESSAGE_RENEGOTIATE_ITEM,
++		GAMEMESSAGE_EXIT_TRADE,
++		GAMEMESSAGE_KILL_DEAL,
++		GAMEMESSAGE_SAVE_GAME,
+ 	GAMEMESSAGE_UPDATE_CIVICS,
+-	GAMEMESSAGE_CLEAR_TABLE,
+-	GAMEMESSAGE_POPUP_PROCESSED,
+-	GAMEMESSAGE_DIPLOMACY_PROCESSED,
+-	GAMEMESSAGE_HOT_JOIN_NOTICE,
+-	GAMEMESSAGE_HOT_DROP_NOTICE,
+-	GAMEMESSAGE_DIPLOMACY,
+-	GAMEMESSAGE_POPUP,
++		GAMEMESSAGE_CLEAR_TABLE,
++		GAMEMESSAGE_POPUP_PROCESSED,
++		GAMEMESSAGE_DIPLOMACY_PROCESSED,
++		GAMEMESSAGE_HOT_JOIN_NOTICE,
++		GAMEMESSAGE_HOT_DROP_NOTICE,
++		GAMEMESSAGE_DIPLOMACY,
++		GAMEMESSAGE_POPUP, // (end of external enumerators)
+ 	GAMEMESSAGE_EVENT_TRIGGERED,
+ 	GAMEMESSAGE_EMPIRE_SPLIT,
+ 	GAMEMESSAGE_LAUNCH_SPACESHIP,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index e462278d9..269989bd3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4726,8 +4726,8 @@ void CvGame::changeCivTeamsEverAlive(int iChange)
+ 	FAssertBounds(0, MAX_CIV_TEAMS + 1, m_iCivTeamsEverAlive);
+ } // </advc.opt>
+ 
+-/*  K-mod, 6/dec/10, karadoc
+-	18/dec/10 - added Gw calc functions */
++/*  K-mod, 6/dec/10:
++	(18/dec/10 - added Gw calc functions) */
+ int CvGame::getGlobalWarmingIndex() const
+ {
+ 	return m_iGlobalWarmingIndex;
+@@ -4829,23 +4829,21 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ 
+ int CvGame::calculateGwSeverityRating() const
+ {
+-	// Here are some of the properties I want from this function:
+-	// - the severity should be a number between 0 and 100 (ie. a percentage value)
+-	// - zero severity should mean zero global warming
+-	// - the function should asymptote towards 100
+-	//
+-	// - It should be a function of the index divided by (total land area * game length).
+-
+-	// I recommend looking at the graph of this function to get a sense of how it works.
+-
+-	const long x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
+-			(std::max(1,4*GC.getInfo(getGameSpeedType()).getVictoryDelayPercent()*GC.getMap().getLandPlots()));
+-	const long b = 70; // shape parameter. Lower values result in the function being steeper earlier.
+-	return 100L - b*100L/(b+x*x);
+-}
+-/*
+-** K-mod end
+-*/
++	/*	Here are some of the properties I want from this function:
++		- the severity should be a number between 0 and 100 (ie. a percentage value)
++		- zero severity should mean zero global warming
++		- the function should asymptote towards 100
++		- It should be a function of the index divided by (total land area * game length).
++	I recommend looking at the graph of this function to get a sense of how it works. */
++	/*	advc: Was long, which is equivalent to int. Could use long long,
++		but it looks like 32 bit should suffice. */
++	int const x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
++			std::max(1, GC.getMap().getLandPlots() * 4 *
++			GC.getInfo(getGameSpeedType()).getVictoryDelayPercent());
++	// shape parameter. Lower values result in the function being steeper earlier.
++	int const b = 70;
++	return 100 - (b * 100) / (b + SQR(x));
++} // K-Mod end
+ 
+ unsigned int CvGame::getInitialTime()
+ {
+@@ -10926,8 +10924,9 @@ BuildingTypes CvGame::getVoteSourceBuilding(VoteSourceTypes eVS) const
+ void CvGame::setScenario(bool b)
+ {
+ 	m_bScenario = b;
+-	/*  These two apparently check the same thing, but both call the EXE ultimately,
+-		so one can't be certain what they check and how long it might take. */
++	/*  These two apparently check the same thing via the EXE,
++		probably by checking the ending of the map script name,
++		which is going to be somewhat slow. */
+ 	FAssert(m_bScenario == gDLL->isWBMapScript());
+ 	FAssert(m_bScenario == GC.getInitCore().getWBMapScript());
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index fe7a482ce..bab4190fc 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -681,7 +681,7 @@ public:
+ 	{
+ 		return m_mapRand.get(iNum, pszLog);
+ 	}
+-	CvRandom& getSorenRand()																								// Exposed to Python
++	inline CvRandom& getSorenRand()																								// Exposed to Python
+ 	{
+ 		return m_sorenRand;
+ 	}  // <advc> Shorter. "S" could also stand for "synchronized" (or "Soren"). (Tbd.: Move to CvGlobals.)
+@@ -695,7 +695,7 @@ public:
+ 		return getSorenRandNum(iNum, pszLog, iData1, iData2);
+ 	} // </advc>
+ 	//  Returns a value from the half-closed interval [0,iNum)
+-	int getSorenRandNum(int iNum, const char* pszLog,
++	inline int getSorenRandNum(int iNum, const char* pszLog,
+ 		int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.007
+ 	{
+ 		return m_sorenRand.getInt(iNum, pszLog, /* advc.007: */ iData1, iData2);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 6e8297f77..3088cb634 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10798,7 +10798,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 		{
+ 			aiCommerces[e] = kBuilding.getCommerceChange(e);
+ 			aiCommerces[e] += kBuilding.getObsoleteSafeCommerceChange(e);
+-			// K-Mod, 30/dec/10: added relgious building bonus info
++			// K-Mod, 30/dec/10: added religious building bonus info
+ 			if (ePlayer != NO_PLAYER &&
+ 				kBuilding.getReligionType() != NO_RELIGION &&
+ 				kBuilding.getReligionType() == pPlayer->getStateReligion())
+@@ -13367,15 +13367,15 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		}
+ 		iOldAngerPercent = iNewAngerPercent;
+ 		iOldAnger = iNewAnger;
+-/*
+-** K-Mod, 30/dec/10, karadoc
+-** Global warming unhappiness
+-*/
+-		// when I say 'percent' I mean 1/100. Unfortunately, people who made the rest of the game meant something else...
+-		// so I have to multiply my GwPercentAnger by 10 to make it fit in.
+-		iNewAngerPercent += std::max(0, GET_PLAYER(city.getOwner()).getGwPercentAnger()*10);
+-		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+-		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
++		/*	K-Mod, 30/dec/10, Global warming unhappiness (start)
++			when I say 'percent' I mean 1/100. Unfortunately,
++			people who made the rest of the game meant something else...
++			so I have to multiply my GwPercentAnger by 10 to make it fit in. */
++		iNewAngerPercent += std::max(0,
++				GET_PLAYER(city.getOwner()).getGwPercentAnger() * 10);
++		iNewAnger += (iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()
++				-(iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR();
++		iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
+ 		if (iAnger > 0)
+ 		{
+ 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_GLOBAL_WARMING", iAnger));
+@@ -13383,10 +13383,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 		}
+ 		iOldAngerPercent = iNewAngerPercent;
+ 		iOldAnger = iNewAnger;
+-/*
+-** K-Mod end
+-*/
+-
++		// K-Mod end
+ 		iNewAnger += std::max(0, city.getVassalUnhappiness());
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+@@ -15166,7 +15163,11 @@ void CvGameTextMgr::buildHealthRateString(CvWStringBuffer &szBuffer, TechTypes e
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 		}
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_ALL_CITIES", abs(GC.getInfo(eTech).getHealth()), ((GC.getInfo(eTech).getHealth() > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR))));
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_ALL_CITIES",
++				abs(GC.getInfo(eTech).getHealth()),
++				GC.getInfo(eTech).getHealth() > 0 ?
++				gDLL->getSymbolID(HEALTHY_CHAR) :
++				gDLL->getSymbolID(UNHEALTHY_CHAR)));
+ 	}
+ }
+ 
+@@ -18617,49 +18618,54 @@ void CvGameTextMgr::getCityBillboardProductionbarColors(CvCity* pCity, std::vect
+ 
+ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
+ {
+-	if (NO_PLAYER != ePlayer)
+-	{
+-		CvPlayer& player = GET_PLAYER(ePlayer);
+-
+-		int iPop = player.getPopScore();
+-		int iMaxPop = GC.getGame().getMaxPopulation();
+-		int iPopScore = 0;
+-		if (iMaxPop > 0)
+-		{
+-			iPopScore = (GC.getDefineINT("SCORE_POPULATION_FACTOR") * iPop) / iMaxPop;
+-		}
+-		int iLand = player.getLandScore();
+-		int iMaxLand = GC.getGame().getMaxLand();
+-		int iLandScore = 0;
+-		if (iMaxLand > 0)
+-		{
+-			iLandScore = (GC.getDefineINT("SCORE_LAND_FACTOR") * iLand) / iMaxLand;
+-		}
+-		int iTech = player.getTechScore();
+-		int iMaxTech = GC.getGame().getMaxTech();
+-		int iTechScore = 0;
+-		if (iMaxTech > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
+-			iTechScore = (GC.getDefineINT("SCORE_TECH_FACTOR") * iTech) / iMaxTech;
+-		int iWonders = player.getWondersScore();
+-		int iMaxWonders = GC.getGame().getMaxWonders();
+-		int iWondersScore = 0;
+-		if (iMaxWonders > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
+-			iWondersScore = (GC.getDefineINT("SCORE_WONDER_FACTOR") * iWonders) / iMaxWonders;
+-		int iTotalScore = iPopScore + iLandScore + iTechScore + iWondersScore;
+-		int iVictoryScore = player.calculateScore(true, true);
+-		// <advc.250c> Show leader name while in Advanced Start
+-		if(GC.getGame().isInAdvancedStart())
+-		{
+-			szString.append(GC.getInfo(GET_PLAYER(ePlayer).
+-					getLeaderType()).getText());
+-			szString.append(L"\n");
+-		} // </advc.250c>
+-		if (iTotalScore == player.calculateScore())
+-		{	// <advc.703> Advertise the Score Tab
+-			if(GC.getGame().isOption(GAMEOPTION_RISE_FALL))
+-				szString.append(gDLL->getText("TXT_KEY_RF_CIV_SCORE_BREAKDOWN", iPopScore, iPop, iMaxPop, iLandScore, iLand, iMaxLand, iTechScore, iTech, iMaxTech, iWondersScore, iWonders, iMaxWonders, iTotalScore));
+-			else // </advc.703>
+-			szString.append(gDLL->getText("TXT_KEY_SCORE_BREAKDOWN", iPopScore, iPop, iMaxPop, iLandScore, iLand, iMaxLand, iTechScore, iTech, iMaxTech, iWondersScore, iWonders, iMaxWonders, iTotalScore, iVictoryScore));
++	if (ePlayer == NO_PLAYER)
++		return;
++
++	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
++
++	int iPop = kPlayer.getPopScore();
++	int iMaxPop = GC.getGame().getMaxPopulation();
++	int iPopScore = 0;
++	if (iMaxPop > 0)
++		iPopScore = (GC.getDefineINT("SCORE_POPULATION_FACTOR") * iPop) / iMaxPop;
++	int iLand = kPlayer.getLandScore();
++	int iMaxLand = GC.getGame().getMaxLand();
++	int iLandScore = 0;
++	if (iMaxLand > 0)
++		iLandScore = (GC.getDefineINT("SCORE_LAND_FACTOR") * iLand) / iMaxLand;
++	int iTech = kPlayer.getTechScore();
++	int iMaxTech = GC.getGame().getMaxTech();
++	int iTechScore = 0;
++	if (iMaxTech > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
++		iTechScore = (GC.getDefineINT("SCORE_TECH_FACTOR") * iTech) / iMaxTech;
++	int iWonders = kPlayer.getWondersScore();
++	int iMaxWonders = GC.getGame().getMaxWonders();
++	int iWondersScore = 0;
++	if (iMaxWonders > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
++		iWondersScore = (GC.getDefineINT("SCORE_WONDER_FACTOR") * iWonders) / iMaxWonders;
++	int iTotalScore = iPopScore + iLandScore + iTechScore + iWondersScore;
++	int iVictoryScore = kPlayer.calculateScore(true, true);
++	// <advc.250c> Show leader name while in Advanced Start
++	if(GC.getGame().isInAdvancedStart())
++	{
++		szString.append(GC.getInfo(kPlayer.getLeaderType()).getText());
++		szString.append(L"\n");
++	} // </advc.250c>
++	if (iTotalScore == kPlayer.calculateScore())
++	{	// <advc.703> Advertise the Score Tab
++		if(GC.getGame().isOption(GAMEOPTION_RISE_FALL))
++		{
++			szString.append(gDLL->getText("TXT_KEY_RF_CIV_SCORE_BREAKDOWN",
++					iPopScore, iPop, iMaxPop, iLandScore, iLand, iMaxLand,
++					iTechScore, iTech, iMaxTech,
++					iWondersScore, iWonders, iMaxWonders, iTotalScore));
++		}
++		else // </advc.703>
++		{
++			szString.append(gDLL->getText("TXT_KEY_SCORE_BREAKDOWN",
++					iPopScore, iPop, iMaxPop, iLandScore, iLand, iMaxLand,
++					iTechScore, iTech, iMaxTech, iWondersScore,
++					iWonders, iMaxWonders, iTotalScore, iVictoryScore));
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 7ef869787..44615fd19 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -443,6 +443,11 @@ void CvInitCore::resetGame()
+ 	// Standard game options
+ 	m_abOptions.reset();
+ 	m_abMPOptions.reset();
++	m_abForceControls.reset();
++	m_iMaxCityElimination = 0;
++	m_iNumAdvancedStartPoints = 0;
++
++	// Misc
+ 	m_bStatReporting = false;
+ 
+ 	m_abForceControls.reset();
+@@ -453,11 +458,6 @@ void CvInitCore::resetGame()
+ 	m_iPitbossTurnTime = 0;
+ 	m_iTargetScore = 0;
+ 
+-	// City Elimination
+-	m_iMaxCityElimination = 0;
+-
+-	m_iNumAdvancedStartPoints = 0;
+-
+ 	// Unsaved game data
+ 	m_uiSyncRandSeed = 0;
+ 	m_uiMapRandSeed = 0;
+@@ -521,6 +521,10 @@ void CvInitCore::resetGame(CvInitCore* pSource, bool bClear, bool bSaveGameType)
+ 	{
+ 		setMPOption(eLoopMPOption, pSource->getMPOption(eLoopMPOption));
+ 	}
++	setMaxCityElimination(pSource->getMaxCityElimination());
++	setNumAdvancedStartPoints(pSource->getNumAdvancedStartPoints());
++
++	// Misc
+ 	setStatReporting(pSource->getStatReporting());
+ 
+ 	// Game turn mgmt
+@@ -529,11 +533,6 @@ void CvInitCore::resetGame(CvInitCore* pSource, bool bClear, bool bSaveGameType)
+ 	setPitbossTurnTime(pSource->getPitbossTurnTime());
+ 	setTargetScore(pSource->getTargetScore());
+ 
+-	// City Elimination
+-	setMaxCityElimination(pSource->getMaxCityElimination());
+-
+-	setNumAdvancedStartPoints(pSource->getNumAdvancedStartPoints());
+-
+ 	setSyncRandSeed(pSource->getSyncRandSeed());
+ 	setMapRandSeed(pSource->getMapRandSeed());
+ }
+@@ -567,17 +566,18 @@ void CvInitCore::resetPlayer(PlayerTypes eID)
+ 	m_aszEmail[eID].clear();
+ 	m_aszSmtpHost[eID].clear();
+ 
+-	m_abWhiteFlag.set(eID, false);
++	m_abWhiteFlag.reset(eID);
+ 	m_aszFlagDecal[eID].clear();
+ 
+-	m_aeCiv.set(eID, NO_CIVILIZATION);
++	m_aeCiv.reset(eID);
+ 	m_aeLeader.set(eID, NO_LEADER);
+ 	m_aeTeam.set(eID, (TeamTypes)eID);
+ 	// <advc.003c> See comment in resetGame
+ 	m_aeHandicap.set(eID, GC.isCachingDone() ?
+-			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP); // </advc.003c>
+-	m_aeColor.set(eID, NO_PLAYERCOLOR);
+-	m_aeArtStyle.set(eID, NO_ARTSTYLE);
++			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP") : NO_HANDICAP);
++	// </advc.003c>
++	m_aeColor.reset(eID);
++	m_aeArtStyle.reset(eID);
+ 
+ 
+ 	// Slot data
+@@ -585,12 +585,12 @@ void CvInitCore::resetPlayer(PlayerTypes eID)
+ 	m_aeSlotClaim[eID] = SLOTCLAIM_UNASSIGNED;
+ 
+ 	// Civ flags
+-	m_abPlayableCiv.set(eID, false);
+-	m_abMinorNationCiv.set(eID, false);
++	m_abPlayableCiv.reset(eID);
++	m_abMinorNationCiv.reset(eID);
+ 
+ 	// Unsaved player data
+-	m_aiNetID.set(eID, -1);
+-	m_abReady.set(eID, false);
++	m_aiNetID.reset(eID);
++	m_abReady.reset(eID);
+ 	m_aszPythonCheck[eID].clear();
+ 	m_aszXMLCheck[eID].clear();
+ 
+@@ -1388,6 +1388,32 @@ void CvInitCore::setXMLCheck(PlayerTypes eID, CvString const& szXMLCheck)
+ 	FAssertBounds(0, MAX_PLAYERS, eID);
+ 	m_aszXMLCheck[eID] = szXMLCheck;
+ }
++/*	<advc> Definitions of exported setters moved from the header.
++	Easier to track external calls in the debugger this way. */
++void CvInitCore::setGameName(CvWString const& szGameName)
++{
++	m_szGameName = szGameName;
++}
++
++void CvInitCore::setGamePassword(CvWString const& szGamePassword)
++{
++	m_szGamePassword = szGamePassword;
++}
++
++void CvInitCore::setPitbossTurnTime(int iPitbossTurnTime)
++{
++	m_iPitbossTurnTime = iPitbossTurnTime;
++}
++
++void CvInitCore::setSyncRandSeed(unsigned int uiSyncRandSeed)
++{
++	m_uiSyncRandSeed = uiSyncRandSeed;
++}
++
++void CvInitCore::setMapRandSeed(unsigned int uiMapRandSeed)
++{
++	m_uiMapRandSeed = uiMapRandSeed;
++} // </advc>
+ 
+ void CvInitCore::setAdminPassword(CvWString const& szAdminPassword, bool bEncrypt)
+ {
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index 9d9c09651..add975f78 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -3,7 +3,6 @@
+ #ifndef CIV4_INITCORE_H
+ #define CIV4_INITCORE_H
+ 
+-// (K-Mod, 8/dec/10: Moved FASSERT_BOUNDS to CvGlobals.h)
+ 
+ class CvInitCore
+ {
+@@ -42,8 +41,10 @@ public:
+ 	DllExport bool getMultiplayer() const;
+ 	DllExport bool getNewGame() const;
+ 	DllExport bool getSavedGame() const;
+-	DllExport bool getGameMultiplayer() const { return (getMultiplayer() || getPitboss() || getPbem() || getHotseat()); }
+-
++	DllExport bool getGameMultiplayer() const
++	{
++		return (getMultiplayer() || getPitboss() || getPbem() || getHotseat());
++	}
+ 	DllExport bool getPitboss() const;
+ 	DllExport bool getHotseat() const;
+ 	DllExport bool getPbem() const;
+@@ -66,10 +67,10 @@ public:
+ 	// Member access ...
+ 
+ 	const CvWString& getGameName() const { return m_szGameName; }
+-	DllExport void setGameName(const CvWString& szGameName)	{ m_szGameName = szGameName; }
++	DllExport void setGameName(const CvWString& szGameName);
+ 
+ 	const CvWString& getGamePassword() const { return m_szGamePassword; }
+-	DllExport void setGamePassword(const CvWString& szGamePassword)	{ m_szGamePassword = szGamePassword; }
++	DllExport void setGamePassword(const CvWString& szGamePassword);
+ 
+ 	const CvWString& getAdminPassword() const { return m_szAdminPassword; }
+ 	DllExport void setAdminPassword(const CvWString& szAdminPassword, bool bEncrypt = true);
+@@ -80,7 +81,7 @@ public:
+ 	bool isPangaea() const { return m_bPangaea; } // advc
+ 
+ 	bool getWBMapNoPlayers() const { return m_bWBMapNoPlayers; }
+-	void setWBMapNoPlayers(bool bValue)	{ m_bWBMapNoPlayers = bValue; }
++	void setWBMapNoPlayers(bool bValue) { m_bWBMapNoPlayers = bValue; }
+ 
+ 	WorldSizeTypes getWorldSize() const { return m_eWorldSize; }
+ 	void setWorldSize(WorldSizeTypes eWorldSize) { m_eWorldSize = eWorldSize; }
+@@ -145,30 +146,30 @@ public:
+ 	DllExport void setForceControl(ForceControlTypes eIndex, bool bForceControl);
+ 
+ 	inline int getGameTurn() const { return m_iGameTurn; } // advc.inl
+-	void setGameTurn(int iGameTurn)	{ m_iGameTurn = iGameTurn; }
++	void setGameTurn(int iGameTurn) { m_iGameTurn = iGameTurn; }
+ 
+ 	int getMaxTurns() const { return m_iMaxTurns; }
+-	void setMaxTurns(int iMaxTurns)	{ m_iMaxTurns = iMaxTurns; }
++	void setMaxTurns(int iMaxTurns) { m_iMaxTurns = iMaxTurns; }
+ 
+ 	DllExport int getPitbossTurnTime() const { return m_iPitbossTurnTime; }
+-	DllExport void setPitbossTurnTime(int iPitbossTurnTime)	{ m_iPitbossTurnTime = iPitbossTurnTime; }
++	DllExport void setPitbossTurnTime(int iPitbossTurnTime);
+ 
+ 	int getTargetScore() const { return m_iTargetScore; }
+-	void setTargetScore(int iTargetScore)	{ m_iTargetScore = iTargetScore; }
++	void setTargetScore(int iTargetScore) { m_iTargetScore = iTargetScore; }
+ 
+ 
+ 	int getMaxCityElimination() const { return m_iMaxCityElimination; }
+-	void setMaxCityElimination(int iMaxCityElimination)	{ m_iMaxCityElimination = iMaxCityElimination; }
++	void setMaxCityElimination(int iMaxCityElimination) { m_iMaxCityElimination = iMaxCityElimination; }
+ 
+ 	int getNumAdvancedStartPoints() const { return m_iNumAdvancedStartPoints; }
+-	void setNumAdvancedStartPoints(int iNumPoints)	{ m_iNumAdvancedStartPoints = iNumPoints; }
++	void setNumAdvancedStartPoints(int iNumPoints) { m_iNumAdvancedStartPoints = iNumPoints; }
+ 	int getAdvancedStartMinPoints() const; // advc.250c
+ 
+ 	DllExport unsigned int getSyncRandSeed() const { return m_uiSyncRandSeed; }
+-	DllExport void setSyncRandSeed(unsigned int uiSyncRandSeed)	{ m_uiSyncRandSeed = uiSyncRandSeed; }
++	DllExport void setSyncRandSeed(unsigned int uiSyncRandSeed);
+ 
+ 	DllExport unsigned int getMapRandSeed() const { return m_uiMapRandSeed; }
+-	DllExport void setMapRandSeed(unsigned int uiMapRandSeed)	{ m_uiMapRandSeed = uiMapRandSeed; }
++	DllExport void setMapRandSeed(unsigned int uiMapRandSeed);
+ 
+ 	PlayerTypes getActivePlayer() const { return m_eActivePlayer; }
+ 	DllExport void setActivePlayer(PlayerTypes eActivePlayer);
+@@ -365,7 +366,7 @@ protected:
+ 	EnumMap<PlayerTypes,bool> m_abMinorNationCiv;
+ 
+ 	// Unsaved player data
+-	EnumMap<PlayerTypes,int> m_aiNetID;
++	EnumMapDefault<PlayerTypes,int,-1> m_aiNetID;
+ 	EnumMap<PlayerTypes,bool> m_abReady;
+ 
+ 	CvString* m_aszPythonCheck;
+
+diff --git a/CvGameCoreDLL/CvMessageData.h b/CvGameCoreDLL/CvMessageData.h
+index cacf17dd5..a1bbf37b4 100644
+--- a/CvGameCoreDLL/CvMessageData.h
++++ b/CvGameCoreDLL/CvMessageData.h
+@@ -6,7 +6,6 @@ class FDataStreamBase;
+ class CvMessageData
+ {
+ public:
+-	CvMessageData(GameMessageTypes eType);
+ 	virtual ~CvMessageData();
+ 	virtual void Debug(char* szAddendum) = 0;
+ 	virtual void Execute() = 0;
+@@ -17,6 +16,9 @@ public:
+ 
+ 	DllExport static CvMessageData* createMessage(GameMessageTypes eType);
+ 
++protected: // advc
++	CvMessageData(GameMessageTypes eType);
++
+ private:
+ 	GameMessageTypes m_eType;
+ };
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7eef43f6d..efd5ed57b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23230,9 +23230,9 @@ int CvPlayerAI::AI_getStrategyRand(int iShift) const
+ 	x >>= 1; // force positive;
+ 	FAssert(x <= MAX_INT);
+ 	return x;
+-}
+-// K-Mod end
+-// <advc.115b>
++} // K-Mod end
++
++// advc.115b:
+ bool CvPlayerAI::isCloseToReligiousVictory() const
+ {
+ 	if(!AI_atVictoryStage(AI_VICTORY_DIPLOMACY3))
+@@ -23241,7 +23241,8 @@ bool CvPlayerAI::isCloseToReligiousVictory() const
+ 	if(eVS == NO_VOTESOURCE)
+ 		return false;
+ 	return GC.getGame().getVoteSourceReligion(eVS) == getStateReligion();
+-}// </advc.115b>
++}
++
+ 
+ bool CvPlayerAI::AI_isDoStrategy(AIStrategy eStrategy, /* advc.007: */ bool bDebug) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index 6c999f400..d485f9034 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -249,8 +249,12 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
+ 	long& lResult, char const* szModuleName, bool bAssertSuccess,
+ 	bool bCheckExists) const
+ {
+-	// Not sure how expensive this check is; otherwise, I'd just always perform it.
+-	if (bCheckExists && !m_python.moduleExists(szModuleName, false))
++	/*	Not sure how expensive this check is; otherwise, I'd just always perform it.
++		bLoadIfNecessary: Generally won't help I think, except after having run
++		into some error while reloading Python scripts. I doubt that
++		bLoadIfNecessary=true will take extra time when the module is found,
++		and, normally, it should always be found. So let's go with true. */
++	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
+ 		m_bLastCallSuccessful = false;
+ 	else
+ 	{
+@@ -263,7 +267,7 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
+ void CvPythonCaller::call(char const* szFunctionName, long& lResult,
+ 	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+ {
+-	if (bCheckExists && !m_python.moduleExists(szModuleName, false))
++	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
+ 		m_bLastCallSuccessful = false;
+ 	else
+ 	{
+@@ -276,7 +280,7 @@ void CvPythonCaller::call(char const* szFunctionName, long& lResult,
+ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
+ 	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+ {
+-	if (bCheckExists && !m_python.moduleExists(szModuleName, false))
++	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
+ 		m_bLastCallSuccessful = false;
+ 	else
+ 	{
+@@ -289,7 +293,7 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
+ void CvPythonCaller::call(char const* szFunctionName,
+ 	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+ {
+-	if (bCheckExists && !m_python.moduleExists(szModuleName, false))
++	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
+ 		m_bLastCallSuccessful = false;
+ 	else
+ 	{
+@@ -1237,7 +1241,7 @@ CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName
+ 	CyArgsList argsList;
+ 	argsList.add(iOption);
+ 	argsList.add(eOptionValue);
+-	if (!m_python.moduleExists(szMapScriptName, false))
++	if (!m_python.moduleExists(szMapScriptName, true))
+ 		m_bLastCallSuccessful = false;
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index c7e0db4ce..644b487e4 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -29,15 +29,15 @@ void CvRandom::reset(unsigned long ulSeed)
+ }
+ 
+ 
+-unsigned short CvRandom::getInt(unsigned short usNum, const TCHAR* pszLog,
++unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog,
+ 		int iData1, int iData2) // advc.001n
+ {
+-	GC.getLogger().logRandomNumber(pszLog, usNum, m_ulRandomSeed, iData1, iData2); // advc.003t
++	GC.getLogger().logRandomNumber(szLog, usNum, m_ulRandomSeed, iData1, iData2); // advc.003t
+ 
+ 	m_ulRandomSeed = (RANDOM_A * m_ulRandomSeed) + RANDOM_C;
+ 	unsigned short r = (unsigned short)
+-		((((m_ulRandomSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) *
+-		((unsigned long)usNum)) / (MAX_UNSIGNED_SHORT + 1));
++			((((m_ulRandomSeed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) *
++			((unsigned long)usNum)) / (MAX_UNSIGNED_SHORT + 1));
+ 	return r;
+ }
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 0e4e1564f..b0b704786 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1803,8 +1803,10 @@ void CyEnumsPythonInterface()
+ 
+ 		.value("NUM_ACTIONSUBTYPES", NUM_ACTIONSUBTYPES)
+ 		;
+-
+-	python::enum_<GameMessageTypes>("GameMessageTypes")
++	/*	advc (commented out): I don't think Python can use these in a sensible way
++		given that CvMessageData isn't exposed to Python at all. 
++		Should instead use CyMessageControl for network stuff in Python. */
++	/*python::enum_<GameMessageTypes>("GameMessageTypes")
+ 		.value("GAMEMESSAGE_NETWORK_READY", GAMEMESSAGE_NETWORK_READY)
+ 		.value("GAMEMESSAGE_SAVE_GAME_FLAG", GAMEMESSAGE_SAVE_GAME_FLAG)
+ 		.value("GAMEMESSAGE_SAVE_FLAG_ACK", GAMEMESSAGE_SAVE_FLAG_ACK)
+@@ -1900,10 +1902,8 @@ void CyEnumsPythonInterface()
+ 		.value("GAMEMESSAGE_ADVANCED_START_ACTION", GAMEMESSAGE_ADVANCED_START_ACTION)
+ 		.value("GAMEMESSAGE_FOUND_RELIGION", GAMEMESSAGE_FOUND_RELIGION)
+ 		.value("GAMEMESSAGE_MOD_NET_MESSAGE", GAMEMESSAGE_MOD_NET_MESSAGE)
+-		// advc.011b: Not sure if anything breaks if I don't add this here
+-		.value("GAMEMESSAGE_PUSH_MODIFIED_MISSION", GAMEMESSAGE_PUSH_MISSION)
+-		.value("GAMEMESSAGE_PUSH_FP_TEST", GAMEMESSAGE_PUSH_MISSION) // advc.003g
+-		;
++		// (advc: I've added enumerators, but I won't bother to include them here.)
++		;*/
+ 
+ 	python::enum_<PopupControlLayout>("PopupControlLayout")
+ 		.value("POPUP_LAYOUT_LEFT", POPUP_LAYOUT_LEFT)
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 45ad324ed..5420cda06 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -97,8 +97,8 @@ public:
+ 	// add a number to all indexes
+ 	void addAll(T tValue);
+ 
+-	// get the sum of all elements
+-	int getTotal() const;
++	// get the sum of all elements // advc.fract: return type was int
++	T getTotal() const;
+ 
+ 	// Check if there is non-default contents.
+ 	// isAllocated() test for a null pointer while hasContent() will loop the array to test each index for default value.
+@@ -665,8 +665,8 @@ void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ }
+ 
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
+-// advc: was inline
+-int EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::getTotal() const
++// advc: was inline; advc.fract: return type was int
++T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::getTotal() const
+ {
+ 	// bINLINE is set at compile time and if true, isAllocated will always be true
+ 	// used here to tell the compiler that the true statement (not allocated) can be declared unreachable at compile time
+@@ -675,13 +675,13 @@ int EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::getTotal() const
+ 		// no need to loop through unallocated memory
+ 		return DEFAULT * getLength();
+ 	}
+-	int iReturnVal = 0;
++	T tReturnVal = 0;
+ 	const int iLength = getLength();
+ 	for (IndexType eIndex = First(); eIndex < iLength; ++eIndex)
+ 	{
+-		iReturnVal += get(eIndex);
++		tReturnVal = tReturnVal + get(eIndex);
+ 	}
+-	return iReturnVal;
++	return tReturnVal;
+ }
+ 
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=38915

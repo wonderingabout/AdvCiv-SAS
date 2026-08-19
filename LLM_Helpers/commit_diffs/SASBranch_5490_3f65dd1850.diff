@@ -1,0 +1,163 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5490
+# Commit: 3f65dd18502a2f63304abc970b1bac840fef093d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e746207160cbcc4dbbe1854546befafeaf2ec3c8
+# Title: remove some opening menu music
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3
+-	-	Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3
+2	25	Assets/XML/Audio/Audio2DScripts.xml
+3	10	Assets/XML/Audio/AudioDefines.xml
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+4	5	_1_AdvCiv-SAS/Docs/README_References.md
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3
+deleted file mode 100644
+index b3cb87b9d..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3 b/Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3
+deleted file mode 100644
+index 6fd77495f..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Main_Menu/music/desifreemusic-notebook-memories-soft-emotional-lofi-music-for-relax-and-study-488450.mp3 and /dev/null differ
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 4d501960b..b27eda558 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -159,29 +159,6 @@
+ 		<ScriptID>AS2D_OPENING_MENU_05</ScriptID>
+ 		<SoundID>SONG_OPENING_MENU_05</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>60</iMinVolume>
+-		<iMaxVolume>60</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>1</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_OPENING_MENU_06</ScriptID>
+-		<SoundID>SONG_OPENING_MENU_06</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>65</iMinVolume>
+ 		<iMaxVolume>65</iMaxVolume>
+ 		<iPitchChangeDown>0</iPitchChangeDown>
+@@ -202,8 +179,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_OPENING_MENU_07</ScriptID>
+-		<SoundID>SONG_OPENING_MENU_07</SoundID>
++		<ScriptID>AS2D_OPENING_MENU_06</ScriptID>
++		<SoundID>SONG_OPENING_MENU_06</SoundID>
+ 		<SoundType>GAME_MUSIC</SoundType>
+ 		<iMinVolume>60</iMinVolume>
+ 		<iMaxVolume>60</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index a6ccaa6af..c099806fa 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -46,34 +46,27 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_OPENING_MENU_03</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-background-music-483780</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_OPENING_MENU_04</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-lofi-chill-lofi-girl-study-483784</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_OPENING_MENU_05</SoundID>
++			<SoundID>SONG_OPENING_MENU_04</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_OPENING_MENU_06</SoundID>
++			<SoundID>SONG_OPENING_MENU_05</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SONG_OPENING_MENU_07</SoundID>
++			<SoundID>SONG_OPENING_MENU_06</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396</Filename>
+ 			<LoadType>STREAMED</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5414362ab..01cba32cd 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -43,7 +43,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7</DefineName>
+-		<DefineTextVal>AS2D_OPENING_MENU_07</DefineTextVal>
++		<DefineTextVal>NONE</DefineTextVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8</DefineName>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index 8083781ad..9bcc95d97 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -46,11 +46,10 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ 
+ - `SONG_OPENING_MENU_01`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-song-330550/). Note: for an easy ctrl+f since not mentioned in asset name, the name from url is beats-lofi-song-330550, check to be sure.
+ - `SONG_OPENING_MENU_02`: Background Music 3 - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=471137">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=471137">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/electronic-background-music-3-471137/).
+-- `SONG_OPENING_MENU_03`: Background Music - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483780">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483780">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-background-music-483780/).
+-- `SONG_OPENING_MENU_04`: Lofi - Lofi Chill - Lofi Girl Study - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483784">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483784">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-lofi-chill-lofi-girl-study-483784/).
+-- `SONG_OPENING_MENU_05`: Lofi Music HipHop Chill - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-music-hiphop-chill-300736/).
+-- `SONG_OPENING_MENU_06`: Midnight Drive: A Funky Synthwave Instrumental - Music by <a href="https://pixabay.com/users/nickpanekaiassets-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Nicholas Panek</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/synthwave-midnight-drive-a-funky-synthwave-instrumental-403041/).
+-- `SONG_OPENING_MENU_07`: Funk Funky - Music by <a href="https://pixabay.com/users/prettyjohn1-54616349/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">prettyjohn1</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/funk-funk-funky-483396/).
++- `SONG_OPENING_MENU_03`: Lofi - Lofi Chill - Lofi Girl Study - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483784">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483784">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-lofi-chill-lofi-girl-study-483784/).
++- `SONG_OPENING_MENU_04`: Lofi Music HipHop Chill - Music by <a href="https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">DELOSound</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=300736">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/beats-lofi-music-hiphop-chill-300736/).
++- `SONG_OPENING_MENU_05`: Midnight Drive: A Funky Synthwave Instrumental - Music by <a href="https://pixabay.com/users/nickpanekaiassets-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Nicholas Panek</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=403041">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/synthwave-midnight-drive-a-funky-synthwave-instrumental-403041/).
++- `SONG_OPENING_MENU_06`: Funk Funky - Music by <a href="https://pixabay.com/users/prettyjohn1-54616349/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">prettyjohn1</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=483396">Pixabay</a>, i also re found it here similarly [pixabay's website - link where it can be found too](https://pixabay.com/music/funk-funk-funky-483396/).
+ 
+ ### Eras
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10817

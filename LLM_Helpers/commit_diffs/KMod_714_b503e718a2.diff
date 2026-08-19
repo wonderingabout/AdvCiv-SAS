@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 714
+# Commit: b503e718a2a1fa65340660b7f2082473cab40841
+# History segment: K-Mod history
+# Parent used for diff: a77cfc4395d955d5c776bd9db64a1c4f15a1704c
+# Title: Removed the AI_averageCommerceExchange factor in AI_yieldValue; increased the value of production to compensate. Increased the base value of production in AI...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvCityAI.cpp
+2	11	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1c06e47a9..fe1d43a63 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7486,7 +7486,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 		// K-Mod end
+ 
+ 		iValue += (aiDiffYields[YIELD_FOOD] * ((100 * iCorrectedFoodPriority) / 100));
+-		iValue += (aiDiffYields[YIELD_PRODUCTION] * ((70 * iProductionPriority) / 100)); // was 60
++		iValue += (aiDiffYields[YIELD_PRODUCTION] * ((80 * iProductionPriority) / 100)); // was 60
+ 		iValue += (aiDiffYields[YIELD_COMMERCE] * ((40 * iCommercePriority) / 100));
+ 
+ 		iValue /= 2;
+@@ -9611,7 +9611,7 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation, bool bWorkerOptimization, int iGrowthValue) const
+ {
+ 	PROFILE_FUNC();
+-	const int iBaseProductionValue = 7;
++	const int iBaseProductionValue = 9; // (was 7 before I removed the averageCommerceExchange factor from the commerce values.)
+ 	const int iBaseCommerceValue = 4;
+ 
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+@@ -9662,7 +9662,8 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 				iCommerceWeight = std::max(iCommerceWeight, 200);
+ 			}
+ 
+-			iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI) / 1000000;
++			//iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI) / 1000000;
++			iCommerceValue += iCommerceWeight * iCommerceTimes100 * iBaseCommerceValue / 10000; // K-Mod. (averageCommerceExchange should be part of commerceWeight if we want it, and we probably don't want it anyway.)
+ 		}
+ 	}
+ 	//
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6b79dcdc6..d78a64549 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4552,23 +4552,14 @@ int CvPlayerAI::AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves) co
+ 	return iCount;
+ }
+ 
+-
++// rewritten for K-Mod
+ bool CvPlayerAI::AI_avoidScience() const
+ {
+-	/* original bts / BBAI code
+-	if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4))
+-    {
+-        return true;
+-    } */ // K-Mod. going for culture does not mean avoiding science.
+-	if (isCurrentResearchRepeat())
+-	{
++	if (isCurrentResearchRepeat() && (!isHuman() || getCommercePercent(COMMERCE_RESEARCH) <= 20))
+ 		return true;
+-	}
+ 
+ 	if (isNoResearchAvailable())
+-	{
+ 		return true;
+-	}
+ 
+ 	return false;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2698

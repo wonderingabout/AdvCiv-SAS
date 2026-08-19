@@ -1,0 +1,116 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2697
+# Commit: e527505bf16c903cb1bb51b385f24e63f3679e13
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 18766721b4ee760581aa4e68131a2b0523a296db
+# Title: Add DENIAL_NO_CURRENT_THREAT for AI capitulation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	1	Assets/XML/BasicInfos/CIV4DenialInfos.xml
+10	0	Assets/XML/Text/CIV4GameText_advc.xml
+1	0	CvGameCoreDLL/CvEnums.h
+4	3	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4DenialInfos.xml b/Assets/XML/BasicInfos/CIV4DenialInfos.xml
+index 131c2b290..929dcc2bd 100644
+--- a/Assets/XML/BasicInfos/CIV4DenialInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4DenialInfos.xml
+@@ -5,7 +5,10 @@
+ 
+ <!-- advc.130v: Copied from BtS in order to add DENIAL_TRUE_ATTITUDE (when
+ 	 the true attitude of a vassal causes an attitude test to fail and the
+-	 forced attitude would've passed) -->
++	 forced attitude would've passed).
++	 advc.112b (Not sure if the parser can handle in-line comments):
++	 DENIAL_NO_CURRENT_THREAT when the other player has too few threatening
++	 military units deployed. -->
+ 
+ <!-- Basic Infos -->
+ <Civ4DenialInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+@@ -130,5 +133,9 @@
+ 			<Type>DENIAL_TRUE_ATTITUDE</Type>
+ 			<Description>TXT_KEY_DENIAL_TRUE_ATTITUDE</Description>
+ 		</DenialInfo>
++		<DenialInfo>
++			<Type>DENIAL_NO_CURRENT_THREAT</Type>
++			<Description>TXT_KEY_DENIAL_NO_CURRENT_THREAT</Description>
++		</DenialInfo>
+ 	</DenialInfos>
+ </Civ4DenialInfos>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 7c0908c80..f3049931e 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2905,6 +2905,16 @@
+ 		<Spanish>"No nos ca&#233;is lo bastante bien."</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.112b (FIS from DENIAL_NEVER - which had been used
++		 instead of NO_CURRENT_THREAT until AdvCiv 0.99) -->
++	<TEXT>
++		<Tag>TXT_KEY_DENIAL_NO_CURRENT_THREAT</Tag>
++		<English>"It looks like your offensive has run its course ..."</English>
++		<French>"Il faudra d'abord nous passer sur le corps !"</French>
++		<German>"Eure Offensive scheint so ziemlich am Ende zu sein ..."</German>
++		<Italian>"Dovrai passare sul nostro cadavere."</Italian>
++		<Spanish>"Nos lo arrebatar&#233;is por encima de nuestro cad&#225;ver."</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.130w: Explanation text for new diplo modifier -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 628aa3a88..a6e0f0139 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -746,6 +746,7 @@ ENUM_START(Denial, DENIAL)
+ 	DENIAL_PEACE_NOT_POSSIBLE_US,
+ 	DENIAL_PEACE_NOT_POSSIBLE_YOU,
+ 	DENIAL_TRUE_ATTITUDE, // advc.130v
++	DENIAL_NO_CURRENT_THREAT, // advc.112b
+ ENUM_END(Denial, DENIAL)
+ // <advc.104m>
+ ENUM_START(AIDemand, AI_DEMAND)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index fa3c46494..624905bba 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2482,7 +2482,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 	{
+ 		return DENIAL_POWER_US;
+ 	} // K-Mod end
+-	// <advc.112b> Don't surrender if there isn't an acute threat
++	/*	<advc.112b> Don't surrender if there isn't an acute threat.
++		(Had used DENIAL_NEVER until v0.99.) */
+ 	if(bWar)
+ 	{
+ 		int iNukes = 0;
+@@ -2522,10 +2523,10 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			if (iTheirAttackers < rBound1 + scaled::hash(kGame.getGameTurn()) *
+ 				(rBound2 - rBound1))
+ 			{
+-				return DENIAL_NEVER;
++				return DENIAL_NO_CURRENT_THREAT;
+ 			}
+ 			if(iSafePopulation / (getTotalPopulation() + fixp(0.1)) > fixp(0.3))
+-				return DENIAL_NEVER;
++				return DENIAL_NO_CURRENT_THREAT;
+ 		}
+ 	} // </advc.112b>
+ 	if (!bWar) // advc: Moved out of the loop below
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3407

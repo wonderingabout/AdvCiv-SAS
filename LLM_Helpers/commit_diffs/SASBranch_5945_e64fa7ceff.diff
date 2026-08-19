@@ -1,0 +1,335 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5945
+# Commit: e64fa7ceffb0a129d9049a329c1cc68a169b0efc
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9f5bc5b34046f911396ce598dcee93615c201230
+# Title: Further restrict AI scrapping rules, now and as of now only to sufficiently obsolete units; Add Assets DLL GitHub workflow check
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+119	0	.github/workflows/build/assets_dlls.py
+-	-	Assets/CvGameCoreDLL.dll
+20	1	Assets/XML/GlobalDefines_advciv_sas.xml
+7	2	CvGameCoreDLL/CvPlayerAI.cpp
+41	0	CvGameCoreDLL/CvUnit.cpp
+7	5	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/assets_dlls.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 2bec4e0b9..13cd9ef83 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -23,6 +23,7 @@ For example, this helped spot [map scripts that were previously unclassified in
+ ## Current build checks
+ 
+ - `build/launch_guard.py`: verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
++- `build/assets_dlls.py`: recursively verifies `Assets` contains only the two expected DLL files (`Assets/CvGameCoreDLL.dll` for the main/48-civ DLL and `Assets/CvGameCoreDLL_18_civs_DLL.dll` for the 18-civ DLL), and verifies the 18-civ DLL is not larger than the main DLL by byte size.
+ - `build/xml_comments.py`: verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
+ - `build/xml_suspicious_angle_tags.py`: verifies raw XML files under `Assets/XML` do not contain suspicious malformed-looking tag punctuation such as doubled opening angles or extra closing angles after tags, catching valid-but-wrong text like `<French>>...`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) and fix suspicious malformed-looking XML tag punctuation. See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).
+ - `build/xml_suspicious_text_chars.py`: verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 63fb14d80..490ab3d47 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -17,6 +17,7 @@ jobs:
+       - uses: actions/<hidden-email>
+         with:
+           python-version: "3.x"
++      - run: python .github/workflows/build/assets_dlls.py
+       - run: python .github/workflows/build/launch_guard.py
+       - run: python .github/workflows/build/xml_comments.py
+       - run: python .github/workflows/build/xml_suspicious_angle_tags.py
+
+diff --git a/.github/workflows/build/assets_dlls.py b/.github/workflows/build/assets_dlls.py
+new file mode 100644
+index 000000000..7bf61d9aa
+--- /dev/null
++++ b/.github/workflows/build/assets_dlls.py
+@@ -0,0 +1,119 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: the Assets folder should contain only the expected DLL files,
++# and the 18-civ DLL should not be larger than the main/48-civ DLL.
++#
++# <!-- custom: Search recursively under Assets so accidentally shipped backup or
++# test DLLs in subfolders are caught too. Compare byte size (`stat().st_size`),
++# equivalent to Windows Explorer "Size", not allocated "Size on disk". Disk
++# allocation can match even when the real file byte sizes differ. (ChatGPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++ASSETS_REL_PATH = Path("Assets")
++MAIN_DLL_REL_PATH = ASSETS_REL_PATH / "CvGameCoreDLL.dll"
++EIGHTEEN_CIVS_DLL_REL_PATH = ASSETS_REL_PATH / "CvGameCoreDLL_18_civs_DLL.dll"
++EXPECTED_DLL_REL_PATHS = (
++	MAIN_DLL_REL_PATH,
++	EIGHTEEN_CIVS_DLL_REL_PATH,
++)
++
++
++def byte_size(path: Path) -> int:
++	return path.stat().st_size
++
++
++def relative_path(path: Path, repo_root: Path) -> Path:
++	return path.relative_to(repo_root)
++
++
++def dll_entries(assets_dir: Path) -> list[Path]:
++	return sorted(
++		(path for path in assets_dir.rglob("*") if path.is_file() and path.suffix.lower() == ".dll"),
++		key=lambda path: path.as_posix().lower(),
++	)
++
++
++def check_assets_dlls(repo_root: Path) -> tuple[list[str], dict[Path, int]]:
++	assets_dir = repo_root / ASSETS_REL_PATH
++	failures: list[str] = []
++	sizes: dict[Path, int] = {}
++
++	if not assets_dir.exists():
++		return [f"missing Assets folder: {assets_dir}"], sizes
++	if not assets_dir.is_dir():
++		return [f"Assets path is not a folder: {assets_dir}"], sizes
++
++	expected_rel_paths = set(EXPECTED_DLL_REL_PATHS)
++	actual_rel_paths = [relative_path(entry, repo_root) for entry in dll_entries(assets_dir)]
++
++	missing_rel_paths = [path for path in EXPECTED_DLL_REL_PATHS if path not in actual_rel_paths]
++	unexpected_rel_paths = [path for path in actual_rel_paths if path not in expected_rel_paths]
++
++	for rel_path in EXPECTED_DLL_REL_PATHS:
++		path = repo_root / rel_path
++		if path.exists() and not path.is_file():
++			failures.append(f"expected DLL path exists but is not a file: {rel_path.as_posix()}")
++
++	if missing_rel_paths:
++		failures.append("missing expected DLL file(s): " + ", ".join(path.as_posix() for path in missing_rel_paths))
++
++	if unexpected_rel_paths:
++		failures.append("unexpected DLL file(s) under Assets: " + ", ".join(path.as_posix() for path in unexpected_rel_paths))
++
++	main_dll = repo_root / MAIN_DLL_REL_PATH
++	eighteen_civs_dll = repo_root / EIGHTEEN_CIVS_DLL_REL_PATH
++
++	if main_dll.is_file():
++		sizes[MAIN_DLL_REL_PATH] = byte_size(main_dll)
++	if eighteen_civs_dll.is_file():
++		sizes[EIGHTEEN_CIVS_DLL_REL_PATH] = byte_size(eighteen_civs_dll)
++
++	if main_dll.is_file() and eighteen_civs_dll.is_file():
++		main_size = sizes[MAIN_DLL_REL_PATH]
++		eighteen_civs_size = sizes[EIGHTEEN_CIVS_DLL_REL_PATH]
++		if eighteen_civs_size > main_size:
++			failures.append(
++				f"{EIGHTEEN_CIVS_DLL_REL_PATH.as_posix()} is larger than {MAIN_DLL_REL_PATH.as_posix()}: "
++				f"{eighteen_civs_size} bytes > {main_size} bytes"
++			)
++
++	return failures, sizes
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check expected Assets DLL files recursively and DLL byte-size ordering.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures, sizes = check_assets_dlls(args.repo_root)
++
++	if failures:
++		print("FAIL Assets DLL files")
++		for failure in failures:
++			print(f"  - {failure}")
++		if sizes:
++			print("  - observed byte sizes:")
++			for rel_path in EXPECTED_DLL_REL_PATHS:
++				if rel_path in sizes:
++					print(f"    - {rel_path.as_posix()}: {sizes[rel_path]} bytes")
++		return 1
++
++	print("PASS Assets DLL files")
++	for rel_path in EXPECTED_DLL_REL_PATHS:
++		print(f"  - {rel_path.as_posix()}: {sizes[rel_path]} bytes")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 794492085..cdce45155 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1526,7 +1526,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
+-
++	<!-- custom: Absolute AI scrap kill switch. 0 preserves the normal AdvCiv-SAS scrap rules; 1 forbids AI scrapping entirely. This is intentionally separate from SAS_CAN_SCRAP_OPTIMIZE: if we disable optimization, we should not accidentally restore old broad scrapping. Scrapping is hammer-inefficient when a produced unit can defend, pressure rivals, or be spent in war; war can remove excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: Softer near-absolute AI scrap mode. 0 preserves normal AdvCiv-SAS scrap rules; 1 blocks AI scrapping except for units with ObsoleteTech after the obsolete-era delay below. Cargo-capable units are still kept because an obsolete transport can remain our only practical way to move units. Obsolete candidates still pass through the existing domain/era XML-cost gates, so this narrows scrapping without making every obsolete unit disappear instantly. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum era delay for SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE, measured from the unit's ObsoleteTech era when that era is before Renaissance. Example: as of now an Axeman obsolete at Civil Service (Classical) is still reasonable to keep in Medieval, but not Renaissance; delay 2 allows scrapping from Renaissance onward. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum era delay for SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE, measured from the unit's ObsoleteTech era when that era is Renaissance or later. Example: as of now a Knight obsolete in Renaissance can remain useful through Renaissance, but not Industrial; delay 1 allows scrapping from Industrial onward. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 
+ 	<!-- custom: set to 1 (enable, recommended) to use advciv-sas' smart scrapping control/optimization -->
+ 	<!-- custom: Long_Comments_XML.txt #171 -->
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 68ed7dc21..bbec5ffc4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -645,7 +645,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 									if (iCostPerMil > AI_maxUnitCostPerMil(pLoopUnit->area(), 100) +
+ 										2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders))
+ 									{
+-										if (gUnitLogLevel > 2) logBBAI("    %S scraps %S, with %d exp, and %d / %d spending.", getCivilizationDescription(0), pLoopUnit->getName(0).GetCString(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100));
++										// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
++										if (gUnitLogLevel > 2) logBBAI("    SCRAP_DECISION reason=upgrade-cleanup turn=%d player=%d (%S) unitId=%d unitType=%d name=%S at=(%d,%d) exp=%d unitCostPerMil=%d maxUnitCostPerMil=%d totalUnits=%d",
++											GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pLoopUnit->getID(), pLoopUnit->getUnitType(), pLoopUnit->getName(0).GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100), getNumUnits());
+ 										pLoopUnit->scrap();
+ 										/*	I could have just done kill(), but who knows
+ 											what extra work scrap() wants to do for us? */
+@@ -20817,7 +20819,10 @@ void CvPlayerAI::AI_doMilitary()
+ 				{
+ 					CvWString szAITypeString;
+ 					getUnitAIString(szAITypeString, pDisbandUnit->AI_getUnitAIType());
+-					logBBAI("    %S scraps '%S' %S, at (%d, %d), with value %d, due to financial trouble.", getCivilizationDescription(0), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(), pDisbandUnit->getX(), pDisbandUnit->getY(), unit_values[iDisbandCount].first);
++					// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
++					logBBAI("    SCRAP_DECISION reason=financial-trouble turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) value=%d disbandIndex=%d candidates=%d unitCostPerMil=%d maxUnitCostPerMil=%d goldRate=%d gold=%d totalUnits=%d",
++						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pDisbandUnit->getID(), pDisbandUnit->getUnitType(), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(), pDisbandUnit->getX(), pDisbandUnit->getY(),
++						unit_values[iDisbandCount].first, iDisbandCount, (int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
+ 				}
+ 
+ 				pDisbandUnit->scrap();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 79ab8bc1c..f02626c26 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3301,6 +3301,13 @@ bool CvUnit::canScrap() const
+ 	// 	return false;
+ 	// return true;
+ 
++	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
++	// <!-- custom: Absolute AI scrap kill switch for experiments and player preference. Scrapping is hammer-inefficient when a produced unit could instead defend, pressure rivals, or be spent in war; war also removes excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. Keep this separate from SAS_CAN_SCRAP_OPTIMIZE so disabling optimization never re-enables old broad scrapping. (GPT-5.5) -->
++	if (bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE && !isHuman())
++	{
++		return false;
++	}
++
+ 	static const bool bSAS_CAN_SCRAP_OPTIMIZE = GC.getDefineBOOL("SAS_CAN_SCRAP_OPTIMIZE");
+ 
+ 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
+@@ -3310,6 +3317,29 @@ bool CvUnit::canScrap() const
+ 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
+ 		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
+ 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
++		static const bool bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE");
++		if (bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE)
++		{
++			// <!-- custom: Softer near-absolute AI scrap mode: keep normal units and allow only units with ObsoleteTech that are old enough by obsolete-era delay. Example: as of now an Axeman obsolete at Civil Service (Classical) is still reasonable to keep in Medieval, but not Renaissance; before-Renaissance delay 2 allows scrapping from Renaissance onward. A Knight obsolete in Renaissance stays until Industrial with Renaissance-plus delay 1. Existing obsolete-unit iXMLCost/domain gates below still decide whether the obsolete unit is cheap enough to scrap. Keep cargo-capable units too, because an obsolete transport can still be our only practical way to move units.
++			// In one autoplay test, this produced 3324 SCRAP_DECISION lines but only 94 SCRAP_EVENT lines, mostly old units with cargo 0/0, very few veteran scraps (only 1 with XP >= 7), and no obvious weaker-AI result at a glance. (ChatGPT-5.5 + GPT-5.5) -->
++			if (getCargo() > 0 || cargoSpace() > 0)
++			{
++				return false;
++			}
++			if (!bSAS_CAN_SCRAP_OBSOLETE_TECH || eObsoleteTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
++			{
++				return false;
++			}
++			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE");
++			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS");
++			static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
++			int const iObsoleteEra = GC.getInfo(eObsoleteTech).getEra();
++			int const iObsoleteEraDelay = (iObsoleteEra >= eERA_RENAISSANCE ? iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS : iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE);
++			if (GET_PLAYER(getOwner()).getCurrentEra() < iObsoleteEra + iObsoleteEraDelay)
++			{
++				return false;
++			}
++		}
+ 		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+ 		{
+ 			// <!-- custom: keep direct getDomainType() checks here. We had compile errors when testing era enums/cases (`ERA_ANCIENT` etc. undeclared / case expression not constant), so for safety we also avoid domain-enum caching here for now; the extra cost is tiny anyway. (GPT-5.3-Codex) -->
+@@ -3719,6 +3749,17 @@ void CvUnit::scrap()
+ {
+ 	if (!canScrap())
+ 		return;
++	if (gUnitLogLevel > 2 && !isHuman())
++	{
++		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++		CvWString szAITypeString;
++		getUnitAIString(szAITypeString, AI_getUnitAIType());
++		// <!-- custom: Central actual-scrap event log. Caller logs are decision/context lines and can repeat; this line fires once per successful CvUnit::scrap() call before kill(), with stable unit id and turn fields so long logs can be deduplicated reliably. (ChatGPT-5.5 + GPT-5.5) -->
++		logBBAI("    SCRAP_EVENT turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) area=%d age=%d exp=%d cargo=%d/%d totalUnitsBefore=%d unitCostPerMil=%d goldRate=%d gold=%d",
++			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getUnitType(), szAITypeString.GetCString(), getName(0).GetCString(),
++			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
++			kOwner.getNumUnits(), kOwner.AI_unitCostPerMil(), kOwner.calculateGoldRate(), kOwner.getGold());
++	}
+ 	kill(true);
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 622a0748b..791387a6d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -273,11 +273,13 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ #### Units (Common) (AI)
+ 
+-- **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago, etc.) **don’t restrict naval quotas** — sea control can decide wars (e.g., a frigate that sinks transports before they land can neutralize a four-unit invasion) and supports diverse strategies; on **land-heavy** maps (pangaea/continents) set naval quotas **much lower**. In war/danger, naval production quotas drop (sometimes to **0**), but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the "naval dementia" case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers) (complements [KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)). **Guardrail impact:** likely also covers hidden loops such as the **workboat infinite loop**; see [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late).
+-- **Exception: Allow scrapping** for units that have an `ObsoleteTech`: they are less efficient to keep. **Gated strictly** by **domain/era:** (e.g., an archer is not useful at medieval era, but a knight unit is still useful at industrial era). These are **raw XML-cost gates** (no game-speed scaling). Also added a naval exception: **sea units carrying cargo are never scrapped** (e.g., a galley is still useful to transport units).
+-- **Scrapping safeguards**: added pre-checks to stop scrapping **useful units**—**all land military units are protected**, and **no unit can be scrapped before turn 150**. Fixes early "produce then scrap" cases (e.g., macemen) and keeps forces on the map vs. barbarians/rivals (**no economy check**). See **[KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)**.
+-- Add **scrap tolerance beyond unit support costs**: we expect to lose a few units during war; having a few **extra units** helps us not become weaker than our rivals; overshooting may lead to bankruptcy. Formula: `mult * (era + 1) + add` extra units.
+-- Heavily increase the importance of **XML Unit Cost (Hammers)** (reliable reflection of a unit's overall strength: e.g. A 4 Strength Trebuchet at 80 Hammers Cost is stronger than a 5 Strength Axeman at 35 Hammers) when deciding which unit to scrap first, and **reduce the importance of experience**: A 0 XP swordsman is more valuable than a 10 XP we will likely never upgrade. Also **account for map heaviness** (e.g. prioritize scrapping land units on archipelago, or galleys on pangea). Change in `CvPlayerAI::AI_disbandValue`.
++- (Requires AdvCiv-SAS 5945+) Old default scrapping mode: **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago, etc.) **don’t restrict naval quotas** — sea control can decide wars (e.g., a frigate that sinks transports before they land can neutralize a four-unit invasion) and supports diverse strategies; on **land-heavy** maps (pangaea/continents) set naval quotas **much lower**. In war/danger, naval production quotas drop (sometimes to **0**), but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the "naval dementia" case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers) (complements [KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)). **Guardrail impact:** likely also covers hidden loops such as the **workboat infinite loop**; see [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late).
++- (Requires AdvCiv-SAS 5945+) Old default scrapping mode: **Exception: Allow scrapping** for units that have an `ObsoleteTech`: they are less efficient to keep. **Gated strictly** by **domain/era:** (e.g., an archer is not useful at medieval era, but a knight unit is still useful at industrial era). These are **raw XML-cost gates** (no game-speed scaling). Also added a naval exception: **sea units carrying cargo are never scrapped** (e.g., a galley is still useful to transport units).
++- (Requires AdvCiv-SAS 5945+) Old default scrapping mode: **Scrapping safeguards**: added pre-checks to stop scrapping **useful units**—**all land military units are protected**, and **no unit can be scrapped before turn 150**. Fixes early "produce then scrap" cases (e.g., macemen) and keeps forces on the map vs. barbarians/rivals (**no economy check**). See **[KI#52](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)**.
++- (Requires AdvCiv-SAS 5945+) Old default scrapping mode: Add **scrap tolerance beyond unit support costs**: we expect to lose a few units during war; having a few **extra units** helps us not become weaker than our rivals; overshooting may lead to bankruptcy. Formula: `mult * (era + 1) + add` extra units.
++- (Requires AdvCiv-SAS 5945+) Old default scrapping mode: Heavily increase the importance of **XML Unit Cost (Hammers)** (reliable reflection of a unit's overall strength: e.g. A 4 Strength Trebuchet at 80 Hammers Cost is stronger than a 5 Strength Axeman at 35 Hammers) when deciding which unit to scrap first, and **reduce the importance of experience**: A 0 XP swordsman is more valuable than a 10 XP we will likely never upgrade. Also **account for map heaviness** (e.g. prioritize scrapping land units on archipelago, or galleys on pangea). Change in `CvPlayerAI::AI_disbandValue`.
++- (Requires AdvCiv-SAS 5945+) **AI scrapping update:** added an optional (as of now disabled) absolute XML kill switch to disable all AI scrapping for testing or preference. This is separate from the normal scrapping optimization toggle, so disabling optimization does not accidentally restore old broad scrapping.
++- (Requires AdvCiv-SAS 5945+) **AI scrapping update (as of now gates the old default scrapping rules):** block all AI scrapping, **except for units that have been obsolete for one or a few eras**. Example: as of now Axemen obsolete at Civil Service can still be useful through Medieval, but can be scrapped from Renaissance; Knights obsolete in Renaissance can remain useful through Renaissance, but can be scrapped from Industrial. **Cargo-capable units are still kept**, and obsolete candidates **still pass through** the existing XML-cost/domain gates. The rationale is that only very outdated units are no longer useful enough to justify their clutter or upkeep; until then, keeping units is usually better than short-term financial relief from scrapping, because they can defend cities, deter attacks, pressure rivals, or be spent in war. War can also reduce excess units naturally, and successful captures can increase unit support, economy, and long-term growth more than deleting troops would. So this strict-but-not-absolute new scrapping gate is believed to be stronger for AI (at least in theory; in autoplay it does not seem weaker at a glance and based on the now enhanced BBAI logging we added as well).
+ 
+ #### Military (AI)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=28246

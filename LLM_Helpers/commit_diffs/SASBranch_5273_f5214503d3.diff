@@ -1,0 +1,291 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5273
+# Commit: f5214503d3344c43ce6c06a58ea11fc81db6b1ea
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d510e08afa750d09daec822c466e7674c07c5fea
+# Title: further beautify the victory screen 3
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+76	32	Assets/Python/Screens/CvVictoryScreen.py
+8	0	Assets/XML/Text/CIV4GameText_Custom.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index cc728a2ca..8481f6ce4 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -91,12 +91,14 @@ class CvVictoryScreen:
+ 		self.W_AREA = 1010
+ 		self.H_AREA = 650
+ 
+-		self.TABLE_WIDTH_0 = 350
++		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
++		someWRoomForCulturePercentages = 27
++		self.TABLE_WIDTH_0 = 350 - (2 * someWRoomForCulturePercentages)
+ 		self.TABLE_WIDTH_1 = 80
+ 		self.TABLE_WIDTH_2 = 180
+-		self.TABLE_WIDTH_3 = 100
++		self.TABLE_WIDTH_3 = 100 + someWRoomForCulturePercentages
+ 		self.TABLE_WIDTH_4 = 180
+-		self.TABLE_WIDTH_5 = 100
++		self.TABLE_WIDTH_5 = 100 + someWRoomForCulturePercentages
+ 
+ 		self.TABLE2_WIDTH_0 = 740
+ 		self.TABLE2_WIDTH_1 = 265
+@@ -150,6 +152,34 @@ class CvVictoryScreen:
+ 
+ 		# <!-- custom: leader icon size for inline display, based on AdvCiv-SAS's approach in the Info Screen (claude opus 4.5). -->
+ 		self.iLeaderIconSize = 24
++		self.iEmojiAsIconIconSize = 16
++
++		# <!-- custom: language tracking for initText, based on Info Screen pattern (claude opus 4.5) -->
++		self.iLanguageLoaded = -1
++
++	# <!-- custom: initialize text and image tags once for performance, based on Info Screen pattern (claude opus 4.5) -->
++	def initText(self):
++		# only execute this function once per language...
++		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
++			return
++		self.iLanguageLoaded = CyGame().getCurrentLanguage()
++
++		# <!-- custom: precompute trophy icon for Highest Score row (claude opus 4.5) -->
++		szTrophyIconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))
++		self.szTrophyImgTag = u"<img=%s size=%d></img>" % (szTrophyIconPath, self.iEmojiAsIconIconSize)
++
++		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->
++		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
++
++	# <!-- custom: helper function to format numbers with thousand separators, based on Info Screen pattern (claude opus 4.5) -->
++	def separateThousands(self, iValue):
++		szSep = self.szSepBase
++		s = '%d' % iValue
++		groups = []
++		while s and s[-1].isdigit():
++			groups.append(s[-3:])
++			s = s[:-3]
++		return s + szSep.join(reversed(groups))
+ 
+ 	# <!-- custom: helper function to get leader icon image tag for a player (claude opus 4.5) -->
+ 	def getLeaderIconTag(self, iPlayer):
+@@ -190,6 +220,9 @@ class CvVictoryScreen:
+ 
+ 	def interfaceScreen(self):
+ 
++		# <!-- custom: initialize text once for performance (claude opus 4.5) -->
++		self.initText()
++
+ 		# Create a new screen
+ 		screen = self.getScreen()
+ 		if screen.isActive():
+@@ -1455,10 +1488,12 @@ class CvVictoryScreen:
+ 
+ 					iRow = screen.appendTableRow(szTable)
+ 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (gc.getGame().getTargetScore(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+ 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
++					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestScoreTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1468,7 +1503,8 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
+ 						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						screen.setTableText(szTable, 5, iRow, (u"%d" % bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
++						screen.setTableText(szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+@@ -1477,11 +1513,14 @@ class CvVictoryScreen:
+ 					szText1 = localText.getText("TXT_KEY_VICTORY_SCREEN_HIGHEST_SCORE", (CyGameTextMgr().getTimeStr(gc.getGame().getStartTurn() + gc.getGame().getMaxTurns(), False), ))
+ 
+ 					iRow = screen.appendTableRow(szTable)
+-					screen.setTableText(szTable, 0, iRow, szText1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					# <!-- custom: add trophy icon to Highest Score row (claude opus 4.5) -->
++					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
++					screen.setTableText(szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+ 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
++					screen.setTableText(szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestScoreTeam != -1):
+ 						# <!-- custom: add leader icon (claude opus 4.5) -->
+@@ -1491,14 +1530,21 @@ class CvVictoryScreen:
+ 						if iBestPlayer >= 0:
+ 							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
+ 						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-						screen.setTableText(szTable, 5, iRow, (u"%d" % bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
++						screen.setTableText(szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+ 
+ 				if (victory.isConquest()):
+ 					iRow = screen.appendTableRow(szTable)
+-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++					# <!-- custom: add strength icon to Conquest row (claude opus 4.5) -->
++					iStrengthIcon = CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
++					szConquestText = u"%c %s" % (iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
++					screen.setTableText(szTable, 0, iRow, szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_RIVALS_LEFT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					screen.setTableText(szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					bEntriesFound = True
+ # BUG Additions Start
+@@ -1851,24 +1897,23 @@ class CvVictoryScreen:
+ 					# <advc.126>
+ 					eVictoryLevel = victory.getCityCulture()
+ 					iCultureThresh = gc.getGame().getCultureThreshold(eVictoryLevel)
+-					szCultureVictoryText = localText.getText("TXT_KEY_VICTORY_SCREEN_CITY_CULTURE", (victory.getNumCultureCities(), gc.getCultureLevelInfo(eVictoryLevel).getTextKey(), iCultureThresh)) # </advc.126>
++					# <!-- custom: add culture icon before text and use thousand separator (claude opus 4.5) -->
++					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
++					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
++					iCultureIcon = gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
++					szCultureVictoryText = u"%c %d %s (%s)" % (iCultureIcon, victory.getNumCultureCities(), localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ()), self.separateThousands(iCultureThresh))
+ 					screen.setTableText(szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					for i in range(victory.getNumCultureCities()):
+ 						if (len(ourBestCities) > i):
+ 							screen.setTableText(szTable, 2, iRow, ourBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions Start
+-							if AdvisorOpt.isVictories():
+-								if ourBestCities[i][2] == -1:
+-									sString = "%i (-)" % (ourBestCities[i][0])
+-								elif ourBestCities[i][2] > 100:
+-									sString = "%i (100+)" % (ourBestCities[i][0])
+-								elif ourBestCities[i][2] < 1:
+-									sString = "%i (L)" % (ourBestCities[i][0])
+-								else:
+-									sString = "%i (%i)" % (ourBestCities[i][0], ourBestCities[i][2])
+-							else:
+-								sString = "%i" % (ourBestCities[i][0])
++							# <!-- custom: add thousand separator and percentage to culture values (claude opus 4.5) -->
++							iCultureValue = ourBestCities[i][0]
++							fCulturePercent = 0.0
++							if iCultureThresh > 0:
++								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
++							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
+ 
+ 							screen.setTableText(szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions End
+@@ -1877,17 +1922,16 @@ class CvVictoryScreen:
+ 							screen.setTableText(szTable, 4, iRow, theirBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ # BUG Additions Start
+-							if AdvisorOpt.isVictories():
+-								if theirBestCities[i][2] == -1:
+-									sString = "%i (-)" % (theirBestCities[i][0])
+-								elif theirBestCities[i][2] > 100:
+-									sString = "%i (100+)" % (theirBestCities[i][0])
+-								elif theirBestCities[i][2] < 1:
+-									sString = "%i (L)" % (theirBestCities[i][0])
+-								else:
+-									sString = "%i (%i)" % (theirBestCities[i][0], theirBestCities[i][2])
+-							else:
+-								sString = "%i" % (theirBestCities[i][0])
++							# <!-- custom: add thousand separator and percentage to rival culture values (claude opus 4.5) -->
++							# Original BUG Code Explanation
++							# The original code used theirBestCities[i][2] which was a turns to legendary estimate. So the original showed: 26018 (15) meaning "26,018 culture, 15 turns to legendary".
++							# Our New Code
++							# We replaced it with a percentage of threshold instead. So now it shows: 26,018 (57.82%) meaning "26,018 culture, 57.82% of the 45,000 needed"
++							iCultureValue = theirBestCities[i][0]
++							fCulturePercent = 0.0
++							if iCultureThresh > 0:
++								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
++							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
+ 
+ 							screen.setTableText(szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ # BUG Additions End
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index add8a7407..7a82ce0a0 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -292,6 +292,14 @@
+ 
+ 
+ 
++	<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
++	<TEXT>
++		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
++		<English>Legendary cities</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 78a8da3fa..7ee3b7b0c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -122,7 +122,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+-- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.).
++- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 92fdd74f6..32980eec2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+-- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.).
++- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+index f7229912c..6ad0c9eec 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+index 3ba523830..c8a4729a9 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG
+index 93a6a2840..ea184a1fa 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG
+index e8f62f68e..318c557b2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=25427

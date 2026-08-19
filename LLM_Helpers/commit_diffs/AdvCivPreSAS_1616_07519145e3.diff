@@ -1,0 +1,396 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1616
+# Commit: 07519145e34c9419633d643095e5bd917077b113
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 490871f5b31101a0f6a72c51680c2b0d655489f7
+# Title: Enabled jom for Debug and Profile builds
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	8	CvGameCoreDLL/Project/AdvCiv.sln
+64	62	CvGameCoreDLL/Project/AdvCiv.vcxproj
+15	11	CvGameCoreDLL/Project/Makefile
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.sln b/CvGameCoreDLL/Project/AdvCiv.sln
+index 3580984df..1d48f45c4 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.sln
++++ b/CvGameCoreDLL/Project/AdvCiv.sln
+@@ -1,34 +1,33 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-# Visual Studio 15
+-VisualStudioVersion = 15.0.28010.2036
++# Visual C++ Express 2010
+ MinimumVisualStudioVersion = 10.0.40219.1
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AdvCiv", "AdvCiv.vcxproj", "{3021AF0E-699D-4232-86F6-FC374A0C9957}"
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+-		Assert|Win32 = Assert|Win32
+ 		Assert-fast|Win32 = Assert-fast|Win32
+ 		Debug|Win32 = Debug|Win32
++		Debug-fast|Win32 = Debug-fast|Win32
+ 		DebugMem|Win32 = DebugMem|Win32
+ 		Final_Release-fast|Win32 = Final_Release-fast|Win32
+-		Profile|Win32 = Profile|Win32
++		Profile-fast|Win32 = Profile-fast|Win32
+ 		Release|Win32 = Release|Win32
+ 		Release-fast|Win32 = Release-fast|Win32
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+-		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert|Win32.ActiveCfg = Assert|Win32
+-		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert|Win32.Build.0 = Assert|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert-fast|Win32.ActiveCfg = Assert-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Assert-fast|Win32.Build.0 = Assert-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.ActiveCfg = Debug|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug|Win32.Build.0 = Debug|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug-fast|Win32.ActiveCfg = Debug-fast|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Debug-fast|Win32.Build.0 = Debug-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.DebugMem|Win32.ActiveCfg = DebugMem|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.DebugMem|Win32.Build.0 = DebugMem|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.ActiveCfg = Final_Release-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Final_Release-fast|Win32.Build.0 = Final_Release-fast|Win32
+-		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.ActiveCfg = Profile|Win32
+-		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile|Win32.Build.0 = Profile|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile-fast|Win32.ActiveCfg = Profile-fast|Win32
++		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Profile-fast|Win32.Build.0 = Profile-fast|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release|Win32.ActiveCfg = Release|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release|Win32.Build.0 = Release|Win32
+ 		{3021AF0E-699D-4232-86F6-FC374A0C9957}.Release-fast|Win32.ActiveCfg = Release-fast|Win32
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 23221981f..a22eb2ec7 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -5,20 +5,20 @@
+       <Configuration>Assert-fast</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
+-    <ProjectConfiguration Include="Assert|Win32">
+-      <Configuration>Assert</Configuration>
+-      <Platform>Win32</Platform>
+-    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
+-	<ProjectConfiguration Include="DebugMem|Win32">
++    <ProjectConfiguration Include="DebugMem|Win32">
+       <Configuration>DebugMem</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
+-    <ProjectConfiguration Include="Profile|Win32">
+-      <Configuration>Profile</Configuration>
++    <ProjectConfiguration Include="Profile-fast|Win32">
++      <Configuration>Profile-fast</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++	<ProjectConfiguration Include="Debug-fast|Win32">
++      <Configuration>Debug-fast</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
+     <ProjectConfiguration Include="Release-fast|Win32">
+@@ -149,7 +149,7 @@
+     <ClCompile Include="..\RiseFall.cpp" />
+     <ClCompile Include="..\Shelf.cpp" />
+     <ClCompile Include="..\StartPointsAsHandicap.cpp" />
+-    <ClInclude Include="..\WarAndPeaceAgent.cpp" />
++    <ClCompile Include="..\WarAndPeaceAgent.cpp" />
+     <ClCompile Include="..\WarAndPeaceAI.cpp" />
+     <ClCompile Include="..\WarAndPeaceCache.cpp" />
+     <ClCompile Include="..\WarAndPeaceReport.cpp" />
+@@ -301,19 +301,18 @@
+     <ConfigurationType>Makefile</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
+-    <ConfigurationType>Makefile</ConfigurationType>
+-    <UseDebugLibraries>true</UseDebugLibraries>
+-  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>Makefile</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <CLRSupport>true</CLRSupport>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'" Label="Configuration">
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile-fast|Win32'" Label="Configuration">
+     <ConfigurationType>Makefile</ConfigurationType>
+-    <UseDebugLibraries>false</UseDebugLibraries>
+-    <CLRSupport>true</CLRSupport>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-fast|Win32'" Label="Configuration">
++    <ConfigurationType>Makefile</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'" Label="Configuration">
+     <ConfigurationType>Makefile</ConfigurationType>
+@@ -339,19 +338,19 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="PropertySheets">
++  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'" Label="PropertySheets">
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile-fast|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'" Label="PropertySheets">
++  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug-fast|Win32'">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'" Label="PropertySheets">
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final_Release-fast|Win32'" Label="PropertySheets">
+@@ -363,14 +362,14 @@
+     <NMakeBuildCommandLine>set TARGET=Debug
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake dll  /NOLOGO</NMakeBuildCommandLine>
++nmake dll /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Debug
+-nmake clean  /NOLOGO
++nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Debug
+-nmake clean  /NOLOGO</NMakeCleanCommandLine>
++nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'">
+@@ -378,31 +377,16 @@ nmake clean  /NOLOGO</NMakeCleanCommandLine>
+     <NMakeBuildCommandLine>set TARGET=DebugMem
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake dll  /NOLOGO</NMakeBuildCommandLine>
++nmake dll /NOLOGO</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=DebugMem
+-nmake clean  /NOLOGO
++nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=DebugMem
+-nmake clean  /NOLOGO</NMakeCleanCommandLine>
++nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE /D_CODE_EDITOR</AdditionalOptions>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+-    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+-    <NMakeBuildCommandLine>set TARGET=Profile
+-nmake source_list /NOLOGO
+-nmake fastdep /NOLOGO
+-nmake dll /NOLOGO</NMakeBuildCommandLine>
+-    <NMakeReBuildCommandLine>set TARGET=Profile
+-nmake clean /NOLOGO
+-nmake source_list /NOLOGO
+-nmake fastdep /NOLOGO
+-nmake dll /NOLOGO</NMakeReBuildCommandLine>
+-    <NMakeCleanCommandLine>set TARGET=Profile
+-nmake clean  /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+-  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+     <NMakeBuildCommandLine>set TARGET=Release
+@@ -418,67 +402,86 @@ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'">
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+     <NMakeBuildCommandLine>set TARGET=Assert
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake dll /NOLOGO</NMakeBuildCommandLine>
++nmake precompile /NOLOGO
++bin\jom build</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Assert
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake dll /NOLOGO</NMakeReBuildCommandLine>
++nmake precompile /NOLOGO
++bin\jom build</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Assert
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'">
+-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+-    <NMakeBuildCommandLine>set TARGET=Release
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile-fast|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Profile
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake precompile  /NOLOGO
++nmake precompile /NOLOGO
+ bin\jom build</NMakeBuildCommandLine>
+-    <NMakeReBuildCommandLine>set TARGET=Release
++    <NMakeReBuildCommandLine>set TARGET=Profile
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake precompile  /NOLOGO
++nmake precompile /NOLOGO
+ bin\jom build</NMakeReBuildCommandLine>
+-    <NMakeCleanCommandLine>set TARGET=Release
++    <NMakeCleanCommandLine>set TARGET=Profile
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'">
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-fast|Win32'">
++    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
++    <NMakeBuildCommandLine>set TARGET=Debug
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile /NOLOGO
++bin\jom build</NMakeBuildCommandLine>
++    <NMakeReBuildCommandLine>set TARGET=Debug
++nmake clean /NOLOGO
++nmake source_list /NOLOGO
++nmake fastdep /NOLOGO
++nmake precompile /NOLOGO
++bin\jom build</NMakeReBuildCommandLine>
++    <NMakeCleanCommandLine>set TARGET=Debug
++nmake clean /NOLOGO</NMakeCleanCommandLine>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+-    <NMakeBuildCommandLine>set TARGET=Assert
++    <NMakeBuildCommandLine>set TARGET=Release
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake precompile  /NOLOGO
++nmake precompile /NOLOGO
+ bin\jom build</NMakeBuildCommandLine>
+-    <NMakeReBuildCommandLine>set TARGET=Assert
+-nmake clean  /NOLOGO
++    <NMakeReBuildCommandLine>set TARGET=Release
++nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake precompile  /NOLOGO
++nmake precompile /NOLOGO
+ bin\jom build</NMakeReBuildCommandLine>
+-    <NMakeCleanCommandLine>set TARGET=Assert
++    <NMakeCleanCommandLine>set TARGET=Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final_Release-fast|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+     <NMakeBuildCommandLine>set TARGET=Final_Release
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake precompile  /NOLOGO
++nmake precompile /NOLOGO
+ bin\jom build</NMakeBuildCommandLine>
+     <NMakeReBuildCommandLine>set TARGET=Final_Release
+ nmake clean /NOLOGO
+ nmake source_list /NOLOGO
+ nmake fastdep /NOLOGO
+-nmake precompile  /NOLOGO
++nmake precompile /NOLOGO
+ bin\jom build</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Final_Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+@@ -488,7 +491,6 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+     <LocalDebuggerEnvironment>_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
+     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+   </PropertyGroup>
+-
+   <ItemDefinitionGroup>
+   </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 676686a71..97a7bfa87 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -9,13 +9,23 @@
+ ####  Copyright 2010 Danny Daemonic  ####
+ #########################################
+ 
+-# advc: Target 'DebugMem' added: an almost-Release build that is less likely than a
+-# Debug build to obscure accesses to uninitialized memory.
++# advc (2019):
++# Enabled parallel builds (jom) for the Profile configuration
++#   (now called "Profile-fast") and added a configuration Debug-fast. Both use
++#   precompiled headers through the Z7 option as recommended by billw2015.
++# Target 'DebugMem' added: an almost-Release build that is less likely than a
++#   Debug build to obscure accesses to uninitialized memory.
++# Removed the non-fast Assert configuration. [Parallel builds can make it
++#   difficult to associate error messages with a translation unit; but don't need
++#   a slow version of every config.]
+ # YOURMOD2 and YOURLOGS (see under "Paths").
+ # Internal profiler enabled (FP_PROFILE_ENABLE, USE_INTERNAL_PROFILER).
+ # CvGameCoreDLL.rc used only for final release.
+ # Removed unused /DCVGAMECOREDLL_EXPORTS from Debug_DEFINES
+-# devolution (Erik) has added the target 'Final_Release' with additional optimizations.
++# devolution (Erik) has added the target 'Final_Release' with
++#   additional optimizations. [There is also a Firaxis define called
++#   FINAL_RELEASE, which merely disables the OutputDebugString function from
++#   debugapi.h. That's used for all non-debug builds.]
+ 
+ ## User setup
+ ##
+@@ -169,7 +179,7 @@ FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
+ 
+ #### CFLAGS ####
+ GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
+-Debug_CFLAGS=/MD /Zi /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
++Debug_CFLAGS=/MD /Z7 /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
+ # (DebugMem: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
+ DebugMem_CFLAGS=/MD /O2 /Zi /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Release_CFLAGS= /MD /O2 /Oy /Oi /G7 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+@@ -215,9 +225,6 @@ LIBS = $(PROJECT_LIBS) $(GLOBAL_LIBS)
+ 
+ 
+ !IF "$(TARGET)" == "Debug"
+-!IFNDEF _NMAKE_VER
+-!ERROR Jom can't be used on Debug builds
+-!ENDIF
+ CFLAGS  = $(Debug_CFLAGS)
+ LDFLAGS = $(Debug_LDFLAGS)
+ LIBS    = $(LIBS) msvcprt.lib
+@@ -237,10 +244,7 @@ CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE
+ LDFLAGS = $(Release_LDFLAGS)
+ !ENDIF
+ !IF "$(TARGET)" == "Profile"
+-!IFNDEF _NMAKE_VER
+-!ERROR Jom can't be used on profile builds
+-!ENDIF
+-CFLAGS  = $(Release_CFLAGS) /Zi /DFP_PROFILE_ENABLE /DUSE_INTERNAL_PROFILER
++CFLAGS  = $(Release_CFLAGS) /Z7 /DFP_PROFILE_ENABLE /DUSE_INTERNAL_PROFILER
+ LDFLAGS = $(Debug_LDFLAGS)
+ !ENDIF
+ !IF "$(TARGET)" == "Final_Release"
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=19037

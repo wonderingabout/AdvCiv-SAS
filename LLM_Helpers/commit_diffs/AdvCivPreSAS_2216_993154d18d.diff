@@ -1,0 +1,2050 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2216
+# Commit: 993154d18dfda739e23179dbb2d314d991d54bea
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fc9634dd0525e58969dd26cbcdc97b76d71d51f4
+# Title: Add "isAny..." wrappers for TargetMissionAIs functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	28	CvGameCoreDLL/CvCityAI.cpp
+4	4	CvGameCoreDLL/CvGameTextMgr.cpp
+4	9	CvGameCoreDLL/CvInfo_Civics.cpp
+2	2	CvGameCoreDLL/CvInfo_Civics.h
+9	6	CvGameCoreDLL/CvPlayer.cpp
+77	72	CvGameCoreDLL/CvPlayerAI.cpp
+69	16	CvGameCoreDLL/CvPlayerAI.h
+4	5	CvGameCoreDLL/CvTeamAI.cpp
+192	158	CvGameCoreDLL/CvUnitAI.cpp
+6	2	CvGameCoreDLL/CvVirtualWrappers.cpp
+26	17	CvGameCoreDLL/KmodPathFinder.cpp
+11	5	CvGameCoreDLL/KmodPathFinder.h
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ad2123011..30518a488 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -498,7 +498,7 @@ void CvCityAI::AI_chooseProduction()
+ 		bMaybeWaterArea = true;
+ 		if (!kTeam.AI_isWaterAreaRelevant(*pWaterArea))
+ 			pWaterArea = NULL;
+-		bWaterDanger = kPlayer.AI_getWaterDanger(plot(), 4) > 0;
++		bWaterDanger = kPlayer.AI_isAnyWaterDanger(plot(), 4);
+ 	}
+ 	// advc: Some old and unused code deleted
+ 	bool bLandWar = kPlayer.AI_isLandWar(kArea); // K-Mod
+@@ -1438,8 +1438,8 @@ void CvCityAI::AI_chooseProduction()
+ 	// K-Mod.. take into account any defenders that are on their way. (recall that in AI_guardCityMinDefender, defenders can be shuffled around)
+ 	// (I'm doing the min defender check twice for efficiency - so that we don't count targetmissionAIs when we don't need to)
+ 	if (!bSpendingExempt &&
+-			iPlotCityDefenderCount < iMinDefenders &&
+-			iPlotCityDefenderCount < iMinDefenders - kPlayer.AI_plotTargetMissionAIs(plot(), MISSIONAI_GUARD_CITY))
++		iPlotCityDefenderCount < iMinDefenders &&
++		iPlotCityDefenderCount < iMinDefenders - kPlayer.AI_plotTargetMissionAIs(getPlot(), MISSIONAI_GUARD_CITY))
+ 	// K-Mod end
+ 	{
+ 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+@@ -3562,7 +3562,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // dlph.16
+-	CvGame const& g = GC.getGame();
++	CvGame const& kGame = GC.getGame();
+ 	int const iOwnerEra = kOwner.getCurrentEra();
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
+@@ -3651,7 +3651,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	bool bHighProductionCity = (findBaseYieldRateRank(YIELD_PRODUCTION) <= std::max(3, iNumCities / 2));
+ 
+ 	int iCultureRank = findCommerceRateRank(COMMERCE_CULTURE);
+-	int iCulturalVictoryNumCultureCities = g.culturalVictoryNumCultureCities();
++	int iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
+ 
+ 	bool bFinancialTrouble = kOwner.AI_isFinancialTrouble();
+ 
+@@ -3839,7 +3839,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			// If the GW threshold has been reached,
+ 			// add some additional value for pollution reduction
+ 			// Note. health benefits have already been evaluated
+-			if (iBad < 0 && g.getGlobalWarmingIndex() > 0)
++			if (iBad < 0 && kGame.getGlobalWarmingIndex() > 0)
+ 			{
+ 				int iCleanValue = -2*iBad;
+ 
+@@ -4086,7 +4086,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				// advc.001n: AI_getNumAreaCitySites might cache FoundValue
+ 				&& !bConstCache)
+ 			{	// <advc.310>
+-				int iGameEra = g.getCurrentEra();
++				int iGameEra = kGame.getCurrentEra();
+ 				/*  A check for GAMEOPTION_NO_BARBARIANS is unnecessary
+ 					b/c the Great Wall ability is then disabled via CvInfos. */
+ 				if(!GC.getInfo((EraTypes)iGameEra).isNoBarbUnits() ||
+@@ -4094,7 +4094,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				{	//  Available city sites should correlate with nearby barb activity.
+ 					int foo=-1;
+ 					int iAreaCitySites = kOwner.AI_getNumAreaCitySites(getArea(), foo);
+-					if(g.isOption(GAMEOPTION_RAGING_BARBARIANS))
++					if(kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
+ 						iAreaCitySites *= 2;
+ 					iValue += 6 * iAreaCitySites;
+ 					// BBAI code:
+@@ -4129,7 +4129,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 						(BonusTypes)kBuilding.getFreeBonus()) == 0) ? 2 : 1) *
+ 						(iNumCities + //kBuilding.getNumFreeBonuses()
+ 						// advc.001: Based on the Mongoose Mod changelog (15 Feb 2013)
+-						g.getNumFreeBonuses(eBuilding));
++						kGame.getNumFreeBonuses(eBuilding));
+ 			}
+ 
+ 			if (kBuilding.getNoBonus() != NO_BONUS)
+@@ -4635,8 +4635,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 							kOwner.getID(), eStateReligion, aeReligionBuildings);
+ 					double tempValue = ourBuildings;
+ 					double rivalFactor = 1.5 * std::sqrt((double)
+-							g.countCivPlayersAlive());
+-					int const iEverAlive = g.getCivPlayersEverAlive();
++							kGame.countCivPlayersAlive());
++					int const iEverAlive = kGame.getCivPlayersEverAlive();
+ 					for (PlayerIter<CIV_ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
+ 					{
+ 						CvPlayer const& kBrother = *it; // Brothers in the faith
+@@ -4656,8 +4656,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 							}
+ 							else eTowardThem = kOwner.AI_getAttitude(kBrother.getID());
+ 						}
+-						bool bTheyAhead = (g.getPlayerRank(kBrother.getID()) <
+-								std::min(g.getPlayerRank(kOwner.getID()),
++						bool bTheyAhead = (kGame.getPlayerRank(kBrother.getID()) <
++								std::min(kGame.getPlayerRank(kOwner.getID()),
+ 								iEverAlive / 2));
+ 						// Don't care if they benefit from ReligionYield then
+ 						if(!bTheyAhead && eTowardThem <= ATTITUDE_CAUTIOUS &&
+@@ -4691,11 +4691,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			} // </advc.179>
+ 			// BETTER_BTS_AI_MOD, City AI, Victory Strategy AI, 05/24/10, jdog5000: START
+ 			FOR_EACH_ENUM2(VoteSource, eVS)
+-			{
+-				if (!g.isDiploVote(eVS) || !kOwner.isLoyalMember(eVS))  // advc: misc. style changes in this block
++			{	// advc: some refactoring in this block
++				if (!kGame.isDiploVote(eVS) || !kOwner.isLoyalMember(eVS))
+ 					continue;
+ 				// Value religion buildings based on AP gains
+-				ReligionTypes eReligion = g.getVoteSourceReligion(eVS);
++				ReligionTypes eReligion = kGame.getVoteSourceReligion(eVS);
+ 				if (eReligion != NO_RELIGION && isHasReligion(eReligion) &&
+ 					kBuilding.getReligionType() == eReligion)
+ 				{	// advc: Renamed "iTempValue" in the two loops below - name clash
+@@ -4998,8 +4998,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					iBaseCommerceRate *= 100 + kOwner.getCapitalYieldRateModifier(YIELD_COMMERCE);
+ 					iBaseCommerceRate /= 100;
+ 				} // Anticipate growth and techs that increase yield
+-				iBaseCommerceRate = ::round(iBaseCommerceRate * std::max(
+-						1.0, 4/3.0 - g.gameTurnProgress() / 2)); // </advc.131>
++				iBaseCommerceRate = (iBaseCommerceRate * scaled::max(1,
++						fixp(4/3.) - scaled::fromDouble(kGame.gameTurnProgress()) / 2)).
++						round(); // </advc.131>
+ 				{ // K-Mod.
+ 					/*  inflate the base commerce rate, to account for the fact
+ 						that commerce multipliers give us flexibility. */
+@@ -5103,7 +5104,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 				// K-Mod. help get the ball rolling on espionage.
+ 				if (eLoopCommerce == COMMERCE_ESPIONAGE && iTempValue > 0 &&
+-					!g.isOption(GAMEOPTION_NO_ESPIONAGE))
++					!kGame.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+ 					// priority += 1% per 1% increase in total espionage, more for big espionage strategy
+ 					iPriorityFactor += std::min(100, (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) ? 150 : 100) *
+@@ -5147,10 +5148,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					if (eStateReligion == (ReligionTypes)(kBuilding.getGlobalReligionCommerce()))
+ 						iTempValue += 10;*/
+ 					// K-Mod
+-					int iExpectedSpread = g.countReligionLevels(eGlobalCommerceReligion);
++					int iExpectedSpread = kGame.countReligionLevels(eGlobalCommerceReligion);
+ 					iExpectedSpread += (GC.getNumEraInfos() - iOwnerEra +
+ 							(eStateReligion == eGlobalCommerceReligion ? 2 : 0)) *
+-							g.getRecommendedPlayers(); // advc.137
++							kGame.getRecommendedPlayers(); // advc.137
+ 							//GC.getInfo(GC.getMap().getWorldSize()).getDefaultPlayers();
+ 					iTempValue += GC.getInfo(eGlobalCommerceReligion).
+ 							getGlobalReligionCommerce(eLoopCommerce) * iExpectedSpread * 4;
+@@ -5268,7 +5269,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 				if (kBuilding.getGlobalCorporationCommerce() != NO_CORPORATION)
+ 				{
+-					iExpectedSpread += g.countCorporationLevels(kBuilding.getGlobalCorporationCommerce());
++					iExpectedSpread += kGame.countCorporationLevels(kBuilding.getGlobalCorporationCommerce());
+ 					if (iExpectedSpread > 0)
+ 					{
+ 						FOR_EACH_ENUM(Commerce)
+@@ -5373,7 +5374,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			{
+ 				int iTempValue = (kBuilding.getCommerceChange(COMMERCE_CULTURE) * 3);
+ 				iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) * 3);
+-				if (g.isOption(GAMEOPTION_NO_ESPIONAGE))
++				if (kGame.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+ 					iTempValue += (kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) * 3);
+ 					iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE) * 3);
+@@ -5389,10 +5390,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				}
+ 
+ 				// K-Mod, this stuff was moved from below
+-				iTempValue += ((kBuilding.getCommerceModifier(COMMERCE_CULTURE) * getBaseCommerceRate(COMMERCE_CULTURE)) / 15);
+-				if (g.isOption(GAMEOPTION_NO_ESPIONAGE))
++				iTempValue += ((kBuilding.getCommerceModifier(COMMERCE_CULTURE) *
++						getBaseCommerceRate(COMMERCE_CULTURE)) / 15);
++				if (kGame.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 				{
+-					iTempValue += ((kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE) * getBaseCommerceRate(COMMERCE_ESPIONAGE)) / 15);
++					iTempValue += ((kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE) *
++							getBaseCommerceRate(COMMERCE_ESPIONAGE)) / 15);
+ 				}
+ 				// K-Mod end
+ 
+@@ -5460,7 +5463,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 			//if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE || (g.isOption(GAMEOPTION_NO_ESPIONAGE) && (iFocusFlags & BUILDINGFOCUS_CULTURE)))
+ 			// K-Mod: the "no espionage" stuff is already taken into account in the culture section.
+-			if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE && !g.isOption(GAMEOPTION_NO_ESPIONAGE))
++			if (iFocusFlags & BUILDINGFOCUS_ESPIONAGE && !kGame.isOption(GAMEOPTION_NO_ESPIONAGE))
+ 			{	// BETTER_BTS_AI_MOD, City AI, 01/09/10, jdog5000: START
+ 				// K-Mod, changed this section.
+ 				int iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE) * getBaseCommerceRate(COMMERCE_ESPIONAGE)) / 50);
+@@ -11358,7 +11361,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 		if (!GET_TEAM(getTeam()).AI_isWaterAreaRelevant(*pWaterArea))
+ 			pWaterArea = NULL;
+ 
+-		bWaterDanger = kPlayer.AI_getWaterDanger(plot(), 4) > 0;
++		bWaterDanger = kPlayer.AI_isAnyWaterDanger(plot(), 4);
+ 	}
+ 
+ 	int iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 6b38ef4db..c4623bd52 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7887,13 +7887,13 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 			} // </advc.912d>
+ 			if (!bPlayerContext ||
+ 				(bValid && // advc.912d: Don't show tech req if disabled by option
+-				!GET_TEAM(GC.getGame().getActiveTeam()).isHasTech(
+-				(TechTypes)(kCivic.getTechPrereq()))))
++				!GET_TEAM(GC.getGame().getActiveTeam()).isHasTech(kCivic.getTechPrereq())))
+ 			{
+ 				if (kCivic.getTechPrereq() != NO_TECH)
+ 				{
+ 					szHelpText.append(NEWLINE);
+-					szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_REQUIRES", GC.getInfo((TechTypes)kCivic.getTechPrereq()).getTextKeyWide()));
++					szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_REQUIRES",
++							GC.getInfo(kCivic.getTechPrereq()).getTextKeyWide()));
+ 				}
+ 			}
+ 		}
+@@ -11596,7 +11596,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 			if(pCity != NULL)
+ 			{
+ 				// Don't mention bonuses that won't happen in this or the next era
+-				TechTypes ePrereqTech = (TechTypes)GC.getInfo(eLoopCivic).getTechPrereq();
++				TechTypes ePrereqTech = GC.getInfo(eLoopCivic).getTechPrereq();
+ 				if(ePrereqTech != NO_TECH &&
+ 					GC.getInfo(ePrereqTech).getEra() - pPlayer->getCurrentEra() > 1)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index e4320d07e..4c6186f2c 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -36,7 +36,7 @@ m_iLargestCityHappiness(0),
+ m_iWarWearinessModifier(0),
+ m_iFreeSpecialist(0),
+ m_iTradeRoutes(0),
+-m_iTechPrereq(NO_TECH),
++m_eTechPrereq(NO_TECH),
+ m_iCivicPercentAnger(0),
+ m_iMaxConscript(0),
+ m_iStateReligionHappiness(0),
+@@ -231,11 +231,6 @@ int CvCivicInfo::getTradeRoutes() const
+ 	return m_iTradeRoutes;
+ }
+ 
+-int CvCivicInfo::getTechPrereq() const
+-{
+-	return m_iTechPrereq;
+-}
+-
+ int CvCivicInfo::getCivicPercentAnger() const
+ {
+ 	return m_iCivicPercentAnger;
+@@ -482,7 +477,7 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iWarWearinessModifier);
+ 	stream->Read(&m_iFreeSpecialist);
+ 	stream->Read(&m_iTradeRoutes);
+-	stream->Read(&m_iTechPrereq);
++	stream->Read(&m_eTechPrereq);
+ 	stream->Read(&m_iCivicPercentAnger);
+ 	stream->Read(&m_iMaxConscript);
+ 	stream->Read(&m_iStateReligionHappiness);
+@@ -587,7 +582,7 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iWarWearinessModifier);
+ 	stream->Write(m_iFreeSpecialist);
+ 	stream->Write(m_iTradeRoutes);
+-	stream->Write(m_iTechPrereq);
++	stream->Write(m_eTechPrereq);
+ 	stream->Write(m_iCivicPercentAnger);
+ 	stream->Write(m_iMaxConscript);
+ 	stream->Write(m_iStateReligionHappiness);
+@@ -633,7 +628,7 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	m_iCivicOptionType = pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "TechPrereq");
+-	m_iTechPrereq = pXML->FindInInfoClass(szTextVal);
++	m_eTechPrereq = (TechTypes)pXML->FindInInfoClass(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(&m_iAnarchyLength, "iAnarchyLength");
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.h b/CvGameCoreDLL/CvInfo_Civics.h
+index f7e3da1de..2ed250c61 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.h
++++ b/CvGameCoreDLL/CvInfo_Civics.h
+@@ -48,7 +48,7 @@ public: // The const functions are exposed to Python except those (to be) added
+ 	int getWarWearinessModifier() const;
+ 	int getFreeSpecialist() const;
+ 	int getTradeRoutes() const;
+-	int getTechPrereq() const;
++	TechTypes getTechPrereq() const { return m_eTechPrereq; } // advc.inl (return type was int)
+ 	int getCivicPercentAnger() const;
+ 	int getMaxConscript() const;
+ 	int getStateReligionHappiness() const;
+@@ -133,7 +133,7 @@ protected:
+ 	int m_iWarWearinessModifier;
+ 	int m_iFreeSpecialist;
+ 	int m_iTradeRoutes;
+-	int m_iTechPrereq;
++	TechTypes m_eTechPrereq;
+ 	int m_iCivicPercentAnger;
+ 	int m_iMaxConscript;
+ 	int m_iStateReligionHappiness;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6bb50a02d..1baa09ff2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6828,7 +6828,7 @@ int CvPlayer::getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) cons
+ 	int iResearchLeft = GET_TEAM(getTeam()).getResearchLeft(eTech);
+ 	if(bOverflow)
+ 		iResearchLeft -= iOverflow;
+-	// <advc.004>
++	// <advc.004x>
+ 	if (iResearchLeft <= 0)
+ 		return 1; // 1/100. getResearchTurnsLeft will round that up.
+ 	// </advc.004x>
+@@ -6990,19 +6990,22 @@ bool CvPlayer::canDoCivics(CivicTypes eCivic) const
+ 		return true;
+ 
+ 	if (!isHasCivicOption((CivicOptionTypes)GC.getInfo(eCivic).getCivicOptionType()) &&
+-			!GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getInfo(eCivic).getTechPrereq()))
++		!GET_TEAM(getTeam()).isHasTech(GC.getInfo(eCivic).getTechPrereq()))
++	{
+ 		return false;
+-
++	}
+ 	if (GC.getPythonCaller()->cannotDoCivicOverride(getID(), eCivic))
+ 		return false;
+ 	// <advc.912d>
+ 	if(GC.getGame().isOption(GAMEOPTION_NO_SLAVERY) && isHuman())
+ 	{
+-		for(int i = 0; i < GC.getNumHurryInfos(); i++)
++		FOR_EACH_ENUM(Hurry)
+ 		{
+-			if(GC.getInfo(eCivic).isHurry(i) &&
+-					GC.getInfo((HurryTypes)i).getProductionPerPopulation() > 0)
++			if(GC.getInfo(eCivic).isHurry(eLoopHurry) &&
++				GC.getInfo(eLoopHurry).getProductionPerPopulation() > 0)
++			{
+ 				return false;
++			}
+ 		}
+ 	} // </advc.912d>
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ab656f924..3a875da25 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3315,9 +3315,11 @@ int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const
+ }*/
+ // BETTER_BTS_AI_MOD: END
+ 
+-int CvPlayerAI::AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves) const  // advc: some style changes
++int CvPlayerAI::AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves,  // advc: some style changes
++	int iMaxCount) const // advc.opt
+ {
+ 	PROFILE_FUNC();
++	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
+ 
+ 	if (iRange == -1)
+ 		iRange = DANGER_RANGE;
+@@ -3346,10 +3348,15 @@ int CvPlayerAI::AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves) co
+ 
+ 			// advc.315: was pLoopUnit->canAttack()
+ 			if (AI_canBeAttackedBy(*pEnemyUnit) && !pEnemyUnit->isInvisible(getTeam(), false))
++			{
+ 				iCount++;
++				// <advc.opt>
++				if (iCount >= iMaxCount)
++					return iMaxCount; // </advc.opt>
++			}
+ 		}
+ 	}
+-	return iCount;
++	return std::min(iCount, iMaxCount); // advc.opt (to be consistent)
+ }
+ 
+ // rewritten for K-Mod
+@@ -5088,8 +5095,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	FOR_EACH_ENUM(Civic)
+ 	{
+ 		CvCivicInfo const& kLoopCivic = GC.getInfo(eLoopCivic);
+-		if (kLoopCivic.getTechPrereq() == eTech
+-			&& !canDoCivics(eLoopCivic)) // k146
++		if (kLoopCivic.getTechPrereq() == eTech &&
++			!canDoCivics(eLoopCivic)) // k146
+ 		{
+ 			CivicTypes eCivic = getCivics((CivicOptionTypes)kLoopCivic.getCivicOptionType());
+ 
+@@ -14114,11 +14121,10 @@ int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot const& kPlot, bool bTestCan
+ 	return iCount;
+ }
+ 
+-
+-int CvPlayerAI::AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
++// advc.003j: Unused since the BtS expansion
++/*int CvPlayerAI::AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
+ {
+ 	PROFILE_FUNC();
+-
+ 	int iCount = 0;
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+ 	{
+@@ -14129,7 +14135,7 @@ int CvPlayerAI::AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup*
+ 			iCount += pLoopSelectionGroup->getNumUnits();
+ 	}
+ 	return iCount;
+-}
++}*/
+ 
+ /*  <advc.171> Cut from AI_missionaryValue b/c I want to add a war-plan check that
+ 	is also needed for CvUnitAI::AI_spreadReligion. Checking the other stuff
+@@ -14541,9 +14547,10 @@ void CvPlayerAI::AI_processNewBuild(BuildTypes eBuild)
+ 
+ 
+ int CvPlayerAI::AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI,
+-	CvSelectionGroup* pSkipSelectionGroup) const
++	CvSelectionGroup* pSkipSelectionGroup, /* advc.opt: */ int iMaxCount) const
+ {
+ 	PROFILE_FUNC();
++	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
+ 
+ 	int iCount = 0;
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+@@ -14557,34 +14564,29 @@ int CvPlayerAI::AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI
+ 			if (pMissionPlot != NULL)
+ 			{
+ 				if (pMissionPlot->isArea(kArea))
++				{
+ 					iCount += pLoopSelectionGroup->getNumUnits();
++					// <advc.opt>
++					if (iCount >= iMaxCount)
++						return iMaxCount; // </advc.opt>
++				}
+ 			}
+ 		}
+ 	}
+-	return iCount;
++	return std::min(iCount, iMaxCount); // advc.opt (to be consistent)
+ }
+ 
+-
+-int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes eMissionAI,
+-	CvSelectionGroup* pSkipSelectionGroup, int iRange) const
+-{
+-	int iClosestTargetRange;
+-	return AI_plotTargetMissionAIs(pPlot, &eMissionAI, 1, iClosestTargetRange, pSkipSelectionGroup, iRange);
+-}
+-
+-int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes eMissionAI,
+-	int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup, int iRange) const
+-{
+-	return AI_plotTargetMissionAIs(pPlot, &eMissionAI, 1, iClosestTargetRange, pSkipSelectionGroup, iRange);
+-}
+-
+-int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes* aeMissionAI,
+-	int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup, int iRange) const  // advc: some style changes
++/*	advc (note): iRange refers to the distance between pPlot and the mission plots
++	of the units that are being counted. 0 (default) means that only units headed
++	for pPlot are counted. */
++int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeMissionAI,
++	int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iRange,
++	int iMaxCount) const  // advc: some style changes
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+-	int iCount = 0;
+-	iClosestTargetRange = MAX_INT;
++	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
+ 
++	int iCount = 0;
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+ 	{
+ 		if (pLoopSelectionGroup == pSkipSelectionGroup)
+@@ -14595,8 +14597,7 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes* aeM
+ 			continue;
+ 
+ 		MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
+-		int iDistance = ::stepDistance(pPlot->getX(), pPlot->getY(),
+-			pMissionPlot->getX(), pMissionPlot->getY());
++		int iDistance = ::stepDistance(&kPlot, pMissionPlot);
+ 
+ 		if (iDistance <= iRange)
+ 		{
+@@ -14606,13 +14607,14 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes* aeM
+ 					aeMissionAI[iMissionAIIndex] == NO_MISSIONAI)
+ 				{
+ 					iCount += pLoopSelectionGroup->getNumUnits();
+-					if (iDistance < iClosestTargetRange)
+-						iClosestTargetRange = iDistance;
++					// <advc.opt>
++					if (iCount >= iMaxCount)
++						return iMaxCount; // </advc.opt>
+ 				}
+ 			}
+ 		}
+ 	}
+-	return iCount;
++	return std::min(iCount, iMaxCount); // advc.opt: (to be consistent)
+ }
+ 
+ // K-Mod
+@@ -14822,7 +14824,8 @@ int CvPlayerAI::AI_cityTargetStrengthByPath(CvCity const* pCity,  // advc: const
+ 	}
+ 	//return iCount;
+ 	return iTotalStrength;
+-}
++} // BETTER_BTS_AI_MOD: END
++
+ /*  <advc.139> May have to update city safety status after one of our units
+ 	has attacked (possible relief). kDefender can be dead, but all its data
+ 	should still be acurate. */
+@@ -14899,30 +14902,18 @@ void CvPlayerAI::AI_humanEnemyStackMovedInTerritory(CvPlot const& kFrom, CvPlot
+ } // </advc.139>
+ 
+ 
+-int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit /* advc: */ const* pUnit,
+-	MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
+-{
+-	return AI_unitTargetMissionAIs(pUnit, &eMissionAI, 1, pSkipSelectionGroup, -1);
+-}
+-
+-int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit /* advc: */ const* pUnit,
++int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit /* advc: */ const& kUnit,  // advc: some refactoring
+ 	MissionAITypes* aeMissionAI, int iMissionAICount,
+-	CvSelectionGroup* pSkipSelectionGroup) const
+-{
+-	return AI_unitTargetMissionAIs(pUnit, aeMissionAI, iMissionAICount, pSkipSelectionGroup, -1);
+-}
+-
+-int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit /* advc: */ const* pUnit,
+-	MissionAITypes* aeMissionAI, int iMissionAICount,
+-	CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const  // advc: some refactoring
++	CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns, int iMaxCount) const
+ {
+ 	PROFILE_FUNC();
++	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
+ 
+ 	int iCount = 0;
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+ 	{
+ 		if (pLoopSelectionGroup == pSkipSelectionGroup ||
+-			pLoopSelectionGroup->AI_getMissionAIUnit() != pUnit)
++			pLoopSelectionGroup->AI_getMissionAIUnit() != &kUnit)
+ 		{
+ 			continue;
+ 		}
+@@ -14951,31 +14942,37 @@ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit /* advc: */ const* pUnit,
+ 		if(!bValid)
+ 			continue; // </advc.opt>
+ 		int iPathTurns = MAX_INT;
+-		if (iMaxPathTurns >= 0 && pUnit->plot() != NULL &&
++		if (iMaxPathTurns >= 0 && kUnit.plot() != NULL &&
+ 			pLoopSelectionGroup->plot() != NULL)
+ 		{
+ 			pLoopSelectionGroup->generatePath(pLoopSelectionGroup->plot(),
+-					pUnit->plot(), 0, false, &iPathTurns);
++					kUnit.plot(), 0, false, &iPathTurns, /* advc.opt: */ iMaxPathTurns);
+ 			if (!pLoopSelectionGroup->canAllMove())
+ 				iPathTurns++;
+ 		}
+-		if (iMaxPathTurns == -1 || iPathTurns <= iMaxPathTurns)
++		if (iMaxPathTurns < 0 || iPathTurns <= iMaxPathTurns) // BETTER_BTS_AI_MOD, General AI, 04/03/10, jdog5000
++		{
+ 			iCount += pLoopSelectionGroup->getNumUnits();
++			// <advc.opt>
++			if (iCount >= iMaxCount)
++				return iMaxCount; // </advc.opt>
++		}
+ 	}
+-	return iCount;
++	return std::min(iCount, iMaxCount); // advc.opt: (to be consistent)
+ }
+-// BETTER_BTS_AI_MOD: END
+ 
+-int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
+-	CvSelectionGroup* pSkipSelectionGroup) const
++// advc.003j: Unused since a BBAI change to CvUnitAI::AI_assaultSeaMove
++/*int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
++	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+ {
+-	return AI_enemyTargetMissionAIs(&eMissionAI, 1, pSkipSelectionGroup);
++	return AI_enemyTargetMissionAIs(&eMissionAI, 1, pSkipSelectionGroup, iMaxCount);
+ }
+ 
+ int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount,
+-	CvSelectionGroup* pSkipSelectionGroup) const
++	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+ {
+ 	PROFILE_FUNC();
++	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
+ 
+ 	int iCount = 0;
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+@@ -14996,20 +14993,23 @@ int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissi
+ 					{
+ 						iCount += pLoopSelectionGroup->getNumUnits();
+ 						iCount += pLoopSelectionGroup->getCargo();
++						// <advc.opt>
++						if (iCount >= iMaxCount)
++							return iMaxCount; // </advc.opt>
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+-	return iCount;
+-}
+-
++	return std::min(iCount, iMaxCount); // advc.opt: (to be consistent)
++}*/
+ 
+ // BETTER_BTS_AI_MOD, General AI, 05/19/10, jdog5000: START
+ int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam,
+-	CvSelectionGroup* pSkipSelectionGroup) const
++	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+ {
+ 	PROFILE_FUNC();
++	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
+ 
+ 	int iCount = 0;
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+@@ -15029,20 +15029,21 @@ int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam,
+ 			{
+ 				iCount += pLoopSelectionGroup->getNumUnits();
+ 				iCount += pLoopSelectionGroup->getCargo();
++				// <advc.opt>
++				if (iCount >= iMaxCount)
++					return iMaxCount; // </advc.opt>
+ 			}
+ 		}
+ 	}
+-	return iCount;
++	return std::min(iCount, iMaxCount); // advc.opt: (to be consistent)
+ } // BETTER_BTS_AI_MOD: END
+ 
+ 
+-int CvPlayerAI::AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI,
+-	CvSelectionGroup* pSkipSelectionGroup) const
++int CvPlayerAI::AI_wakePlotTargetMissionAIs(/* advc: const& */ CvPlot const& kPlot,
++	MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssert(pPlot != NULL);
+-
+ 	int iCount = 0;
+ 	FOR_EACH_GROUPAI_VAR(pLoopSelectionGroup, *this)
+ 	{
+@@ -15052,8 +15053,8 @@ int CvPlayerAI::AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissi
+ 		MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
+ 		if (eMissionAI == NO_MISSIONAI || eMissionAI == eGroupMissionAI)
+ 		{
+-			CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
+-			if (pMissionPlot != NULL && pMissionPlot == pPlot)
++			CvPlot const* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
++			if (/*pMissionPlot != NULL &&*/ pMissionPlot == &kPlot) // (advc)
+ 			{
+ 				iCount += pLoopSelectionGroup->getNumUnits();
+ 				pLoopSelectionGroup->setActivityType(ACTIVITY_AWAKE);
+@@ -15731,16 +15732,20 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		iValue += (iCities * 6 * iS * AI_getHealthWeight(iS*kCivic.getExtraHealth(), 1)) / 100;
+ 
+ 	if (kCivic.getExtraHappiness() != 0) // New K-Mod effect
++	{
+ 		iValue += (iCities * 10 * iS * AI_getHappinessWeight(iS *
+ 				/*  (zero extra citizens... as a kind of kludge to get the
+ 					value closer to where I want it) */
+ 				kCivic.getExtraHappiness(), 0)) / 100;
+-
++	}
+ 	if (kCivic.getHappyPerMilitaryUnit() != 0)
++	{
+ 		iValue += (iCities * 9 * iS * AI_getHappinessWeight(iS*kCivic.getHappyPerMilitaryUnit() * 3, 1))
+ 				// <advc.912c>
+ 				/ 200; // divisor was 100
+-	if (kCivic.getLuxuryModifier() > 0 && pCapital != NULL) {
++	}
++	if (kCivic.getLuxuryModifier() > 0 && pCapital != NULL)
++	{
+ 		int iLuxMod = kCivic.getLuxuryModifier();
+ 		int iHappyChangeCapital = (pCapital->getBonusGoodHappiness(true) * iLuxMod) / 100;
+ 		iValue += (iCities * 9 * iS * AI_getHappinessWeight(iS *
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 74d6834ad..ce4157a9f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -150,7 +150,12 @@ public:
+ 	}
+ 	//int AI_getUnitDanger(CvUnit* pUnit, int iRange = -1, bool bTestMoves = true, bool bAnyDanger = true) const;
+ 	// BETTER_BTS_AI_MOD: END
+-	int AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves = true) const;
++	int AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves = true,
++			/* <advc.opt> */ int iMaxCount = MAX_INT) const;
++	inline bool AI_isAnyWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves = true) const
++	{
++		return (AI_getWaterDanger(pPlot, iRange, bTestMoves, 1) >= 1);
++	} // </advc.opt>
+ 
+ 	bool AI_avoidScience() const;
+ 	int AI_financialTroubleMargin() const; // advc.110
+@@ -334,17 +339,69 @@ public:
+ 	void AI_processNewBuild(BuildTypes eBuild); // advc.121
+ 
+ 	int AI_adjacentPotentialAttackers(CvPlot const& kPlot, bool bTestCanMove = false) const;
+-	int AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	int AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	// advc: const CvPlot*
+-	int AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;
+-	int AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes eMissionAI, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;
+-	int AI_plotTargetMissionAIs(CvPlot const* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const;
+-	int AI_unitTargetMissionAIs(CvUnit const* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	int AI_unitTargetMissionAIs(CvUnit const* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	int AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
++	//int AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const; // advc.003j
++	int AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI,
++			CvSelectionGroup* pSkipSelectionGroup = NULL, /* <advc.opt> */ int iMaxCount = MAX_INT) const;
++	inline bool AI_isAnyAreaMissionAI(CvArea const& kArea, MissionAITypes eMissionAI,
++		CvSelectionGroup* pSkipSelectionGroup = NULL) const
++	{
++		return (AI_areaMissionAIs(kArea, eMissionAI, pSkipSelectionGroup, 1) >= 1);
++	} // </advc.opt>
++	// advc: TargetMissionAI counting: const CvPlot&. advc.opt: iMaxCount params added.
++	inline int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI,
++		CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0, int iMaxCount = MAX_INT) const
++	{
++		return AI_plotTargetMissionAIs(kPlot, &eMissionAI, 1, pSkipSelectionGroup,
++				iRange, iMaxCount);
++	}
++	// advc: Unused (out-)param iClosestTargetRange removed
++	int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeMissionAI,
++			int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL,
++			int iRange = 0, int iMaxCount = MAX_INT) const;
++	// <advc.opt>
++	inline bool AI_isAnyPlotTargetMissionAI(CvPlot const& kPlot, MissionAITypes eMissionAI,
++		CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const
++	{
++		return (AI_plotTargetMissionAIs(kPlot, eMissionAI, pSkipSelectionGroup, iRange, 1) >= 1);
++	}
++	inline bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes eMissionAI,
++		CvSelectionGroup* pSkipSelectionGroup = NULL) const
++	{
++		return (AI_unitTargetMissionAIs(kUnit, eMissionAI, pSkipSelectionGroup, 1) >= 1);
++	}
++	inline bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes* aeMissionAI,
++		int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL,
++		int iMaxPathTurns = -1) const
++	{
++		return (AI_unitTargetMissionAIs(kUnit, aeMissionAI, iMissionAICount,
++				pSkipSelectionGroup, iMaxPathTurns, 1) >= 1);
++	} // </advc.opt>
++	inline int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes eMissionAI,
++		CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const
++	{
++		return AI_unitTargetMissionAIs(kUnit, &eMissionAI, 1, pSkipSelectionGroup,
++				-1, iMaxCount);
++	}
++	int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeMissionAI,
++			int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL,
++			int iMaxPathTurns = -1, // BBAI (advc: merged into the BtS function)
++			int iMaxCount = MAX_INT) const;
++	// BBAI start
++	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL,
++			// <advc.opt>
++			int iMaxCount = MAX_INT) const; // BBAI end
++	inline bool AI_isAnyEnemyTargetMission(TeamTypes eTargetTeam,
++		CvSelectionGroup* pSkipSelectionGroup = NULL) const
++	{
++		return (AI_enemyTargetMissions(eTargetTeam, pSkipSelectionGroup, 1) >= 1);
++	} // </advc.opt>
++	// advc.003j: unused
++	/*int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
++			CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;
++	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI,
++			int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;*/
++	int AI_wakePlotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI,
++			CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	// K-Mod start
+ 	int AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType = DOMAIN_LAND,
+ 			int iRange = 0, bool bMoveToTarget = true, bool bCheckMoves = false, bool bNoCache = false,
+@@ -358,10 +415,6 @@ public:
+ 	void AI_attackMadeAgainst(CvUnit const& kDefender);
+ 	void AI_humanEnemyStackMovedInTerritory(CvPlot const& kFrom, CvPlot const& kTo);
+ 	// </advc.139>
+-	// BBAI start
+-	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-	int AI_unitTargetMissionAIs(CvUnit const* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
+-	// BBAI end
+ 
+ 	CivicTypes AI_bestCivic(CivicOptionTypes eCivicOption, int* iBestValue = 0) const;
+ 	int AI_civicValue(CivicTypes eCivic) const;						// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 1b141996b..534494311 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -905,8 +905,7 @@ void CvTeamAI::AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool b
+ 			if(kPlayer.AI_disapprovesOfDoW(getID(), eTarget)) // advc.130j:
+ 				kPlayer.AI_rememberEvent(kOurMember.getID(), MEMORY_DECLARED_WAR_ON_FRIEND);
+ 		}
+-	} 
+-	// <advc.104i>
++	}  // <advc.104i>
+ 	if(eSponsor != NO_PLAYER)
+ 	{
+ 		AI_makeUnwillingToTalk(eTarget);
+@@ -5320,7 +5319,7 @@ void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier,
+ 	bool bActive = false;
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+ 	{
+-		if (it->AI_enemyTargetMissions(eTarget) > 0)
++		if (it->AI_isAnyEnemyTargetMission(eTarget))
+ 		{
+ 			bActive = true;
+ 			break;
+@@ -5660,7 +5659,7 @@ void CvTeamAI::AI_doWar()
+ 						bool bNoFighting = true; // advc: Refactored the computation of this
+ 						for (MemberIter itOurMember(getID()); itOurMember.hasNext(); ++itOurMember)
+ 						{
+-							if (itOurMember->AI_enemyTargetMissions(eEnemy) > 0)
++							if (itOurMember->AI_isAnyEnemyTargetMission(eEnemy))
+ 							{
+ 								bNoFighting = false;
+ 								break;
+@@ -5671,7 +5670,7 @@ void CvTeamAI::AI_doWar()
+ 							for (MemberIter itEnemyMember(eEnemy); itEnemyMember.hasNext();
+ 								++itEnemyMember)
+ 							{
+-								if (itEnemyMember->AI_enemyTargetMissions(getID()) > 0)
++								if (itEnemyMember->AI_isAnyEnemyTargetMission(getID()))
+ 								{
+ 									bNoFighting = false;
+ 									break;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 6e0537233..bf34f9bb3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -863,8 +863,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				if (pUnit && pUnit->getPlot().isCity() && iPathTurns == 1)
+ 					iMaxWorkers += 10;
+ 				// K-Mod end
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-					&kPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
++				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
++					/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
+ 				{
+ 					//XXX this could be improved greatly by
+ 					//looking at the real build time and other factors
+@@ -905,7 +905,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				iMaxWorkers += 10;
+ 		// K-Mod end
+ 			int iWorkerCount = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-					pBestPlot, MISSIONAI_BUILD, getGroup());
++					*pBestPlot, MISSIONAI_BUILD, getGroup());
+ 			if (iWorkerCount < iMaxWorkers)
+ 				break; //Good to go.
+ 		}
+@@ -1549,7 +1549,7 @@ void CvUnitAI::AI_settleMove()
+ 			if (getTransportUnit() == NULL)
+ 			{
+ 				// BETTER_BTS_AI_MOD, Unit AI, 11/30/08, jdog5000: guard added
+-				if (kOwner.AI_unitTargetMissionAIs(getGroup()->getHeadUnit(), MISSIONAI_PICKUP) == 0)
++				if (!kOwner.AI_isAnyUnitTargetMissionAI(*getGroup()->getHeadUnit(), MISSIONAI_PICKUP))
+ 				{
+ 					//FAssertMsg(false, "advc.test: Just to see how frequently the AI scraps settlers");
+ 					scrap(); //may seem wasteful, but settlers confuse the AI.
+@@ -2448,7 +2448,7 @@ void CvUnitAI::AI_attackMove()
+ 					}
+ 				}
+ 
+-				if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_GROUP) > 0)
++				if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_GROUP))
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP);
+ 					return;
+@@ -3327,13 +3327,14 @@ void CvUnitAI::AI_attackCityMove()
+ 			int iMaxWaitTurns = 3;
+ 			if (pTargetCity!= NULL &&
+ 				generatePath(pTargetCity->plot(), iMoveFlags, true, &iPathTurns, iPathTurns))
++			{
+ 				iMaxWaitTurns = (iPathTurns+1) / 3;
+-
++			}
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(
+-					this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
++					*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
+ 
+-			if (iJoiners*range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
++			if (iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
+ 			{	// (the mission is just for debug feedback)
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GROUP);
+ 				return;
+@@ -3370,11 +3371,12 @@ void CvUnitAI::AI_attackCityMove()
+ 				}
+ 			}
+ 
+-			int iTargetCount = kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
++			int iTargetCount = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
+ 			if (iTargetCount * 5 > getGroup()->getNumUnits())
+ 			{
+ 				MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-				int iJoiners = kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 2);
++				int iJoiners = kOwner.AI_unitTargetMissionAIs(
++						*this, &eMissionAIType, 1, getGroup(), 2);
+ 
+ 				if (iJoiners * 5 > getGroup()->getNumUnits())
+ 				{	// K-Mod (for debug feedback)
+@@ -3576,18 +3578,17 @@ void CvUnitAI::AI_attackCityMove()
+ 				return;
+ 		}*/ // BtS
+ 		// K-Mod
+-		int iTargetCount = kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
++		int iTargetCount = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
+ 		if (6*iTargetCount > getGroup()->getNumUnits())
+ 		{
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 2);
+-
++			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(
++					*this, &eMissionAIType, 1, getGroup(), 2);
+ 			if (4*iNearbyJoiners > getGroup()->getNumUnits())
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return;
+ 			}
+-
+ 			if (AI_safety())
+ 			{
+ 				return;
+@@ -3981,7 +3982,7 @@ void CvUnitAI::AI_pillageMove()
+ 		/*  advc.046: SKIP w/o setting eMissionAI would make the group forget
+ 			that it's stranded, and then AI_pickupStranded won't find it. */
+ 		!getGroup()->isStranded() &&
+-		GET_PLAYER(getOwner()).AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0)
++		GET_PLAYER(getOwner()).AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_PICKUP))
+ 	{
+ 		getGroup()->pushMission(MISSION_SKIP);
+ 		return;
+@@ -5551,7 +5552,7 @@ void CvUnitAI::AI_spyMove()
+ 				}
+ 			}
+ 
+-			if (kOwner.AI_plotTargetMissionAIs(plot(), MISSIONAI_ASSAULT, getGroup()) > 0)
++			if (kOwner.AI_isAnyPlotTargetMissionAI(getPlot(), MISSIONAI_ASSAULT, getGroup()))
+ 			{
+ 				bTargetCity = true;
+ 
+@@ -6378,10 +6379,11 @@ void CvUnitAI::AI_reserveSeaMove()
+ 
+ 	/*  <advc.017b> Defend bonus if it's threatened, otherwise, consider a bunch of
+ 		other activities first. (K-Mod's AI_guardBonus(15) moved down instead.) */
+-	if(kOwner.AI_getWaterDanger(plot(), std::min(maxMoves(), DANGER_RANGE), false) > 0 &&
+-			AI_guardBonus(10))
+-		return; // </advc.017b>
+-
++	if(kOwner.AI_isAnyWaterDanger(plot(), std::min(maxMoves(), DANGER_RANGE), false) &&
++		AI_guardBonus(10))
++	{
++		return;
++	} // </advc.017b>
+ 	if (AI_heal(30, 1))
+ 	{
+ 		return;
+@@ -6963,7 +6965,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 
+ 	if (hasCargo() && (getUnitAICargo(UNITAI_SETTLE) > 0 || getUnitAICargo(UNITAI_WORKER) > 0))
+ 	{
+-		// Dump inappropriate load at first oppurtunity after pick up
++		// Dump inappropriate load at first opportunity after pick up
+ 		if (bCity && (getPlot().getOwner() == getOwner()))
+ 		{
+ 			getGroup()->unloadAll();
+@@ -7073,8 +7075,8 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 3) > 0 ||
+-					kOwner.AI_getWaterDanger(plot(), 4, false) > 0)
++			if (kOwner.AI_isAnyUnitTargetMissionAI(*this, &eMissionAIType, 1, getGroup(), 3) ||
++				kOwner.AI_isAnyWaterDanger(plot(), 4, false))
+ 			{
+ 				// Loaded but with no escort, wait for others joining us soon or avoid dangerous waters
+ 				getGroup()->pushMission(MISSION_SKIP);
+@@ -7188,7 +7190,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		// K-Mod end
+ 
+ 		MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-		if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0)
++		if (kOwner.AI_isAnyUnitTargetMissionAI(*this, &eMissionAIType, 1, getGroup(), 1))
+ 		{
+ 			// Wait for units which are joining our group this turn
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -7200,14 +7202,14 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			if (bAttack)
+ 			{
+ 				eMissionAIType = MISSIONAI_LOAD_ASSAULT;
+-				if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0)
++				if (kOwner.AI_isAnyUnitTargetMissionAI(*this, &eMissionAIType, 1, getGroup(), 1))
+ 				{
+ 					// Wait for cargo which will load this turn
+ 					getGroup()->pushMission(MISSION_SKIP);
+ 					return;
+ 				}
+ 			}
+-			else if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_ASSAULT) > 0)
++			else if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_LOAD_ASSAULT))
+ 			{
+ 				// Wait for cargo which is on the way
+ 				getGroup()->pushMission(MISSION_SKIP);
+@@ -7319,7 +7321,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		if(iCargo > 0)
+ 		{
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			if (kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 1) > 0)
++			if (kOwner.AI_isAnyUnitTargetMissionAI(*this, &eMissionAIType, 1, getGroup(), 1))
+ 			{
+ 				if (iEscorts < kOwner.AI_getWaterDanger(plot(), 2, false))
+ 				{
+@@ -7665,7 +7667,7 @@ void CvUnitAI::AI_settlerSeaMove()
+ 
+ 	if (iSettlerCount > 0 && (isFull() ||
+ 		(getUnitAICargo(UNITAI_CITY_DEFENSE) > 0 &&
+-		kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_SETTLER) == 0)))
++		!kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_LOAD_SETTLER))))
+ 	// BETTER_BTS_AI_MOD: END
+ 	{
+ 		if (AI_settlerSeaTransport())
+@@ -7714,7 +7716,8 @@ void CvUnitAI::AI_settlerSeaMove()
+ 		}
+ 	}
+ 
+-	if (iWorkerCount > 0 && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_SETTLER) == 0)
++	if (iWorkerCount > 0 &&
++		!kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_LOAD_SETTLER))
+ 	{
+ 		if (isFull() || (iSettlerCount == 0))
+ 		{
+@@ -7737,7 +7740,7 @@ void CvUnitAI::AI_settlerSeaMove()
+ 
+ 	if (!getGroup()->isFull())
+ 	{
+-		if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_SETTLER) > 0)
++		if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_LOAD_SETTLER))
+ 		{
+ 			// Wait for units on the way
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -7961,7 +7964,7 @@ void CvUnitAI::AI_missionarySeaMove()
+ 	// BETTER_BTS_AI_MOD, Naval AI, 01/14/09, jdog5000: START
+ 	if (!getGroup()->isFull())
+ 	{
+-		if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_SPECIAL) > 0)
++		if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_LOAD_SPECIAL))
+ 		{
+ 			// Wait for units on the way
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -8057,7 +8060,7 @@ void CvUnitAI::AI_spySeaMove()
+ 	// BETTER_BTS_AI_MOD, Naval AI, 01/14/09, jdog5000: START
+ 	if (!getGroup()->isFull())
+ 	{
+-		if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_LOAD_SPECIAL) > 0)
++		if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_LOAD_SPECIAL))
+ 		{
+ 			// Wait for units on the way
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -8122,7 +8125,7 @@ void CvUnitAI::AI_carrierSeaMove()
+ 
+ 	if (!isEnemy(getPlot()))
+ 	{
+-		if (kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_GROUP) > 0)
++		if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_GROUP))
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+@@ -9588,12 +9591,12 @@ bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio, bool bWit
+ 				if (bOutsideCityOnly && pLoopUnit->getPlot().isCity())
+ 					continue;
+ 				// BETTER_BTS_AI_MOD: END
+-				int iShadowerCount = GET_PLAYER(getOwner()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_SHADOW, getGroup());
+-				if ((-1 == iMax || iShadowerCount < iMax) &&
+-					 (-1 == iMaxRatio || iShadowerCount == 0 ||
+-					 (100 * iShadowerCount) /
+-					 std::max(1, pLoopUnit->getGroup()->
+-					 countNumUnitAIType(eUnitAI)) <= iMaxRatio))
++				int iShadowerCount = GET_PLAYER(getOwner()).AI_unitTargetMissionAIs(
++						*pLoopUnit, MISSIONAI_SHADOW, getGroup());
++				if ((iMax == -1 || iShadowerCount < iMax) &&
++					 (iMaxRatio == -1 || iShadowerCount == 0 ||
++					 iMaxRatio >= (100 * iShadowerCount) /
++					 std::max(1, pLoopUnit->getGroup()->countNumUnitAIType(eUnitAI)) ))
+ 				{
+ 					//if (!pLoopUnit->getPlot().isVisibleEnemyUnit(this)) { // advc.opt: pLoopUnit is our unit; can't coexist with any enemies.
+ 					int iPathTurns;
+@@ -9707,7 +9710,7 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 				&&
+ 				(iMaxGroup == -1 || (bMergeGroups ? getGroup()->getNumUnits() - 1 : 0) +
+ 				pLoopGroup->getNumUnits() +
+-				GET_PLAYER(getOwner()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup()) <=
++				GET_PLAYER(getOwner()).AI_unitTargetMissionAIs(*pLoopUnit, MISSIONAI_GROUP, getGroup()) <=
+ 				iMaxGroup + (bStackOfDoom ? AI_stackOfDoomExtra() : 0))
+ 				&&
+ 				(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY ||
+@@ -9871,7 +9874,7 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath
+ 		if (iCargoSpaceAvailable <= 0)
+ 			continue;
+ 		iCargoSpaceAvailable -= kOwner.AI_unitTargetMissionAIs(
+-				pTransport, aeLoadMissionAI, iLoadMissionAICount, getGroup());
++				*pTransport, aeLoadMissionAI, iLoadMissionAICount, getGroup());
+ 		if (iCargoSpaceAvailable <= 0)
+ 			continue;
+ 		if ((ePassengerAI == NO_UNITAI ||
+@@ -10179,7 +10182,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 				if (!pLoopCity->AI_isEvacuating()) // advc.139
+ 				{
+ 					iDefendersHave += GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-							pLoopCity->plot(), MISSIONAI_GUARD_CITY, getGroup());
++							pLoopCity->getPlot(), MISSIONAI_GUARD_CITY, getGroup());
+ 					if (iDefendersHave < iDefendersNeed + 1)
+ 					{
+ 						int iPathTurns;
+@@ -10304,8 +10307,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, int iFlags)
+ 				continue;*/
+ 
+ 			if (g.getGameTurn() - pLoopCity->getGameTurnAcquired() >= 10 &&
+-				kOwner.AI_plotTargetMissionAIs(pLoopCity->plot(),
+-				MISSIONAI_GUARD_CITY, getGroup()) >= 2)
++				kOwner.AI_plotTargetMissionAIs(pLoopCity->getPlot(),
++				MISSIONAI_GUARD_CITY, getGroup(), /*<advc.opt>*/ 0, 2 /*</advc.opt>*/) >= 2)
+ 			{
+ 				continue;
+ 			}
+@@ -10452,7 +10455,8 @@ bool CvUnitAI::AI_guardCoast(bool bPrimaryOnly, int iFlags, int iMaxPath)  // ad
+ 			continue;
+ 
+ 		iBaseValue *= 4;
+-		iBaseValue /= 4 + kOwner.AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_GUARD_COAST, getGroup(), 1);
++		iBaseValue /= 4 + kOwner.AI_plotTargetMissionAIs(
++				pLoopCity->getPlot(), MISSIONAI_GUARD_COAST, getGroup(), 1);
+ 
+ 		if (iBaseValue <= iBestValue)
+ 			continue;
+@@ -10543,7 +10547,7 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 				if (!kPlot.isVisibleEnemyUnit(this))
+ 				{
+ 					int const iPlotTargetMissionAIs = GET_PLAYER(getOwner()).
+-								AI_plotTargetMissionAIs(&kPlot, MISSIONAI_GUARD_BONUS, getGroup());
++							AI_plotTargetMissionAIs(kPlot, MISSIONAI_GUARD_BONUS, getGroup());
+ 					// K-Mod
+ 					iValue *= 2;
+ 					iValue /= 2 + iPlotTargetMissionAIs;
+@@ -10821,8 +10825,8 @@ bool CvUnitAI::AI_guardFort(bool bSearch)
+ 		if (iValue <= 0 || kPlot.isVisibleEnemyUnit(this))
+ 			continue;
+ 
+-		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-			&kPlot, MISSIONAI_GUARD_BONUS, getGroup()) < iValue)
++		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(kPlot, MISSIONAI_GUARD_BONUS,
++			getGroup(), /*<advc.opt>*/0, iValue/*</advc.opt>*/) < iValue)
+ 		{
+ 			int iPathTurns;
+ 			if (generatePath(&kPlot, 0, true, &iPathTurns))
+@@ -10883,7 +10887,7 @@ bool CvUnitAI::AI_guardCitySite()
+ 			CvPlot* pAdj = m.plotDirection(pLoopPlot->getX(),
+ 					pLoopPlot->getY(), eLoopDirection);
+ 			if(pAdj != NULL && AI_canEnterByLand(pAdj->getArea()) &&
+-				kOwner.AI_plotTargetMissionAIs(pAdj, MISSIONAI_GUARD_CITY, getGroup()) > 0)
++				kOwner.AI_isAnyPlotTargetMissionAI(*pAdj, MISSIONAI_GUARD_CITY, getGroup()))
+ 			{
+ 				bValid = false;
+ 				break;
+@@ -11009,7 +11013,8 @@ bool CvUnitAI::AI_guardSpy(int iRandomPercent)
+ 		if (iValue <= 0)
+ 			continue; // advc
+ 
+-		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_GUARD_SPY, getGroup()) == 0)
++		if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			pLoopCity->getPlot(), MISSIONAI_GUARD_SPY, getGroup()))
+ 		{
+ 			int iPathTurns;
+ 			if (generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
+@@ -11439,8 +11444,8 @@ bool CvUnitAI::AI_spreadReligion()
+ 				if (!kOwner.AI_deduceCitySite(pLoopCity) || // K-Mod
+ 					!canSpread(pLoopCity->plot(), eReligion) ||
+ 					pLoopCity->getPlot().isVisibleEnemyUnit(this) ||
+-					kOwner.AI_plotTargetMissionAIs(pLoopCity->plot(),
+-					MISSIONAI_SPREAD, getGroup()) > 0)
++					kOwner.AI_isAnyPlotTargetMissionAI(
++					pLoopCity->getPlot(), MISSIONAI_SPREAD, getGroup()))
+ 				{
+ 					continue;
+ 				}
+@@ -11593,8 +11598,8 @@ bool CvUnitAI::AI_spreadCorporation()
+ 						kOwner.AI_deduceCitySite(pLoopCity) &&
+ 						canSpreadCorporation(pLoopCity->plot(), eCorporation) &&
+ 						!pLoopCity->getPlot().isVisibleEnemyUnit(this) &&
+-						kOwner.AI_plotTargetMissionAIs(pLoopCity->plot(),
+-						MISSIONAI_SPREAD_CORPORATION, getGroup()) == 0)
++						!kOwner.AI_isAnyPlotTargetMissionAI(
++						pLoopCity->getPlot(), MISSIONAI_SPREAD_CORPORATION, getGroup()))
+ 					{
+ 						int iPathTurns;
+ 						if (!generatePath(pLoopCity->plot(), MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+@@ -11719,8 +11724,8 @@ bool CvUnitAI::AI_spreadReligionAirlift()
+ 		{
+ 			if (!canAirliftAt(pCity->plot(), pLoopCity->getX(), pLoopCity->getY()) ||
+ 				!canSpread(pLoopCity->plot(), eReligion) ||
+-				GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-				pLoopCity->plot(), MISSIONAI_SPREAD, getGroup()) > 0)
++				GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				pLoopCity->getPlot(), MISSIONAI_SPREAD, getGroup()))
+ 			{
+ 				continue; // advc
+ 			}
+@@ -11793,8 +11798,8 @@ bool CvUnitAI::AI_spreadCorporationAirlift()
+ 		{
+ 			if (!canAirliftAt(pCity->plot(), pLoopCity->getX(), pLoopCity->getY()) ||
+ 				!canSpreadCorporation(pLoopCity->plot(), eCorporation) ||
+-				GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-				pLoopCity->plot(),MISSIONAI_SPREAD_CORPORATION, getGroup()) > 0)
++				GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				pLoopCity->getPlot(),MISSIONAI_SPREAD_CORPORATION, getGroup()))
+ 			{
+ 				continue; // advc
+ 			}
+@@ -12989,8 +12994,8 @@ bool CvUnitAI::AI_explore()  // advc: style changes
+ 		}
+ 
+ 		if (iValue <= 0 || kPlot.isVisibleEnemyUnit(this) ||
+-			GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-			&kPlot, MISSIONAI_EXPLORE, getGroup(), 3) > 0)
++			GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			kPlot, MISSIONAI_EXPLORE, getGroup(), 3))
+ 		{
+ 			continue;
+ 		}
+@@ -13090,8 +13095,8 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 			continue;
+ 		{
+ 			PROFILE("AI_exploreRange 3");
+-			if (kOwner.AI_plotTargetMissionAIs(&p,
+-				MISSIONAI_EXPLORE, getGroup(), 3) > 0)
++			if (kOwner.AI_isAnyPlotTargetMissionAI(
++				p, MISSIONAI_EXPLORE, getGroup(), 3))
+ 			{
+ 				continue;
+ 			}
+@@ -13562,8 +13567,8 @@ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshol
+ 			kPlot.getTeam() == pTargetCity->getTeam() && // advc.opt: Moved up
+ 			!kPlot.isBarbarian() && AI_mayAttack(kPlot) &&
+ 			canPillage(kPlot) && !kPlot.isVisibleEnemyUnit(this) &&
+-			GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kPlot,
+-			MISSIONAI_PILLAGE, getGroup()) <= 0)
++			!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			kPlot, MISSIONAI_PILLAGE, getGroup()))
+ 		{
+ 			int iPathTurns;
+ 			if (generatePath(&kPlot, iFlags, true, &iPathTurns, iMaxPathTurns))
+@@ -14292,15 +14297,19 @@ bool CvUnitAI::AI_blockade()  // advc: some style changes
+ 		FAssert(isEnemy(pCity->getTeam()) || GET_TEAM(getTeam()).AI_getWarPlan(pCity->getTeam()) != NO_WARPLAN);
+ 		if (!kPlot.isVisibleEnemyUnit(this) && canPlunder(kPlot))
+ 		{
+-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kPlot, MISSIONAI_BLOCKADE, getGroup(), 2) > 0)
++			if (GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				kPlot, MISSIONAI_BLOCKADE, getGroup(), 2))
++			{
+ 				continue; // advc
++			}
+ 			int iPathTurns;
+ 			if (generatePath(&kPlot, iFlags, true, &iPathTurns))
+ 			{
+ 				int iValue = 1;
+ 				iValue += std::min(pCity->getPopulation(), pCity->countNumWaterPlots());
+-				iValue += GET_PLAYER(getOwner()).AI_adjacentPotentialAttackers(*pCity->plot());
+-				iValue += (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCity->plot(), MISSIONAI_ASSAULT, getGroup(), 2) * 3);
++				iValue += GET_PLAYER(getOwner()).AI_adjacentPotentialAttackers(pCity->getPlot());
++				iValue += 3 * GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++						pCity->getPlot(), MISSIONAI_ASSAULT, getGroup(), 2);
+ 				if (canBombard(kPlot))
+ 					iValue *= 2;
+ 				iValue *= 1000;
+@@ -14425,8 +14434,8 @@ bool CvUnitAI::AI_pirateBlockade()
+ 			/*  advc.033: Replacing the above. Should make Privateers a bit
+ 				more stationary. */
+ 			::hash(iI + iTurnNumberSalt, getOwner()) > 0.25f ||
+-			GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-			&kPlot, MISSIONAI_BLOCKADE, getGroup(), 3) != 0 ||
++			GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			kPlot, MISSIONAI_BLOCKADE, getGroup(), 3) ||
+ 			// advc.opt:
+ 			(!kPlot.isOwned() && kPlot.isAdjacentOwned()))
+ 		{
+@@ -14643,9 +14652,9 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)  // advc: some style changes
+ 				if (iPathTurns <= 1 + iMaxRange / baseMoves())
+ 				{
+ 					// Check only for supporting our own ground troops first, if none will look for another target
+-					int iValue = (kPlayer.AI_plotTargetMissionAIs(pBombardCity->plot(),
+-							MISSIONAI_ASSAULT, NULL, 2) * 3);
+-					iValue += (kPlayer.AI_adjacentPotentialAttackers(*pBombardCity->plot(), true));
++					int iValue = 3 * kPlayer.AI_plotTargetMissionAIs(
++							pBombardCity->getPlot(), MISSIONAI_ASSAULT, NULL, 2);
++					iValue += (kPlayer.AI_adjacentPotentialAttackers(pBombardCity->getPlot(), true));
+ 					if (iValue > 0)
+ 					{
+ 						iValue *= 1000;
+@@ -14703,8 +14712,8 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)  // advc: some style changes
+ 					}
+ 
+ 					// Inclination to bombard a different nearby city to extend the reach of blockade
+-					if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-						pBombardCity->plot(), MISSIONAI_BLOCKADE, getGroup(), 3) == 0)
++					if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++						pBombardCity->getPlot(), MISSIONAI_BLOCKADE, getGroup(), 3))
+ 					{
+ 						iValue += 35 + pBombardCity->getPopulation();
+ 					}
+@@ -14748,7 +14757,7 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)  // advc: some style changes
+ 				if (pBombardCity == NULL || pBombardCity->getDefenseDamage() <
+ 					((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
+ 				{
+-					kPlayer.AI_wakePlotTargetMissionAIs(pBestBombardPlot,
++					kPlayer.AI_wakePlotTargetMissionAIs(*pBestBombardPlot,
+ 							MISSIONAI_BLOCKADE, getGroup());
+ 				}
+ 			}
+@@ -14802,8 +14811,8 @@ bool CvUnitAI::AI_pillage(int iBonusValueThreshold, int iFlags)
+ 			{
+ 				if (!kPlot.isVisibleEnemyUnit(this))
+ 				{
+-					if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-						&kPlot, MISSIONAI_PILLAGE, getGroup(), 1) == 0)
++					if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++						kPlot, MISSIONAI_PILLAGE, getGroup(), 1))
+ 					{
+ 						int iValue = AI_pillageValue(kPlot, iBonusValueThreshold);
+ 						iValue *= 1000;
+@@ -14920,8 +14929,8 @@ bool CvUnitAI::AI_pillageRange(int iRange, int iBonusValueThreshold, int iFlags)
+ 		{
+ 			int iPathTurns;
+ 			if(p.isVisibleEnemyUnit(this) ||
+-				!GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-				&p, MISSIONAI_PILLAGE, getGroup()) == 0 ||
++				GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				p, MISSIONAI_PILLAGE, getGroup()) ||
+ 				!generatePath(&p, iFlags, true, &iPathTurns, iRange))
+ 			{
+ 				continue;
+@@ -14999,39 +15008,39 @@ bool CvUnitAI::AI_found(int iFlags)
+ 		plusMinus = 0.04; // </advc.052>
+ 	for (int iI = 0; iI < GET_PLAYER(getOwner()).AI_getNumCitySites(); iI++)
+ 	{
+-		CvPlot* pCitySitePlot = GET_PLAYER(getOwner()).AI_getCitySite(iI);
+-		if (AI_canEnterByLand(pCitySitePlot->getArea()) || // advc.030 (replacing same-area check)
++		CvPlot& kCitySitePlot = *GET_PLAYER(getOwner()).AI_getCitySite(iI);
++		if (AI_canEnterByLand(kCitySitePlot.getArea()) || // advc.030 (replacing same-area check)
+ 			// BETTER_BTS_AI_MOD, Settler AI, 10/23/09, jdog5000:
+ 			canMoveAllTerrain())
+ 		{
+-			if (canFound(pCitySitePlot))
++			if (canFound(&kCitySitePlot) &&
++				!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				kCitySitePlot, MISSIONAI_FOUND, getGroup()))
+ 			{
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCitySitePlot, MISSIONAI_FOUND, getGroup()) == 0)
++				if (getGroup()->canDefend() ||
++					GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(kCitySitePlot, MISSIONAI_GUARD_CITY))
+ 				{
+-					if (getGroup()->canDefend() || GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCitySitePlot, MISSIONAI_GUARD_CITY) > 0)
++					int iPathTurns;
++					if (generatePath(&kCitySitePlot, iFlags, true, &iPathTurns))
+ 					{
+-						int iPathTurns;
+-						if (generatePath(pCitySitePlot, iFlags, true, &iPathTurns))
++						if (!kCitySitePlot.isVisible(getTeam()) || // K-Mod
++							!kCitySitePlot.isVisibleEnemyUnit(this) ||
++							(iPathTurns > 1 && getGroup()->canDefend())) // K-Mod
+ 						{
+-							if (!pCitySitePlot->isVisible(getTeam()) || // K-Mod
+-								!pCitySitePlot->isVisibleEnemyUnit(this) ||
+-								(iPathTurns > 1 && getGroup()->canDefend())) // K-Mod
++							int iValue = kCitySitePlot.getFoundValue(getOwner());
++							// <advc.052>
++							double randMult = 1 - plusMinus + 2 * plusMinus *
++									::hash(m_iBirthmark);
++							iValue = ::round(iValue * randMult);
++							// </advc.052>
++							iValue *= 1000;
++							//iValue /= (iPathTurns + 1);
++							iValue /= iPathTurns + (getGroup()->canDefend() ? 4 : 1); // K-Mod
++							if (iValue > iBestFoundValue)
+ 							{
+-								int iValue = pCitySitePlot->getFoundValue(getOwner());
+-								// <advc.052>
+-								double randMult = 1 - plusMinus + 2 * plusMinus *
+-										::hash(m_iBirthmark);
+-								iValue = ::round(iValue * randMult);
+-								// </advc.052>
+-								iValue *= 1000;
+-								//iValue /= (iPathTurns + 1);
+-								iValue /= iPathTurns + (getGroup()->canDefend() ? 4 : 1); // K-Mod
+-								if (iValue > iBestFoundValue)
+-								{
+-									iBestFoundValue = iValue;
+-									pBestPlot = getPathEndTurnPlot();
+-									pBestFoundPlot = pCitySitePlot;
+-								}
++								iBestFoundValue = iValue;
++								pBestPlot = getPathEndTurnPlot();
++								pBestFoundPlot = &kCitySitePlot;
+ 							}
+ 						}
+ 					}
+@@ -15310,8 +15319,8 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 			else
+ 			{
+ 				// prefer to join existing assaults. (maybe we should calculate the actual attack strength here and roll it into the strength comparison modifier below)
+-				int iModifier = std::min(kOwner.AI_plotTargetMissionAIs(&kPlot, MISSIONAI_ASSAULT, getGroup()) +
+-						kOwner.AI_adjacentPotentialAttackers(*pCity->plot()), 2 * iCargo) * 100 / iCargo;
++				int iModifier = std::min(kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_ASSAULT, getGroup()) +
++						kOwner.AI_adjacentPotentialAttackers(pCity->getPlot()), 2 * iCargo) * 100 / iCargo;
+ 				iValueMultiplier = (100+iModifier)*iValueMultiplier / 100;
+ 
+ 				// Prefer to target cities that we can defeat.
+@@ -15635,7 +15644,8 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 				if (generatePath(pLoopCity->plot(), iFlags, true, &iPathTurns))
+ 				{
+ 					iValue *= 10*pLoopCity->AI_cityThreat();
+-					iValue += 20 * GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_ASSAULT, getGroup());
++					iValue += 20 * GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++							pLoopCity->getPlot(), MISSIONAI_ASSAULT, getGroup());
+ 					iValue *= std::min(iEnemyPower, 3*iOurPower);
+ 					iValue /= iOurPower;
+ 					iValue *= 100;
+@@ -15709,8 +15719,8 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 						{
+ 							iValue *= pLoopCity->AI_cityThreat();
+ 
+-							iValue += 10 * GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_ASSAULT, getGroup());
+-
++							iValue += 10 * GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++									pLoopCity->getPlot(), MISSIONAI_ASSAULT, getGroup());
+ 							iValue *= std::min(iEnemyPower, 3*iOurPower);
+ 							iValue /= iOurPower;
+ 
+@@ -15898,17 +15908,18 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 
+ 	for (int iI = 0; iI < GET_PLAYER(getOwner()).AI_getNumCitySites(); iI++)
+ 	{
+-		CvPlot* pCitySitePlot = GET_PLAYER(getOwner()).AI_getCitySite(iI);
+-		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCitySitePlot, MISSIONAI_FOUND, getGroup()) == 0)
++		CvPlot& kCitySitePlot = *GET_PLAYER(getOwner()).AI_getCitySite(iI);
++		if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			kCitySitePlot, MISSIONAI_FOUND, getGroup()))
+ 		{
+-			int iValue = pCitySitePlot->getFoundValue(getOwner());
+-			if (pCitySitePlot->isArea(getArea()) &&
+-				land_path.GeneratePath(pCitySitePlot)) // K-Mod
++			int iValue = kCitySitePlot.getFoundValue(getOwner());
++			if (kCitySitePlot.isArea(getArea()) &&
++				land_path.GeneratePath(&kCitySitePlot)) // K-Mod
+ 			{
+ 				if (iValue > iAreaBestFoundValue)
+ 				{
+ 					iAreaBestFoundValue = iValue;
+-					pAreaBestPlot = pCitySitePlot;
++					pAreaBestPlot = &kCitySitePlot;
+ 				}
+ 			}
+ 			else
+@@ -15916,15 +15927,13 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 				if (iValue > iOtherAreaBestFoundValue)
+ 				{
+ 					iOtherAreaBestFoundValue = iValue;
+-					pOtherAreaBestPlot = pCitySitePlot;
++					pOtherAreaBestPlot = &kCitySitePlot;
+ 				}
+ 			}
+ 		}
+ 	}
+ 	if (iAreaBestFoundValue == 0 && iOtherAreaBestFoundValue == 0)
+-	{
+ 		return false;
+-	}
+ 
+ 	if (iAreaBestFoundValue > iOtherAreaBestFoundValue)
+ 	{
+@@ -15939,17 +15948,19 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 		int iBestValue = 0;
+ 		for (int iI = 0; iI < GET_PLAYER(getOwner()).AI_getNumCitySites(); iI++)
+ 		{
+-			CvPlot* pCitySitePlot = GET_PLAYER(getOwner()).AI_getCitySite(iI);
+-			if (!pCitySitePlot->isVisibleEnemyUnit(this))
++			CvPlot& kCitySitePlot = *GET_PLAYER(getOwner()).AI_getCitySite(iI);
++			if (!kCitySitePlot.isVisibleEnemyUnit(this))
+ 			{
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCitySitePlot, MISSIONAI_FOUND, getGroup(), 4) == 0)
++				if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++					kCitySitePlot, MISSIONAI_FOUND, getGroup(), 4))
+ 				{
+ 					int iPathTurns;
+-					// BBAI TODO: Nearby plots too if much shorter (settler walk from there)
+-					// also, if plots are in area player already has cities, then may not be coastal ... (see Earth 1000 AD map for Inca)
+-					if (generatePath(pCitySitePlot, 0, true, &iPathTurns))
++					/*	BBAI TODO: Nearby plots too if much shorter (settler walk from there)
++						also, if plots are in an area where player already has cities,
++						then may not be coastal ... (see Earth 1000 AD map for Inca) */
++					if (generatePath(&kCitySitePlot, 0, true, &iPathTurns))
+ 					{
+-						int iValue = pCitySitePlot->getFoundValue(getOwner());
++						int iValue = kCitySitePlot.getFoundValue(getOwner());
+ 						iValue *= 1000;
+ 						iValue /= (2 + iPathTurns);
+ 
+@@ -15957,7 +15968,7 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 						{
+ 							iBestValue = iValue;
+ 							pBestPlot = getPathEndTurnPlot();
+-							pBestFoundPlot = pCitySitePlot;
++							pBestFoundPlot = &kCitySitePlot;
+ 						}
+ 					}
+ 				}
+@@ -15978,14 +15989,16 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 				}
+ 				else
+ 				{
+-					getGroup()->pushMission(MISSION_MOVE_TO, pBestFoundPlot->getX(), pBestFoundPlot->getY(), 0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
++					getGroup()->pushMission(MISSION_MOVE_TO, pBestFoundPlot->getX(), pBestFoundPlot->getY(),
++							0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
+ 					return true;
+ 				}
+ 			}
+ 			else
+ 			{
+ 				FAssert(!atPlot(pBestPlot));
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
++				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(),
++						0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
+ 				return true;
+ 			}
+ 		}
+@@ -16030,7 +16043,8 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 				{
+ 					if (!kLoopPlot.isVisibleEnemyUnit(this))
+ 					{
+-						if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kLoopPlot, MISSIONAI_FOUND, getGroup(), 4) == 0)
++						if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++							kLoopPlot, MISSIONAI_FOUND, getGroup(), 4))
+ 						{
+ 							if (generatePath(&kLoopPlot, 0, true))
+ 							{
+@@ -16061,14 +16075,16 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 			}
+ 			else
+ 			{
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestFoundPlot->getX(), pBestFoundPlot->getY(), 0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
++				getGroup()->pushMission(MISSION_MOVE_TO, pBestFoundPlot->getX(), pBestFoundPlot->getY(),
++						0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
+ 				return true;
+ 			}
+ 		}
+ 		else
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(),
++					0, false, false, MISSIONAI_FOUND, pBestFoundPlot);
+ 			return true;
+ 		}
+ 	}
+@@ -16115,7 +16131,8 @@ bool CvUnitAI::AI_ferryWorkers()
+ 		if (iValue <= 0)
+ 			continue;
+ 
+-		iValue -= kOwner.AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_FOUND, getGroup());
++		iValue -= kOwner.AI_plotTargetMissionAIs(
++				pLoopCity->getPlot(), MISSIONAI_FOUND, getGroup());
+ 		if (iValue <= 0)
+ 			continue;
+ 
+@@ -16243,7 +16260,7 @@ bool CvUnitAI::AI_ferryWorkers()
+ 			if (!generatePath(&kPlot, 0, true, &iPathTurns, 8))
+ 				continue;
+ 			// Check this last b/c it goes through all selection groups
+-			if (kOwner.AI_areaMissionAIs(kPlot.getArea(), MISSIONAI_FOUND, getGroup()) > 0)
++			if (kOwner.AI_isAnyAreaMissionAI(kPlot.getArea(), MISSIONAI_FOUND, getGroup()))
+ 				continue;
+ 			/*  For cities, it's 4+... in the divisor. 1 extra to deprioritize islands.
+ 				(Or we could say it's the extra turn for unloading outside a city.) */
+@@ -16362,7 +16379,8 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
+ 		{
+ 			if (!kLoopPlot.isVisibleEnemyUnit(this))
+ 			{
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kLoopPlot, MISSIONAI_SPREAD, getGroup()) == 0)
++				if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++					kLoopPlot, MISSIONAI_SPREAD, getGroup()))
+ 				{
+ 					int iPathTurns;
+ 					if (generatePath(&kLoopPlot, 0, true, &iPathTurns))
+@@ -16395,7 +16413,8 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
+ 		}
+ 
+ 		if (iCorpValue > 0 && !kLoopPlot.isVisibleEnemyUnit(this) &&
+-			GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kLoopPlot, MISSIONAI_SPREAD_CORPORATION, getGroup()) == 0)
++			!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			kLoopPlot, MISSIONAI_SPREAD_CORPORATION, getGroup()))
+ 		{
+ 			int iPathTurns;
+ 			if (generatePath(&kLoopPlot, 0, true, &iPathTurns))
+@@ -16617,7 +16636,7 @@ bool CvUnitAI::AI_carrierSeaTransport()  // advc: some style changes
+ 					iValue += 3;
+ 					// BBAI: Support invasions
+ 					iValue += (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-							&kAir, MISSIONAI_ASSAULT, getGroup(), 2) * 6);
++							kAir, MISSIONAI_ASSAULT, getGroup(), 2) * 6);
+ 				}
+ 				if (kAir.isImproved())
+ 					iValue += 2;
+@@ -16649,7 +16668,7 @@ bool CvUnitAI::AI_carrierSeaTransport()  // advc: some style changes
+ 			{
+ 				bool bStealth = (getInvisibleType() != NO_INVISIBLE);
+ 				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-					&kPlot, MISSIONAI_CARRIER, getGroup(), bStealth ? 5 : 3) <=
++					kPlot, MISSIONAI_CARRIER, getGroup(), bStealth ? 5 : 3) <=
+ 					(bStealth ? 0 : 3))
+ 				{
+ 					int iPathTurns;
+@@ -16740,7 +16759,8 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange) // advc: 1st para
+ 
+ 	if (!kPlot.isVisibleEnemyUnit(this))
+ 	{
+-		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kPlot, MISSIONAI_BUILD, getGroup(), iRange) == 0)
++		if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			kPlot, MISSIONAI_BUILD, getGroup(), iRange))
+ 		{
+ 			if (generatePath(&kPlot, MOVE_SAFE_TERRITORY
+ 				/* <advc.pf> */ | MOVE_ROUTE_TO, /* </advc.pf> */ true))
+@@ -16968,7 +16988,8 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 			else if (iPathTurns <= 1)
+ 				iMaxWorkers = AI_calculatePlotWorkersNeeded(p, pCity->AI_getBestBuild(ePlot));
+ 
+-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&p, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
++			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
++				/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
+ 			{
+ 				iValue *= 1000;
+ 				iValue /= 1 + iPathTurns;
+@@ -17243,7 +17264,7 @@ bool CvUnitAI::AI_irrigateTerritory()  // advc: refactored
+ 		}
+ 
+ 		if (kLoopPlot.isVisibleEnemyUnit(this) ||
+-			kOwner.AI_plotTargetMissionAIs(&kLoopPlot, MISSIONAI_BUILD, getGroup(), 1) > 0)
++			kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
+ 		{
+ 			continue;
+ 		}
+@@ -17352,7 +17373,8 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 				}
+ 				if (bValid)
+ 				{
+-					if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(&kPlot, MISSIONAI_BUILD, getGroup(), 3) == 0)
++					if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++						kPlot, MISSIONAI_BUILD, getGroup(), 3))
+ 					{
+ 						int iPathTurns;
+ 						if (generatePath(&kPlot, 0, true, &iPathTurns))
+@@ -17537,7 +17559,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 						1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
+ 			}
+ 		}
+-		if (kOwner.AI_plotTargetMissionAIs(&kPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers &&
++		if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
++			/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
+ 			(!bDoImprove || kPlot.getBuildTurnsLeft(eBestTempBuild,
+ 			/* advc.251: */ kOwner.getID(), 0, 0) > iPathTurns * 2 - 1))
+ 		{
+@@ -17892,7 +17915,8 @@ bool CvUnitAI::AI_routeCity()  // advc: some style changes
+ 			/*!pLoopCity->getPlot().isVisibleEnemyUnit(this) && // advc.opt: These cities belong to our team
+ 			!pRouteToCity->getPlot().isVisibleEnemyUnit(this) &&*/
+ 			!pLoopCity->AI_isEvacuating() && !pRouteToCity->AI_isEvacuating() && // advc.139
+-			GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pRouteToCity->plot(), MISSIONAI_BUILD, getGroup()) == 0)
++			!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			pRouteToCity->getPlot(), MISSIONAI_BUILD, getGroup()))
+ 		{
+ 			if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY
+ 				| MOVE_ROUTE_TO, // advc.pf
+@@ -17903,6 +17927,8 @@ bool CvUnitAI::AI_routeCity()  // advc: some style changes
+ 					| MOVE_ROUTE_TO, // advc.pf
+ 					true))
+ 				{
++					/*	advc (note): This picks the first valid city in the list.
++						Perhaps checking all and picking the best isn't worth the effort. */
+ 					getGroup()->pushMission(MISSION_ROUTE_TO,
+ 							pLoopCity->getX(), pLoopCity->getY(),
+ 							MOVE_SAFE_TERRITORY /* advc.pf: */ | MOVE_ROUTE_TO,
+@@ -17963,8 +17989,8 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
+ 		}
+ 		if (iValue > 0 && !kPlot.isVisibleEnemyUnit(this))
+ 		{
+-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-				&kPlot, MISSIONAI_BUILD, getGroup(), 1) == 0)
++			if (!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				kPlot, MISSIONAI_BUILD, getGroup(), 1))
+ 			{
+ 				int iPathTurns;
+ 				if (generatePath(&kPlot, MOVE_SAFE_TERRITORY /* advc.pf: */ | MOVE_ROUTE_TO,
+@@ -18394,7 +18420,7 @@ bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,  // advc: style changes
+ 						}
+ 					}
+ 				}
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCity->plot(), MISSIONAI_PICKUP, getGroup()) <
++				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pCity->getPlot(), MISSIONAI_PICKUP, getGroup()) <
+ 					(iCount + cargoSpace() - 1) / cargoSpace())
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_PICKUP, pCity->plot());
+@@ -18444,8 +18470,9 @@ bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,  // advc: style changes
+ 		/*if (pLoopCity->getPlot().isVisibleEnemyUnit(this)) // advc.opt: It's our city
+ 			continue;*/
+ 
+-		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(),
+-			MISSIONAI_PICKUP, getGroup()) < (iCount + cargoSpace() - 1) / cargoSpace())
++		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++			pLoopCity->getPlot(), MISSIONAI_PICKUP, getGroup()) <
++			(iCount + cargoSpace() - 1) / cargoSpace())
+ 		{
+ 			if (!pLoopCity->AI_isDanger())
+ 				continue;
+@@ -18528,6 +18555,7 @@ bool CvUnitAI::AI_considerPickup(UnitAITypes eUnitAI, CvCityAI const& kCity) con
+ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ {
+ 	PROFILE_FUNC();
++	FAssert(iMaxPath >= 0); // advc (use MAX_INT for infinity)
+ 
+ 	FAssert(cargoSpace() > 0);
+ 	if (cargoSpace() <= 0)
+@@ -18581,12 +18609,13 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 				}
+ 			}
+ 
+-			if (pTargetPlot)
++			if (pTargetPlot != NULL)
+ 			{
+-				FAssert(iMaxPath < 0 || iPathTurns <= iMaxPath);
+-
++				FAssert(iPathTurns <= iMaxPath);
++				FAssert(iPathTurns >= 0); // advc
+ 				MissionAITypes eMissionAIType = MISSIONAI_PICKUP;
+-				iCount -= kPlayer.AI_unitTargetMissionAIs(pHeadUnit, &eMissionAIType, 1, getGroup(), iPathTurns) * cargoSpace(); // estimate
++				iCount -= cargoSpace() * kPlayer.AI_unitTargetMissionAIs( // estimate
++						*pHeadUnit, &eMissionAIType, 1, getGroup(), iPathTurns);
+ 
+ 				int iValue = 1000*iCount;
+ 
+@@ -19256,7 +19285,7 @@ int CvUnitAI::AI_airStrikeValue(CvPlot const& kPlot, int iCurrentBest, bool& bBo
+ 	int iBombValue = 0;
+ 	int iAdjacentAttackers = 0; // (only count adjacent units if we can air-strike)
+ 	int iAssaultEnRoute = !kPlot.isCity() ? 0 : GET_PLAYER(getOwner()).
+-			AI_plotTargetMissionAIs(&kPlot, MISSIONAI_ASSAULT, getGroup(), 1);
++			AI_plotTargetMissionAIs(kPlot, MISSIONAI_ASSAULT, getGroup(), 1);
+ 
+ 	// TODO: consider changing the evaluation system so that instead of simply counting units, it counts attack / defence power.
+ 
+@@ -19522,7 +19551,8 @@ bool CvUnitAI::AI_exploreAirCities()
+ 				iValue += 10;
+ 				iValue += std::min(10, pLoopCity->getArea().getNumAIUnits(
+ 						getOwner(), UNITAI_ATTACK_CITY));
+-				iValue += 10 * kPlayer.AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_ASSAULT);
++				iValue += 10 * kPlayer.AI_plotTargetMissionAIs(
++						pLoopCity->getPlot(), MISSIONAI_ASSAULT);
+ 			}
+ 			iValue *= plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+ 			if (iValue > iBestValue)
+@@ -20127,8 +20157,11 @@ int CvUnitAI::AI_getEspionageTargetValue(CvPlot* pPlot)
+ 		iValue += iRand * iRand;
+ 		if (getArea().AI_getTargetCity(getOwner()) == pCity)
+ 			iValue += 30;
+-		if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pPlot, MISSIONAI_ASSAULT, getGroup()) > 0)
++		if (GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++			*pPlot, MISSIONAI_ASSAULT, getGroup()))
++		{
+ 			iValue += 30;
++		}
+ 		// K-Mod. Dilute the effect of population, and take cost modifiers into account.
+ 		iValue += 10;
+ 		iValue *= 100;
+@@ -20231,7 +20264,7 @@ bool CvUnitAI::AI_cityOffenseSpy(int iMaxPath, CvCity* pSkipCity)
+ 						int iValue = AI_getEspionageTargetValue(pLoopPlot);
+ 						iValue *= 5;
+ 						iValue /= 5 + GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-								pLoopPlot, MISSIONAI_ATTACK_SPY, getGroup());
++								*pLoopPlot, MISSIONAI_ATTACK_SPY, getGroup());
+ 						iValue *= iTeamWeight;
+ 						if (iValue > iBestValue)
+ 						{
+@@ -20298,7 +20331,7 @@ bool CvUnitAI::AI_bonusOffenseSpy(int iRange)
+ 					//iValue *= GET_TEAM(getTeam()).AI_isSneakAttackPreparing(pLoopPlot->getTeam()) ? 2 : 1;
+ 					iValue *= 4;
+ 					iValue /= (4 + GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+-							&p, MISSIONAI_ATTACK_SPY, getGroup()));
++							p, MISSIONAI_ATTACK_SPY, getGroup()));
+ 					if (iValue > iBestValue)
+ 					{
+ 						iBestValue = iValue;
+@@ -20556,7 +20589,8 @@ bool CvUnitAI::AI_moveToStagingCity()
+ 				// Attraction to cities which are serving as launch/pickup points
+ 				iValue += 3*pLoopCity->getPlot().plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwner());
+ 				iValue += 2*pLoopCity->getPlot().plotCount(PUF_isUnitAIType, UNITAI_ESCORT_SEA, -1, getOwner());
+-				iValue += 5*GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_PICKUP);
++				iValue += 5*GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
++						pLoopCity->getPlot(), MISSIONAI_PICKUP);
+ 			}
+ 			else iValue = iValue/8;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvVirtualWrappers.cpp b/CvGameCoreDLL/CvVirtualWrappers.cpp
+index e2b0302fd..7af7e86a8 100644
+--- a/CvGameCoreDLL/CvVirtualWrappers.cpp
++++ b/CvGameCoreDLL/CvVirtualWrappers.cpp
+@@ -149,10 +149,14 @@ int CvPlayer::AI_totalWaterAreaUnitAIsExternal(CvArea* pArea, UnitAITypes eUnitA
+ 	return AI().AI_totalWaterAreaUnitAIs(*pArea, eUnitAI);
+ }
+ int CvPlayer::AI_plotTargetMissionAIsExternal(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup, int iRange) { reportCall;
+-	return AI().AI_plotTargetMissionAIs(pPlot, eMissionAI, pSkipSelectionGroup, iRange);
++	if (pPlot == NULL)
++		return 0;
++	return AI().AI_plotTargetMissionAIs(*pPlot, eMissionAI, pSkipSelectionGroup, iRange);
+ }
+ int CvPlayer::AI_unitTargetMissionAIsExternal(CvUnit* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) { reportCall;
+-	return AI().AI_unitTargetMissionAIs(pUnit, eMissionAI, pSkipSelectionGroup);
++	if (pUnit == NULL)
++		return 0;
++	return AI().AI_unitTargetMissionAIs(*pUnit, eMissionAI, pSkipSelectionGroup);
+ }
+ int CvPlayer::AI_civicValueExternal(CivicTypes eCivic) { reportCall;
+ 	return AI().AI_civicValue(eCivic);
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index f9d5b25f1..592b72499 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -10,8 +10,10 @@
+ int KmodPathFinder::admissible_scaled_weight = 1;
+ int KmodPathFinder::admissible_base_weight = 1;
+ 
+-CvPathSettings::CvPathSettings(const CvSelectionGroup* pGroup, int iFlags, int iMaxPath, int iHW)
+-	: pGroup(pGroup), iFlags(iFlags), iMaxPath(iMaxPath), iHeuristicWeight(iHW)
++CvPathSettings::CvPathSettings(const CvSelectionGroup* pGroup, int iFlags, int iMaxPath, int iHW) :
++	pGroup(pGroup), iFlags(iFlags),
++	iMaxPath(iMaxPath < 0 ? MAX_INT : iMaxPath), // advc.opt: Can avoid some branching this way
++	iHeuristicWeight(iHW)
+ {
+ 	// empty. (there use to be something here, but we don't need it anymore.)
+ }
+@@ -20,14 +22,14 @@ void KmodPathFinder::InitHeuristicWeights()
+ {
+ 	admissible_base_weight = GC.getMOVE_DENOMINATOR()/2;
+ 	admissible_scaled_weight = GC.getMOVE_DENOMINATOR()/2;
+-	for (int r = 0; r < GC.getNumRouteInfos(); r++)
++	FOR_EACH_ENUM(Route)
+ 	{
+-		const CvRouteInfo& kInfo = GC.getInfo((RouteTypes)r);
++		const CvRouteInfo& kInfo = GC.getInfo(eLoopRoute);
+ 		int iCost = kInfo.getMovementCost();
+-		for (int t = 0; t < GC.getNumTechInfos(); t++)
++		FOR_EACH_ENUM(Tech)
+ 		{
+-			if (kInfo.getTechMovementChange(t) < 0)
+-				iCost += kInfo.getTechMovementChange(t);
++			if (kInfo.getTechMovementChange(eLoopTech) < 0)
++				iCost += kInfo.getTechMovementChange(eLoopTech);
+ 		}
+ 		admissible_base_weight = std::min(admissible_base_weight, iCost);
+ 		admissible_scaled_weight = std::min(admissible_scaled_weight, kInfo.getFlatMovementCost());
+@@ -56,7 +58,8 @@ KmodPathFinder::KmodPathFinder() :
+ 	// Ideally the pathfinder would be initialised with a given CvMap, and then not refer to any global objects.
+ 	// But that is not easy to do with the current code-base. Instead I'll just check the pathfinder settings
+ 	// at particular times to make sure the map hasn't changed.
+-
++	/*	advc.003k (note): Making the KmodPathFinder member of CvSelectionGroup
++		non-static would no longer be a problem */
+ }
+ 
+ KmodPathFinder::~KmodPathFinder()
+@@ -129,7 +132,8 @@ bool KmodPathFinder::GeneratePath(int x1, int y1, int x2, int y2)
+ 
+ 	if (GetNode(x1, y1).m_bOnStack)
+ 	{
+-		int iMoves = (settings.iFlags & MOVE_MAX_MOVES) ? settings.pGroup->maxMoves() : settings.pGroup->movesLeft();
++		int iMoves = (settings.iFlags & MOVE_MAX_MOVES) ?
++				settings.pGroup->maxMoves() : settings.pGroup->movesLeft();
+ 		if (iMoves != GetNode(x1, y1).m_iData1)
+ 		{
+ 			Reset();
+@@ -160,9 +164,12 @@ bool KmodPathFinder::GeneratePath(int x1, int y1, int x2, int y2)
+ 		// nothing
+ 	}
+ 
+-	if (end_node && (settings.iMaxPath < 0 || end_node->m_iData2 <= settings.iMaxPath))
++	if (end_node != NULL &&
++		// advc.opt:
++		(/*settings.iMaxPath < 0 ||*/ end_node->m_iData2 <= settings.iMaxPath))
++	{
+ 		return true;
+-
++	}
+ 	return false;
+ }
+ 
+@@ -244,8 +251,8 @@ void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
+ 		// there's one more chance to avoid a reset..
+ 		// If the war flag is the only difference, and we aren't sneak attack ready anyway - then there is effectively no difference.
+ 		relevant_flags &= ~MOVE_DECLARE_WAR;
+-		if ((settings.iFlags & relevant_flags) != (new_settings.iFlags & relevant_flags)
+-			|| GET_TEAM(settings.pGroup->getHeadTeam()).AI_isSneakAttackReady())
++		if ((settings.iFlags & relevant_flags) != (new_settings.iFlags & relevant_flags) ||
++			GET_TEAM(settings.pGroup->getHeadTeam()).AI_isSneakAttackReady())
+ 		{
+ 			Reset();
+ 		}
+@@ -255,9 +262,7 @@ void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
+ 	if (settings.iHeuristicWeight < 0)
+ 	{
+ 		if (!settings.pGroup)
+-		{
+ 			settings.iHeuristicWeight = 1;
+-		}
+ 		else
+ 		{
+ 			if (settings.pGroup->getDomainType() == DOMAIN_SEA)
+@@ -322,7 +327,8 @@ bool KmodPathFinder::ProcessNode()
+ 		for (OpenList_t::iterator it = open_list.begin(); it != open_list.end(); ++it)
+ 		{
+ 			if ((*it)->m_iTotalCost < iLowestCost &&
+-				(settings.iMaxPath < 0 || (*it)->m_iData2 <= settings.iMaxPath))
++				// advc.opt:
++				(/*settings.iMaxPath < 0 ||*/ (*it)->m_iData2 <= settings.iMaxPath))
+ 			{
+ 				best_it = it;
+ 				iLowestCost = (*it)->m_iTotalCost;
+@@ -500,7 +506,10 @@ void KmodPathFinder::ForwardPropagate(FAStarNode* head, int cost_delta)
+ 
+ 		FAssert(head->m_apChildren[i]->m_iKnownCost > head->m_iKnownCost);
+ 
+-		if (iNewDelta != 0 || iOldMoves != head->m_apChildren[i]->m_iData1 || iOldTurns != head->m_apChildren[i]->m_iData2)
++		if (iNewDelta != 0 || iOldMoves != head->m_apChildren[i]->m_iData1 ||
++			iOldTurns != head->m_apChildren[i]->m_iData2)
++		{
+ 			ForwardPropagate(head->m_apChildren[i], iNewDelta);
++		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index e6257aba3..158df8e25 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -1,9 +1,8 @@
+ #pragma once
+ 
+-#ifndef KMOD_PATHFINDER_H // advc: Include guards (might be needed for fastdep)
++#ifndef KMOD_PATHFINDER_H
+ #define KMOD_PATHFINDER_H
+ 
+-#include <vector>
+ #include "FAStarNode.h"
+ 
+ class CvSelectionGroup;
+@@ -33,14 +32,21 @@ public:
+ 
+ 	bool GeneratePath(int x1, int y1, int x2, int y2);
+ 	bool GeneratePath(const CvPlot* pToPlot); // just a wrapper for convenience
+-	FAStarNode* GetEndNode() const { FAssert(end_node); return end_node; } // Note: the returned pointer becomes invalid if the pathfinder is destroyed.
+-	bool IsPathComplete() const { return end_node; }
++	FAStarNode* GetEndNode() const
++	{	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
++		FAssert(end_node != NULL);
++		return end_node;
++	}
++	bool IsPathComplete() const { return (end_node != NULL); }
+ 	int GetPathTurns() const;
+ 	int GetFinalMoves() const;
+ 	CvPlot* GetPathFirstPlot() const;
+ 	CvPlot* GetPathEndTurnPlot() const;
+ 	void SetSettings(const CvPathSettings& new_settings);
+-	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1, int iHW=-1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath, iHW)); }
++	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1, int iHW=-1)
++	{
++		SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath, iHW));
++	}
+ 	void Reset();
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 7acdbb699..ced03caa1 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -462,7 +462,7 @@ bool UWAI::Team::reviewPlan(TeamTypes targetId, int u, int prepTime) {
+ 			if(wpAge > timeout) {
+ 				// Akin to code in CvTeamAI::AI_endWarVal
+ 				for(MemberIter it(agentId); it.hasNext(); ++it) {
+-					if(it->AI_enemyTargetMissions(targetId) > 0) {
++					if(it->AI_isAnyEnemyTargetMission(targetId)) {
+ 						timeout *= 2;
+ 						break;
+ 					}
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=88609

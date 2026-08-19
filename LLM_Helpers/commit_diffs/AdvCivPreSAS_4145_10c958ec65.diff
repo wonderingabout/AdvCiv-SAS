@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4145
+# Commit: 10c958ec6572a0ca059729aa7c1384f3f2893223
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9ca2e10ced01a2ed8977b018ad7e46495ca4c212
+# Title: Fix regression causing unreliable irrigation yield updates
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	4	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6c4c06d59..615e5b7c7 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3978,10 +3978,14 @@ void CvPlot::setIrrigated(bool bNewValue)
+ 	if(isIrrigated() == bNewValue)
+ 		return;
+ 	m_bIrrigated = bNewValue;
+-	FOR_EACH_ADJ_PLOT_VAR(*this)
+-	{
+-		pAdj->updateYield();
+-		pAdj->setLayoutDirty(true);
++	/*	advc (note): When updating the yield, isIrrigationAvailable checks the
++		isIrrigated status of adjacent plots, not just of the plot that is being
++		updated. To be consistent with that, we need to update yields of adjacent
++		plots here, not just of *this plot, whose isIrrigated status has changed. */
++	for (SquareIter itPlot(*this, 1); itPlot.hasNext(); ++itPlot)
++	{
++		itPlot->updateYield();
++		itPlot->setLayoutDirty(true);
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=831

@@ -1,0 +1,47 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2436
+# Commit: 7b854afa5ff7c510d40243b9b8cb829c3b49b024
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a9fe95573c5f58cfff67759fd7a8b6ca2afc338f
+# Title: Allow all ScaledNum types to be used in EnumMap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 4b60ac027..96ede7118 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1145,10 +1145,14 @@ SET_ARRAY_DEFAULT(unsigned int);
+ SET_ARRAY_DEFAULT(unsigned short);
+ SET_ARRAY_DEFAULT(byte);
+ SET_ARRAY_DEFAULT(float); // advc
+-SET_ARRAY_DEFAULT(scaled); // advc.fract
+-// <advc.027> (Can't pass multi-argument instantiation to macro)
+-typedef ScaledNum<1024*32,uint> ScaledNum_32_1024_uint;
+-SET_ARRAY_DEFAULT(ScaledNum_32_1024_uint); // </advc.027>
++// <advc.fract> (Can't pass template params into SET_ARRAY_DEFAULT)
++template<int iSCALE, typename IntType, typename EnumType>
++__forceinline ScaledNum<iSCALE,IntType,EnumType> ArrayDefault(ScaledNum<iSCALE,IntType,EnumType> var) { return 0; }
++template<int iSCALE, typename IntType, typename EnumType>
++struct EnumMapGetDefault<ScaledNum<iSCALE,IntType,EnumType> >
++{
++	enum { DEFAULT_VALUE = 0, SIZE = ENUMMAP_SIZE_NATIVE, SIZE_OF_T = sizeof(ScaledNum<iSCALE,IntType,EnumType>) };
++}; // </advc.fract>
+ 
+ /*  advc: COMPILE_NUM_TYPES param removed; use NUM_ENUM_TYPES macro instead.
+ 	JITarrayType accessor, ArrayStart and ArrayLength functions removed.
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1190

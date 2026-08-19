@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3928
+# Commit: 981dfe6ce0529b29b317a9965bdbd36851c2fdfc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 01bb2cccd01b732fb9f63088d82b188ae0962f0c
+# Title: Don't show "destroyed" message when capturing worker
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	7	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3893507b7..bec793ce5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1546,15 +1546,13 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
+ 					iWS, getTeam(), pDefender->getTeam(), true);
+ 			}
+ 		} // <advc.130m>
+-
+-		addAttackSuccessMessages(*pDefender, true); // advc.010: Moved into new function
+ 		// report event to Python, along with some other key state
+ 		CvEventReporter::getInstance().combatResult(this, pDefender);
+-
+ 		bool bAdvance = false;
+-
++		bool bCapture = false; // advc.010
+ 		if (isSuicide())
+-		{
++		{	// advc.010: Moved into new function
++			addAttackSuccessMessages(*pDefender, true);
+ 			kill(true);
+ 			pDefender->kill(false);
+ 			pDefender = NULL;
+@@ -1568,12 +1566,15 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
+ 					SyncRandSuccess100(getCaptureOdds(*pDefender))) // advc.010
+ 				{
+ 					pDefender->setCapturingPlayer(getOwner());
++					bCapture = true; // advc.010
+ 				}
+ 			}
+-
++			/*	<advc.010> BtS had shown "destroyed" and then "captured" (I think).
++				We want to show only the captured message. */
++			if (!bCapture)
++				addAttackSuccessMessages(*pDefender, true); // </advc.010>
+ 			pDefender->kill(false);
+ 			pDefender = NULL;
+-
+ 			if (!bAdvance)
+ 			{
+ 				changeMoves(std::max(GC.getMOVE_DENOMINATOR(),
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1413

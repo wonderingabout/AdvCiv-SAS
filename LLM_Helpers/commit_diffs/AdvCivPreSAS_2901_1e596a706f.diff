@@ -1,0 +1,202 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2901
+# Commit: 1e596a706fb24349580373740ff647e9b6cff795
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 41f4d17ab8859faf606113ae0ffb01349c327a71
+# Title: Add Civ4CultureLevelInfos.xml from Vanilla Civ 4
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+171	0	Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+ create mode 100644 Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml b/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+new file mode 100644
+index 000000000..f71587bd4
+--- /dev/null
++++ b/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+@@ -0,0 +1,171 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Culture Level Infos -->
++<Civ4CultureLevelInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<CultureLevelInfos>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_NONE</Type>
++			<Description>TXT_KEY_CULTURELEVEL_NONE</Description>
++			<iCityDefenseModifier>0</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_POOR</Type>
++			<Description>TXT_KEY_CULTURELEVEL_POOR</Description>
++			<iCityDefenseModifier>0</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>0</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_FLEDGLING</Type>
++			<Description>TXT_KEY_CULTURELEVEL_FLEDGLING</Description>
++			<iCityDefenseModifier>20</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>30</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>15</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>10</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>5</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_DEVELOPING</Type>
++			<Description>TXT_KEY_CULTURELEVEL_DEVELOPING</Description>
++			<iCityDefenseModifier>40</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>300</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>150</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>100</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>50</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_REFINED</Type>
++			<Description>TXT_KEY_CULTURELEVEL_REFINED</Description>
++			<iCityDefenseModifier>60</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>1500</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>750</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>500</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>250</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_INFLUENTIAL</Type>
++			<Description>TXT_KEY_CULTURELEVEL_INFLUENTIAL</Description>
++			<iCityDefenseModifier>80</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>15000</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>7500</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>5000</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>2500</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++		<CultureLevelInfo>
++			<Type>CULTURELEVEL_LEGENDARY</Type>
++			<Description>TXT_KEY_CULTURELEVEL_LEGENDARY</Description>
++			<iCityDefenseModifier>100</iCityDefenseModifier>
++			<SpeedThresholds>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_MARATHON</GameSpeedType>
++					<iThreshold>150000</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_EPIC</GameSpeedType>
++					<iThreshold>75000</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_NORMAL</GameSpeedType>
++					<iThreshold>50000</iThreshold>
++				</SpeedThreshold>
++				<SpeedThreshold>
++					<GameSpeedType>GAMESPEED_QUICK</GameSpeedType>
++					<iThreshold>25000</iThreshold>
++				</SpeedThreshold>
++			</SpeedThresholds>
++		</CultureLevelInfo>
++	</CultureLevelInfos>
++</Civ4CultureLevelInfo>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=6034

@@ -1,0 +1,442 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6122
+# Commit: 058039116ddc435b540329bf1a2b7609fec3aee3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 24104e1ce96d7d0470df04faff36127d3840a462
+# Title: Adjust some Tech and Building Flavors, Make TECH_LIBERALISM tradeable again, and add a redundant defaults CI (e.g. TechTypes NONE instead of empty, Flavor 0)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+99	0	.github/workflows/build/xml_redundant_defaults.py
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+41	28	Assets/XML/Technologies/CIV4TechInfos.xml
+2	5	Assets/XML/Units/CIV4UnitInfos.xml
+9	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+ create mode 100644 .github/workflows/build/xml_redundant_defaults.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 1fa561e89..b93160f0a 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -85,6 +85,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
+ - [`build/xml_text_duplicate_tags.py`](#buildxml_text_duplicate_tagspy)
+ - [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
+ - [`build/xml_child_duplicates.py`](#buildxml_child_duplicatespy)
++- [`build/xml_redundant_defaults.py`](#buildxml_redundant_defaultspy)
+ - [`build/tech_columns.py`](#buildtech_columnspy)
+ - [`build/wonder_cost_columns.py`](#buildwonder_cost_columnspy)
+ - [`build/wonder_culture_gpp_columns.py`](#buildwonder_culture_gpp_columnspy)
+@@ -219,6 +220,12 @@ Verifies parent-style XML objects are not defined twice with the same key, such
+ 
+ Checks suspicious duplicate child/list XML entries inside the same parent object, failing on high-confidence duplicates such as duplicate flavors, leader memory/contact keys, civilization city names, and unit/promotion lists; reports lower-confidence duplicates such as exact duplicate event trigger `Text + Era` entries without failing, prints source line numbers, and hides known allowed/noisy duplicates such as weighted goody huts and reused world-picker art paths unless run with `--show-ignored`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) and fix XML text duplicate errors. See [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check).
+ 
++### `build/xml_redundant_defaults.py`
++
++Verifies a small set of XML representations that are known to be semantically redundant in Civ4/AdvCiv-SAS: explicit zero-valued entries inside `Flavors`, where an omitted flavor already evaluates to 0, and non-empty `TechTypes` lists containing only `NONE`/`NO_TECH`, where an empty `TechTypes` list has the same effective meaning. This was added after the flavor audit found both patterns in inherited/stale XML (see [KI#22.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixedprevented-redundant-xml-defaultlist-entries-that-add-noise-without-changing-effective-values)).
++
++The check is deliberately conservative rather than a generic "zero is bad" rule. Many scalar zero fields are mandatory or meaningful defaults, and some padded list formats may depend on loader/schema behavior. Add another pattern only after confirming that the shorter representation is accepted and semantically identical.
++
+ ### `build/tech_columns.py`
+ 
+ Verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 4ec5dee7d..54f095129 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -37,6 +37,7 @@ jobs:
+       - run: python .github/workflows/build/sas_text_references.py
+       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
+       - run: python .github/workflows/build/xml_child_duplicates.py
++      - run: python .github/workflows/build/xml_redundant_defaults.py
+       - run: python .github/workflows/build/tech_columns.py
+       - run: python .github/workflows/build/wonder_cost_columns.py
+       - run: python .github/workflows/build/wonder_culture_gpp_columns.py
+
+diff --git a/.github/workflows/build/xml_redundant_defaults.py b/.github/workflows/build/xml_redundant_defaults.py
+new file mode 100644
+index 000000000..fb20390cb
+--- /dev/null
++++ b/.github/workflows/build/xml_redundant_defaults.py
+@@ -0,0 +1,99 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++from pathlib import Path
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++XML_ROOT = Path("Assets/XML")
++IGNORED_DIRS = {Path("Assets/XML/Text")}
++NO_TECH_VALUES = {"", "NONE", "NO_TECH"}
++
++
++def local_name(tag: str) -> str:
++	return tag.rsplit("}", 1)[-1]
++
++
++def child_text(node: ET.Element, name: str) -> str:
++	for child in node:
++		if local_name(child.tag) == name:
++			return (child.text or "").strip()
++	return ""
++
++
++def object_key(stack: list[ET.Element]) -> str:
++	for node in reversed(stack):
++		for key_name in ("Type", "DefineName", "Tag", "ScriptID", "SoundID"):
++			value = child_text(node, key_name)
++			if value:
++				return value
++	return "(unknown object)"
++
++
++def scan_file(path: Path, display_path: Path) -> list[str]:
++	errors: list[str] = []
++	try:
++		root = ET.parse(path).getroot()
++	except (ET.ParseError, UnicodeDecodeError) as exc:
++		return [f"{display_path}: could not parse while checking redundant defaults: {exc}"]
++
++	def visit(node: ET.Element, stack: list[ET.Element]) -> None:
++		name = local_name(node.tag)
++		if name == "Flavor":
++			value_text = child_text(node, "iFlavor")
++			try:
++				value = int(value_text)
++			except ValueError:
++				value = None
++			if value == 0:
++				flavor_type = child_text(node, "FlavorType") or "(unknown flavor)"
++				errors.append(
++					f"{display_path}: {object_key(stack)} has redundant {flavor_type} iFlavor=0; "
++					"omit the Flavor entry because a missing flavor already evaluates to 0"
++				)
++
++		if name == "TechTypes" and len(node):
++			children = list(node)
++			if all(local_name(child.tag) == "PrereqTech" for child in children):
++				values = [(child.text or "").strip() for child in children]
++				if values and all(value in NO_TECH_VALUES for value in values):
++					errors.append(
++					f"{display_path}: {object_key(stack)} has a non-empty TechTypes list containing "
++					"only NONE/NO_TECH prerequisites; use <TechTypes/> instead"
++				)
++
++		for child in node:
++			visit(child, stack + [node])
++
++	visit(root, [])
++	return errors
++
++
++def main() -> int:
++	repo_root = get_default_repo_root()
++	errors: list[str] = []
++	for path in sorted((repo_root / XML_ROOT).rglob("*.xml")):
++		relative = path.relative_to(repo_root)
++		if any(relative == ignored or ignored in relative.parents for ignored in IGNORED_DIRS):
++			continue
++		errors.extend(scan_file(path, relative))
++
++	if errors:
++		print("Redundant XML default/list entries found:")
++		for error in errors:
++			print(f"- {error}")
++		return 1
++
++	print("PASS: no checked redundant XML default/list entries found.")
++	return 0
++
++
++if __name__ == "__main__":
++	raise SystemExit(main())
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 82da272f4..a53695228 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -29014,7 +29014,7 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: use similar reasoning as in base advciv comment below i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units; Long_Comments_XML.txt #342 -->
++			<!-- custom: avoid Military flavor so military personalities are not encouraged to divert production from units; retain only a small Production flavor for the wonder itself. Long_Comments_XML.txt #342. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index c3246213a..404b5dac6 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1363,12 +1363,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- advc.015a: Production was 3; add flavor science (was missing)-->
++			<!-- custom: remove the inherited explicit FLAVOR_PRODUCTION 0 entry; omitted flavors already evaluate to 0, so keeping it only adds XML noise. See KI#22.7. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>0</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>4</iFlavor>
+@@ -1416,8 +1412,8 @@
+ 			<iAsset>32</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+-			<!-- custom: was 1 -->
+-			<bTrade>0</bTrade>
++			<!-- custom: restore tradeability after the SAS tree/reward rework; Naturalism remains protected/untradeable, while Liberalism no longer needs the same no-trade protection and exchanging it can modestly support the peaceful/economic route. (ChatGPT-5.6-Sol) -->
++			<bTrade>1</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>0</bGoodyTech>
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+@@ -1891,7 +1887,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: provisional split from Fascism's existing military/production identity; review technology flavors after stabilizing the revised tree. (GPT-5.6-Sol) -->
++			<!-- custom: keep Automobiles primarily military for its Tank/counter-tank role; only a minor Production flavor remains for the Industrialism/Industrial Park continuation. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+@@ -1899,7 +1895,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -3341,6 +3337,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: current SAS Chemistry directly unlocks Cannon/Hwacha/Houfnice/Frigate and leads into Military Science, so treat it as a key military tech; keep only a modest Science flavor because Physics/Biology are the more science-focused continuations. Chemistry remains tradeable. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -3348,7 +3345,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -3939,11 +3940,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 4 -->
++			<!-- custom: give Flight a strong Military flavor because it is the first major fighter/bomber air-combat gateway. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -4369,11 +4370,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: tech is very important for future military units although it itself (if this how to say it in english) doesn't have strong military / offensive or defensive units, but still put high military flavor so AI leaders search this tech strongly if they want later units; it is similarly a key tech to access later future techs so make sure AI leaders research it if they have the science flavor as well by having a high enough flavor_science as well -->
++			<!-- custom: AI is now a direct prerequisite for the current robotic combat units and a major Future-era gateway, so Military 6 intentionally reaches the SAS key-military-tech threshold while Science remains its primary flavor. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -5372,12 +5373,16 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 6 -->
++			<!-- custom: keep a modest Military flavor because Machinery is primarily a production/science tech but currently helps gate Crossbow and siege branches; revisit if those unit prerequisites move. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -5761,11 +5766,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 10 -->
++			<!-- custom: earlier SAS reduced AdvCiv's Military 10 to 5; use 6 for the current Airship/Grenadier/Cacador/Ironclad package so it reaches the SAS key-military-tech threshold without restoring the old extreme weight. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -6058,12 +6063,16 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 3, FLAVOR_CULTURE 0 -->
++			<!-- custom: keep a modest Military flavor because Assembly Line is primarily an economic/production tech but currently also gates several major industrial land units, including Tank; revisit if those prerequisites move. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>3</iFlavor>
+@@ -6497,19 +6506,19 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: not too high FLAVOR_MILITARY to not let AIs astray (i don't know too much about these though so this is just a guess) -->
++			<!-- custom: Professional Army is a strong military gateway toward Firearms and also unlocks Privateer/Blitzkrieg; Wage Labor supports substantial Gold and Production interest through gold hurry and unlimited Engineers, so keep those secondary flavors meaningful too. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -6569,12 +6578,16 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 5 -->
++			<!-- custom: keep a modest Military flavor because Computers is primarily a science tech but currently helps gate Modern Tank; Composites remains the stronger military branch. Revisit if those prerequisites move. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>9</iFlavor>
+@@ -6720,11 +6733,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 8 -->
++			<!-- custom: keep Rocketry's Military flavor moderate: it mainly advances missile, air-defense, and nuclear branches rather than creating a broad immediate conventional power spike. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 0d993ea78..033eae140 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -13110,11 +13110,8 @@
+ 			<!-- custom: TECH_INDUSTRIALISM now guarantees TECH_AUTOMOBILES -> TECH_FASCISM, so the explicit Fascism requirement became redundant. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
+ 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<!-- custom: use an empty TechTypes list instead of redundant NONE-only prerequisite entries; see KI#22.7. (ChatGPT-5.6-Sol) -->
++			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 3aaaba883..0d1d448a2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -40,6 +40,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [22 - (now fixed) Obsolete bonuses in tech advisor failing to redirect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-in-tech-advisor-ie-tech-tree-view-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-successfully-showing-the-building-items-page)\
+ [22.5 - (Addressed) Fixed weird flavors or XML fields](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#225---addressed-seemingly-fixed-weird-flavors-or-xml-fields-mistakes)\
+ [22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#226---addressed-xml-tweaks-and-fixes)\
++[22.7 - (Fixed/Prevented) Redundant XML default/list entries that add noise without changing effective values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixedprevented-redundant-xml-defaultlist-entries-that-add-noise-without-changing-effective-values)\
+ [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late)\
+ [23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---attemptingly-partially-addressedreduced-ai-players-producing-more-workboats-than-needed-which-then-stay-parked-in-city-or-go-explore)
+ [24 - (Attemptingly fixed) AI Workers often build forts on bonuses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-bonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive)\
+@@ -925,6 +926,14 @@ Fixed the stealth bomber and other units having a lower collateral damage limit
+ 
+ Also fixed/replaced the strange the strange `[PARAGRAPH:2:1]` with the much more commonly used `[PARAGRAPH:2]` in our advciv-sas assets, i don't know what this strange format/thing is, but if the base `:2` can do it no need for a `:2:1`, and strange trailing `[PARAGRAPH:2]</English>` and or such as well that also seem uneeded, and remove unneeded `[PARAGRAPH:1]` in some tech quotes (as of now didn't do it to all tech quotes as bit tedious and not so worth but ideally would but may or may not in this case)
+ 
++## 22.7 - (Fixed/Prevented) Redundant XML default/list entries that add noise without changing effective values
++
++A flavor audit found two harmless but misleading inherited/stale XML forms: `TECH_CONSTITUTION` explicitly stored `FLAVOR_PRODUCTION` with `iFlavor` 0 even though an omitted flavor already evaluates to 0, and `UNIT_MODERN_INFANTRY` stored a `TechTypes` list containing only `NONE` prerequisites even though an empty `TechTypes` list has the same effective meaning. These entries did not create a gameplay bug, but they make reviews noisier and can make a reader wonder whether the explicit default has special semantics when it does not.
++
++AdvCiv-SAS now removes those redundant entries and checks the two proven-safe patterns with `.github/workflows/build/xml_redundant_defaults.py`: explicit zero-valued `Flavor` entries, and non-empty `TechTypes` lists whose prerequisites are all `NONE`/`NO_TECH`. The check is intentionally narrow. It does not flag ordinary scalar fields such as mandatory `i...=0` values, nor padded/resource lists whose loader/schema semantics have not been separately proven equivalent to an empty list. The rule can be extended later when another redundant representation is confirmed safe to normalize.
++
++Fixed/prevented with the help of ChatGPT-5.6-Sol thanks.
++
+ ## 23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it (so without producing a new unit if i'm not mistaken) then producing a new one endlessly for dozen turns until it somehow solved itself but way too late
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VGGAJZuCwwSdp86PWd-bFFprW7AOdtCK?usp=sharing)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=22125

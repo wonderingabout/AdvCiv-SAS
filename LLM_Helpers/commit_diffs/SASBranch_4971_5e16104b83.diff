@@ -1,0 +1,787 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4971
+# Commit: 5e16104b83234476eae61793e5fb9bf40fb43b9c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e2dbc313c7e3a494a8a968a1702a5d04745e90af
+# Title: rework and enhance starting techs distribution after our tech rework, with the tremendous help of chatgpt 5 thanks a lot, anyways etc - "reworked/rebalanced...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+42	41	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+22	13	README.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+4	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+136	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+50	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index d36f5a3df..1c4379d5d 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -104,13 +104,14 @@
+ 					<bFreeBuildingClass>1</bFreeBuildingClass>
+ 				</FreeBuildingClass>
+ 			</FreeBuildingClasses>
++			<!-- custom: techs updated with the big and thanks a lot but of me too but anyways etc help of chatgpt 5, see readme_tech_tree.md for details; also check if accurate i mean but anyways etc -->
+ 			<FreeTechs>
+ 				<FreeTech>
+ 					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -216,11 +217,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -318,11 +319,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -424,11 +425,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -534,11 +535,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -645,7 +646,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -756,7 +757,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -866,11 +867,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -992,11 +993,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1216,7 +1217,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1444,11 +1445,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1690,7 +1691,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1903,11 +1904,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2175,7 +2176,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2279,11 +2280,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2472,11 +2473,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2681,11 +2682,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2801,11 +2802,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2914,11 +2915,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -3016,11 +3017,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -3151,11 +3152,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -3270,7 +3271,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -3495,7 +3496,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+@@ -3717,7 +3718,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -3921,11 +3922,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+
+diff --git a/README.md b/README.md
+index c8455a6b0..c92e4e421 100644
+--- a/README.md
++++ b/README.md
+@@ -2,7 +2,7 @@
+ 
+ This mod (AdvCiv-SAS (Simple Advanced Strategy)) is based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest [AdvCiv (CFC forum/post link)](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
+ 
+-Currently, it is still a work in progress so all the changes may be altered in the future. The game should be quite functional otherwise (but still in testing, check if accurate anyways etc).
++Currently, it is still a work in progress but nearing release as of now. The game should be quite functional otherwise (but still in testing, check if accurate anyways etc).
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers in particular, as well as AI more generally being opportunistic and efficiency driven more than anything else as much as possible. Heavy reworks were made, while otherwise staying for most in the base advciv frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia reworks in particular.
+ 
+@@ -10,6 +10,8 @@ Content overall addition is minimal, as of now mostly in the future era, and her
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (e.g. due to heavy penalties that we attempt to avoid/reduce now while trying to make the game harder (and ideally harder than base AdvCiv at all difficulties) through improved AI competency rather anyways etc). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
++AdvCiv-SAS is now also downloadable on TODO ADD LINK, not only on github anymore (read below for download/install instructions too anyways etc).
++
+ ## Menu
+ 
+ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
+@@ -41,6 +43,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Project Goals and global view on gameplay changes](/README.md#project-goals-and-global-view-on-gameplay-changes)  
+ [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
+ [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
++[Version number](/README.md#version-number)  
+ [Copyright and Disclaimer](/README.md#copyright-and-disclaimer)  
+ [Note about the audio in main menu](/README.md#note-about-the-audio-in-main-menu)  
+ [Credits](/README.md#credits)  
+@@ -91,7 +94,7 @@ Be warned though it can be very lengthy, so read below if you want (some of the)
+ 
+ If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
+ 
+-It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted it a tiny bit or such but didn't check too much if accurate i mean, hopefully informative and helpful though but check if accurate again anyways etc.
++It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted it a tiny bit or such but didn't check too much if accurate i mean (and i contributed more generally to it without messing it up unlike below one xd i mostly wrote myself but that is more detailed if i may say but anyways etc), hopefully informative and helpful though but check if accurate again anyways etc.
+ 
+ You can view it here anyways etc [README_Very_Quick_Get_Started_Guide_By_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md).
+ 
+@@ -193,31 +196,33 @@ So far there is:
+ 
+ #### csv and md view of the handicap (difficulties info in a table for all difficulties) info
+ 
+-Generated with the [flatten_handicap_info_to_csv_and_md.py](/flatten_handicap_info_to_csv_and_md.py) script, you can regenerate it if you mod/change the handicap info, else just view it here:
++Generated with the flatten_handicap_info_to_csv_and_md.py script, you can regenerate it if you mod/change the handicap info, else just view it here:
+ 
+ - [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) as you can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution if you prefer another viewer than GitHub website view or such anyways etc.
+ - legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
+ 
++(note: base advciv handicap info .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
++
+ Also code is provided thanks to chatgpt and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the table .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
+ 
+-(note: base advciv handicap info .csv table with its .md legend are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
+-
+ #### csv github view for the flatten_leaders_data_to_csv conversion script
+ 
+-More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy) anyways etc:
++About the flatten_leaders_data_to_csv script anyways output:
+ 
+ - [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
+ - legend (.md) is here [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
+ 
++(note: base advciv leaders_data .csv table with its .md legend for comparison as of now are also in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
++
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+ 
+-(note: base advciv leaders_data .csv table with its .md legend are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
++Note 2: there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy) anyways etc
+ 
+ ## Less Generic-neutral unit names or/and combat types and note about woman units
+ 
+@@ -317,7 +322,7 @@ Note: what is written is a general draft and to gather ideas, that may not be up
+ The more general gameplay type of changes consist of:
+ 
+ - Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not be too aggressive but merciless, also more cautious sometimes (war declarations in particular, mostly just for its self interest and not to spare a valuable target))
+-- Gradual gameplay: currently the early game is too fast and the late game a chore, trying to prevent that
++- Gradual gameplay: currently the late game is a chore, trying to prevent that
+ - Gradual handicap (difficulty), with also harder base difficulty (including settler) but also less tedious higher/highest ones that should/would ideally feel less of a grind but still be very challenging, hopefully by increasing AI performance and comeptitivity if we find ways to do so in our mod AdvCiv-SAS anyways etc.
+ - Better quality of life changes: while most below make the game harder, not all changes are harsher, some are meant to have the human player an easier experience, at no change, changes include or planned to include fixed costs (tech, city production, unit maintenance quotas costs, etc), while only the AI's settings ones vary. This means for example that techs will always cost the same price at all difficulties, making it easier for the human player to adjust to newer difficulties and reusing strategies, counting costs and doing strategy hopefully too, only the AI would be faster or slower at it (but intends to be less of a grind in many ways possible, having an even or close to even game against AI even at most high difficulties, that would still be harder, is the goal).
+ - Clearer and more detailed sevopedia in particular anyways etc
+@@ -345,10 +350,6 @@ The more general gameplay type of changes consist of:
+ the finished version.
+ - Recent new goal but anyways: new AI-generated images (using ChatGPT for now at least if not always or not but anyways)
+ - Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) or/and main README.md for details anyways etc).
+-- many changes, unlisted and still undone, so far this project is in the early stages, and some of the stated above may change too, refer to ingame sevopedia or and get started guide linked above for hopefully more accurate versions especially ingame sevopedia which always uses latest xml data if i am not mistaken anyways etc
+-make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting `CvUnitAI::AI_bestCityBuild`, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+-- as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+-- Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+ 
+ ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
+ 
+@@ -365,7 +366,15 @@ Note 3: about the missing fields in sevopedia that are technically also fixes if
+ - non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game, hopefully fine or not too bad this way but anyways etc...
+ - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or/and complicated anyways etc to maintain furthermore anyways etc, then i am anyways etc not supporting it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file anyways etc. See this [google drive folder link](https://drive.google.com/drive/folders/1cINn930Hma2cEN6g_v2obiAQh9pMlnrQ?usp=sharing) for example of what this does according to chatgpt if i am not mistaken anyways etc.
+ - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details anyways etc.
+-- savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other anyways etc), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead (using git you can choose any version if i am not mistaken too but check if accurate anyways etc). I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad if i may say but anyways etc. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate, anyways etc. See related info at [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well anyways etc.
++- savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other anyways etc), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas anyways etc) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad if i may say but anyways etc. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate, anyways etc. See related info at [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well anyways etc.
++
++## Version number
++
++I use the default github branch's commit count as version number.
++
++For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 4970 commits, so this is AdvCiv-SAS 4970.
++
++Using git you can choose any version with git reset --hard or checkout or whatever, but i understand it may not be too easy or tedious to do. Although i may release some versions myself it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
+ 
+ ## Copyright and Disclaimer
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 0aa52b76f..d6df89dd0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -43,6 +43,7 @@ Instead of:
+ &emsp;[Map type summary](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-type-summary)  
+ [Modding note](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-note)  
+ [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)  
++[How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)  
+ [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)  
+ [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
+ [Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
+@@ -460,7 +461,7 @@ ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
+ 
+ Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG%20Sourceforge%20net%20All%20Classes%20Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details anyways etc)
+ 
+-## How to enable .dmp files so for some crash that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc
++## How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc
+ 
+ In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path anyways etc, update to your own windows user account path anyways etc), there is an option that you can set to `generatecrashdumps = 1`.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index f02951dd2..b9e4c3d33 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2168,7 +2168,7 @@ I am very happy of this result and of us (i.e. me or/and maybe players xd but an
+ 
+ See also: [57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94)
+ 
+-## 57 (Not reproductible) Unknown game crash at turn 94
++## 57 (reproductible and as of now not yet fixed if ever fixed anyways etc) Unknown game crash at turn 94 (this one isn't reproductible) but also at turn 95 in another map (this one IS reproductible)
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/15z0uxT_RxClHNk0u7HnlcmqdmA9gLNkO?usp=sharing)
+ 
+@@ -2176,4 +2176,6 @@ I cannot reproduce it from same save file at least not in a few retries (even ex
+ 
+ No idea what the cause is, but could be DLL related based on the .dmp (see screenshot) (although this is just a guess, check if accurate and i don't know too much about these anyways etc).
+ 
+-Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crash-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crash-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc), anyways etc.
++Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc), anyways etc.
++
++Update: however after our starting techs changes/reworks, now on map number 385 (is just my own numbering of testing map, not related to any other popular save or such numbering or purely coincidental if so anyways etc), starting from save file (appended in drive link anyways etc) at turn 50, autoplay 50 turns and we reliably crash at turn 95. Very unlikely to be caused by this pure xml civilization info change, especially considering past history of recent crashes in this case i mean but anyways etc, but since this crash is now (assuming is the same, regardless we'd have to debug or attempt to debug or fix it ideally anyways etc) reproductible so this could be used to investigate why or/and such anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index aef4f6354..25e013cf1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -193,7 +193,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+-- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age) (view docs or ingame or or [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages). Note: as of now i only did it for `GAMESPEED_NORMAL`, the other other game speeds still use base advciv timeline (i.e. that starts at 4000 BC) as is tedious to do it for one plus would have to adjust for other game speeds, and when i played i played only at normal gamespeed (so would not involve me too much plus more(most? Anyways etc) importantly i may be mistaken in how i'd balance it, hopefully not too bad as it is or and quite good but anyways etc)
++- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed more or less you should be at the bronze age) (view docs or ingame or or [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages). Note: as of now i only did it for `GAMESPEED_NORMAL`, the other other game speeds still use base advciv timeline (i.e. that starts at 4000 BC) as is tedious to do it for one plus would have to adjust for other game speeds, and when i played i played only at normal gamespeed (so would not involve me too much plus more(most? Anyways etc) importantly i may be mistaken in how i'd balance it, hopefully not too bad as it is or and quite good but anyways etc)
+ - in global defines or/and related xml files, also changed start map behaviour. There is now not so much terrain polishing (map script removing bad tiles such as jungle or snow or peak, they are now kept, but instead you have more starting vision to choose your spot, which should be realistic too because at 50 000 BCE (approximately) humans may have enough vision of their surroundings to know where to live or adjust to it maybe (even though first city settling is not as realistic, but is for convenience, and could maybe be imagined as a nomadic settlment in the region maybe, still convenient so allowing it))
+ - slavery iProductionPerPopulation increased (currently as of now set to 27, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in `HURRY_POPULATION` of [/Assets/XML/GameInfo/CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) for details anyways etc), the granary building is also nerfed or/and reworked a bit rather to compensate for this change if i may say, see Buildings changes for details anyways etc. This was first increased from 24 to 26, then increased again from 26 to 27 after the recent military changes that would favour mostly AIs due to many new unit upgrades and sooner ones now being available anyways etc, so there would need to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increased a bit more to 27 i mean anyways etc
+ - reduced PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT from 20 to 0, meaning each civ has an equal roll chance when leader selection is random (read/see GlobalDefines_advc.xml for extra details and conditions anyways etc), so a civ with say 3 leaders will not or not as often be more likely to be picked randomly vs civs with only one leader. This means for example rome or france (examples of civs with multiple/many leaders as of now anyways etc) will not get a higher overall chance of being randomly chosen than say mali or carthage (examples of civs with 1 leader as of now anyways etc) anyways etc.
+@@ -262,7 +262,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ ### Improvements and worker builds (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - some improvement (worker) or/and build 's techs prerequirements and/or such have been adjusted as well, for example build quarry is sooner, and remove forest and remove jungle are now at same time and sooner in tech tree anyways etc, see sevopedia ingame or/and tech tree view ingame or/and xml for details anyways etc
+-- the "can build farms without irrigation" ability (`bIgnoreIrrigation` in XML if i'm not mistaken anyways etc) is unlocked much sooner, as of now now at tech_engineering, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for update value/tech if any i mean hopefully helpful anyways etc anyways etc
++- the "can build farms without irrigation" ability (`bIgnoreIrrigation` in XML if i'm not mistaken anyways etc) is unlocked much sooner, as of now now at tech_water_wheel, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for updated value/tech if any i mean hopefully helpful anyways etc anyways etc
+ - worker cost is reduced
+ - also allow improvement_workshop to be built on terrain_tundra tiles if i am not mistaken (`<TerrainMakesValids>` in XML if i am not mistaken anyways etc): this is to buff tundra tiles and no reason not to if i am not mistaken as well anyways etc, see sevopedia improvement for allowed terrains for the improvement_workshop as well as what `<TerrainMakesValids>` means in the header there as well if the info is there as well anyways etc.
+ - otherwise as of now nerf the workshop a bit (techs giving extra hammer yields relatively a bit later in our reworked tech tree anyways etc) as it was a bit too op, but it and some other builds/improvements also give new extra yields as of now at future_era anyways etc.
+@@ -276,6 +276,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc ; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
++- reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tehc_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 5 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details also: [README_Tech_Tree.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework), and in particular the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unliek this message xd but that i hope is sitll helpful i mean but anyways etc)
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index 6f477eb1a..0480d6fe3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -59,3 +59,139 @@ Then if i am not mistaken much later i did this swapping based version but that
+ (click on google drive link at top of this readme to view it on google drive rather at full size anyways etc)
+ 
+ ![0.30b_tech_tree_mini_temp.png](https://drive.google.com/thumbnail?id=1e42RDsufVEuBpY9ZVii2uFC65wXP-wnt&sz=w4000)
++
++## Starting techs rework
++
++As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md), here are how we changed the starting civ techs in our mod
++
++### before most recent as of now rework anyways etc
++
++Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
++
++| Civ                      | Lines       | FreeTechs                               | Allowed-only? |
++|--------------------------|-------------|------------------------------------------|---------------|
++| America                  | 9–142       | 109→Fishing, 113→Agriculture             | ❌            |
++| Arabia                   | 143–244     | 219→The Wheel, 223→Mysticism             | ❌            |
++| Aztec                    | 245–346     | 321→Mysticism, 325→Hunting               | ✅            |
++| Babylon                  | 347–452     | 427→Agriculture, 431→The Wheel           | ❌            |
++| Byzantium                | 453–562     | 537→The Wheel, 541→Mysticism             | ❌            |
++| Carthage                 | 563–669     | 644→Fishing, 648→Mining                  | ✅            |
++| Celt                     | 670–784     | 755→Hunting, 759→Mysticism               | ✅            |
++| China                    | 785–898     | 869→Agriculture, 873→Mining              | ❌            |
++| Egypt                    | 899–1024    | 995→The Wheel, 999→Agriculture           | ❌            |
++| England                  | 1025–1136   | 1103→Fishing, 1107→Mining                | ✅            |
++| Ethiopia                 | 1137–1256   | 1215→Hunting, 1219→Mining                | ✅            |
++| Kingdom of Benin         | 1257–1366   | 1341→Mysticism, 1345→Fishing             | ✅            |
++| France                   | 1367–1480   | 1447→The Wheel, 1451→Agriculture         | ❌            |
++| Germany                  | 1481–1603   | 1574→Pottery, 1578→Mining                | ✅            |
++| Greece                   | 1604–1718   | 1689→Fishing, 1693→Hunting               | ✅            |
++| Holy Roman               | 1719–1830   | 1805→Mysticism, 1809→Hunting             | ✅            |
++| Inca                     | 1831–1931   | 1906→Agriculture, 1910→Mysticism         | ❌            |
++| India                    | 1932–2098   | 2069→Mysticism, 2073→Mining              | ✅            |
++| Japan                    | 2099–2199   | 2174→Fishing, 2178→The Wheel             | ❌            |
++| Khmer                    | 2200–2307   | 2282→Hunting, 2286→Mining                | ✅            |
++| Korea                    | 2308–2404   | 2379→Mining, 2383→Mysticism              | ✅            |
++| Mali                     | 2405–2500   | 2475→The Wheel, 2479→Mining              | ❌            |
++| Maya                     | 2501–2610   | 2585→Mining, 2589→Mysticism              | ✅            |
++| Mongol                   | 2611–2713   | 2684→The Wheel, 2688→Hunting             | ❌            |
++| Native America           | 2714–2829   | 2804→Agriculture, 2808→Fishing           | ❌            |
++| Netherlands              | 2830–2942   | 2917→Agriculture, 2921→Fishing           | ❌            |
++| Ottoman                  | 2943–3048   | 3019→The Wheel, 3023→Agriculture         | ❌            |
++| Persia                   | 3049–3183   | 3154→Agriculture, 3158→Hunting           | ❌            |
++| Portugal                 | 3184–3294   | 3269→Fishing, 3273→Mining                | ✅            |
++| Rome                     | 3295–3419   | 3390→Fishing, 3394→Mining                | ✅            |
++| Russia                   | 3420–3531   | 3498→Hunting, 3502→Mining                | ✅            |
++| Spain                    | 3532–3638   | 3613→Fishing, 3617→Mysticism             | ✅            |
++| Sumeria                  | 3639–3742   | 3716→Mysticism, 3720→Pottery             | ✅            |
++| Scandinavia              | 3743–3847   | 3822→Fishing, 3826→Hunting               | ✅            |
++| Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
++| Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
++| Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
++
++Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe but anyways etc):
++
++Allowed starting techs
++
++- Mining:     13
++- Fishing:    12
++- Mysticism:  12
++- Hunting:    11
++- Pottery:     2
++
++### after most recent as of now rework anyways etc
++
++After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too but anyways etc, here are (below but anyways etc) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all if i may say but anyways etc. I think the result is really good at least much better than it was check if accurate anyways etc.
++
++#### main table (chatgpt 5 written anyways etc)
++
++> Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **minimize “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping a **few** for clear identity/variety.  
++> Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it selectively.  
++> **Balance status:** global totals are **14 each** (Fishing, Pottery, Mysticism, Hunting, Mining).
++
++| Civ               | Old FreeTechs                 | New FreeTechs                 | Rationale |
++|-------------------|-------------------------------|-------------------------------|-----------|
++| America           | Fishing, Agriculture          | **Fishing, Hunting**          | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
++| Arabia            | The Wheel, Mysticism          | **Mysticism, Pottery**        | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
++| Aztec             | Mysticism, Hunting            | **Mining, Mysticism**         | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
++| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | Clay/brick + temples identity; compliant and steady. *Skips Mining to avoid Mining+Pottery.* |
++| Byzantium         | The Wheel, Mysticism          | **Mysticism, Fishing**        | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
++| Carthage          | Fishing, Mining               | **Fishing, Pottery**          | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
++| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for UU identity; kept rare overall. |
++| China             | Agriculture, Mining           | **Mining, Pottery**           | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
++| Egypt             | The Wheel, Agriculture        | **Fishing, Pottery**          | Nile fishing + ubiquitous ceramics; removes early-road snowball and *avoids Mining+Pottery.* |
++| England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
++| Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
++| Kingdom of Benin  | Mysticism, Fishing            | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
++| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair; ceded Mining for global balance/diversity. |
++| Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
++| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Frees a Mining slot; avoids Mining+Pottery/Hunting spikes. |
++| Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
++| Inca              | Agriculture, Mysticism        | **Mysticism, Pottery**        | Andean ritual + terrace/cottage econ; deliberately *avoids Mining* to keep starts fair. |
++| India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
++| Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
++| Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
++| Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
++| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** alignment via Hunting; Pottery for commerce; Wheel dropped. Religious angle exists, but this keeps them fair and avoids Mining spikes. |
++| Maya              | Mining, Mysticism             | **Mining, Mysticism**         | Stonework/metals + religion/astronomy; avoids the “amazing” pairings. |
++| Mongol            | The Wheel, Hunting            | **Hunting, Pottery**          | Steppe military + simple econ; *no Mining* to avoid rush/econ spikes. |
++| Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
++| Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
++| Ottoman           | The Wheel, Agriculture        | **Hunting, Pottery**          | Anatolian frontier/ghazi tradition (Hunting) plus early crafts/urbanization (Pottery). Skips Mining to avoid an early power spike and helps global balance (frees room for Russia’s landward re-theme). The pair is versatile but not “amazing.” |
++| Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
++| Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
++| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Praetorian** timing; avoids Hunting and Mining+Pottery extremes. |
++| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity while replacing Fishing; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
++| Spain             | Fishing, Mysticism            | **Fishing, Mysticism**        | Maritime reach + organized religion; avoids Mining spikes. |
++| Sumeria           | Mysticism, Pottery            | **Mysticism, Mining**         | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
++| Scandinavia       | Fishing, Hunting              | **Fishing, Hunting**          | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
++| Zulu              | Agriculture, Hunting          | **Hunting, Mining**           | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
++
++#### Global tech totals (should sum to 70 = 35 civs × 2)
++
++| Tech      | Count |
++|-----------|-------|
++| Fishing   | 14    |
++| Hunting   | 14    |
++| Mysticism | 14    |
++| Pottery   | 14    |
++| Mining    | 14    |
++
++#### Starting pair counts (canonicalized; order-insensitive)
++
++| Pair                   | Count |
++|------------------------|-------|
++| Mining + Mysticism     | 5     |
++| Fishing + Hunting      | 4     |
++| Fishing + Mysticism    | 4     |
++| Fishing + Pottery      | 4     |
++| Hunting + Mining       | 4     |
++| Hunting + Pottery      | 4     |
++| Mysticism + Pottery    | 3     |
++| Mining + Pottery       | 3     |
++| Fishing + Mining       | 2     |
++| Hunting + Mysticism    | 2     |
++
++**Sanity checks:**
++
++- Pair counts sum to **35** civs.  
++- Tech totals sum to **70** picks (5 techs × 14 each). ✅
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 7b53f0eea..fa8a74917 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -2,15 +2,62 @@
+ 
+ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It’s intentionally practical and a bit verbose so newer players can follow the “what changed” and “why it matters.” For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+ 
++## Menu
++
++[Sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia)  
++[Handicap info tables (.csv / .md) and script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-info-tables-csv--md-and-script)  
++[Full code diff (very long)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#full-code-diff-very-long)  
++[Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#main-changes--quick-starter-guide)  
++&emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#translations)  
++&emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#renaming-non-exhaustive)  
++&emsp;[Sevopedia reworks & related UI](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia-reworks--related-ui)  
++&emsp;[Concepts (currently under “Outdated” category)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#concepts-currently-under-outdated-category)  
++&emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
++&emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-ai)  
++&emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#units-in-general-ai)  
++&emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai)  
++&emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#workers-ai)  
++&emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-ai)  
++&emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#city-production-ai)  
++&emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-ai)  
++&emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#buildings-ai)  
++&emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military-ai)  
++&emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ui--in-game)  
++&emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-non-exhaustive-see-globaldefinesxml)  
++&emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-ie-difficulty-settings-non-exhaustive)  
++&emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-non-exhaustive)  
++&emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#terrains--features-non-exhaustive)  
++&emsp;[Bonus (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#bonus-non-exhaustive)  
++&emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#improvements--worker-builds-non-exhaustive)  
++&emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#technologies-non-exhaustive)  
++&emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#eras)  
++&emsp;[Civilizations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civilizations-non-exhaustive)  
++&emsp;[Leaders (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-non-exhaustive)  
++&emsp;[Barbarians (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#barbarians-non-exhaustive)  
++&emsp;[Traits (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#traits-non-exhaustive)  
++&emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#culture)  
++&emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#religions-non-exhaustive)  
++&emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#corporations-non-exhaustive)  
++&emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civilian-units)  
++&emsp;[Military & related units (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military--related-units-non-exhaustive)  
++[Fixes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#fixes)  
++
+ ## Sevopedia
+ 
+ Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
+ 
+ - New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons) aims to make leader behavior easier to understand. See the section above for images and details.
+ 
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
++
+ ## Handicap info tables (.csv / .md) and script
+ 
+-To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. See README: Handicap tables for examples and the script that produces them.
++To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. [See README: Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info) for examples and the script that produces them.
++
++<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
++<img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+ 
+ ## Full code diff (very long)
+ 
+@@ -179,7 +226,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ ### Improvements and worker builds (non-exhaustive)
+ 
+ - **Tech prereqs** adjusted (e.g., **Quarry** earlier; **Remove Forest** and **Remove Jungle** available together and earlier).
+-- **Farms without irrigation** unlock at **Engineering**.
++- **Farms without irrigation** unlock at **Water Wheel**.
+ - **Worker cost reduced** (see XML for exact value).
+ - **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
+ - **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
+@@ -192,6 +239,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See *GlobalDefines_advc.xml*.
+ - **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
++- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **5** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework) • [civ list & rationale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 1ab7af8b4..22ae2e97b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 0d471499f..44b4fe529 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 536d93605..c5be7e14f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 26ea5820a..dbe24cf91 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=74067

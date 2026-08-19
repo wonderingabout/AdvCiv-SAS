@@ -1,0 +1,390 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3535
+# Commit: ef44de7006e2ba6f090465b3357b84857ca57336
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 045d212b25bda20f395368cb0fb5047e998addd5
+# Title: Cherry-pick tech commerce% XML tag from K-Mod 1.45
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/Python/Screens/CvTechChooser.py
+7	2	Assets/XML/Technologies/CIV4TechInfos.xml
+6	1	Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+10	0	Assets/XML/Text/Civ4GameText_K-Mod.xml
+4	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	0	CvGameCoreDLL/CvEnums.h
+29	0	CvGameCoreDLL/CvGameTextMgr.cpp
+24	0	CvGameCoreDLL/CvInfo_Tech.cpp
+3	0	CvGameCoreDLL/CvInfo_Tech.h
+11	6	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvTeam.cpp
+2	1	CvGameCoreDLL/CyEnumsInterface.cpp
+1	0	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 2b953f5c1..6424218f5 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -782,6 +782,16 @@ class CvTechChooser:
+ 		j = 0
+ 		k = 0
+ 
++		# K-Mod. Commerce modifiers
++		for j in range(CommerceTypes.NUM_COMMERCE_TYPES):
++			if (gc.getTechInfo(i).getCommerceModifier(j) > 0):
++				szCommerceModifierButton = self.getNextWidgetName("CommerceModifierButton")
++				screen.addDDSGFCAt( szCommerceModifierButton, szTechRecord, gc.getCommerceInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER, i, j, False )
++				fX += X_INCREMENT
++
++		j = 0
++		k = 0
++
+ 		# K-Mod. Extra specialist commerce
+ 		for j in range(CommerceTypes.NUM_COMMERCE_TYPES):
+ 			if (gc.getTechInfo(i).getSpecialistExtraCommerce(j) > 0):
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 01b933899..c91091a3a 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -3303,8 +3303,13 @@
+ 			<iGridX>13</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+-			<!-- K-Mod 1.44
+-				(K-Mod 1.45 uses CommerceModifiers for +10% research instead) -->
++			<!-- K-Mod 1.45 (reverted by advc.200): -->
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>10</iCommerce>
++				<iCommerce>0</iCommerce>
++			</CommerceModifiers>
++			<!-- K-Mod 1.44: -->
+ 			<SpecialistExtraCommerces>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1</iCommerce>
+
+diff --git a/Assets/XML/Technologies/CIV4TechnologiesSchema.xml b/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+index c0bfb5059..b3b44125c 100644
+--- a/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
++++ b/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+@@ -56,6 +56,9 @@
+ 	</ElementType>
+ 	<!-- K-Mod start -->
+ 	<ElementType name="iCommerce" content="textOnly" dt:type="int"/>
++	<ElementType name="CommerceModifiers" content="eltOnly">
++		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
++	</ElementType>
+ 	<ElementType name="SpecialistExtraCommerces" content="eltOnly">
+ 		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
+ 	</ElementType>
+@@ -146,8 +149,10 @@
+ 		<element type="iGridX"/>
+ 		<element type="iGridY"/>
+ 		<element type="DomainExtraMoves"/>
+-		<!-- K-Mod -->
++		<!-- K-Mod: start -->
++		<element type="CommerceModifiers" minOccurs="0"/>
+ 		<element type="SpecialistExtraCommerces" minOccurs="0"/>
++		<!-- K-Mod: end -->
+ 		<element type="CommerceFlexible"/>
+ 		<element type="TerrainTrades"/>
+ 		<element type="bRiverTrade"/>
+
+diff --git a/Assets/XML/Text/Civ4GameText_K-Mod.xml b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+index 46564d7df..d8dbcfb87 100644
+--- a/Assets/XML/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/XML/Text/Civ4GameText_K-Mod.xml
+@@ -26,6 +26,16 @@
+ 		<Spanish>[SPACE]en la casilla</Spanish>
+ 	</TEXT>
+ 
++	<!-- Percentage modifiers from "Civilization" (eg. from tech) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_MODIFIER_FROM_CIV</Tag>
++		<English>[ICON_BULLET]%D1%%%F2 from Civilization</English>
++		<French>[ICON_BULLET]%D1%%%F2 (civilisation)</French>
++		<German>[ICON_BULLET]%D1%%%F2 durch Zivilisation</German>
++		<Italian>[ICON_BULLET]%D1%%%F2 per la civilt&#224;</Italian>
++		<Spanish>[ICON_BULLET]%D1%%%F2 por civilizaci&#243;n</Spanish>
++	</TEXT>
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PER</Tag>
+ 		<English>[SPACE]per[SPACE]</English>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 75cbf8981..b53955c31 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -668,7 +668,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_HELP_GW_UNHAPPY:
+ 		szBuffer.assign(gDLL->getText("TXT_KEY_GW_UNHAPPY_HELP"));
+ 		break;
+-	// K-Mod. Extra specialist commerce
++	// K-Mod. Global commerce modifiers, extra specialist commerce
++	case WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER:
++		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_IN_ALL_CITIES").GetCString(), GC.getTechInfo((TechTypes)(widgetDataStruct.m_iData1)).getCommerceModifierArray(), true, false);
++		break;
+ 	case WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE:
+ 		GAMETEXT.setCommerceChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_CIVIC_PER_SPECIALIST").GetCString(), GC.getInfo((TechTypes)(widgetDataStruct.m_iData1)).getSpecialistExtraCommerceArray(), false, false);
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 9b61d7cff..6190f979f 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -482,6 +482,7 @@ ENUM_START(Widget, WIDGET)
+ 	WIDGET_HELP_GW_INDEX,
+ 	WIDGET_HELP_GW_UNHAPPY,
+ 
++	WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER,
+ 	WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE,
+ 	// K-Mod end
+ 	WIDGET_RF_CIV_CHOICE, // advc.706
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 137a5848c..d8754b0b9 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7974,6 +7974,11 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 		buildDomainExtraMovesString(szBuffer, eTech, eLoopDomain, true, bPlayerContext);
+ 	}
+ 
++	//	K-Mod. Global commerce modifiers
++	setCommerceChangeHelp(szBuffer, L"", L"",
++			gDLL->getText("TXT_KEY_CIVIC_IN_ALL_CITIES").GetCString(),
++			GC.getInfo(eTech).getCommerceModifierArray(), true);
++
+ 	//	K-Mod. Extra specialist commerce
+ 	setCommerceChangeHelp(szBuffer, L"", L"",
+ 			gDLL->getText("TXT_KEY_CIVIC_PER_SPECIALIST").GetCString(),
+@@ -17232,6 +17237,30 @@ void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity const& kCi
+ 			iModifier += iCivicMod;
+ 		}
+ 	}
++	// Techs (K-Mod)
++	/* Rather than counting just tech modifiers, we might as well just have a
++		generic case which supports other sources too. */
++	/*{int iTechMod = 0;
++	FOR_EACH_ENUM(Tech) {
++		if (GET_TEAM(kOwner.getTeam()).isHasTech(eLoopTech))
++			iTechMod += GC.getInfo(eLoopTech).getCommerceModifier(eCommerce);
++	} if (iTechMod != 0) {
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_MODIFIER_FROM_CIV", iTechMod, iCommerceChar));
++		szBuffer.append(NEWLINE);
++		iModifier += iCivicMod;
++	}}*/
++	// Left over modifiers!
++	{
++		int iUnaccountedModifiers = kCity.getTotalCommerceRateModifier(eCommerce)
++				- iModifier;
++		if (iUnaccountedModifiers != 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_MODIFIER_FROM_CIV",
++					iUnaccountedModifiers, iCommerceChar));
++			szBuffer.append(NEWLINE);
++			iModifier += iUnaccountedModifiers;
++		}
++	} // K-Mod end
+ 	int iModYield = (iModifier * iBaseCommerceRate) / 100;
+ 	{
+ 		int iProductionToCommerce = kCity.getProductionToCommerceModifier(eCommerce) *
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index a41c9688e..4fcc0527b 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -45,6 +45,7 @@ m_bWaterWork(false),
+ m_bRiverTrade(false),
+ m_piDomainExtraMoves(NULL),
+ m_piFlavorValue(NULL),
++m_piCommerceModifier(NULL), // K-Mod
+ m_piSpecialistExtraCommerce(NULL), // K-Mod
+ m_pbCommerceFlexible(NULL),
+ m_pbTerrainTrade(NULL)
+@@ -54,6 +55,7 @@ CvTechInfo::~CvTechInfo()
+ {
+ 	SAFE_DELETE_ARRAY(m_piDomainExtraMoves);
+ 	SAFE_DELETE_ARRAY(m_piFlavorValue);
++	SAFE_DELETE_ARRAY(m_piCommerceModifier); // K-Mod
+ 	SAFE_DELETE_ARRAY(m_piSpecialistExtraCommerce); // K-Mod
+ 	SAFE_DELETE_ARRAY(m_pbCommerceFlexible);
+ 	SAFE_DELETE_ARRAY(m_pbTerrainTrade);
+@@ -101,6 +103,17 @@ int CvTechInfo::py_getPrereqAndTechs(int i) const
+ } // </advc.003t>
+ 
+ // K-Mod
++int CvTechInfo::getCommerceModifier(int i) const
++{
++	FAssertBounds(0, NUM_COMMERCE_TYPES, i);
++	return m_piCommerceModifier ? m_piCommerceModifier[i] : 0;
++}
++
++int* CvTechInfo::getCommerceModifierArray() const
++{
++	return m_piCommerceModifier;
++}
++
+ int CvTechInfo::getSpecialistExtraCommerce(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumFlavorTypes(), i);
+@@ -189,6 +202,9 @@ void CvTechInfo::read(FDataStreamBase* stream)
+ 		stream->Read(iAndTechPrereqs, (int*)&m_aePrereqAndTechs[0]);
+ 	} // </advc.003t>
+ 	// K-Mod
++	SAFE_DELETE_ARRAY(m_piCommerceModifier)
++	m_piCommerceModifier = new int[NUM_COMMERCE_TYPES];
++	stream->Read(NUM_COMMERCE_TYPES, m_piCommerceModifier);
+ 	SAFE_DELETE_ARRAY(m_piSpecialistExtraCommerce)
+ 	m_piSpecialistExtraCommerce = new int[NUM_COMMERCE_TYPES];
+ 	stream->Read(NUM_COMMERCE_TYPES, m_piSpecialistExtraCommerce);
+@@ -262,6 +278,7 @@ void CvTechInfo::write(FDataStreamBase* stream)
+ 		if (iAndTechPrereqs > 0)
+ 			stream->Write(iAndTechPrereqs, (int*)&m_aePrereqAndTechs[0]);
+ 	} // </advc.003t>
++	stream->Write(NUM_COMMERCE_TYPES, m_piCommerceModifier); // K-Mod
+ 	stream->Write(NUM_COMMERCE_TYPES, m_piSpecialistExtraCommerce); // K-Mod
+ 	stream->Write(NUM_COMMERCE_TYPES, m_pbCommerceFlexible);
+ 	stream->Write(GC.getNumTerrainInfos(), m_pbTerrainTrade);
+@@ -317,6 +334,13 @@ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iGridY, "iGridY");
+ 
+ 	// K-Mod
++	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
++		"CommerceModifiers"))
++	{
++		pXML->SetCommerce(&m_piCommerceModifier);
++		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
++	}
++	else pXML->InitList(&m_piCommerceModifier, NUM_COMMERCE_TYPES);
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"SpecialistExtraCommerces"))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index f86754c72..12ef64216 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -77,6 +77,8 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	int py_getPrereqAndTechs(int i) const;
+ 	// </advc.003t>
+ 	// K-Mod, exposed to Python
++	int getCommerceModifier(int i) const;
++	int* getCommerceModifierArray() const;
+ 	int getSpecialistExtraCommerce(int i) const;
+ 	int* getSpecialistExtraCommerceArray() const;
+ 	// K-Mod end
+@@ -142,6 +144,7 @@ protected:
+ 	std::vector<TechTypes> m_aePrereqOrTechs; // advc.003t: was int*
+ 	std::vector<TechTypes> m_aePrereqAndTechs; // advc.003t: was int*
+ 
++	int* m_piCommerceModifier; // K-Mod
+ 	int* m_piSpecialistExtraCommerce; // K-Mod
+ 	bool* m_pbCommerceFlexible;
+ 	bool* m_pbTerrainTrade;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 595adc154..5a070121c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4435,7 +4435,7 @@ void CvPlayerAI::AI_calculateTechRevealBonuses(
+ 
+ /*	This function has been mostly rewritten for K-Mod.
+ 	Note: many of the values used in this function are arbitrary;
+-	but adjusted them all to get closer to having a common scale.
++	but I've adjusted them all to get closer to having a common scale.
+ 	The scale before research time is taken into account is roughly
+ 	4 = 1 commerce per turn. Afterwards it is arbitrary.
+ 	(Compared to the original numbers, this is * 1/100 * 7 * 4. 28/100)
+@@ -4806,21 +4806,26 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 					std::max((getTotalPopulation()+12*iTotalBonusSpecialists) /
+ 					12, iTotalCurrentSpecialists));
+  		}
+-
+- 		// Flexible commerce. (This is difficult to evaluate accurately without checking a lot of things - which I'm not going to do right now.)
++		/*	Commerce multipliers
++			(using iCommerceValue from above to calculate compound effect). */
++		iCommerceValue += (kTech.getCommerceModifier(eLoopCommerce) *
++				(4*getCommerceRate(eLoopCommerce)+iCommerceValue)) /
++				AI_averageCommerceMultiplier(eLoopCommerce);
++
++ 		/*	Flexible commerce. (This is difficult to evaluate accurately
++			without checking a lot of things - which I'm not going to do right now.) */
+  		if (kTech.isCommerceFlexible(eLoopCommerce))
+  		{
+-			iCommerceValue += 40 + 4 * iCityCount;
++			iCommerceValue += 80 + 4 * iCityCount; // (was 40 in K-Mod 1.44)
+  			/*iValue += 4 * iCityCount * (3*AI_averageCulturePressure()-200) / 100;
+  			if (i == COMMERCE_CULTURE && AI_atVictoryStage(AI_VICTORY_CULTURE2))
+  				iValue += 280;*/ // BtS
+  		}
+ 
+- 		if (iCommerceValue)
++ 		if (iCommerceValue != 0)
+  		{
+  			iCommerceValue *= AI_commerceWeight(eLoopCommerce);
+  			iCommerceValue /= 100;
+-
+  			iValue += iCommerceValue;
+  		}
+ 	} // </k146>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 7b957184f..5963dcecf 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5504,9 +5504,11 @@ void CvTeam::processTech(TechTypes eTech, int iChange,
+ 				* iChange);
+ 		kMember.changePower(kTech.getPowerValue() * iChange);
+ 		kMember.changeTechScore(GC.getGame().getTechScore(eTech) * iChange);
+-		// K-Mod. Extra commerce for specialist (new xml field)
++		// K-Mod. Processing for new xml fields
+ 		FOR_EACH_ENUM(Commerce)
+ 		{
++			kMember.changeCommerceRateModifier(eLoopCommerce,
++					kTech.getCommerceModifier(eLoopCommerce) * iChange);
+ 			kMember.changeSpecialistExtraCommerce(eLoopCommerce,
+ 					kTech.getSpecialistExtraCommerce(eLoopCommerce) * iChange);
+ 		} // K-Mod end
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index ceb3eb4f4..a4ca73b97 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -402,7 +402,8 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_HELP_GW_INDEX", WIDGET_HELP_GW_INDEX)
+ 		.value("WIDGET_HELP_GW_UNHAPPY", WIDGET_HELP_GW_UNHAPPY)
+ 
+-		// Extra specialist commerce (from tech)
++		// Extra specialist commerce, and commerce modifers (from tech)
++		.value("WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER", WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER)
+ 		.value("WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE", WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE)
+ 		// K-Mod end
+ 		.value("WIDGET_LH_GLANCE", WIDGET_LH_GLANCE) // advc.152
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 4ae07d94d..4f6881929 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -96,6 +96,7 @@ void CyInfoPythonInterface1()
+ 		.def("getPrereqOrTechs", &CvTechInfo::py_getPrereqOrTechs, "int (int i)")
+ 		.def("getPrereqAndTechs", &CvTechInfo::py_getPrereqAndTechs, "int (int i)")
+ 
++		.def("getCommerceModifier", &CvTechInfo::getCommerceModifier, "int (int i)") // K-Mod
+ 		.def("getSpecialistExtraCommerce", &CvTechInfo::getSpecialistExtraCommerce, "int (int i)") // K-Mod
+ 		.def("isCommerceFlexible", &CvTechInfo::isCommerceFlexible, "bool (int i)")
+ 		.def("isTerrainTrade", &CvTechInfo::isTerrainTrade, "bool (int i)")
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=14606

@@ -1,0 +1,331 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4196
+# Commit: b3de867844ccdf0937797e6a6375e22816d042f6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9b9b11bc0afb4d1aca2c417069233169847ce509
+# Title: Fix danger avoidance checks in pathfinder
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CvSelectionGroup.cpp
+2	0	CvGameCoreDLL/FAStarFunc.cpp
+25	21	CvGameCoreDLL/GroupPathFinder.cpp
+6	0	CvGameCoreDLL/GroupPathFinder.h
+31	18	CvGameCoreDLL/KmodPathFinder.h
+20	7	CvGameCoreDLL/KmodPathFinderLegacy.cpp
+7	1	CvGameCoreDLL/KmodPathFinderLegacy.h
+3	3	CvGameCoreDLL/TeamPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 2a9c7816d..16ec4a4cf 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1361,10 +1361,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 					units ready to defend. If the unit doesn't get stuck in a loop
+ 					subsequently (separate assertion), it's probably fine anyway.
+ 					If it does get stuck, then this earlier assertion should help
+-					diagnose the problem. It could then well be a rare issue with
+-					a worker retreating from enemy units, caused by the use of
+-					path data in GroupStepMetric::canStepThrough or ::cost.
+-					Probably not worth trying to fix (if indeed very rare). */
++					diagnose the problem. There might still be rare cases in which
++					the use of path data by GroupStepMetric causes the pathfinder
++					to fail, specifically when a worker retreats from enemy units.
++					If indeed very rare, then probably not worth trying to fix. */
+ 				if (missionData.iPushTurn >= GC.getGame().getGameTurn() &&
+ 					(!canFight() || (missionData.eFlags & MOVE_AVOID_DANGER)) &&
+ 					!hasMoved())
+
+diff --git a/CvGameCoreDLL/FAStarFunc.cpp b/CvGameCoreDLL/FAStarFunc.cpp
+index 8be1c9a97..38bf94e6f 100644
+--- a/CvGameCoreDLL/FAStarFunc.cpp
++++ b/CvGameCoreDLL/FAStarFunc.cpp
+@@ -57,6 +57,8 @@ BOOL pathValid(FAStarNode* parent, FAStarNode* node, int data, void const* point
+ 	MovementFlags eFlags = (MovementFlags)gDLL->getFAStarIFace()->GetInfo(finder);
+ 	if (!GroupStepMetric::isValidStep(kFrom, kTo, kGroup, eFlags))
+ 		return FALSE;
++	if (!GroupStepMetric::canStepThrough(kFrom, kGroup, eFlags))
++		return FALSE;
+ 	if (!GroupStepMetric::canStepThrough(kFrom, kGroup, eFlags,
+ 		parent->m_iData1, parent->m_iData2))
+ 	{
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index c29dbd395..a46d76591 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -30,12 +30,9 @@ bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
+ 			kGroup.canMoveAllTerrain());
+ }
+ 
+-/*	"pathValid_source" in K-Mod
+-	advc.pf (note): Checks based on the path data are problematic in this function.
+-	In rare circumstances, the plot danger check can cause the pathfinder to fail;
+-	see comment in KmodPathFinder::processChild. */
++// "pathValid_source" in K-Mod
+ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
+-	MovementFlags eFlags, int iMoves, int iPathTurns)
++	MovementFlags eFlags)
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+ 
+@@ -67,23 +64,11 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
+ 	{
+ 		return false;
+ 	}
+-	bool const bAIControl = kGroup.AI_isControlled();
+-	if (bAIControl)
+-	{
+-		if (iPathTurns > 1 || iMoves == 0)
+-		{
+-			if (!(eFlags & MOVE_IGNORE_DANGER) &&
+-				(!kGroup.canFight() ||
+-				(eFlags & MOVE_AVOID_DANGER)) && // advc.031d
+-				!kGroup.alwaysInvisible() &&
+-				GET_PLAYER(kGroup.getHeadOwner()).AI_isAnyPlotDanger(kPlot))
+-			{
+-				return false;
+-			}
+-		}
+-	}
+ 
+-	if (bAIControl || kPlot.isRevealed(kGroup.getHeadTeam()))
++	/*	(advc.pf: Danger checks based on path data moved into a
++		separate function) */
++
++	if (kGroup.AI_isControlled() || kPlot.isRevealed(kGroup.getHeadTeam()))
+ 	{
+ 		if (eFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
+ 		{
+@@ -137,6 +122,25 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
+ 	return true;
+ }
+ 
++/*	advc.pf: Cut from pathValid_source. Given how the pathfinder uses that function
++	(that is: to close off plots entirely after visiting from only one neighbor),
++	it mustn't take into account path data. Doing so had lead to rare pathfinding
++	failures in K-Mod. */
++bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
++	MovementFlags eFlags, int iMoves, int iPathTurns)
++{
++	if ((iPathTurns > 1 || iMoves == 0) &&
++		kGroup.AI_isControlled() &&
++		!(eFlags & MOVE_IGNORE_DANGER) &&
++		(!kGroup.canFight() || /* advc.031d: */ (eFlags & MOVE_AVOID_DANGER)) &&
++		!kGroup.alwaysInvisible() &&
++		GET_PLAYER(kGroup.getHeadOwner()).AI_isAnyPlotDanger(kPlot))
++	{
++		return false;
++	}
++	return true;
++}
++
+ // "pathDestValid" in BtS/ K-Mod
+ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
+ 	MovementFlags eFlags)
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.h b/CvGameCoreDLL/GroupPathFinder.h
+index 4a4cc9bde..c3ec2d5e0 100644
+--- a/CvGameCoreDLL/GroupPathFinder.h
++++ b/CvGameCoreDLL/GroupPathFinder.h
+@@ -46,6 +46,8 @@ public:
+ 	FAStar pathfinder in the EXE */
+ 	static bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
+ 			CvSelectionGroup const& kGroup, MovementFlags eFlags);
++	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
++			MovementFlags eFlags);
+ 	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
+ 			MovementFlags eFlags, int iMoves, int iPathTurns);
+ 	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
+@@ -87,6 +89,10 @@ public:
+ 	{
+ 		return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags);
+ 	}
++	bool canStepThrough(CvPlot const& kPlot) const
++	{
++		return canStepThrough(kPlot, *m_pGroup, m_eFlags);
++	}
+ 	bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const
+ 	{
+ 		return canStepThrough(kPlot, *m_pGroup, m_eFlags,
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 963e8b643..62599d23f 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -116,7 +116,7 @@ public:
+ 		ensure the following:
+ 		-	For two adjacent plots p and q that both aren't the path destination
+ 			and a path w from the start to p,
+-			isValidStep(p, q) && canStepThrough(p)
++			isValidStep(p, q) && canStepThrough(p, w)
+ 			needs to be true if and only if the step from p to q can be added to w.
+ 		-	If q is the path destination, then the conjunction above needs to be
+ 			true if and only if the step _could_ be added to w if some plot other
+@@ -130,9 +130,15 @@ public:
+ 			any path that reaches p from s.
+ 		-	isValidStep is the most frequently called function among these three,
+ 			so it should perform as little work as possible.
++		-	canStepThrough refers to the conjunction of two functions of that
++			name. Only one of those two may take into account the partial path w.
++			This separation allows the pathfinder to disregard a plot p entirely
++			once canStepThrough(p) has been found to be false for any partial path.
+ 		Remarks:
+-		-	I've come up with this specification based on karadoc's code.
+-			I wish it were less complicated, but I do want it to be fast.
++		-	I've come up with this specification based on karadoc's code. I wish
++			it were less complicated, but I do want it to be fast. (canStepThrough
++			had corresponded only to a single K-Mod function; this had resulted in
++			rare failures to find an existing path.)
+ 		-	More broadly speaking, canStepThrough should check whether a plot
+ 			can be entered if we assume that it isn't the destination, and
+ 			isValidStep should check any conditions that depend on the kFrom plot. */
+@@ -141,11 +147,16 @@ public:
+ 		FErrorMsg("Should've been hidden by a derived-class member");
+ 		return false;
+ 	}
+-	/*	kNode is the pathfinder node associated with kPlot. (The
+-		group step metric will require some data from that node.)
+-		The node data should not be used to enforce the path length limit;
+-		KmodPathFinder handles that. */
+-	bool canStepThrough(CvPlot const& kPlot, Node const& kNode) const
++	bool canStepThrough(CvPlot const& kPlot) const
++	{
++		FErrorMsg("Should've been hidden by a derived-class member");
++		return false;
++	}
++	/*	kNode is the pathfinder node associated with kPlot. The node data -
++		containing any info about the partial path relevant for pathfinding -
++		should not be used to enforce the path length limit; KmodPathFinder
++		handles that. */
++	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const
+ 	{
+ 		FErrorMsg("Should've been hidden by a derived-class member");
+ 		return false;
+@@ -643,21 +654,23 @@ void KmodPathFinder<StepMetric,Node>::processChild(
+ 		kChild.m_iHeuristicCost = m_stepMetric.heuristicCost(
+ 				kChildPlot, *m_pDest);
+ 		// Total cost will be set when the parent is set
+-		if (m_stepMetric.canStepThrough(kChildPlot, kChild))
++		/*	<advc.001> Split into two calls. We can only close the node
++			(else branch) when the first one fails. The second one merely
++			invalidates the path we've taken so far. (Well, I don't think
++			we'll check any further paths reaching kChild via kParent, and
++			it's possible we might have to(?). But even closing kChild based
++			on the path data had lead to problems only very rarely ... */
++		if (m_stepMetric.canStepThrough(kChildPlot))
++		{
++			if (!m_stepMetric.canStepThrough(kChildPlot, kChild))
++				return; // </advc.001>
+ 			m_openList.open(kChild);
++		}
+ 		else
+ 		{	// This node is a dead end
+ 			/*	advc: Which is to say, we can never enter it, not even on a
+ 				later call to generatePath - except if it is the destination;
+-				that remains to be checked.
+-				However: If there is plot danger to be avoided in kChildPlot,
+-				then we might be able to enter via a shorter path and avoid ending
+-				the turn in kChildPlot that way. I don't see a reasonably fast way
+-				to address this rare problem. (And it's not really a problem
+-				with this base class but with GroupPathFinder.) I guess we could
+-				add a function isValidStep2 that gets checked only after
+-				canStepThrough and move the danger checks into that function.
+-				But there may be similar issues with the cost function. */
++				that remains to be checked. */
+ 			kChild.setState(PATHNODE_CLOSED);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/KmodPathFinderLegacy.cpp b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+index b2e796722..14b136f8f 100644
+--- a/CvGameCoreDLL/KmodPathFinderLegacy.cpp
++++ b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+@@ -375,14 +375,27 @@ bool KmodPathFinderLegacy::ProcessNode()
+ 				// total cost will be set when the parent is set.
+ 
+ 				child_node->m_bOnStack = true;
+-
+-				if (GroupStepMetric::canStepThrough(  // advc.pf: handle plot lookup here
+-					kMap.getPlot(child_node->m_iX, child_node->m_iY),
+-					*settings.pGroup, settings.eFlags,
+-					child_node->m_iData1, child_node->m_iData2)) // advc.pf
++				// advc.pf: Handle plot lookup here
++				CvPlot const& kChildPlot = kMap.getPlot(child_node->m_iX, child_node->m_iY);
++				// advc.pf: Split in two functions
++				/*if (GroupStepMetric::canStepThrough(kChildPlot, *settings.pGroup, settings.eFlags) &&
++					GroupStepMetric::canStepThrough(kChildPlot, *settings.pGroup, settings.eFlags,
++					child_node->m_iData1, child_node->m_iData2))*/
++				/*	<advc.pf> The above should find the same paths as K-Mod did. These checks
++					should correspond to the current (July '24) AdvCiv paths: */
++				if (GroupStepMetric::canStepThrough(kChildPlot, *settings.pGroup, settings.eFlags))
+ 				{
+-					open_list.push_back(child_node);
+-					child_node->m_eFAStarListType = FASTARLIST_OPEN;
++					if (!GroupStepMetric::canStepThrough(kChildPlot, *settings.pGroup, settings.eFlags,
++						child_node->m_iData1, child_node->m_iData2))
++					{
++						child_node->m_bOnStack = false;
++						child_node = NULL;
++					}
++					else // </advc.pf>
++					{
++						open_list.push_back(child_node);
++						child_node->m_eFAStarListType = FASTARLIST_OPEN;
++					}
+ 				}
+ 				else
+ 				{
+
+diff --git a/CvGameCoreDLL/KmodPathFinderLegacy.h b/CvGameCoreDLL/KmodPathFinderLegacy.h
+index 987a1e8e1..adde5f596 100644
+--- a/CvGameCoreDLL/KmodPathFinderLegacy.h
++++ b/CvGameCoreDLL/KmodPathFinderLegacy.h
+@@ -4,7 +4,13 @@
+ #define K_MOD_PATH_FINDER_LEGACY_H
+ 
+ /*	<advc.test> This is the old (AdvCiv 0.98) version of KmodPathFinder.
+-	For verifying the correctness of the current, restructured version. */
++	For verifying the correctness of the current, restructured version.
++	Note that this covers only the generic parts of the A* implementation,
++	which are, at least in theory, not specific to Civ. I.e. most AdvCiv
++	changes to the costs and validity of paths automatically also affect
++	the legacy pathfinder. A couple of later AdvCiv changes on the generic
++	side have also been applied to the legacy version - so that it remains
++	useful for testing the correctness of further changes of this kind. */
+ #ifdef FASSERT_ENABLE
+ 	#define VERIFY_PATHF 0
+ #else
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.h b/CvGameCoreDLL/TeamPathFinder.h
+index 612e69e3a..3c040cc55 100644
+--- a/CvGameCoreDLL/TeamPathFinder.h
++++ b/CvGameCoreDLL/TeamPathFinder.h
+@@ -70,11 +70,11 @@ public:
+ 		}
+ 		return true;
+ 	}
++	bool canStepThrough(CvPlot const& kPlot) const;
+ 	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const
+-	{
+-		return canStepThrough(kPlot); // disregard kNode
++	{	// No path data to be taken into account
++		return true;
+ 	}
+-	bool canStepThrough(CvPlot const& kPlot) const;
+ 	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const;
+ 	int cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 		PathNode const& kParentNode) const
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=13233

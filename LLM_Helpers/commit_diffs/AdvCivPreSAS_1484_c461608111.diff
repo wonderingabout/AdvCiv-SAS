@@ -1,0 +1,159 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1484
+# Commit: c4616081114400a360df4070114ea38e0003812f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9a2822040f0ae6cd2241a7a2efc593afe971ebc6
+# Title: Resource script (K-Mod version) added
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+104	0	CvGameCoreDLL/Project/CvGameCoreDLL.rc
+15	0	CvGameCoreDLL/Project/resource.h
+ create mode 100644 CvGameCoreDLL/Project/CvGameCoreDLL.rc
+ create mode 100644 CvGameCoreDLL/Project/resource.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.rc b/CvGameCoreDLL/Project/CvGameCoreDLL.rc
+new file mode 100644
+index 000000000..a073a4acd
+--- /dev/null
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.rc
+@@ -0,0 +1,104 @@
++// Microsoft Visual C++ generated resource script.
++//
++#include "resource.h"
++
++#define APSTUDIO_READONLY_SYMBOLS
++/////////////////////////////////////////////////////////////////////////////
++//
++// Generated from the TEXTINCLUDE 2 resource.
++//
++//#include "afxres.h"
++#include <windows.h>
++
++/////////////////////////////////////////////////////////////////////////////
++#undef APSTUDIO_READONLY_SYMBOLS
++
++/////////////////////////////////////////////////////////////////////////////
++// English (U.S.) resources
++
++#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
++#ifdef _WIN32
++LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
++#pragma code_page(1252)
++#endif //_WIN32
++
++#ifdef APSTUDIO_INVOKED
++/////////////////////////////////////////////////////////////////////////////
++//
++// TEXTINCLUDE
++//
++
++1 TEXTINCLUDE 
++BEGIN
++    "resource.h\0"
++END
++
++2 TEXTINCLUDE 
++BEGIN
++    "#include ""afxres.h""\r\n"
++    "\0"
++END
++
++3 TEXTINCLUDE 
++BEGIN
++    "\r\n"
++    "\0"
++END
++
++#endif    // APSTUDIO_INVOKED
++
++
++/////////////////////////////////////////////////////////////////////////////
++//
++// Version
++//
++
++VS_VERSION_INFO VERSIONINFO
++ FILEVERSION 3,1,7,0
++ PRODUCTVERSION 3,1,7,0
++ FILEFLAGSMASK 0x17L
++#ifdef _DEBUG
++ FILEFLAGS 0x1L
++#else
++ FILEFLAGS 0x0L
++#endif
++ FILEOS 0x4L
++ FILETYPE 0x2L
++ FILESUBTYPE 0x0L
++BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++        BLOCK "040904b0"
++        BEGIN
++            VALUE "Comments", "Use the SDK to override the default game rules"
++            VALUE "CompanyName", "Firaxis Games"
++            VALUE "FileDescription", "Game core DLL for Sid Meier's Civilization 4 : Beyond The Sword"
++            VALUE "FileVersion", "3, 1, 7, 0"
++            VALUE "InternalName", "Sid Meier's Civilization 4 : Beyond The Sword Game Core DLL"
++            VALUE "LegalCopyright", "Copyright (C) Firaxis Games.  All Rights Reserved."
++            VALUE "OriginalFilename", "CvGameCoreDLL.dll"
++            VALUE "ProductName", "Sid Meier's Civilization 4 : Beyond The Sword"
++            VALUE "ProductVersion", "3, 1, 7, 0"
++        END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++        VALUE "Translation", 0x409, 1200
++    END
++END
++
++#endif    // English (U.S.) resources
++/////////////////////////////////////////////////////////////////////////////
++
++
++
++#ifndef APSTUDIO_INVOKED
++/////////////////////////////////////////////////////////////////////////////
++//
++// Generated from the TEXTINCLUDE 3 resource.
++//
++
++
++/////////////////////////////////////////////////////////////////////////////
++#endif    // not APSTUDIO_INVOKED
++
+
+diff --git a/CvGameCoreDLL/Project/resource.h b/CvGameCoreDLL/Project/resource.h
+new file mode 100644
+index 000000000..63df6a581
+--- /dev/null
++++ b/CvGameCoreDLL/Project/resource.h
+@@ -0,0 +1,15 @@
++//{{NO_DEPENDENCIES}}
++// Microsoft Visual C++ generated include file.
++// Used by CvGameCoreDLL.rc
++//
++
++// Next default values for new objects
++// 
++#ifdef APSTUDIO_INVOKED
++#ifndef APSTUDIO_READONLY_SYMBOLS
++#define _APS_NEXT_RESOURCE_VALUE        101
++#define _APS_NEXT_COMMAND_VALUE         40001
++#define _APS_NEXT_CONTROL_VALUE         1001
++#define _APS_NEXT_SYMED_VALUE           101
++#endif
++#endif
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3425

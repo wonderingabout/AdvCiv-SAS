@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3461
+# Commit: 0a636418b5a028170325217ee8b5b758ffbf4b2e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5c85526168259f9354635519eeb61199a98b6a8a
+# Title: Fix rare crash in nuke AI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2eae40906..6aa4ec8ad 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19938,7 +19938,7 @@ bool CvUnitAI::AI_nuke()
+ 		{
+ 			if (pLoopGroup->getNumUnits() <= 4)
+ 				continue;
+-			CvPlot const& kLoopPlot = pLoopGroup->getPlot();
++			CvPlot& kLoopPlot = pLoopGroup->getPlot();
+ 			if (kLoopPlot.isVisible(kTeam.getID()) &&
+ 				// Units in or near cities are already taken care of
+ 				aeTargetEvaluated.count(kLoopPlot.plotNum()) <= 0 &&
+@@ -19947,7 +19947,7 @@ bool CvUnitAI::AI_nuke()
+ 				apiPotentialTargets.push_back(std::make_pair(
+ 						/*	0 search range - let's not bother with max damage to
+ 							improvements here (see also comment in previous loop) */
+-						pLoopGroup->plot(), 0));
++						&kLoopPlot, 0));
+ 				aeTargetEvaluated.insert(kLoopPlot.plotNum());
+ 			}
+ 		}
+@@ -19959,6 +19959,10 @@ bool CvUnitAI::AI_nuke()
+ 			CvPlot* pTarget;
+ 			int iValue = AI_nukeValue(kCenter, iSearchRange, pTarget,
+ 					iDestructionWeight);
++			/*	<advc.650> Can happen that every potential target plot contains
++				friendly units */
++			if (pTarget == NULL)
++				continue; // </advc.650>
+ 			if (bLimited && iWarRating > -10)
+ 				iValue /= 2;
+ 			// <advc.650>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=1269

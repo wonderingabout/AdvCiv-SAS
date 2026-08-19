@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 277
+# Commit: 80aecf95964d296d5c043a07f59197ea6a4b06b9
+# History segment: K-Mod history
+# Parent used for diff: 8982a25928a5f6a48c064a4097f9c8d2dbf348c5
+# Title: Simplified the 'goToTargetCity / load' part at the end of AI_attackCityMove.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 96d6daaf3..afd440f93 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3228,6 +3228,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				}
+ 			}
+ 
++			/* original BBAI code
+ 			if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_ATTACK_STACK, 5, pTargetCity))
+ 			{
+ 				return;
+@@ -3262,7 +3263,30 @@ void CvUnitAI::AI_attackCityMove()
+ 			if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_ATTACK_STACK, MAX_INT, pTargetCity))
+ 			{
+ 				return;
++			} */
++			// K-Mod. I reckon I can do the same thing, but in a simplier & faster way.
++			// Estimate the number of turns required.
++			int iPathTurns;
++			if (!generatePath(pTargetCity->plot(), MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_ATTACK_STACK, true, &iPathTurns))
++			{
++				FAssertMsg(false, "failed to find path to target city.");
++				iPathTurns = 100;
+ 			}
++			// See if we can get there faster by boat..
++			if (iPathTurns > 5)// && !pTargetCity->isBarbarian())
++			{
++				int iLoadTurns = std::min(4, iPathTurns/2 - 1);
++				int iTransportTurns = iPathTurns - iLoadTurns - 2;
++
++				if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_SAFE_TERRITORY, iLoadTurns, iTransportTurns))
++					return;
++			}
++			// We have to walk.
++			if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_ATTACK_STACK, MAX_INT, pTargetCity))
++			{
++				return;
++			}
++			// K-Mod end
+ 
+ 			if (bAnyWarPlan)
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1484

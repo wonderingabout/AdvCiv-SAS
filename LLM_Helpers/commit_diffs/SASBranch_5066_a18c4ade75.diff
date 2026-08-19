@@ -1,0 +1,295 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5066
+# Commit: a18c4ade7549259821ad558d8ba1ea6c99960fa5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a550f8772c388af06c42f05bd8045ea0e8a6398a
+# Title: performance optimizations
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/Contrib/CvModName.py
+16	6	CvGameCoreDLL/CvCity.cpp
+30	11	CvGameCoreDLL/CvCityAI.cpp
+4	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+5	1	CvGameCoreDLL/CvGameTextMgr.cpp
+5	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/CvModName.py b/Assets/Python/Contrib/CvModName.py
+index f6ad9ad39..03e7df750 100644
+--- a/Assets/Python/Contrib/CvModName.py
++++ b/Assets/Python/Contrib/CvModName.py
+@@ -1,6 +1,6 @@
+ #CvModName.py
+ 
+-# <!-- custom: change mod name displayed ingame from "AdvCiv Mod" (would appear as "AdvCiv Mod" but anyways etc) to as of now "AdvCiv-SAS" (now appears as "AdvCiv-SAS Mod" but anyways etc) so th as our mod is named as of now but anyways etc, and so that it also appears in "Settings" menu ingame (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
++# <!-- custom: change mod name displayed ingame from "AdvCiv Mod" to as of now "AdvCiv-SAS Mod", so that it now also appears as such in the "Settings" ingame menu (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
+ modName = "AdvCiv-SAS" # advc.009
+ displayName = "AdvCiv-SAS" #advc.009
+ modVersion = ""
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4600e2f11..ca6321c7b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -9215,6 +9215,10 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ 	}
+ 	else
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 		for (int i = 0; i < -iChange; i++)
+ 		{
+ 			if (getSpecialistCount(eSpecialist) <= 0)
+@@ -9222,10 +9226,10 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ 
+ 			changeSpecialistCount(eSpecialist, -1);
+ 
+-			if (eSpecialist != GC.getDEFAULT_SPECIALIST() &&
+-				GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
++			if (eSpecialist != eDefaultSpecialist &&
++				eDefaultSpecialist != NO_SPECIALIST)
+ 			{
+-				changeSpecialistCount(GC.getDEFAULT_SPECIALIST(), 1);
++				changeSpecialistCount(eDefaultSpecialist, 1);
+ 				continue;
+ 			}
+ 			if (extraFreeSpecialists() > 0)
+@@ -9249,9 +9253,12 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ 
+ bool CvCity::isSpecialistValid(SpecialistTypes eSpecialist, int iExtra) const
+ {
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 	return (getSpecialistCount(eSpecialist) + iExtra <= getMaxSpecialistCount(eSpecialist) ||
+ 		GET_PLAYER(getOwner()).isSpecialistValid(eSpecialist) ||
+-		eSpecialist == GC.getDEFAULT_SPECIALIST());
++		eSpecialist == eDefaultSpecialist);
+ }
+ 
+ 
+@@ -9485,9 +9492,12 @@ void CvCity::alterWorkingPlot(CityPlotTypes ePlot)
+ 	setCitizensAutomated(false);
+ 	if (isWorkingPlot(ePlot))
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 		setWorkingPlot(ePlot, false);
+-		if (GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
+-			changeSpecialistCount(GC.getDEFAULT_SPECIALIST(), 1);
++		if (eDefaultSpecialist != NO_SPECIALIST)
++			changeSpecialistCount(eDefaultSpecialist, 1);
+ 		else AI().AI_addBestCitizen(false, true);
+ 	}
+ 	else if (extraPopulation() > 0 || AI().AI_removeWorstCitizen())
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 247459a96..af6334b0a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5776,6 +5776,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 	// <!-- custom: end of moved block anyways etc -->
+ 
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 	int iValue = 0;
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{
+@@ -6068,7 +6072,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			// K-Mod. (original code deleted)
+ 			int iSpecialistsValue = 0;
+ 			//int iUnusedSpecialists = 0;
+-			SpecialistTypes const eDefaultSpecialist = GC.getDEFAULT_SPECIALIST();
++			
+ 			int iAvailableWorkers = iFoodDifference / 2;
+ 			if (eDefaultSpecialist != NO_SPECIALIST)
+ 				iAvailableWorkers += getSpecialistCount(eDefaultSpecialist);
+@@ -12667,18 +12671,21 @@ bool CvCityAI::AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist)
+ 	// if we are using more specialists than the free ones we get
+ 	if (extraFreeSpecialists() < 0)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 		// does generic 'citizen' specialist exist?
+-		if (GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
++		if (eDefaultSpecialist != NO_SPECIALIST)
+ 		{
+ 			// is ignore something other than generic citizen?
+-			if (eIgnoreSpecialist != GC.getDEFAULT_SPECIALIST())
++			if (eIgnoreSpecialist != eDefaultSpecialist)
+ 			{
+ 				// do we have at least one more generic citizen than we are forcing?
+-				if (getSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST()) >
+-					getForceSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST()))
++				if (getSpecialistCount(eDefaultSpecialist) >
++					getForceSpecialistCount(eDefaultSpecialist))
+ 				{
+ 					// remove the extra generic citzen
+-					changeSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST(), -1);
++					changeSpecialistCount(eDefaultSpecialist, -1);
+ 					return true;
+ 				}
+ 			}
+@@ -13925,12 +13932,15 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
+ 	if (!kOwner.isHuman())
+ 	{
+ 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+ 		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+-		static const SpecialistTypes eSpecialistDefault = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+ 
+ 		const int iCityPopulation = getPopulation();
+ 
+@@ -13972,7 +13982,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		// Note: A similar idea (devaluing generic citizens) was previously present in commented-out code towards the end of this function.
+ 		// This new approach provides a stronger, direct override for AI players.
+ 		// If the 'new_job' being considered is a specialist AND it's the default Citizen specialist
+-		if ((eSpecialistDefault != NO_SPECIALIST) && new_job.first && (new_job.second == eSpecialistDefault))
++		if ((eDefaultSpecialist != NO_SPECIALIST) && new_job.first && (new_job.second == eDefaultSpecialist))
+ 		{
+ 			// Return a very low, positive value. This makes it undesirable for the AI
+ 			// compared to actual plots or other specialists, effectively making them avoid it.
+@@ -14233,7 +14243,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		}
+ 		// Devalue generic citizens (for no specific reason). (cf. AI_specialistValue)
+ 		/* if (no gpp) {
+-			SpecialistTypes eGenericCitizen = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++			SpecialistTypes eGenericCitizen = eDefaultSpecialist;
+ 			if (eGenericCitizen != NO_SPECIALIST) {
+ 				if (new_job.first && new_job.second == eGenericCitizen)
+ 					iTotalValue = iTotalValue * 80 / 100;
+@@ -14434,11 +14444,15 @@ int CvCityAI::AI_growthValuePerFood() const
+ 
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 	FOR_EACH_ENUM2(Specialist, eSpec)
+ 	{
+ 		// cf. CvCity::isSpecialistValid
+ 		int iAvailable = (kOwner.isSpecialistValid(eSpec) ||
+-				eSpec == GC.getDEFAULT_SPECIALIST()) ? 3 :
++				eSpec == eDefaultSpecialist) ? 3 :
+ 				std::min(3, getMaxSpecialistCount(eSpec) - getSpecialistCount(eSpec));
+ 		// this could get messed up by free specialists. I'm not sure if that's a problem.
+ 		int iCurrent = getSpecialistCount(eSpec);
+@@ -15630,6 +15644,11 @@ int CvCityAI::AI_calculateTargetCulturePerTurn() const
+ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
+ {
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 	int iCount = 0;
+ 	FOR_EACH_ENUM2(Specialist, eSpecialist)
+ 	{
+@@ -15650,7 +15669,7 @@ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
+ 			//iCount += getMaxSpecialistCount(eSpecialist);
+ 			// K-Mod
+ 			if (kPlayer.isSpecialistValid(eSpecialist) ||
+-				eSpecialist == GC.getDEFAULT_SPECIALIST())
++				eSpecialist == eDefaultSpecialist)
+ 			{
+ 				return getPopulation(); // unlimited
+ 			}
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 203bc2c50..3e8255379 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3389,8 +3389,11 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
+ 	int const iChange = widgetDataStruct.m_iData2;
+ 	if (iChange > 0)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++
+ 		GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
+-		if (widgetDataStruct.m_iData1 != GC.getDEFAULT_SPECIALIST())
++		if (widgetDataStruct.m_iData1 != eDefaultSpecialist)
+ 		{
+ 			if (!GET_PLAYER(pHeadSelectedCity->getOwner()).
+ 					isSpecialistValid((SpecialistTypes)widgetDataStruct.m_iData1))
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a539f3336..4f8e50fcd 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5087,13 +5087,17 @@ void CvGameTextMgr::setPlotHelpDebug_ShiftAltOnly(CvWStringBuffer& szString, CvP
+ 			setCityPlotYieldValueString(szString, pCity, 15, bIgnoreFood, iGrowthValue);
+ 			setCityPlotYieldValueString(szString, pCity, 14, bIgnoreFood, iGrowthValue);
+ 
++			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++			static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)eDefaultSpecialist;
++
+ 			// show specialist values too
+ 			for (int iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
+ 			{
+ 				int iMaxThisSpecialist = pCity->getMaxSpecialistCount((SpecialistTypes) iI);
+ 				int iSpecialistCount = pCity->getSpecialistCount((SpecialistTypes) iI);
+ 				bool bUsingSpecialist = (iSpecialistCount > 0);
+-				bool bDefaultSpecialist = (iI == GC.getDEFAULT_SPECIALIST());
++				bool bDefaultSpecialist = (iI == eDefaultSpecialist);
+ 
+ 				// can this city have any of this specialist?
+ 				if (iMaxThisSpecialist > 0 || bDefaultSpecialist)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index df10b4a7a..b26c122c4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26434,6 +26434,10 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 	if (isHuman())
+ 		return; // Humans can use their own reasoning for choosing specialists
+ 
++	// // <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// // <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	// static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++		
+ 	FOR_EACH_ENUM(Specialist)
+ 	{
+ 		UnitClassTypes eGreatPersonClass = (UnitClassTypes)
+@@ -26448,7 +26452,7 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 			continue;
+ 		/* I've disabled the validity check, because 'invalid' specialists
+ 			still affect the value of the things that enable them. */
+-		/*bool bValid = isSpecialistValid((SpecialistTypes)i) || i == GC.getDEFAULT_SPECIALIST();
++		/*bool bValid = isSpecialistValid((SpecialistTypes)i) || i == eDefaultSpecialist;
+ 		FOR_EACH_CITY(pLoopCity, *this) {
+ 			if (pLoopCity->getMaxSpecialistCount((SpecialistTypes)i) > 0) {
+ 				bValid = true;
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=16223

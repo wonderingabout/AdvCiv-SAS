@@ -1,0 +1,238 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2601
+# Commit: 682846f99276ae0d5095e47af127c14b4a0082fc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 69e0588992713b8b8993cb31a227cbf6683bbaae
+# Title: Some minor performance tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/CvPlayerAI.cpp
+26	17	CvGameCoreDLL/CvPlot.cpp
+5	1	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvUnit.cpp
+4	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 65d60d95e..d7268708b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3264,7 +3264,7 @@ int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const
+ 	{
+ 		CvUnit const& kUnit = *::getUnit(pUnitNode->m_data);
+ 		// advc.opt: Team check changed to masterTeam
+-		if (GET_TEAM(kUnit.getTeam()).getMasterTeam() == eOurMaster)
++		if (GET_TEAM(kUnit.getOwner()).getMasterTeam() == eOurMaster)
+ 		{
+ 			if (!kUnit.alwaysInvisible() &&
+ 				kUnit.getInvisibleType() == NO_INVISIBLE)
+@@ -27447,11 +27447,11 @@ bool CvPlayerAI::AI_isDangerFromSubmarines() const
+ bool CvPlayerAI::AI_cheatDangerVisibility(CvPlot const& kAt) const
+ {
+ 	scaled const rProb = fixp(0.5);
+-	std::vector<int> aiInputs;
+-	aiInputs.push_back(kAt.getX());
+-	aiInputs.push_back(kAt.getY());
+-	aiInputs.push_back(GC.getGame().getGameTurn());
+-	aiInputs.push_back(getID());
++	std::vector<int> aiInputs(4); // push_back seems to be slightly slow here
++	aiInputs[0] = kAt.getX();
++	aiInputs[1] = kAt.getY();
++	aiInputs[2] = GC.getGame().getGameTurn();
++	aiInputs[3] = getID();
+ 	return (scaled::hash(aiInputs) < rProb);
+ 
+ 	/*  This is a bit faster, but, in the end, I still had to reduce the number of
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 80970de9b..33b6d6601 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1345,12 +1345,18 @@ int CvPlot::seeThroughLevel() const
+ 	int iLevel = GC.getInfo(getTerrainType()).getSeeThroughLevel();
+ 	if (isFeature())
+ 		iLevel += GC.getInfo(getFeatureType()).getSeeThroughChange();
+-	if (isPeak())
+-		iLevel += GC.getDefineINT(CvGlobals::PEAK_SEE_THROUGH_CHANGE);
+-	if (isHills())
++	switch (getPlotType()) // advc.opt: was a sequence of conditionals
++	{
++	case PLOT_HILLS:
+ 		iLevel += GC.getDefineINT(CvGlobals::HILLS_SEE_THROUGH_CHANGE);
+-	if (isWater())
++		break;
++	case PLOT_PEAK:
++		iLevel += GC.getDefineINT(CvGlobals::PEAK_SEE_THROUGH_CHANGE);
++		break;
++	case PLOT_OCEAN:
+ 		iLevel += GC.getDefineINT(CvGlobals::SEAWATER_SEE_FROM_CHANGE);
++		break;
++	}
+ 	return iLevel;
+ }
+ 
+@@ -2283,17 +2289,18 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	if (pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
+ 		return GC.getMOVE_DENOMINATOR();
+ 
++	TeamTypes const eTeam = pUnit->getTeam(); // advc.opt
+ 	/*if (pUnit->isHuman()) {
+-		if (!isRevealed(pUnit->getTeam(), false))
++		if (!isRevealed(eTeam, false))
+ 			return pUnit->maxMoves();
+ 	}*/
+ 	// K-Mod. Why let the AI cheat this?
+ 	if ( /* advc.001i: The K-Mod condition is OK, but now that the pathfinder passes
+ 			bAssumeRevealed=false, it's cleaner to check that too. */
+ 		!bAssumeRevealed &&
+-		!isRevealed(pUnit->getTeam()))
++		!isRevealed(eTeam))
+ 	{
+-		/*if (!pFromPlot->isRevealed(pUnit->getTeam(), false))
++		/*if (!pFromPlot->isRevealed(eTeam, false))
+ 			return pUnit->maxMoves();
+ 		else return GC.getMOVE_DENOMINATOR() + 1;
+ 		*/ // (further weight adjustments are now done in the pathfinder's moveCost function.)
+@@ -2324,7 +2331,8 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	}
+ 
+ 	bool bHasTerrainCost = (iRegularCost > 1);
+-	iRegularCost = std::min(iRegularCost, pUnit->baseMoves());
++	int const iBaseMoves = pUnit->baseMoves(); // advc.opt
++	iRegularCost = std::min(iRegularCost, iBaseMoves);
+ 	iRegularCost *= GC.getMOVE_DENOMINATOR();
+ 	if (bHasTerrainCost)
+ 	{
+@@ -2339,24 +2347,24 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	// <advc.001i> Pass along bAssumeRevealed
+ 	if (pFromPlot->isValidRoute(pUnit, bAssumeRevealed) &&
+ 		isValidRoute(pUnit, bAssumeRevealed) && // </advc.001i>
+-		(GET_TEAM(pUnit->getTeam()).isBridgeBuilding() ||
++		(GET_TEAM(eTeam).isBridgeBuilding() ||
+ 		!pFromPlot->isRiverCrossing(directionXY(*pFromPlot, *this))))
+ 	{	// <advc.001i>
+ 		RouteTypes eFromRoute = (bAssumeRevealed ? pFromPlot->getRouteType() :
+-				pFromPlot->getRevealedRouteType(pUnit->getTeam()));
++				pFromPlot->getRevealedRouteType(eTeam));
+ 		CvRouteInfo const& kFromRoute = GC.getInfo(eFromRoute);
+ 		RouteTypes eToRoute = (bAssumeRevealed ? getRouteType() :
+-				getRevealedRouteType(pUnit->getTeam()));
++				getRevealedRouteType(eTeam));
+ 		CvRouteInfo const& kToRoute = GC.getInfo(eToRoute);
+ 		iRouteCost = std::max(
+ 				kFromRoute.getMovementCost() +
+-				GET_TEAM(pUnit->getTeam()).getRouteChange(eFromRoute),
++				GET_TEAM(eTeam).getRouteChange(eFromRoute),
+ 				kToRoute.getMovementCost() +
+-				GET_TEAM(pUnit->getTeam()).getRouteChange(eToRoute));
++				GET_TEAM(eTeam).getRouteChange(eToRoute));
+ 		// </advc.001i>
+ 		iRouteFlatCost = std::max(
+-				kFromRoute.getFlatMovementCost() * pUnit->baseMoves(),
+-				kToRoute.getFlatMovementCost() * pUnit->baseMoves());
++				kFromRoute.getFlatMovementCost() * iBaseMoves,
++				kToRoute.getFlatMovementCost() * iBaseMoves);
+ 	}
+ 	else
+ 	{
+@@ -3065,14 +3073,15 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit, /* advc.001i: */ bool bAssumeReve
+ {
+ 	//if (!isRoute()) return false;
+ 	// <advc.001i>
++	CvTeam const& kTeam = GET_TEAM(pUnit->getOwner());
+ 	RouteTypes const eRoute = (bAssumeRevealed ? getRouteType() :
+-			getRevealedRouteType(pUnit->getTeam()));
++			getRevealedRouteType(kTeam.getID()));
+ 	if (eRoute == NO_ROUTE) // </advc.001i>
+ 		return false;
+ 	if (!isOwned() || pUnit->isEnemyRoute())
+ 		return true;
+ 	return (!pUnit->isEnemy(getTeam(), *this) &&
+-		!GET_TEAM(pUnit->getTeam()).isDisengage(getTeam())); // advc.034
++		!kTeam.isDisengage(getTeam())); // advc.034
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 99ed3fb00..a7628a255 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4482,7 +4482,11 @@ TeamTypes CvSelectionGroup::getHeadTeam() const
+ {
+ 	CvUnit* pHeadUnit = getHeadUnit();
+ 	if (pHeadUnit != NULL)
+-		return pHeadUnit->getTeam();
++	{
++		//return pHeadUnit->getTeam();
++		// advc.opt: Not nice, but avoids a function call.
++		return TEAMID(pHeadUnit->getOwner());
++	}
+ 	return NO_TEAM;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 97cb8b188..b06be6d1e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6526,7 +6526,8 @@ int CvUnit::baseMoves() const
+ 	// <advc.905b>
+ 	int iR = m_pUnitInfo->getMoves() + getExtraMoves() +
+ 			GET_TEAM(getTeam()).getExtraMoves(getDomainType());
+-	for(int i = 0; i < GC.getNUM_UNIT_SPEED_BONUSES(getUnitType()); i++)
++	int const iSpeedBonuses = GC.getNUM_UNIT_SPEED_BONUSES(getUnitType());
++	for(int i = 0; i < iSpeedBonuses; i++)
+ 	{
+ 		if(m_pUnitInfo->getSpeedBonuses(i) >= 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a006b228b..5c6054caa 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14173,6 +14173,7 @@ bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
+ 		// otherwise it's just silly.
+ 	}
+ 	FAssert(!bLocal || iRange > 0);
++	TeamTypes const eTeam = getTeam(); // advc.opt
+ 	while (i < iPlots)
+ 	{
+ 		CvPlot* pLoopPlot = bLocal
+@@ -14180,7 +14181,7 @@ bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
+ 			: GC.getMap().plotByIndex(i);
+ 		i++; // for next cycle.
+ 
+-		if (pLoopPlot == NULL || pLoopPlot->getTeam() != getTeam() ||
++		if (pLoopPlot == NULL || pLoopPlot->getTeam() != eTeam ||
+ 			!AI_plotValid(pLoopPlot) || !pLoopPlot->isVisibleEnemyUnit(this))
+ 		{
+ 			continue; // advc
+@@ -14198,7 +14199,7 @@ bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
+ 			int iValue = iOdds;
+ 			if (iOdds > 0 && iOdds < 100 && iThreshold > 0)
+ 			{
+-				int iOurAttack = kOwner.AI_localAttackStrength(pLoopPlot, getTeam(),
++				int iOurAttack = kOwner.AI_localAttackStrength(pLoopPlot, eTeam,
+ 						getDomainType(), 2, true, true, true);
+ 				int iEnemyDefence = kOwner.AI_localDefenceStrength(pLoopPlot, NO_TEAM,
+ 						getDomainType(), 0);
+@@ -14214,7 +14215,7 @@ bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
+ 			}
+ 			if (iValue >= iThreshold)
+ 			{
+-				BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
++				BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(eTeam);
+ 				iValue *= 100 + (eBonus == NO_BONUS ? 0 :
+ 						3*kOwner.AI_bonusVal(eBonus, 0)/2) +
+ 						(pLoopPlot->getWorkingCity() ? 20 : 0);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8416

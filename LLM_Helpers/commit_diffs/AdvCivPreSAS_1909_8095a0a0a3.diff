@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1909
+# Commit: 8095a0a0a374d84dbd9c459cca6a7bb5c33f2e1a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 360e6ee7b0b923d2a98576498f328c8043bc6091
+# Title: Fix array index out of bounds in UWAI code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	19	CvGameCoreDLL/UWAICache.cpp
+2	2	CvGameCoreDLL/UWAICache.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 0d6df902f..11769f081 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -8,7 +8,7 @@
+ #include "WarEvalParameters.h"
+ #include "WarEvaluator.h"
+ #include "CvAI.h"
+-#include "CvMap.h"
++#include "CityPlotIterator.h"
+ #include "CvArea.h"
+ #include "CvInfo_Building.h"
+ #include "CvInfo_Unit.h"
+@@ -694,8 +694,6 @@ void UWAICache::updateLatestTurnReachableBySea() {
+ 		changes in city population or yield rate. (measureDistance may skip small
+ 		and low-production cities.) */
+ 	for(size_t i = 0; i < v.size(); i++) {
+-		if(v[i] == NULL)
+-			continue;
+ 		City const& c = *v[i];
+ 		// No pair means not reachable (by sea)
+ 		if(!c.canCurrentlyReachBySea())
+@@ -1036,28 +1034,35 @@ void UWAICache::reportWarEnding(TeamTypes enemyId,
+ 
+ void UWAICache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId) {
+ 
+-	if(!GET_TEAM(ownerId).AI_deduceCitySite(c) || c->getOwner() ==
+-			BARBARIAN_PLAYER)
++	if(!GET_TEAM(ownerId).AI_deduceCitySite(c) || c->getOwner() == BARBARIAN_PLAYER)
++		return;
+ 		return;
+ 	/*  I didn't think I'd need to update the city cache during turns, so this
+-		is awkward to write ... */
+-	City* fromCache = NULL;
+-	std::map<int,City*>::iterator pos = cityMap.find(c->plotNum());
+-	if(pos != cityMap.end())
+-		fromCache = pos->second;
++		is awkward to write ...
++		Necessary though b/c the AI needs to stay up to date with human conquests. */
+ 	size_t vIndex = -1;
+-	if(fromCache != NULL) {
+-		if(fromCache->canReach())
+-			nReachableCities.add(oldOwnerId, -1);
+-		cityMap.erase(pos);
+-		for(vIndex = 0; vIndex < v.size(); vIndex++) {
+-			if(v[vIndex] != NULL && v[vIndex]->id() == fromCache->id()) {
+-				delete v[vIndex];
+-				v[vIndex] = NULL;
+-				break;
++	if(GET_PLAYER(oldOwnerId).isMajorCiv()) {
++		City* fromCache = NULL;
++		std::map<int,City*>::iterator pos = cityMap.find(c->plotNum());
++		if(pos != cityMap.end())
++			fromCache = pos->second;
++		if(fromCache != NULL) {
++			if(fromCache->canReach())
++				nReachableCities.add(oldOwnerId, -1);
++			cityMap.erase(pos);
++			for(vIndex = 0; vIndex < v.size(); vIndex++) {
++				if(v[vIndex]->id() == fromCache->id()) {
++					delete v[vIndex];
++					v[vIndex] = NULL;
++					break;
++				}
+ 			}
+ 		}
+ 	}
++	/*	The insertion can't be conditional. If v[vIndex] has been deleted above,
++		then some city has to be inserted there. Allowing NULL entries would make
++		matters slower and more complicated elsewhere. */
++	//if(GET_PLAYER(c->getOwner()).isMajorCiv())
+ 	City* toCache = new City(ownerId, *c);
+ 	if(vIndex < 0 || vIndex >= v.size()) {
+ 		v.push_back(toCache);
+@@ -1068,6 +1073,7 @@ void UWAICache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId) {
+ 	cityMap.insert(std::make_pair(toCache->id(), toCache));
+ 	if(toCache->canReach())
+ 		nReachableCities.add(c->getOwner(), 1);
++
+ 	sortCitiesByAttackPriority();
+ }
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index 589a363eb..dcede2c75 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -55,9 +55,9 @@ public:
+ 	void sortCitiesByTargetValue();
+ 		public:
+ 	void sortCitiesByAttackPriority();
+-	inline City* getCity(int index) const {
++	City* getCity(int index) const {
+ 		// Verify that the city still exists
+-		if(v[index] == NULL || v[index]->city() == NULL)
++		if(v[index]->city() == NULL)
+ 			return NULL;
+ 		return v[index];
+ 	};
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3419

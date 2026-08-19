@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2200
+# Commit: f31a7490e90224ecc4e8e4f2802d10fa15226dba
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d39165a5b30bd20d087f1b4b3412fa16e413c796
+# Title: Tolerate ForceBuildings tag in Civ4UnitSchema.xml
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/XML/Units/CIV4UnitSchema.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitSchema.xml b/Assets/XML/Units/CIV4UnitSchema.xml
+index 9f3ee381d..dde269e61 100644
+--- a/Assets/XML/Units/CIV4UnitSchema.xml
++++ b/Assets/XML/Units/CIV4UnitSchema.xml
+@@ -255,15 +255,15 @@
+ 	<ElementType name="Buildings" content="eltOnly">
+ 		<element type="Building" minOccurs="0" maxOccurs="*"/>
+ 	</ElementType>
+-	<!-- advc.003t: Remove ForceBuildings -->
+-	<!--ElementType name="bForceBuilding" content="textOnly" dt:type="boolean"/>
++	<!-- advc.003t (note): ForceBuildings is no longer read by the DLL -->
++	<ElementType name="bForceBuilding" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="ForceBuilding" content="eltOnly">
+ 		<element type="BuildingType"/>
+ 		<element type="bForceBuilding"/>
+ 	</ElementType>
+ 	<ElementType name="ForceBuildings" content="eltOnly">
+ 		<element type="ForceBuilding" minOccurs="0" maxOccurs="*"/>
+-	</ElementType-->
++	</ElementType>
+ 	<ElementType name="HolyCity" content="textOnly"/>
+ 	<ElementType name="StateReligion" content="textOnly"/>
+ 	<ElementType name="PrereqReligion" content="textOnly"/>
+@@ -597,8 +597,8 @@
+ 		<element type="CorporationSpreads"/>
+ 		<element type="GreatPeoples"/>
+ 		<element type="Buildings"/>
+-		<!-- advc.003t -->
+-		<!--element type="ForceBuildings"/-->
++		<!-- advc.003t: No longer has any effect, but still allowed. -->
++		<element type="ForceBuildings" minOccurs="0"/>
+ 		<element type="HolyCity"/>
+ 		<element type="ReligionType"/>
+ 		<element type="StateReligion"/>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1493

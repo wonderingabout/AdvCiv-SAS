@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3453
+# Commit: 7d188442558925b31b862948b1148b1cd1854447
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d1d30e2d5c32771b249291d352106b771b251202
+# Title: Replace recently added kludges for higher war utility
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	8	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 1a7416082..bec523779 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2661,6 +2661,21 @@ scaled KingMaking::theirRelativeLoss() const
+ 	return rTheirLostAssets / rTheirAssets;
+ }
+ 
++namespace
++{
++	/*	Kludge. ArmamentForecast will often predict dramatic increases in
++		military power. Not sure how wrong those are, but I don't want to
++		base the evaluation of future uses for military units on such
++		grandiose projections. */
++	void adjustPowerChangeProjection(scaled& rChange)
++	{
++		if (rChange > fixp(1.5))
++		{
++			rChange.exponentiate(fixp(0.5));
++			rChange *= fixp(1.225);
++		}
++	}
++}
+ 
+ int Effort::preEvaluate()
+ {
+@@ -2721,8 +2736,9 @@ int Effort::preEvaluate()
+ 		branches. Our rival's per-branch power isn't public info either.
+ 		The simulation yields per-branch losses though. Use relative losses
+ 		in armies to predict the BtS power ratios. */
+-	scaled const rOurPowerChange = militAnalyst().gainedPower(eWe, ARMY) /
++	scaled rOurPowerChange = militAnalyst().gainedPower(eWe, ARMY) /
+ 			(ourCache().getPowerValues()[ARMY]->power() + scaled::epsilon());
++	adjustPowerChangeProjection(rOurPowerChange); // Don't drink the koolaid
+ 	scaled const rOurPower = kWe.getPower() * (1 + rOurPowerChange);
+ 	scaled rHighestRivalPower;
+ 	for (PlayerAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(eOurTeam);
+@@ -2742,6 +2758,7 @@ int Effort::preEvaluate()
+ 			rRivalPowerChange /= (GET_PLAYER(kRival.getID()).uwai().getCache().
+ 					getPowerValues()[ARMY]->power() + scaled::epsilon());
+ 		}
++		adjustPowerChangeProjection(rRivalPowerChange);
+ 		scaled rRivalPower = kRival.getPower() * (1 + rRivalPowerChange);
+ 		if (kWe.isHuman())
+ 			rRivalPower *= kRival.uwai().confidenceAgainstHuman();
+@@ -2783,10 +2800,10 @@ int Effort::preEvaluate()
+ 	rFutureUse.clamp(fixp(0.35), fixp(1.65));
+ 	/*	Division by e.g. 2.2 means survivors can be valued up to 75%; 2.75: 60%
+ 		(not taking account the exponentiation below) */
+-	rFutureUse /= fixp(2.6);
++	rFutureUse /= fixp(2.5);
+ 	bool const bHuman = kWe.isHuman();
+ 	// sqrt would be a bit much
+-	rFutureUse.exponentiate(bHuman ? fixp(0.9) : fixp(0.74));
++	rFutureUse.exponentiate(bHuman ? fixp(0.9) : fixp(0.77));
+ 	if (!bHuman)
+ 	{
+ 		rFutureUse += scaled::max(0,
+@@ -2870,8 +2887,6 @@ int Effort::preEvaluate()
+ 				rNukeCost.uround(), rNukeProduction.uround());
+ 		rUtility += rNukeCost;
+ 	}
+-	// Kludge introduced in AdvCiv 1.02, to get some more wars going overall.
+-	rUtility *= fixp(0.95);
+ 	return -std::min(200, rUtility.round());
+ }
+ 
+@@ -4376,7 +4391,7 @@ void TacticalSituation::evalOperational()
+ 		rTargetAttackers *= fixp(1.25);
+ 	/*	To account for the AI's inability to put all available attackers in one spot,
+ 		and misc. distractions like barbarians */
+-	rTargetAttackers += scaled::max(0, fixp(0.75) * kWe.getNumCities() - fixp(1.5));
++	rTargetAttackers += scaled::max(0, fixp(0.75) * kWe.getNumCities() - 2);
+ 	scaled rTargetCargo;
+ 	scaled rCargo;
+ 	scaled rTargetEscort;
+@@ -4464,8 +4479,6 @@ void TacticalSituation::evalOperational()
+ 		log("Cost for lack of readiness vs. %s negligible",
+ 				m_kReport.leaderName(eThey));
+ 	}
+-	// Kludge introduced in AdvCiv 1.02, to get some more wars going overall.
+-	iUnreadinessCost = (iUnreadinessCost * 95) / 100;;
+ 	m_iU -= iUnreadinessCost;
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3401

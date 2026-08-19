@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3173
+# Commit: f82a10cfb7d787cc7a417af3e14701811642aa87
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4a9cda654821243e1b798a5c6cb5b380ca9ea5f4
+# Title: Little bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/autologEventManager.py
+3	3	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+2	2	CvGameCoreDLL/PlotRadiusIterator.cpp
+3	2	CvGameCoreDLL/PlotRadiusIterator.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/autologEventManager.py b/Assets/Python/Contrib/autologEventManager.py
+index bc38b052b..a472afa23 100644
+--- a/Assets/Python/Contrib/autologEventManager.py
++++ b/Assets/Python/Contrib/autologEventManager.py
+@@ -336,7 +336,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
+ 			self.storeStuff()
+ 
+ 			#zcurrturn = gc.getGame().getElapsedGameTurns() + 1 + AutologOpt.get4000BCTurn()
+-			# advc.004: Not sure why +1
++			# advc.004: (Not sure why +1)
+ 			zcurrturn = gc.getGame().getGameTurn() + 1
+ 			zmaxturn = gc.getGame().getMaxTurns()
+ 			zturn = gc.getGame().getGameTurn() + 1
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b5ed9817a..aaa7fa473 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11084,9 +11084,9 @@ void CvPlayer::validateDiplomacy()
+ 			else if (pNode != NULL && pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
+ 				!GET_TEAM(getTeam()).allWarsShared(TEAMID(pDiplo->getWhoTalkingTo())))
+ 			{
+-				CvPlayerAI& who = GET_PLAYER(pDiplo->getWhoTalkingTo());
+-				who.AI_changeContactTimer(getID(), CONTACT_DEFENSIVE_PACT,
+-						-who.AI_getContactTimer(getID(), CONTACT_DEFENSIVE_PACT));
++				CvPlayerAI& kWho = GET_PLAYER(pDiplo->getWhoTalkingTo());
++				kWho.AI_changeContactTimer(getID(), CONTACT_DEFENSIVE_PACT,
++						-kWho.AI_getContactTimer(getID(), CONTACT_DEFENSIVE_PACT));
+ 				m_listDiplomacy.remove(pDiplo);
+ 				delete pDiplo;
+ 				bDone = false;
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 034ca9d46..c506c6c59 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1134,7 +1134,7 @@ protected:
+ 
+ 	//bool m_bMadeAttack;
+ 	int m_iMadeAttacks; // advc.164
+-	// advc.opt: Since we have exactly 8 booleans ...
++	// advc.opt: Bitfields - since we have exactly 8 booleans ...
+ 	bool m_bMadeInterception:1;
+ 	bool m_bPromotionReady:1;
+ 	bool m_bDeathDelay:1;
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.cpp b/CvGameCoreDLL/PlotRadiusIterator.cpp
+index 12c6d7fe3..bfe2ba040 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.cpp
++++ b/CvGameCoreDLL/PlotRadiusIterator.cpp
+@@ -5,8 +5,8 @@
+ #include "CvUnit.h"
+ 
+ // Not in the header b/c CvUnit.h isn't included there
+-template<bool bIN_CIRCLE>
+-CvPlot* SquareIterator<bIN_CIRCLE>::getUnitPlot(CvUnit const& kUnit) const
++template<bool bINCIRCLE>
++CvPlot* SquareIterator<bINCIRCLE>::getUnitPlot(CvUnit const& kUnit) const
+ {
+ 	return kUnit.plot();
+ }
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.h b/CvGameCoreDLL/PlotRadiusIterator.h
+index 249e3a330..c5bb4a9b1 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.h
++++ b/CvGameCoreDLL/PlotRadiusIterator.h
+@@ -7,7 +7,7 @@
+ 
+ #include "CvMap.h"
+ 
+-/*  Iterators over the CvPlot objects within a radius around a central plot or unit.
++/*  Iterators over the CvPlot instances within a radius around a central plot or unit.
+ 	If bINCIRCLE is false, then the radius is measured according to the
+ 	stepDistance metric, which results in a square of plots. The center plot
+ 	doesn't count toward the radius, so e.g. iRadius=3 yields a 7x7 square.
+@@ -22,7 +22,8 @@
+ 	If iRadius is known to be 1 at compile time, then one of the macros in
+ 	PlotAdjListTraversal.h should be preferred; they're faster.
+ 
+-	The order of traversal corresponds to a North-East-South-West (clockwise) spiral.
++	The order of traversal corresponds to a north-east-south-west (clockwise) spiral
++	away from the center.
+ 	NULL plots are skipped, but CvUnitAI::AI_plotValid isn't checked - should only be
+ 	checked when considering to move into a tile, and even then there can be faster
+ 	alternatives (see comments at the definition of AI_plotValid). */
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=3657

@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1050
+# Commit: a260e26cb789585fd298dca72206e83ebead410d
+# History segment: K-Mod history
+# Parent used for diff: ed15835e4e2a931abdeb49a151d204de88931f47
+# Title: Fixed a possible crash triggered by human vassals in multiplayer games
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	Assets/Python/BUG/Scoreboard.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 52a1240a2..5c606a483 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -492,7 +492,8 @@ class TeamScores:
+ 		self._team = team
+ 		self._rank = rank
+ 		self._playerScores = []
+-		self._isVassal = team.isAVassal()
++		#self._isVassal = team.isAVassal()
++		self._isVassal = team.isAVassal() and gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(team.getID()) # K-Mod
+ 		self._master = None
+ 		self._vassalTeamScores = []
+ 		
+@@ -517,7 +518,8 @@ class TeamScores:
+ 		self._vassalTeamScores.append(teamScore)
+ 		
+ 	def gatherVassals(self):
+-		if self._team.isAVassal():
++		#if self._team.isAVassal():
++		if self.isVassal(): # K-Mod
+ 			for eTeam in range( gc.getMAX_TEAMS() ):
+ 				teamScores = self._scoreboard.getTeamScores(eTeam)
+ 				if teamScores and self._team.isVassal(eTeam):
+@@ -530,6 +532,10 @@ class TeamScores:
+ 						else:
+ 							playerScore.set(MASTER, MASTER_ICON)
+ 					self._scoreboard._anyHas[MASTER] = True
++			# K-Mod (to fix a problem when a human player becomes the vassal of an unmet team)
++			if self._master == None:
++				self._isVassal = False
++			# K-Mod end
+ 
+ 
+ class PlayerScore:
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1225

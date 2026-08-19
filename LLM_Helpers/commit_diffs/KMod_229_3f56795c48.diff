@@ -1,0 +1,275 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 229
+# Commit: 3f56795c4859d39cfb8a1505cd5b9449721af97d
+# History segment: K-Mod history
+# Parent used for diff: 285f6c4323e98fe3527a9f6659fcd9a05af9b83c
+# Title: Rewrote parts of AI_executiveValue so that it compares more sensibly with AI_missionaryValue. Adjusted some parts of AI_yieldValue. -- but I'm considering do...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	5	CvGameCoreDLL/CvCityAI.cpp
+51	15	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 09b71acb8..840dafa31 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9613,6 +9613,8 @@ void CvCityAI::AI_juggleCitizens()
+ 			{
+ 				// ... that suggests we should break now to avoid getting into an endless loop.
+ 
++				//FAssertMsg(false, "circuit break"); // (for testing)
++
+ 				// Note: what tends to happen is that when the city evaluates stopping work on a food tile,
+ 				// it assumes that the citizen will go on to work some other 2-food plot.
+ 				// That's usually a fair assumption, but it can sometimes cause loops.
+@@ -9670,6 +9672,7 @@ void CvCityAI::AI_juggleCitizens()
+ 
+ 		if (iCycles > getPopulation() + iTotalFreeSpecialists)
+ 		{
++			// This isn't a serious problem. I just want to know how offen it happens.
+ 			FAssertMsg(false, "juggle citizens failed to find a stable solution.");
+ 			break;
+ 		}
+@@ -10064,6 +10067,9 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 							}
+ 						}
+ 					}
++					// don't count high food growht for plots which don't contribute any net value.
++					if (iFoodYield - iConsumtionPerPop <= 0 && iProductionValue <= 0 && iCommerceValue <= 0)
++						bFillingBar = true;
+ 					
+ 					if (getPopulation() < 3)
+ 					{
+@@ -10108,7 +10114,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 						//If we already grow somewhat fast, devalue further food
+ 						//Remember growth acceleration is not dependent on food eaten per 
+ 						//pop, 4f twice as fast as 2f twice as fast as 1f...
+-						int iHighGrowthThreshold = 2 + std::max(std::max(0, 5 - getPopulation()), (iPopToGrow + 1) / 2);
++						/*int iHighGrowthThreshold = 2 + std::max(std::max(0, 5 - getPopulation()), (iPopToGrow + 1) / 2);
+ 						if (bEmphasizeFood)
+ 						{
+ 							iHighGrowthThreshold *= 2;
+@@ -10118,7 +10124,7 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 						{
+ 							iFoodGrowthValue *= 25 + (75 * iHighGrowthThreshold) / iFoodPerTurn;
+ 							iFoodGrowthValue /= 100;
+-						}
++						}*/
+ 					}
+ 				}
+ 
+@@ -10329,7 +10335,6 @@ int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool
+ 		eFinalImprovement = finalImprovementUpgrade(eCurrentImprovement);
+ 	}
+ 
+-	
+ 	int iYieldValue = (AI_yieldValue(aiYields, NULL, bAvoidGrowth, bRemove, bIgnoreFood, bIgnoreGrowth, bIgnoreStarvation) * 100);
+ 
+ 	//if (eFinalImprovement != NO_IMPROVEMENT)
+@@ -10369,7 +10374,8 @@ int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool
+ 				{
+ 					if (GC.getImprovementInfo(eCurrentImprovement).getImprovementBonusDiscoverRand(iI) > 0)
+ 					{
+-						iValue += 35;
++						//iValue += 35;
++						iValue += 20; // K-Mod (rescaling to match new yield values)
+ 					}
+ 				}
+ 			}
+@@ -10378,8 +10384,13 @@ int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool
+ 
+ 	if ((eCurrentImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT))
+ 	{
++		/* original bts code
+ 		iValue += 200;
+-		iValue -= pPlot->getUpgradeTimeLeft(eCurrentImprovement, NO_PLAYER);		
++		iValue -= pPlot->getUpgradeTimeLeft(eCurrentImprovement, NO_PLAYER); */
++		// K-Mod. Note: this is still just an ugly kludge, just rescaled to match the new yield value.
++		// (the goal of this is to prefer plots that are close to upgrading, but not over immediate yield differences.)
++		iValue += 100 * pPlot->getUpgradeProgress() / std::max(1, GC.getGameINLINE().getImprovementUpgradeTime(eCurrentImprovement));
++		// K-Mod
+ 	}
+ 
+ 	return iValue;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6bd48fe43..6ad2e8ddd 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11538,21 +11538,41 @@ int CvPlayerAI::AI_missionaryValue(CvArea* pArea, ReligionTypes eReligion, Playe
+ /************************************************************************************************/
+ }
+ 
++// K-Mod note: the original BtS code for this was totally inconsistant with the calculation in AI_missionaryValue
++// -- which is bad news, since the results are compared directly.
++// I've changed a lot of this function, so that it is more sane, and more compariable to the other value.
++// but I'm not necessary happy with it yet.
+ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation, PlayerTypes* peBestPlayer) const
+ {
+ 	CvTeam& kTeam = GET_TEAM(getTeam());
+ 	CvGame& kGame = GC.getGame();
+ 	CvCorporationInfo& kCorp = GC.getCorporationInfo(eCorporation);
+ 
+-	int iSpreadInternalValue = 100;
++	//int iSpreadInternalValue = 100;
++	int iSpreadInternalValue = 0; // K-Mod
+ 	int iSpreadExternalValue = 0;
+ 
++	/* original bts code
+ 	if (kTeam.hasHeadquarters(eCorporation))
+ 	{
+ 		int iGoldMultiplier = kGame.getHeadquarters(eCorporation)->getTotalCommerceRateModifier(COMMERCE_GOLD);
+ 		iSpreadInternalValue += 10 * std::max(0, (iGoldMultiplier - 100));
+ 		iSpreadExternalValue += 15 * std::max(0, (iGoldMultiplier - 150));
++	} */
++	// K-Mod
++	if (kTeam.hasHeadquarters(eCorporation))
++	{
++		int iHqValue = 0;
++		CvCity* kHqCity = kGame.getHeadquarters(eCorporation);
++		for (int i = 0; i < NUM_COMMERCE_TYPES; i++)
++		{
++			iHqValue += kCorp.getHeadquarterCommerce(i) * kHqCity->getTotalCommerceRateModifier((CommerceTypes)i);
++		}
++
++		iSpreadInternalValue += iHqValue;
++		iSpreadExternalValue += iHqValue;
+ 	}
++	// K-Mod end
+ 	
+ 	int iOurCitiesHave = 0;
+ 	int iOurCitiesCount = 0;
+@@ -11611,35 +11631,40 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 		}
+ 	}
+ 	
++	/* original bts code
+ 	int iBonusValue = 0;
+ 	CvCity* pCity = getCapitalCity();
+ 	if (pCity != NULL)
+ 	{
+ 		iBonusValue = AI_corporationValue(eCorporation, pCity);
+ 		iBonusValue /= 100;
+-	}
++	} */
++	iSpreadInternalValue += AI_corporationValue(eCorporation); // K-Mod
+ 
+ 	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+ 	{
+-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++		//CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++		const CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer); // K-Mod
+ 		if (kLoopPlayer.isAlive() && (kLoopPlayer.getNumCities() > 0))
+ 		{
+ 			if ((kLoopPlayer.getTeam() == getTeam()) || GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()))
+ 			{
+ 				if (kLoopPlayer.getHasCorporationCount(eCorporation) == 0)
+ 				{
+-					iBonusValue += 1000;
++					//iBonusValue += 1000;
++					iSpreadInternalValue += kLoopPlayer.AI_corporationValue(eCorporation) * kLoopPlayer.getNumCities() * 2 /3; // K-Mod
+ 				}
+ 			}
+ 		}
+ 	}
+ 
++	/* original bts code
+ 	if (iBonusValue == 0)
+ 	{
+ 		return 0;
+ 	}
+ 
+-	iSpreadInternalValue += iBonusValue;
++	iSpreadInternalValue += iBonusValue; */
+ 
+ 	if (iSpreadExternalValue > 0)
+ 	{
+@@ -11649,20 +11674,22 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 		{
+ 			if (iPlayer != getID())
+ 			{
+-				CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++				//CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++				const CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer); // K-Mod
+ 				if (kLoopPlayer.isAlive() && (kLoopPlayer.getTeam() != getTeam()) && (kLoopPlayer.getNumCities() > 0))
+ 				{
+ 					if (GET_TEAM(kLoopPlayer.getTeam()).isOpenBorders(getTeam()))
+ 					{
+ 						if (!kLoopPlayer.isNoCorporations() && !kLoopPlayer.isNoForeignCorporations())
+ 						{
++							/* original bts code
+ 							int iCitiesCount = 0;
+ 							int iCitiesHave = 0;
+ 							int iMultiplier = AI_getAttitudeWeight((PlayerTypes)iPlayer);
+ 							if (NULL == pArea)
+ 							{
+ 								iCitiesCount += 1 + (kLoopPlayer.getNumCities() * 50) / 100;
+-								iCitiesHave += std::min(iCitiesCount, kLoopPlayer.getHasCorporationCount(eCorporation));
++								iCitiesHave += kLoopPlayer.getHasCorporationCount(eCorporation);
+ 							}
+ 							else
+ 							{
+@@ -11673,15 +11700,20 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 
+ 							if (iCitiesHave < iCitiesCount)
+ 							{
++								/* original bts code
+ 								int iValue = (iMultiplier * iSpreadExternalValue);
+ 								iValue += ((iMultiplier - 55) * iBonusValue) / 4;
+ 								iValue /= 100;
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									iBestPlayer = iPlayer;
+-								}
++							} */
++							// K-Mod. (wtf is with the iCitiesCount & iCitiesHave stuff? They are unused, and wrong!)
++							int iValue = iSpreadExternalValue;
++							iValue += (AI_getAttitudeWeight((PlayerTypes)iPlayer) - 50) * kLoopPlayer.AI_corporationValue(eCorporation);
++							if (iValue > iBestValue)
++							{
++								iBestValue = iValue;
++								iBestPlayer = iPlayer;
+ 							}
++							// K-Mod end
+ 						}
+ 					}
+ 				}
+@@ -11694,16 +11726,20 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 			{
+ 				*peBestPlayer = (PlayerTypes)iBestPlayer;
+ 			}
+-			return iBestValue;
++			//return iBestValue;
++			return 6 * iBestValue; // K-Mod (see comment below)
+ 		}
+-
+ 	}
+ 
+ 	if (NULL != peBestPlayer)
+ 	{
+ 		*peBestPlayer = getID();
+ 	}
+-	return iSpreadInternalValue;
++	//return iSpreadInternalValue;
++	// K-Mod... I'm putting in a fudge-factor of 6 just to bring the value up to scale with AI_missionaryValue.
++	// This isn't something that i'm happy about, but it's easier than rewriting AI_missionaryValue.
++	return 6 * iSpreadInternalValue;
++	// K-Mod end
+ }
+ 
+ //Returns approximately 100 x gpt value of the corporation.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=9604

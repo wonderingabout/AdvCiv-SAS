@@ -1,0 +1,667 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2355
+# Commit: beea721d81fdc2511ee7b1066b8eb148df36f259
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ef3f4c22e40116f028230c08e7486634c9877b38
+# Title: Improve performance of StartingPositionIteration
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvGameCoreDLL.h
+21	23	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayer.h
+3	2	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/EnumMap.h
+21	12	CvGameCoreDLL/ScaledNum.h
+172	83	CvGameCoreDLL/StartingPositionIteration.cpp
+23	0	CvGameCoreDLL/StartingPositionIteration.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 644977240..90a7668e6 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -49,6 +49,7 @@
+ #define DllExport   __declspec( dllexport )
+ 
+ typedef unsigned char    byte;
++// advc (note): A little strange to me, but consistent with WORD in winnt.h.
+ typedef unsigned short   word;
+ typedef unsigned int     uint;
+ typedef unsigned long    dword;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 82ec2b505..0f673e04b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -442,8 +442,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 
+ 	uninit();
+ 
+-	m_iStartingX = INVALID_PLOT_COORD;
+-	m_iStartingY = INVALID_PLOT_COORD;
+ 	m_iTotalPopulation = 0;
+ 	m_iTotalLand = 0;
+ 	m_iTotalLandScored = 0;
+@@ -570,6 +568,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_eCurrentEra = (EraTypes)0;  //??? Is this repeated data???
+ 	m_eLastStateReligion = NO_RELIGION;
+ 	m_eParent = NO_PLAYER;
++	m_pStartingPlot = NULL; // advc.027
+ 
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+@@ -7580,12 +7579,6 @@ int CvPlayer::specialistCommerce(SpecialistTypes eSpecialist, CommerceTypes eCom
+ }
+ 
+ 
+-CvPlot* CvPlayer::getStartingPlot() const
+-{
+-	return GC.getMap().plotSoren(m_iStartingX, m_iStartingY);
+-}
+-
+-
+ void CvPlayer::setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist)
+ {
+ 	CvPlot* pOldStartingPlot = getStartingPlot();
+@@ -7600,22 +7593,16 @@ void CvPlayer::setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist)
+ 	}
+ 
+ 	if (pNewValue == NULL)
+-	{
+-		m_iStartingX = INVALID_PLOT_COORD;
+-		m_iStartingY = INVALID_PLOT_COORD;
+-	}
++		m_pStartingPlot = NULL;
+ 	else
+ 	{
+-		int iX = pNewValue->getX();
+-		int iY = pNewValue->getY();
+ 		// <advc.031c>
+ 		if (gFoundLogLevel > 0 && !GC.getInitCore().isScenario() &&
+-			m_iStartingX == INVALID_PLOT_COORD)
++			m_pStartingPlot == NULL)
+ 		{
+-			AI().logFoundValue(iX, iY, true);
++			AI().logFoundValue(*pNewValue, true);
+ 		} // </advc.031c>
+-		m_iStartingX = iX;
+-		m_iStartingY = iY;
++		m_pStartingPlot = pNewValue;
+ 
+ 		getStartingPlot()->getArea().changeNumStartingPlots(1);
+ 		if (bUpdateStartDist)
+@@ -15996,9 +15983,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 
+ 	uint uiFlag=0;
+ 	pStream->Read(&uiFlag);
+-
+-	pStream->Read(&m_iStartingX);
+-	pStream->Read(&m_iStartingY);
++	// <advc.027> (No longer stored as x,y)
++	{
++		int iStartingX, iStartingY;
++		pStream->Read(&iStartingX);
++		pStream->Read(&iStartingY);
++		m_pStartingPlot = GC.getMap().plot(iStartingX, iStartingY);
++	} // </advc.027>
+ 	pStream->Read(&m_iTotalPopulation);
+ 	pStream->Read(&m_iTotalLand);
+ 	pStream->Read(&m_iTotalLandScored);
+@@ -16558,8 +16549,15 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	uiFlag = 11; // advc.001x
+ 	pStream->Write(uiFlag);
+ 
+-	pStream->Write(m_iStartingX);
+-	pStream->Write(m_iStartingY);
++	// <advc.027>
++	int iStartingX = INVALID_PLOT_COORD, iStartingY = INVALID_PLOT_COORD;
++	if (m_pStartingPlot != NULL)
++	{
++		iStartingX = m_pStartingPlot->getX();
++		iStartingY = m_pStartingPlot->getY();
++	}
++	pStream->Write(iStartingX);
++	pStream->Write(iStartingY); // </advc.027>
+ 	pStream->Write(m_iTotalPopulation);
+ 	pStream->Write(m_iTotalLand);
+ 	pStream->Write(m_iTotalLandScored);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 4abb2732a..c4826eeed 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -380,7 +380,8 @@ public:
+ 	int specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) const;														// Exposed to Python
+ 	int specialistCommerce(SpecialistTypes eSpecialist, CommerceTypes eCommerce) const;										// Exposed to Python
+ 
+-	CvPlot* getStartingPlot() const;																																			// Exposed to Python
++	// advc.027: Inline (called a lot by StartingPositionIteration)
++	inline CvPlot* getStartingPlot() const { return m_pStartingPlot; }											// Exposed to Python
+ 	void setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist);												// Exposed to Python
+ 
+ 	int getTotalPopulation() const;																															// Exposed to Python
+@@ -1264,8 +1265,6 @@ protected:  // <advc.210>
+ 
+ 	static CvPlayerAI** m_aPlayers; // advc.003u: Moved from CvPlayerAI.h; and store only pointers.
+ 
+-	int m_iStartingX;
+-	int m_iStartingY;
+ 	int m_iTotalPopulation;
+ 	int m_iTotalLand;
+ 	int m_iTotalLandScored;
+@@ -1391,6 +1390,7 @@ protected:  // <advc.210>
+ 	PlayerTypes m_eParent;
+ 	TeamTypes m_eTeamType;
+ 	CvCivilization* m_pCivilization; // advc.003u
++	CvPlot* m_pStartingPlot; // advc.027: Replacing m_iStartingX/Y
+ 
+ 	int* m_aiSeaPlotYield;
+ 	int* m_aiYieldRateModifier;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a204039ea..8b947c1a9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26013,8 +26013,9 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 	if (isHuman() &&  /* advc.108: OK for recommendations, but allow AI to evaluate
+ 						 plots and settle elsewhere. */
+ 		getNumCities() == 0 && iMaxSites > 0 && GC.getGame().getElapsedGameTurns() == 0 &&
+-		m_iStartingX != INVALID_PLOT_COORD && m_iStartingY != INVALID_PLOT_COORD)  {
+-		m_aiAICitySites.push_back(GC.getMap().plotNum(m_iStartingX, m_iStartingY));
++		getStartingPlot() != NULL) 
++	{
++		m_aiAICitySites.push_back(GC.getMap().plotNum(*getStartingPlot()));
+ 		//AI_recalculateFoundValues(m_iStartingX, m_iStartingY, CITY_PLOTS_RADIUS, 2 * CITY_PLOTS_RADIUS);
+ 		return; // don't bother trying to pick a secondary spot
+ 	}
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 6e10fc4db..d84fbc5b8 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1144,7 +1144,9 @@ SET_ARRAY_DEFAULT(unsigned short);
+ SET_ARRAY_DEFAULT(byte);
+ SET_ARRAY_DEFAULT(float); // advc
+ SET_ARRAY_DEFAULT(scaled); // advc.fract
+-SET_ARRAY_DEFAULT(ScaledNum<1024*32>); // advc.fract (needed sometimes for small fractions)
++// <advc.027> (Can't pass multi-argument instantiation to macro)
++typedef ScaledNum<1024*32,uint> ScaledNum_32_1024_uint;
++SET_ARRAY_DEFAULT(ScaledNum_32_1024_uint); // </advc.027>
+ 
+ /*  advc: COMPILE_NUM_TYPES param removed; use NUM_ENUM_TYPES macro instead.
+ 	JITarrayType accessor, ArrayStart and ArrayLength functions removed.
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index d66e11286..b9ab53367 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -727,18 +727,23 @@ private:
+ 		/*	Base 0 or too close to it to make a difference given the precision of the algorithm.
+ 			Fixme: rExp could also be close to 0. Should somehow use x=y*z => b^x = (b^y)^z. */
+ 		if (m_i < SCALE / 64)
++		{
++			// This would be rather expensive and could overflow
++			/*if (m_i > 0)
++				return 1 / powNonNegative(1 / *this);*/
+ 			return 0;
++		}
+ 		/*	Recall that: If x=y+z, then b^x=(b^y)*(b^z).
+ 						 If b=a*c, then b^x=(a^x)*(c^x). */
+ 		// Split rExp into the sum of an integer and a (scaled) fraction between 0 and 1
+ 		// Running example: 5.2^2.1 at SCALE 1024, i.e. (5325/1024)^(2150/1024)
+-		IntType expInt = rExp.m_i / SCALE; // 2 in the example
++		IntType nExpInt = rExp.m_i / SCALE; // 2 in the example
+ 		// Use uint in all local ScaledNum variables for more accurate rounding
+-		ScaledNum<128,uint> rExpFrac(rExp - expInt); // Ex.: 13/128
++		ScaledNum<128,uint> rExpFrac(rExp - nExpInt); // Ex.: 13/128
+ 		/*	Factorize the base into powers of 2 and, as the last factor, the base divided
+ 			by the product of the 2-bases. */
+ 		ScaledNum<iSCALE,uint> rProductOfPowersOfTwo(1);
+-		IntType baseDiv = 1;
++		IntType nBaseDiv = 1;
+ 		// Look up approximate result of 2^rExpFrac in precomputed table
+ 		#ifdef SCALED_NUM_EXTRA_ASSERTS
+ 			FAssertBounds(0, 128, rExpFrac.m_i);
+@@ -749,25 +754,29 @@ private:
+ 		/*	Tbd.: Try replacing this loop with _BitScanReverse (using the /EHsc compiler flag).
+ 			Or perhaps not available in MSVC03? See: github.com/danaj/Math-Prime-Util/pull/10/
+ 			*/
+-		while (baseDiv < *this)
+-		{
+-			baseDiv *= 2;
+-			rProductOfPowersOfTwo *= rPowOfTwo;
+-		} // Ex.: baseDiv=8 and rProductOfPowersOfTwo=1270/1024, approximating (2^0.1)^3.
++		{	//while (nBaseDiv < *this)
++			IntType const nCeil = ceil(); // Avoid expensive overflow handling
++			while (nBaseDiv < nCeil)
++			{
++				nBaseDiv *= 2;
++				// This is expensive b/c it will generally use 64 bit :(
++				rProductOfPowersOfTwo *= rPowOfTwo;
++			}
++		} // Ex.: nBaseDiv=8 and rProductOfPowersOfTwo=1270/1024, approximating (2^0.1)^3.
+ 		ScaledNum<256,uint> rLastFactor(1);
+-		// Look up approximate result of ((*this)/baseDiv)^rExpFrac in precomputed table
+-		int iLastBaseTimes64 = (ScaledNum<64,uint>(*this / baseDiv)).m_i; // Ex.: 42/64 approximating 5.2/8
++		// Look up approximate result of ((*this)/nBaseDiv)^rExpFrac in precomputed table
++		int iLastBaseTimes64 = (ScaledNum<64,uint>(*this / nBaseDiv)).m_i; // Ex.: 42/64 approximating 5.2/8
+ 		#ifdef SCALED_NUM_EXTRA_ASSERTS
+ 			FAssertBounds(0, 64+1, iLastBaseTimes64);
+ 		#endif
+ 		if (rExpFrac.m_i != 0 && iLastBaseTimes64 != 64)
+ 		{
+-			// Could be prone to cache misses :(
++			// Could be prone to cache misses, but tests so far haven't confirmed this.
+ 			rLastFactor.m_i = FixedPointPowTables::powersUnitInterval_256
+ 					[iLastBaseTimes64-1][rExpFrac.m_i-1] + 1; // Table and values are shifted by 1
+ 			// Ex.: Position [41][12] is 244, i.e. rLastFactor=245/256. Approximation of (5.2/8)^0.1
+ 		}
+-		ScaledNum r(ScaledNum<iSCALE,uint>(pow(expInt)) *
++		ScaledNum r(ScaledNum<iSCALE,uint>(pow(nExpInt)) *
+ 				rProductOfPowersOfTwo * ScaledNum<iSCALE,uint>(rLastFactor));
+ 		return r;
+ 		/*	Ex.: First factor is 27691/1024, approximating 5.2^2,
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index d46b1cf1a..28f031c8d 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -33,6 +33,11 @@ StartingPositionIteration::StartingPositionIteration() :
+ 	if (!GC.getDefineBOOL("ENABLE_STARTING_POSITION_ITERATION"))
+ 		return;
+ 	CvMap const& kMap = GC.getMap();
++	/*	Could go a bit higher w/o becoming prohibitively slow, but I doubt
++		that the algorithm will do much good on super-huge maps unless the
++		limit on the number of iterations is increased. */
++	if (kMap.numPlots() > 12000)
++		return;
+ 
+ 	/*	Generate a starting site for each civ, starting with humans,
+ 		otherwise in a random order - just as CvGame::assignStartingPlots does.
+@@ -503,10 +508,15 @@ StartingPositionIteration::DistanceTable::DistanceTable(
+ 	{
+ 		m_sourceIDs[kMap.plotNum(*kapSources[i])] = (SourceID)i;
+ 	}
++	// Need (fast) 2-way conversion for destination ids and plot numbers
+ 	m_destinationIDs.resize(kMap.numPlots(), NOT_A_DESTINATION);
++	m_destinationIDToPlotNum.resize(kapDestinations.size(), NO_PLOT_NUM);
+ 	for (size_t i = 0; i < kapDestinations.size(); i++)
+ 	{
+-		m_destinationIDs[kMap.plotNum(*kapDestinations[i])] = (DestinationID)i;
++		DestinationID eDst = (DestinationID)i;
++		PlotNumTypes ePlotNum = kMap.plotNum(*kapDestinations[i]);
++		m_destinationIDs[ePlotNum] = eDst;
++		m_destinationIDToPlotNum[eDst] = ePlotNum;
+ 	}
+ 	m_distances.resize(kapSources.size(),
+ 			vector<short>(kapDestinations.size(), MAX_SHORT));
+@@ -575,7 +585,9 @@ StartingPositionIteration::DistanceTable::DistanceTable(
+ 	}
+ }
+ 
+-
++/*	Even with the inline keyword (and CvMap.h included in the header),
++	the compiler doesn't want to inline this. Haven't tried force-inline;
++	the amount time spent on this function isn't that great anyway. */
+ short StartingPositionIteration::DistanceTable::d(
+ 	CvPlot const& kSource, CvPlot const& kDestination) const
+ {
+@@ -781,35 +793,26 @@ void StartingPositionIteration::evaluateCurrPosition(
+ 	kResult.m_rStartPosVal = startingPositionValue(kResult);
+ }
+ 
+-//#define DEBUG_SPACE_BREAKDOWN
+-#ifdef DEBUG_SPACE_BREAKDOWN
+-struct BreakDownData { PlotNumTypes ePlot; scaled rYieldVal; scaled rAccessFactor;
+-	BreakDownData(PlotNumTypes ePlot, scaled rYieldVal, scaled rAccessFactor) :
+-	ePlot(ePlot), rYieldVal(rYieldVal), rAccessFactor(rAccessFactor) {}
+-	bool operator<(BreakDownData const& kOther) const{ return ePlot < kOther.ePlot; } };
+-#endif
+ 
+-// The results are on the scale of AIFoundValue
+-void StartingPositionIteration::computeStartValues(
+-	EnumMap<PlayerTypes,short> const& kFoundValues, SolutionAttributes& kResult,
+-	bool bLog) const
++StartingPositionIteration::SpaceEvaluator::SpaceEvaluator(
++	DistanceTable const& kDists, EnumMap<PlotNumTypes,scaled> const& kYieldValues,
++	bool bLog) : m_kDists(kDists), m_kYieldValues(kYieldValues), m_bLog(bLog)
+ {
+-	#ifdef SPI_LOG
+-		std::ostringstream out;
+-		if (bLog)
+-			out << "Evaluating starting position ...\n\n";
+-	#endif
+ 	CvMap const& kMap = GC.getMap();
+-	typedef ScaledNum<1024*32> claim_t; // Inverted distances - pretty small
+-	EnumMap<PlotNumTypes,claim_t> sumOfClaims;
+-	short const iAvgCityDist = m_pPathDists->getAvgCityDist(); // for scale adjustment
+-	/*	Essentially measures distances from the edge of the starting city radius
++	// Treat distances beyond this threshold as infinite in order to save time
++	m_iDistThresh = (word)((5 * kDists.getLongDist()) / 4);
++	// Use unsigned types because that'll make exponentiation a wee bit faster
++	word const iDistThresh = m_iDistThresh;
++	word const iAvgCityDist = (word)kDists.getAvgCityDist();
++	/*	Will essentially measure distances from the edge of the starting city radius
+ 		instead of the starting city tile */
+-	short const iDistSubtr = iAvgCityDist / 2;
++	m_iDistSubtr = iAvgCityDist / 2;
++	word const iDistSubtr = m_iDistSubtr;
+ 	FOR_EACH_ENUM(PlotNum)
+ 	{
+-		if (m_pYieldValues->get(eLoopPlotNum) <= 0)
++		if (kYieldValues.get(eLoopPlotNum) <= 0)
+ 			continue;
++		claim_t rSum = 0;
+ 		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		{
+ 			CvPlot const& kStartPlot = *it->getStartingPlot();
+@@ -817,73 +820,95 @@ void StartingPositionIteration::computeStartValues(
+ 			if (kMap.plotDistance(&kStartPlot, &kLoopPlot) <= 2)
+ 			{
+ 				// Accounted for by found values
+-				sumOfClaims.set(eLoopPlotNum, 0);
+-				break;
++				m_sumOfClaims.set(eLoopPlotNum, 0);
++				goto next_plot;
+ 			}
+-			short iDist = m_pPathDists->d(kStartPlot, kLoopPlot);
+-			if (iDist == MAX_SHORT)
++			short iDist = kDists.d(kStartPlot, kLoopPlot) - iDistSubtr;
++			if (iDist > iDistThresh)
+ 				continue;
+-			iDist = std::max(1, iDist - iDistSubtr);
+-			sumOfClaims.add(eLoopPlotNum, claim_t(1, iDist));
++			rSum += claim_t(1, std::max<short>(1, iDist));
+ 		}
++		m_sumOfClaims.set(eLoopPlotNum, rSum);
++		next_plot: continue;
+ 	}
+ 
+-	/*	Compute these upfront b/c it depends on the typical distance between
+-		starting sites whether a given distance is "too close" */
+-	EnumMap<PlayerTypes,scaled> rivalDistFactors;
+-	scaled const rTypicalDistFactor = computeRivalDistFactors(rivalDistFactors, false);
+-	// Need this once for all rivals and once just for those in the same area
+-	EnumMap<PlayerTypes,scaled> sameAreaRivalDistFactors;
+-	scaled rSameAreaTargetDistFactor = computeRivalDistFactors(
+-			sameAreaRivalDistFactors, true) * fixp(4/3.);
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++		computeSpaceValue(it->getID());
++}
+ 
+-	// Again, need to know the distribution before computing the actual per-player values.
+-	vector<scaled> arAreaYieldsPerPlayer;
+-	EnumMap<PlayerTypes,scaled> areaYieldsPerPlayer;
+-	EnumMap<PlayerTypes,scaled> spaceValues;
+-	int const iCivEverAlive = PlayerIter<CIV_ALIVE>::count();
+-	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++//#define DEBUG_SPACE_BREAKDOWN
++#ifdef DEBUG_SPACE_BREAKDOWN
++struct BreakDownData { PlotNumTypes ePlot; scaled rYieldVal; scaled rAccessFactor;
++	BreakDownData(PlotNumTypes ePlot, scaled rYieldVal, scaled rAccessFactor) :
++	ePlot(ePlot), rYieldVal(rYieldVal), rAccessFactor(rAccessFactor) {}
++	bool operator<(BreakDownData const& kOther) const{ return ePlot < kOther.ePlot; } };
++#endif
++
++void StartingPositionIteration::SpaceEvaluator::computeSpaceValue(PlayerTypes ePlayer)
++{
++	#ifdef DEBUG_SPACE_BREAKDOWN
++		vector<std::pair<scaled,BreakDownData> > aSpaceBreakDown;
++	#endif
++	CvMap const& kMap = GC.getMap();
++	CvPlot const& kStartPlot = *GET_PLAYER(ePlayer).getStartingPlot();
++	scaled rSpaceVal;
++	word const iDistThresh = m_iDistThresh;
++	word const iDistSubtr = m_iDistSubtr;
++	// Low-level performance optimizations ...
++	static vector<claim_t> arDelayCache = cacheDelayFactors(iDistThresh);
++	int const iCivsAlive = PlayerIter<CIV_ALIVE>::count();
++	// Use friend status to avoid FOR_EACH_ENUM(PlotNum)
++	DistanceTable::SourceID const eSrc = m_kDists.m_sourceIDs[kMap.plotNum(kStartPlot)];
++	for (size_t i = 0; i < m_kDists.m_distances[eSrc].size(); i++)
+ 	{
+-		scaled rSpaceVal;
+-		CvPlot const& kStartPlot = *itPlayer->getStartingPlot();
+-		#ifdef DEBUG_SPACE_BREAKDOWN
+-			vector<std::pair<scaled,BreakDownData> > aSpaceBreakDown;
+-		#endif
+-		FOR_EACH_ENUM(PlotNum)
++		DistanceTable::DestinationID const eDst = (DistanceTable::DestinationID)i;
++		PlotNumTypes eDestPlot = m_kDists.m_destinationIDToPlotNum[eDst];
++		claim_t rSumOfClaims = m_sumOfClaims.get(eDestPlot);
++		if (rSumOfClaims <= 0)
++			continue;
++		short iStartDist = m_kDists.m_distances[eSrc][eDst];
++		if (iStartDist > iDistThresh)
++			continue;
++		word iDist = (word)std::max(1, iStartDist - iDistSubtr);
++
++		claim_t rClaim(1, iDist);
++		rClaim /= rSumOfClaims;
++		/*	If one player is twice as far away than the other, then the first player
++			does not have a 1 in 3 chance to claim the plot. 1 in 9 sounds more accurate,
++			but I want to reflect, to some extent, the possibility of claiming the plot
++			militarily. So let's not quite square the proportion. */
++		// Not worth the extra time on super-huge maps
++		if (MAX_CIV_PLAYERS > 25 && // Make sure not to branch here w/ the 18-civ DLL
++			iCivsAlive > 25)
+ 		{
+-			claim_t rTotal = sumOfClaims.get(eLoopPlotNum);
+-			if (rTotal <= 0)
+-				continue;
+-			short iStartDist = m_pPathDists->d(
+-					kStartPlot, kMap.getPlotByIndex(eLoopPlotNum));
+-			if (iStartDist == MAX_SHORT)
+-				continue;
+-			short iDist = std::max(1, iStartDist - iDistSubtr);
+-			claim_t rAccessFactor = 1 / (rTotal * iDist);
+-			/*	So far, it's proportional to distance. While this encourages
+-				starting positions that at least give everyone a chance, it still
+-				assigns too much value to contested plots, especially to plots
+-				that are close to multiple starting sites (high rTotal).
+-				On the higher difficulty levels, humans usually can't settle
+-				their 2nd and 3rd cities faster than the AI. */
+-			rAccessFactor.exponentiate(fixp(1.85));
+-			/*	Apart from competition, nearby plots are better than remote ones.
+-				Divisor d^(d/750) -- weird formula, but seems to result in the kind
+-				of hyperbola I had in mind. */
+-			rAccessFactor /= scaled(iDist).pow(scaled(iDist, 750));
+-			/*	For uncontested plots very close to kStartPlot, the exact distance
+-				shouldn't matter. */
+-			rAccessFactor.decreaseTo(1);
+-			scaled rYieldVal = m_pYieldValues->get(eLoopPlotNum);
+-			rSpaceVal += rYieldVal * rAccessFactor;
+-			#ifdef DEBUG_SPACE_BREAKDOWN
+-				aSpaceBreakDown.push_back(make_pair(scaled(rYieldVal*rAccessFactor),BreakDownData(eLoopPlotNum,rYieldVal,rAccessFactor)));
+-			#endif
++			rClaim *= rClaim;
+ 		}
++		else rClaim.exponentiate(claim_t(190, 100));
++		/*	Apart from competition, nearby plots are better than remote ones.
++			How much better really depends on the shape of the space for expansion;
++			can't take that into account here. It's fair to say that remote plots
++			tend to become worked later than nearby plots, and that an oblong shape
++			is undesirable. Delay being the more important of the two reasons for
++			reducing the yield value of a plot. */
++		// (formula moved into cacheDelayFactors)
++		scaled rAccessFactor = rClaim / arDelayCache[iDist];
++		/*	For uncontested plots very close to kStartPlot, the exact distances
++			shouldn't matter. */
++		rAccessFactor.decreaseTo(fixp(1/3.));
++		scaled rYieldVal = m_kYieldValues.get(eDestPlot);
++		rSpaceVal += rYieldVal * rAccessFactor;
++
+ 		#ifdef DEBUG_SPACE_BREAKDOWN
+-		out << "\nSpace breakdown for player" << itPlayer->getID() << "\n";
++			aSpaceBreakDown.push_back(make_pair(rYieldVal*rAccessFactor,BreakDownData(eDestPlot,rYieldVal,rAccessFactor)));
++		#endif
++	}
++	#ifdef DEBUG_SPACE_BREAKDOWN
++	if (m_bLog)
++	{
++		std::ostringstream out;
++		out << "\nSpace breakdown for player" << ePlayer << "\n";
+ 		std::sort(aSpaceBreakDown.rbegin(),aSpaceBreakDown.rend());
+-		scaled rSumZero, rSumOne, rSumTwo, rSum3to9;
++		uscaled rSumZero, rSumOne, rSumTwo, rSum3to9;
+ 		for(size_t i = 0; i < aSpaceBreakDown.size(); i++) {
+ 			if(aSpaceBreakDown[i].first.round() > 1)
+ 				out << aSpaceBreakDown[i].first.round() << "="<< aSpaceBreakDown[i].second.rYieldVal.round() << "*" << aSpaceBreakDown[i].second.rAccessFactor.str(100) <<" (" << kMap.getPlotByIndex(aSpaceBreakDown[i].second.ePlot).getX() << "," << kMap.getPlotByIndex(aSpaceBreakDown[i].second.ePlot).getY() << ")\n";
+@@ -901,7 +926,64 @@ void StartingPositionIteration::computeStartValues(
+ 		out << "Near-2 space values sum up to " << rSumTwo.round() << "\n";
+ 		out << "(3,9)-space values sum up to " << rSum3to9.round() << "\n";
+ 		out << "All the rest sums up to " << (rSpaceVal - rSumZero - rSumOne - rSumTwo - rSum3to9).round() << "\n";
+-		#endif
++		out << std::endl;
++		gDLL->logMsg("StartingPos.log", out.str().c_str(), false, false);
++	}
++	#endif
++	m_spaceValues.set(ePlayer, rSpaceVal);
++}
++
++/*	Returning by value. Shouldn't really matter and allows me to keep the cache
++	local to computeSpaceValue above. */
++vector<StartingPositionIteration::SpaceEvaluator::claim_t>
++StartingPositionIteration::SpaceEvaluator::cacheDelayFactors(word iMaxDist)
++{
++	std::vector<claim_t> aResult(iMaxDist);
++	for (word iDist = 1; iDist < iMaxDist; iDist++)
++	{
++		claim_t rDelay(iDist);
++		/*	Weird formula, but seems to result in the kind of hyperbola I had in mind.
++			ScaledNum::exponentiate is pretty slow for large bases. It was by far the
++			biggest time sink of the whole SPI algorithm; hence this cache.
++			(Exponentiating 1/iDist doesn't help either as very small bases aren't
++			supported at all by ScaledNum.) */
++		rDelay.exponentiate(claim_t(iDist, iMaxDist * 2));
++		aResult[iDist] = rDelay;
++	}
++	return aResult;
++}
++
++// The results are on the scale of AIFoundValue
++void StartingPositionIteration::computeStartValues(
++	EnumMap<PlayerTypes,short> const& kFoundValues, SolutionAttributes& kResult,
++	bool bLog) const
++{
++	#ifdef SPI_LOG
++		std::ostringstream out;
++		if (bLog)
++			out << "Evaluating starting position ...\n\n";
++	#endif
++
++	// The computationally most expensive part:
++	SpaceEvaluator spaceEval(*m_pPathDists, *m_pYieldValues, bLog);
++
++	/*	Compute these upfront b/c it depends on the typical distance between
++		starting sites whether a given distance is "too close" */
++	EnumMap<PlayerTypes,scaled> rivalDistFactors;
++	scaled const rTypicalDistFactor = computeRivalDistFactors(rivalDistFactors, false);
++	// Need this once for all rivals and once just for those in the same area
++	EnumMap<PlayerTypes,scaled> sameAreaRivalDistFactors;
++	scaled rSameAreaTargetDistFactor = computeRivalDistFactors(
++			sameAreaRivalDistFactors, true) * fixp(4/3.);
++	// Need to know the distribution before computing the actual per-player values
++	vector<scaled> arAreaYieldsPerPlayer;
++	EnumMap<PlayerTypes,scaled> areaYieldsPerPlayer;
++	EnumMap<PlayerTypes,scaled> spaceValues;
++	int const iCivEverAlive = PlayerIter<CIV_ALIVE>::count();
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		scaled rSpaceVal = spaceEval.getSpaceValue(itPlayer->getID());
++		CvPlot const& kStartPlot = *itPlayer->getStartingPlot();
+ 		/*	Area size needs to be taken into account explicitly b/c empires spread
+ 			across multiple areas are difficult to defend and pay colony maintenance */
+ 		scaled rAreaYields;
+@@ -934,7 +1016,7 @@ void StartingPositionIteration::computeStartValues(
+ 			spaceValues.multiply(itPlayer->getID(), rRatio + rTolerance);
+ 		/*	If possible, we want there to be room for the core cities in
+ 			the player's starting area. */
+-		scaled rTargetMinYields = GC.getInfo(kMap.getWorldSize()).
++		scaled rTargetMinYields = GC.getInfo(GC.getMap().getWorldSize()).
+ 				getTargetNumCities() * fixp(0.78) * m_rMedianLandYieldVal * NUM_CITY_PLOTS;
+ 		// Adjust to crowdedness
+ 		rTargetMinYields *= scaled(
+@@ -965,6 +1047,7 @@ void StartingPositionIteration::computeStartValues(
+ 		else if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
+ 			rBaseSpaceWeight *= fixp(0.95);
+ 	}
++	int const iAvgCityDist = m_pPathDists->getAvgCityDist();
+ 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+ 		scaled rFoundValue = kFoundValues.get(itPlayer->getID());
+@@ -1581,7 +1664,13 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 	/*	Iterate until we return due to getting stuck in a (local) optimum
+ 		or until we run out of time */
+ 	int iStepsConsidered = 0;
+-	while (iStepsConsidered < 700)
++	/*	The effort is pretty much proportional to width*height*civs,
++		but everything takes longer on large maps, so players ought to
++		have more patience. Hence the exponent. */
++	int iMaxSteps = (300000 /
++			scaled(kMap.numPlots() * PlayerIter<CIV_ALIVE>::count()).
++			pow(fixp(0.6))).round();
++	while (iStepsConsidered < iMaxSteps)
+ 	{
+ 		vector<std::pair<scaled,PlayerTypes> > currSitesByOutlierVal;
+ 		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+index da8f2fd2f..3c4d74bb1 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.h
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -96,12 +96,34 @@ private:
+ 		int fewestPotentialSites() const;
+ 	};
+ 
++	class SpaceEvaluator
++	{
++	public:
++		SpaceEvaluator(DistanceTable const& kDists,
++				EnumMap<PlotNumTypes,scaled> const& kYieldValues, bool bLog);
++		scaled getSpaceValue(PlayerTypes ePlayer) const { return m_spaceValues.get(ePlayer); }
++	private:
++		// Claims are inverted distances; pretty small.
++		typedef ScaledNum<1024*32,uint> claim_t;
++		void computeSpaceValue(PlayerTypes ePlayer);
++		static std::vector<claim_t> cacheDelayFactors(word iMaxDist);
++		DistanceTable const& m_kDists;
++		EnumMap<PlotNumTypes,scaled> const& m_kYieldValues;
++		EnumMap<PlayerTypes,scaled> m_spaceValues;
++		EnumMap<PlotNumTypes,claim_t> m_sumOfClaims;
++		word m_iDistThresh;
++		word m_iDistSubtr;
++		bool m_bLog;
++	};
++
+ 	class DistanceTable
+ 	{
+ 		/*	Internal ids so that m_aaiDistances can be a good deal smaller than
+ 			the map dimensions */
+ 		enum SourceID { NOT_A_SOURCE = -1 };
+ 		enum DestinationID { NOT_A_DESTINATION = -1 };
++		// Needs to be able to traverse the table w/o having to go through all plots
++		friend void StartingPositionIteration::SpaceEvaluator::computeSpaceValue(PlayerTypes);
+ 	public:
+ 		DistanceTable(std::vector<CvPlot const*>& kSources,
+ 				std::vector<CvPlot const*>& kDestinations);
+@@ -115,6 +137,7 @@ private:
+ 		std::vector<std::vector<short> > m_distances;
+ 		std::vector<SourceID> m_sourceIDs;
+ 		std::vector<DestinationID> m_destinationIDs;
++		std::vector<PlotNumTypes> m_destinationIDToPlotNum;
+ 		short m_iFirstFrontierCost;
+ 		short m_iSecondFrontierCost;
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=27471

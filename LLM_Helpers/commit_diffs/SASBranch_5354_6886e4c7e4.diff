@@ -1,0 +1,1943 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5354
+# Commit: 6886e4c7e43de9749a70b4ad01164d9c966f4a96
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d12cdf8d7eff63dd45c3dac1a7f744aca865232f
+# Title: Rework Sevopedia Improvements, add a new Improvement Weights (Leaders) Chart, Beautify, and other changes - Sevopedia — Improvements: Added a new sortable **...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+3	9	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+200	68	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+156	27	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+37	73	Assets/XML/GlobalDefines_advciv_sas.xml
+68	67	Assets/XML/Text/AdvCiv-SAS_main.xml
+265	3	Long_Comments/Long_Comments_XML.txt
+6	4	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+9	3	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index 50be9bc44..c6c64308c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -131,7 +131,7 @@ class SevoPediaBuild:
+ 	def placeImprovements(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_RESULTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+ 		buildInfo = gc.getBuildInfo(self.iBuild)
+@@ -220,6 +220,8 @@ class SevoPediaBuild:
+ 		buttonRowH = self.FEATURE_STRUCT_BUTTON_ROW_H
+ 		buttonTopRel = self.FEATURE_STRUCT_BUTTON_TOP_REL
+ 
++		bullet = localText.getText("[ICON_BULLET]", ())
++
+ 		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
+ 			featureInfo = gc.getFeatureInfo(iFeature)
+ 			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + self.MEDIUM_MARGIN))
+@@ -229,7 +231,6 @@ class SevoPediaBuild:
+ 			screen.attachLabel(panelName, "", "  ")
+ 
+ 			lines = []
+-			bullet = localText.getText("[ICON_BULLET]", ())
+ 			lines.append(u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE", ()), featureInfo.getDescription()))
+ 			if featureTime > 0:
+ 				lines.append(u"%s%s: %d" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_TIME", ()), featureTime))
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index d4bd61504..73ce02be9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -283,20 +283,14 @@ class SevoPediaFeature:
+ 			if buildInfo.isFeatureRemove(self.iFeature):
+ 				if szSpecialText.strip():
+ 					szSpecialText += u"\n"
+-				bullet = localText.getText("[ICON_BULLET]", ())
+-
+-				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction) -->
+-				removeTime = buildInfo.getFeatureTime(self.iFeature)
+-				if removeTime > 0:
+-					szSpecialText += u"%sRemove iTime: %d" % (bullet, removeTime)
+-
+-				szSpecialText += u"\n"
+ 
++				# <!-- custom: check iProduction separately for cases such as feature fallout that have 0 iProduction; time details are now in Build pages. (GPT-5.2-Codex (summarized)) -->
+ 				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
+ 				if removeProduction > 0:
++					bullet = localText.getText("[ICON_BULLET]", ())
+ 					szSpecialText += u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ()))
+ 
+-				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or iTime based one -->
++				# <!-- custom: all values should be the same, no need to continue after the first strictly positive iProduction. (GPT-5.2-Codex (summarized)) -->
+ 				break
+ 
+ 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 03e3929cc..c92631457 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -43,67 +43,107 @@ class SevoPediaImprovement:
+ 
+ 		self.X_IMPROVEMENT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_IMPROVEMENT_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_IMPROVEMENT_PANE = 210
+-		self.H_IMPROVEMENT_PANE = 210
++		self.H_REQUIRES = 110
++		self.H_IMPROVEMENT_PANE = (2 * self.H_REQUIRES) + self.SMALL_MARGIN
++		self.W_IMPROVEMENT_PANE = self.H_IMPROVEMENT_PANE
+ 
+ 		self.W_ICON = 150
+ 		self.H_ICON = 150
+ 		self.X_ICON = self.X_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
+ 		self.Y_ICON = self.Y_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
+ 		self.ICON_SIZE = 64
++		self.X_INFO_TEXT = self.X_IMPROVEMENT_PANE + 8
++		self.Y_INFO_TEXT = self.Y_IMPROVEMENT_PANE + 8
++		self.W_INFO_TEXT = self.W_IMPROVEMENT_PANE - 16
++		self.H_INFO_TEXT = 60
+ 
+ 		self.W_BONUS_YIELDS = 260
+-		self.W_IMPROVEMENT_ANIMATION = ((self.top.R_PEDIA_PAGE - self.top.X_PEDIA_PAGE) - self.W_BONUS_YIELDS - (2 * self.MEDIUM_MARGIN)) / 2
+-		self.W_SPECIAL = self.W_IMPROVEMENT_ANIMATION - self.MEDIUM_MARGIN - self.W_IMPROVEMENT_PANE
+-
+-		self.X_SPECIAL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
+-		self.Y_SPECIAL = self.Y_IMPROVEMENT_PANE
+-		self.H_SPECIAL = self.H_IMPROVEMENT_PANE
++		self.W_MOST_YIELDS = self.W_BONUS_YIELDS
+ 
+-		self.X_BONUS_YIELDS = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_BONUS_YIELDS = self.top.R_PEDIA_PAGE - self.W_BONUS_YIELDS
+ 		self.Y_BONUS_YIELDS = self.Y_IMPROVEMENT_PANE
+ 		self.H_BONUS_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS
+ 
+-		self.H_REQUIRES = 110
++		self.X_MOST_YIELDS = self.X_BONUS_YIELDS - self.W_MOST_YIELDS - self.MEDIUM_MARGIN
++		self.Y_MOST_YIELDS = self.Y_BONUS_YIELDS
++		self.H_MOST_YIELDS = self.H_BONUS_YIELDS
+ 
+-		self.X_IMPROVEMENT_ANIMATION = self.X_BONUS_YIELDS + self.W_BONUS_YIELDS + self.MEDIUM_MARGIN
+-		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE + 7
+-		self.H_IMPROVEMENT_ANIMATION = self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN + (2 * self.H_REQUIRES)  - 7
++		leftAreaRight = self.X_MOST_YIELDS - self.MEDIUM_MARGIN
++		self.W_LEFT_AREA = leftAreaRight - self.X_IMPROVEMENT_PANE
+ 
+-		self.X_ROTATION_IMPROVEMENT_ANIMATION = -20
+-		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
+-		self.SCALE_ANIMATION = 0.7
+-
+-		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE
+-		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
+ 		self.W_BUILD_PANEL = 84
+ 		self.H_BUILD_PANEL = self.H_REQUIRES
++		self.W_REQUIRES = 84
+ 
+-		self.X_REQUIRES = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
+-		self.Y_REQUIRES = self.Y_BUILD_PANEL
+-		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION - self.W_BUILD_PANEL - self.MEDIUM_MARGIN
++		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
++		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE
+ 
+-		self.X_MOST_YIELDS = self.X_IMPROVEMENT_PANE
+-		self.Y_MOST_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_MOST_YIELDS = self.W_IMPROVEMENT_ANIMATION
+-		self.H_MOST_YIELDS = self.top.B_PEDIA_PAGE - self.Y_MOST_YIELDS
++		self.X_REQUIRES = self.X_BUILD_PANEL
++		self.Y_REQUIRES = self.Y_BUILD_PANEL + self.H_BUILD_PANEL + self.SMALL_MARGIN
+ 
+-		self.X_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
+-		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_ANIMATION + self.H_IMPROVEMENT_ANIMATION + self.SMALL_MARGIN
+-		self.W_TERRAIN_MAKES_VALIDS = self.W_IMPROVEMENT_ANIMATION
++		self.X_TERRAIN_MAKES_VALIDS = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
++		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_PANE
+ 		self.H_TERRAIN_MAKES_VALIDS = self.H_REQUIRES
+ 
+-		self.X_FEATURE_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
++		self.X_FEATURE_MAKES_VALIDS = self.X_TERRAIN_MAKES_VALIDS
+ 		self.Y_FEATURE_MAKES_VALIDS = self.Y_TERRAIN_MAKES_VALIDS + self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN
+-		self.W_FEATURE_MAKES_VALIDS = self.W_IMPROVEMENT_ANIMATION
+ 		self.H_FEATURE_MAKES_VALIDS = self.H_REQUIRES
+ 
++		self.H_TOP_RIGHT_STACK = max(self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN + self.H_FEATURE_MAKES_VALIDS, self.H_BUILD_PANEL + self.SMALL_MARGIN + self.H_REQUIRES)
++		availableAfterTerrain = leftAreaRight - self.X_TERRAIN_MAKES_VALIDS
++		if availableAfterTerrain < 0:
++			availableAfterTerrain = 0
++
++		preferredAnim = min(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK)
++		minSidePanelW = 180
++		if availableAfterTerrain - self.MEDIUM_MARGIN - preferredAnim < minSidePanelW:
++			preferredAnim = max(140, availableAfterTerrain - self.MEDIUM_MARGIN - minSidePanelW)
++		if preferredAnim < 120:
++			preferredAnim = min(availableAfterTerrain, self.H_TOP_RIGHT_STACK)
++
++		self.W_IMPROVEMENT_ANIMATION = min(preferredAnim, availableAfterTerrain)
++		self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
++		self.X_IMPROVEMENT_ANIMATION = leftAreaRight - self.W_IMPROVEMENT_ANIMATION
++		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE
++
++		self.W_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION - self.MEDIUM_MARGIN - self.X_TERRAIN_MAKES_VALIDS
++		if self.W_TERRAIN_MAKES_VALIDS < 120:
++			self.W_TERRAIN_MAKES_VALIDS = 120
++			self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + self.MEDIUM_MARGIN
++			self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
++			self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
++
++		self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
++
++		self.H_TOP_ROW = max(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK, self.H_IMPROVEMENT_ANIMATION)
++
++		self.X_IMPROVEMENT_LEADERS = self.X_IMPROVEMENT_PANE
++		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + self.SMALL_MARGIN
++		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
++
++		self.H_SPECIAL = 295
++		self.H_HISTORY = 295
++		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
++		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
++		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.Y_HISTORY = self.Y_SPECIAL
++		self.W_HISTORY = leftAreaRight - self.X_HISTORY
++		self.H_HISTORY = self.H_SPECIAL
++
++		self.H_IMPROVEMENT_LEADERS = self.Y_SPECIAL - self.SMALL_MARGIN - self.Y_IMPROVEMENT_LEADERS
++		if self.H_IMPROVEMENT_LEADERS < 0:
++			self.H_IMPROVEMENT_LEADERS = 0
++
++		self.X_ROTATION_IMPROVEMENT_ANIMATION = -20
++		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
++		self.SCALE_ANIMATION = 0.7
++
+ 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
+-		self.X_HISTORY = self.X_IMPROVEMENT_ANIMATION
+-		self.Y_HISTORY = self.Y_FEATURE_MAKES_VALIDS + self.H_FEATURE_MAKES_VALIDS + self.SMALL_MARGIN
+-		self.W_HISTORY = self.W_IMPROVEMENT_ANIMATION
+-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
++		self.IMPROVEMENT_LEADER_ICON_SIZE = 24
++		self.IMPROVEMENT_LEADER_BUTTON_SPACING = 2
++		self.IMPROVEMENT_LEADER_ROW_H = 24
+ 
+ 
+ 
+@@ -117,6 +157,7 @@ class SevoPediaImprovement:
+ 		self.placeBuilds()
+ 		self.placeRequires()
+ 		self.placeMostYields()
++		self.placeImprovementLeaderTable()
+ 		self.placeTerrainMakesValids()
+ 		self.placeFeatureMakesValids()
+ 		self.placeHistory()
+@@ -125,10 +166,17 @@ class SevoPediaImprovement:
+ 
+ 	def placeImprovementPane(self):
+ 		screen = self.top.getScreen()
++		info = gc.getImprovementInfo(self.iImprovement)
+ 		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_IMPROVEMENT_PANE, self.Y_IMPROVEMENT_PANE, self.W_IMPROVEMENT_PANE, self.H_IMPROVEMENT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getImprovementInfo(self.iImprovement).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++		panel = self.top.getNextWidgetName()
++		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
++		screen.enableSelect(panel, False)
++		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
++		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe (a bit like in sevopedia terrain and sevopedia feature) -->
+ 		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
+@@ -137,7 +185,7 @@ class SevoPediaImprovement:
+ 		nCount = 0
+ 
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
++			iYieldChange = info.getYieldChange(k)
+ 
+ 			if iYieldChange != 0:
+ 				if iYieldChange > 0:
+@@ -166,26 +214,14 @@ class SevoPediaImprovement:
+ 		panelName = self.top.getNextWidgetName()
+ 		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
+ 		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+-		screen.addPanel( panelName, "", "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_INFO", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+ 
+ 		listName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
+ 
+-		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement))), code provided with the help of chatgpt thanks and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc -->
+-		if szSpecialText.strip():
+-			szSpecialText += u"\n"
+-		bullet = localText.getText("[ICON_BULLET]", ())
+-		for iBuild in xrange(gc.getNumBuildInfos()):
+-			buildInfo = gc.getBuildInfo(iBuild)
+-			if buildInfo.getImprovement() == self.iImprovement:
+-				iTime = buildInfo.getTime()
+-				if iTime > 0:
+-					szSpecialText += u"%sBuild Time: %d" % (bullet, iTime)
+-					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
+-					break
++		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
+ 
+-		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL - 13, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -193,7 +229,7 @@ class SevoPediaImprovement:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		# <!-- custom: prettier and clearer without the/a header, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or more closely  -->
+-		screen.addPanel( panelName, "", "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SAS_BONUSS_YIELDS", ()), "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		info = gc.getImprovementInfo(self.iImprovement)
+ 		for j in range(gc.getNumBonusInfos()):
+ 			bFirst = True
+@@ -256,20 +292,34 @@ class SevoPediaImprovement:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
++		bButtonFound = False
+ 		for iBuild in range(gc.getNumBuildInfos()):
+ 			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
+ 				iTech = gc.getBuildInfo(iBuild).getTechPrereq()
+ 				if iTech > -1:
+ 					screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
++					bButtonFound = True
++
++		if not bButtonFound:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
++			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+ 	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ), also with gemini ai's help too thanks a lot as well, and adjusted or not for advciv-sas -->
+ 	def placeMostYields(self):
+ 		screen = self.top.getScreen()
+-		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
+-		panelName = self.top.getNextWidgetName()
+-		screen.addScrollPanel(panelName, "", self.X_MOST_YIELDS - 2, self.Y_MOST_YIELDS + 20, self.W_MOST_YIELDS + 4, self.H_MOST_YIELDS - 46, PanelStyles.PANEL_STYLE_EMPTY)
++		panelX = self.X_MOST_YIELDS
++		panelY = self.Y_MOST_YIELDS
++		panelW = self.W_MOST_YIELDS
++		panelH = self.H_MOST_YIELDS
++
++		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
++		scrollPanelName = self.top.getNextWidgetName()
++		screen.addScrollPanel(scrollPanelName, "", panelX - 2, panelY + 20, panelW + 4, panelH - 46, PanelStyles.PANEL_STYLE_EMPTY)
+ 
+ 		iY = 6
+ 		iButtonSize = 64  # Use default 64px button size for better visibility
+@@ -282,8 +332,8 @@ class SevoPediaImprovement:
+ 			if iYieldChange != 0:
+ 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 		if len(sText) > 0:
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
+-			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
++			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			iY += (iButtonSize + 8)
+ 
+ 		# Hills yield changes
+@@ -294,8 +344,8 @@ class SevoPediaImprovement:
+ 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 		if len(sText) > 0:
+ 			iHill = self.I_TERRAIN_HILL
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
+-			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
++			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			iY += (iButtonSize + 8)
+ 
+ 		# River yield changes
+@@ -313,8 +363,8 @@ class SevoPediaImprovement:
+ 			# Ensure 'CONCEPT_RIVERS' is defined in your Civilopedia XML.
+ 			riversConceptID = get_concept_id("CONCEPT_RIVERS", gc)
+ 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(riversConceptID, WidgetTypes, CivilopediaPageTypes)
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
+-			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
++			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			iY += (iButtonSize + 8)
+ 
+ 		# Tech yield changes
+@@ -325,8 +375,8 @@ class SevoPediaImprovement:
+ 				if iYieldChange != 0:
+ 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 			if len(sText):
+-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
+-				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
++				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+ 
+ 		# Civic yield changes
+@@ -337,8 +387,8 @@ class SevoPediaImprovement:
+ 				if iYieldChange != 0:
+ 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 			if len(sText):
+-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
+-				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
++				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+ 
+ 		# Route yield changes
+@@ -360,11 +410,93 @@ class SevoPediaImprovement:
+ 				if iBuild < 0:
+ 					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
+ 
+-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
+-				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
++				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+ 
+ 
++	def placeImprovementLeaderTable(self):
++		screen = self.top.getScreen()
++		xPanel = self.X_IMPROVEMENT_LEADERS
++		yPanel = self.Y_IMPROVEMENT_LEADERS
++		wPanel = self.W_IMPROVEMENT_LEADERS
++		hPanel = self.H_IMPROVEMENT_LEADERS
++
++		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS", ()), "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		leaderIds, leaderToCiv, unused_total = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
++
++		weightToLeaders = {}
++		for iLeader in leaderIds:
++			leaderInfo = gc.getLeaderHeadInfo(iLeader)
++			iWeight = leaderInfo.getImprovementWeightModifier(self.iImprovement)
++			if iWeight != 0:
++				if iWeight not in weightToLeaders:
++					weightToLeaders[iWeight] = []
++				weightToLeaders[iWeight].append(iLeader)
++
++		if not weightToLeaders:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			return
++
++		tableMargin = 8
++		tableX = xPanel + tableMargin
++		tableY = yPanel + 30
++		tableW = wPanel - (2 * tableMargin)
++		tableH = hPanel - 40
++
++		weightsSorted = sorted(weightToLeaders.keys(), reverse=True)
++		maxLeaders = 1
++		for weight in weightsSorted:
++			if len(weightToLeaders[weight]) > maxLeaders:
++				maxLeaders = len(weightToLeaders[weight])
++
++		leaderColW = self.IMPROVEMENT_LEADER_ICON_SIZE + self.IMPROVEMENT_LEADER_BUTTON_SPACING
++		weightColW = 60
++		countColW = 60
++		availableLeadersW = tableW - weightColW - countColW
++		if availableLeadersW < leaderColW * maxLeaders:
++			leaderColW = int(availableLeadersW / maxLeaders)
++			if leaderColW < 10:
++				leaderColW = 10
++
++		tableName = self.top.getNextWidgetName()
++		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, self.IMPROVEMENT_LEADER_ROW_H, self.IMPROVEMENT_LEADER_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.enableSort(tableName)
++
++		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_WEIGHT", ()), weightColW)
++		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), countColW)
++		for iCol in xrange(maxLeaders):
++			screen.setTableColumnHeader(tableName, 2 + iCol, "", leaderColW)
++
++		for weight in weightsSorted:
++			iRow = screen.appendTableRow(tableName)
++			screen.setTableText(tableName, 0, iRow, u"<font=2>%+d</font>" % weight, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			leaderCount = len(weightToLeaders[weight])
++			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % leaderCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			self._setLeaderIconCells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, leaderToCiv)
++
++
++	def _setLeaderIconCells(self, screen, tableName, row, leaderIds, leaderColStart, leaderColCount, leaderToCiv):
++		for iCol in xrange(leaderColCount):
++			if iCol >= len(leaderIds):
++				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				continue
++
++			iLeader = leaderIds[iCol]
++			leaderInfo = gc.getLeaderHeadInfo(iLeader)
++			buttonPath = leaderInfo.getButton()
++			iCiv = leaderToCiv.get(iLeader, -1)
++			if iCiv != -1 and buttonPath:
++				screen.setTableText(tableName, leaderColStart + iCol, row, "", buttonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, CvUtil.FONT_LEFT_JUSTIFY)
++			else:
++				screen.setTableText(tableName, leaderColStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
+ 
+ 	# <!-- custom: new addition thanks to chatgpt; as for logic this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos. -->
+ 	def placeTerrainMakesValids(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 697eb3f36..447891161 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -702,6 +702,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
+ 
+@@ -1353,25 +1354,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			else:
+ 				landFlat.append((szName, iTerrain))
+ 
++		# Optional sorting if BUG Sort Lists is on
+ 		if self.isSortLists():
+ 			landFlat.sort()
+ 			graphicalOnlyHigh.sort()
+ 			water.sort()
+ 
+-		if landFlat:
+-			r.append(("Land", -1))
+-			for x in landFlat:
++		# Emit headers + items in alphabetical order by header name
++		if graphicalOnlyHigh:
++			r.append(("GraphicalOnly (High)", -1))
++			for x in graphicalOnlyHigh:
+ 				r.append(x)
+ 
+-		if landFlat and graphicalOnlyHigh:
++		if graphicalOnlyHigh and landFlat:
+ 			r.append(("", -1))
+ 
+-		if graphicalOnlyHigh:
+-			r.append(("GraphicalOnly (High)", -1))
+-			for x in graphicalOnlyHigh:
++		if landFlat:
++			r.append(("Land", -1))
++			for x in landFlat:
+ 				r.append(x)
+ 
+-		if (landFlat or graphicalOnlyHigh) and water:
++		if (graphicalOnlyHigh or landFlat) and water:
+ 			r.append(("", -1))
+ 
+ 		if water:
+@@ -1447,25 +1450,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				else:
+ 					landOther.append((szName, iFeature))
+ 
++		# Optional sorting if BUG Sort Lists is on
+ 		if self.isSortLists():
+ 			landRemovable.sort()
+ 			landOther.sort()
+ 			water.sort()
+ 
+-		if landRemovable:
+-			r.append(("Land (Removable)", -1))
+-			for x in landRemovable:
++		# Emit headers + items in alphabetical order by header name
++		if landOther:
++			r.append(("Land (Other)", -1))
++			for x in landOther:
+ 				r.append(x)
+ 
+-		if landRemovable and landOther:
++		if landOther and landRemovable:
+ 			r.append(("", -1))
+ 
+-		if landOther:
+-			r.append(("Land (Other)", -1))
+-			for x in landOther:
++		if landRemovable:
++			r.append(("Land (Removable)", -1))
++			for x in landRemovable:
+ 				r.append(x)
+ 
+-		if (landRemovable or landOther) and water:
++		if (landOther or landRemovable) and water:
+ 			r.append(("", -1))
+ 
+ 		if water:
+@@ -1697,21 +1702,21 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			landOther.sort()
+ 			water.sort()
+ 
+-		# Emit headers + items (same header/spacer style you already use)
+-		if landGrowth:
+-			r.append(("Land (Growth)", -1))
+-			for x in landGrowth:
++		# Emit headers + items in alphabetical order by header name
++		if landBonusCapable:
++			r.append(("Land (Bonus-capable)", -1))
++			for x in landBonusCapable:
+ 				r.append(x)
+ 
+-		if landGrowth and (landBonusCapable or landOther or water):
++		if landBonusCapable and (landGrowth or landOther or water):
+ 			r.append(("", -1))
+ 
+-		if landBonusCapable:
+-			r.append(("Land (Bonus-capable)", -1))
+-			for x in landBonusCapable:
++		if landGrowth:
++			r.append(("Land (Growth)", -1))
++			for x in landGrowth:
+ 				r.append(x)
+ 
+-		if landBonusCapable and (landOther or water):
++		if landGrowth and (landOther or water):
+ 			r.append(("", -1))
+ 
+ 		if landOther:
+@@ -1719,7 +1724,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			for x in landOther:
+ 				r.append(x)
+ 
+-		if (landGrowth or landBonusCapable or landOther) and water:
++		if (landBonusCapable or landGrowth or landOther) and water:
+ 			r.append(("", -1))
+ 
+ 		if water:
+@@ -1748,9 +1753,133 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return self.SAS_cacheImprovementsTuple
+ 
++	# <!-- custom: in sevopedia build list, group builds mirroring the improvement/feature categories.
++	# Implemented with claude opus 4.5's help thanks a lot -->
++	# Group builds as:
++	# - Land (Growth): builds that create growth-chain improvements (Cottage->Hamlet->Village->Town)
++	# - Land (Bonus-capable): builds that create bonus-capable improvements (Farm, Mine, etc.)
++	# - Land (Other): builds that create other land improvements (Fort, Forest Preserve, etc.)
++	# - Water: builds that create water improvements (Fishing Boats, Offshore Platform, etc.)
++	# - Land (Route): builds that create routes (Road, Railroad)
++	# - Land (Removable): builds that remove features without creating improvements (Chop Down, Remove Jungle, Scrub Fallout)
++	def SAS_getBuildsGroupedByType_fromBaseList(self, baseList):
++		r = []
++		landGrowth = []
++		landBonusCapable = []
++		landOther = []
++		water = []
++		landRoute = []
++		landRemovable = []
++
++		# Build set of improvements that are upgraded *to* by something (to detect chain membership, incl. final node).
++		dUpgradeTargets = {}
++		for i in xrange(gc.getNumImprovementInfos()):
++			info = gc.getImprovementInfo(i)
++			if info and hasattr(info, "getImprovementUpgrade"):
++				iUp = info.getImprovementUpgrade()
++				if iUp != -1:
++					dUpgradeTargets[iUp] = 1
++
++		for (szName, iBuild) in baseList:
++			buildInfo = gc.getBuildInfo(iBuild)
++			if not buildInfo:
++				continue
++
++			iImprovement = buildInfo.getImprovement()
++			iRoute = buildInfo.getRoute()
++
++			if iRoute > -1:
++				landRoute.append((szName, iBuild))
++			elif iImprovement > -1:
++				imprInfo = gc.getImprovementInfo(iImprovement)
++
++				# Check if water improvement
++				if imprInfo and imprInfo.isWater():
++					water.append((szName, iBuild))
++				else:
++					# Check if growth-chain improvement
++					bGrowth = False
++					if imprInfo and hasattr(imprInfo, "getImprovementUpgrade"):
++						iUp = imprInfo.getImprovementUpgrade()
++						if iUp != -1 or dUpgradeTargets.has_key(iImprovement):
++							bGrowth = True
++
++					if bGrowth:
++						landGrowth.append((szName, iBuild))
++					else:
++						# Check if bonus-capable
++						bBonusCapable = self.SAS_isBonusCapableImprovement(iImprovement)
++						if bBonusCapable:
++							landBonusCapable.append((szName, iBuild))
++						else:
++							landOther.append((szName, iBuild))
++			else:
++				landRemovable.append((szName, iBuild))
++
++		# Optional sorting if BUG Sort Lists is on
++		if self.isSortLists():
++			landGrowth.sort()
++			landBonusCapable.sort()
++			landOther.sort()
++			water.sort()
++			landRoute.sort()
++			landRemovable.sort()
++
++		# Emit headers + items in alphabetical order by header name
++		if landBonusCapable:
++			r.append(("Land (Bonus-capable)", -1))
++			for x in landBonusCapable:
++				r.append(x)
++
++		if landBonusCapable and (landGrowth or landOther or landRemovable or landRoute or water):
++			r.append(("", -1))
++
++		if landGrowth:
++			r.append(("Land (Growth)", -1))
++			for x in landGrowth:
++				r.append(x)
++
++		if landGrowth and (landOther or landRemovable or landRoute or water):
++			r.append(("", -1))
++
++		if landOther:
++			r.append(("Land (Other)", -1))
++			for x in landOther:
++				r.append(x)
++
++		if landOther and (landRemovable or landRoute or water):
++			r.append(("", -1))
++
++		if landRemovable:
++			r.append(("Land (Removable)", -1))
++			for x in landRemovable:
++				r.append(x)
++
++		if landRemovable and (landRoute or water):
++			r.append(("", -1))
++
++		if landRoute:
++			r.append(("Land (Route)", -1))
++			for x in landRoute:
++				r.append(x)
++
++		if landRoute and water:
++			r.append(("", -1))
++
++		if water:
++			r.append(("Water", -1))
++			for x in water:
++				r.append(x)
++
++		return r
++
+ 	def getBuildList(self):
+ 		if self.SAS_cacheBuildsTuple is None:
+-			self.SAS_cacheBuildsTuple = tuple(self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo))
++			baseList = self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo)
++			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE:
++				self.SAS_cacheBuildsTuple = tuple(self.SAS_getBuildsGroupedByType_fromBaseList(baseList))
++			else:
++				self.SAS_cacheBuildsTuple = tuple(baseList)
+ 		return self.SAS_cacheBuildsTuple
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index aa4d5eabd..b5449b889 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -4,9 +4,7 @@ AI, UI, or other modifications
+ Created as part of AdvCiv-SAS improvements
+ (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ -->
+-<!-- custom: Long_Comments_XML.txt #131 -->
+-<!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentioned if so, check if accurate). -->
+-<!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
++<!-- custom: Long_Comments_XML.txt #131, #195 -->
+ 
+ 
+ 
+@@ -23,17 +21,17 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later). Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such. -->
++	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later); Long_Comments_XML.txt #192 -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
++	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of "T.W. Likely"; Long_Comments_XML.txt #193 -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply. -->
++	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel; Long_Comments_XML.txt #194 -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -80,7 +78,6 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
+-	<!-- custom: 1 to enable (recommended), 0 to disable -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -90,12 +87,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: in sevopedia buildings (as of now regular buildings, national wonders, world wonders), group techs by era (obtained from tech prereqs since Buildings don't have eras per-se and as chatgpt 5.2 explained to me thanks) (e.g. Ancient Era, Classical Era, No Tech Prereq (available at any era), etc.) instead of one long list -->
++	<!-- custom: Long_Comments_XML.txt #201 -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: similarly for other sevopedia pages -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -113,7 +109,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: in sevopedia main specialists list, group specialists by type (e.g. Engineer vs Great Engineer) based on how RFC DOC mod does it thanks -->
+-	<!-- custom: 1 to enable (recommended), 0 to disable -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -128,6 +123,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: group builds mirroring the improvement/feature categories: Land (Growth), Land (Bonus-capable), Land (Other), Water, Land (Route), Land (Removable). (claude opus 4.5) -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -184,7 +184,6 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<!-- custom: enable buttons (i.e. images/icons for unit combats and units in the military advisor (F5 key)). -->
+-	<!-- custom: 1 to enable (recommended), 0 to disable -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -213,7 +212,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>-17</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
+-	<!-- custom: 1 to enable (recommended), 0 to disable -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -221,10 +219,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: use this to tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
+-	<!-- custom: e.g. with a value of 75, if the upgrade cost was 120 gold, now it would be 120 * 75 / 100 = 90 gold -->
+-	<!-- custom: note 2: set to 100 to disable (since 100 percent = 1 = same value) -->
+-	<!-- 75% of current cost for both human & AI -->
++	<!-- custom: Long_Comments_XML.txt #212 -->
+ 	<Define>
+ 		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
+ 		<iDefineIntVal>75</iDefineIntVal>
+@@ -232,8 +227,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+-	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
++	<!-- custom: Long_Comments_XML.txt #213 -->
+ 	<Define>
+ 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -250,7 +244,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: similarly, if you don't want to use the ObsoleteTech new XML field at all, you can disable it without having to tediously manually modify each entry one by one in XML, you can using this SAS define. If disabled (0), the value in XML ObsoleteTech will be ignored and always NONE (i.e. same behaviour as in base AdvCiv/Civ4). If enabled (1), the tech specified for each unit in its XML ObsoleteTech field will be applied e.g. NONE or TECH_BRONZE_WORKING for UNIT_WARRIOR for example. -->
++	<!-- custom: Long_Comments_XML.txt #200 -->
+ 	<Define>
+ 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -258,14 +252,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well. Are accounted as very bad tiles (check if not updated in code), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city)):
+-		- peak tiles
+-		- ice cap tiles
+-		- desert tiles that are not hill and have no bonus, and that are not floodplains nor oasis
+-		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
+-	Start phase is before our first city is planted/settled/founded.
+-	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect
+-	-->
++	<!-- custom: Long_Comments_XML.txt #211 -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+@@ -274,7 +261,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: the lower (e.g. -200 is lower than -100) this number is, the more we penalize and think such a tile is very very bad and thus reduce the likeliness that we'll choose the candidate city site that has this tile in its BFC. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big -->
++	<!-- custom: Long_Comments_XML.txt #207 -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+ 		<iDefineIntVal>-100</iDefineIntVal>
+@@ -345,8 +332,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
+-	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example, then it means we value this tile 50 value more (addition), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example -->
++	<!-- custom: Long_Comments_XML.txt #204 -->
+ 	<!-- custom: don't settle here, unless locally extremely good otherwise, made it even lower as some AIs still didn't listen -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
+@@ -507,7 +493,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot), so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
++	<!-- custom: Long_Comments_XML.txt #197 -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START</DefineName>
+ 		<iDefineIntVal>13</iDefineIntVal>
+@@ -596,8 +582,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
+-	<!-- custom: 1 to enable (recommended), 0 to disable -->
++	<!-- custom: Long_Comments_XML.txt #196 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -646,7 +631,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not) -->
++	<!-- custom: Long_Comments_XML.txt #198 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -783,8 +768,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
+ 		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
+ 	</Define>
+-	<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example) to build, we will reject it and not build it, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
+-	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
++	<!-- custom: Long_Comments_XML.txt #205 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+@@ -793,7 +777,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units -->
+-	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now (but check if accurate as i didn't check in detail) -->
++	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now -->
+ 	<Define>
+ 		<DefineName>SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+@@ -840,8 +824,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example), where our code remains active. Past this turn, we don't control excess defenders anymore. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less -->
+-	<!-- custom: Long_Comments_XML.txt #110 -->
++	<!-- custom: Long_Comments_XML.txt #199 -->
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
+ 		<iDefineIntVal>170</iDefineIntVal>
+@@ -851,13 +834,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases) -->
++	<!-- custom: Long_Comments_XML.txt #210 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused: we only attempt them if this excess defender unit order (to produce this unit) is not rejected by the above reject flag. -->
+-	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure) -->
++	<!-- custom: Long_Comments_XML.txt #209 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -870,8 +852,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below with the help of chatgpt 5 -->
+-	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
++	<!-- custom: Long_Comments_XML.txt #208 -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -886,7 +867,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
++	<!-- custom: Long_Comments_XML.txt #215 -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -904,7 +885,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental) via the no production fallback part of the code -->
++	<!-- custom: Long_Comments_XML.txt #214 -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+@@ -917,7 +898,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
++	<!-- custom: Long_Comments_XML.txt #216 -->
+ 	<Define>
+ 		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1037,13 +1018,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.) specifically; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided with the help of chatgpt 5 thanks -->
+-	<!--
+-	// totally—treat AIObjective as the general “this bonus is strategically important” knob, and then layer your edge rules (iron/copper, horse/camel, elephants (low value)) on top. Because both are multiplicative, order doesn’t change the math, but putting the AIObjective block first reads nicest.
+-	// - 1) Generic AIObjective bump (broad rule) -
+-	// Each AIObjective point adds X%, capped at Y%
+-	-->
+-	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example). -->
++	<!-- custom: Long_Comments_XML.txt #206 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1232,7 +1207,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate -->
++	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks -->
+     <!-- SAS techTradeClusterKnown:
+ 	Devalue techs that are already available inside our master–vassal locus when an *outsider* offers them. This pushes the AI toward getting those techs from its own master/vassals instead, reinforcing cluster synergy. -->
+     <!-- custom: enable (1) / disable (0) to toggle this option -->
+@@ -1293,10 +1268,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
+-	<!-- Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
+-	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option. -->
++	<!-- custom: Long_Comments_XML.txt #217 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1304,9 +1276,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate -->
+-	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option. -->
++	<!-- custom: Long_Comments_XML.txt #203 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1401,7 +1371,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks i mean to see if it helps, check if accurate -->
++	<!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks. -->
+ 	<!-- custom: Long_Comments_XML.txt #168 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT</DefineName>
+@@ -1410,7 +1380,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to / to help reduce oscillation. Check if accurate -->
++	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to reduce oscillation. -->
+ 	<!-- custom: Long_Comments_XML.txt #108 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
+@@ -1425,7 +1395,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks; check if accurate -->
++	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks -->
+ 	<!-- custom: Long_Comments_XML.txt #107 -->
+ 	<Define>
+ 		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT</DefineName>
+@@ -1464,18 +1434,12 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate -->
++	<!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1 -->
+ 	<Define>
+ 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- convenience: block auto-assigning specific specialists for human players only.
+-		Manual assignment still allowed. Off by default. -->
+-	<!-- // Key points:
+-		// 	- It only runs when bHuman and new_job.first (i.e. we’re hiring or switching to a specialist).
+-		// 	- It uses the same iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
+-		// 	- It doesn’t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
+-		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
++	<!-- custom: Long_Comments_XML.txt #202 -->
+ 	<Define>
+ 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 6849a2e26..224cafd48 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -74,12 +74,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUG_OPT_ACO__IGNOREBARBFREEWINS_HOVER</Tag>
+ 		<English>When checked, the shown odds ignore free wins against Barbarians that the handicap level may guarantee. If not checked, the shown odds are 100% when a free win applies.</English>
+ 	</TEXT>
+-	<!-- custom: rename "Difficulty" to "Handicap" -->
+-	<!-- advc.009c: Removed the final sentence: "This setting does not affect
+-		 MapFinder saves." / "(diese Option hat keinen Einfluss auf
+-		 MapFinder-Spielstände)" / "Questa impostazione non influenza i
+-		 salvataggi di MapFinder." / "Esta opción no afecta a las partidas
+-		 guardadas por MapFinder." -->
++	<!-- custom: Long_Comments_XML.txt #232 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__USEPLAYERNAME_HOVER</Tag>
+ 		<English>When checked, your player name is used for the saved game name along with the turn year. Otherwise the name is a concatenation of 3-letter versions of Leader Name, Handicap, Map Size, Map Type, Speed, Era, Year, Climate and Sea Level.</English>
+@@ -341,8 +336,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: "Unique Units" were not unique (could be built many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
+-	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
++	<!-- custom: Long_Comments_XML.txt #218 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FREE_UNITS</Tag>
+ 		<English>Civilization Units</English>
+@@ -361,7 +355,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Outdated</English>
+ 	</TEXT>
+ 
+-	<!-- custom: was "BtS Concepts", see code comments in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml (or the equivalent of this path in your mod installation path). -->
++	<!-- custom: Long_Comments_XML.txt #228 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+ 		<!-- custom: <English>Mods Information</English>-->
+@@ -612,7 +606,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
+ 		<English>Obelisk</English>
+ 	</TEXT>
+-	<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past(note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems) but at least it's consistent now and hopefully clear(er too)) -->
++	<!-- custom: Long_Comments_XML.txt #231 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
+ 		<English>War Chariot</English>
+@@ -635,7 +629,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
+ 		<English>The Three Gorges Dam</English>
+ 	</TEXT>
+-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case) and we need/want a music tech wonder -->
++	<!-- custom: Long_Comments_XML.txt #229 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
+ 		<English>Natya Shastra</English>
+@@ -671,12 +665,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
+ 		<English>Kingdom Of Benin</English>
+ 	</TEXT>
+-	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki if i understood it correctly) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
++	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
+ 		<English>Kingdom Of Benin</English>
+ 	</TEXT>
+-	<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentioned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding. After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin. -->
++	<!-- custom: Long_Comments_XML.txt #230 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
+ 		<English>Edo</English>
+@@ -814,10 +808,8 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details -->
+-	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
+-		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
+-	<TEXT> <!-- redefine -->
++	<!-- custom: Long_Comments_XML.txt #227 -->
++	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROMAN_LEGIONARY</Tag>
+ 		<English>Legionary</English>
+ 	</TEXT>
+@@ -902,9 +894,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Trading Post</English>
+ 	</TEXT>
+ 	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details -->
+-	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
+-		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Tag>
+ 		<English>Viking</English>
+ 	</TEXT>
+@@ -945,7 +935,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
+ 		<English>Counter-Archer</English>
+ 	</TEXT>
+-	<!-- custom: rename or create subtypes for each melee type maybe or maybe not and put them all in same promotion easier? Or partly simply by having counter melee sword, or counter sword? Todo -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
+ 		<English>Counter-Melee</English>
+@@ -959,7 +948,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Counter-Mounted</English>
+ 	</TEXT>
+ 
+-	<!-- custom: use arabic numerals for/in promotions naming(/es), add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use (of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
++	<!-- custom: Long_Comments_XML.txt #226 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
+ 		<English>Combat 1</English>
+@@ -1076,7 +1065,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_UNITCOMBAT_NAVAL</Tag>
+ 		<English>Naval</English>
+ 	</TEXT>
+-	<!-- custom: rename "Gunpowder Units" to "Gun" to encompass all kind of gun units not just the early ones that use gunpowder and for concision; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
++	<!-- custom: Long_Comments_XML.txt #225 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
+ 		<English>Gun</English>
+@@ -1519,34 +1508,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
+ 		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 (for all units? Not sure.))</English>
+ 	</TEXT>
+-	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer. Todo investigate this more if needed. -->
+-	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
+-		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
+-		 defense icon and state that it increases (only) building defense. -->
+-	<TEXT> <!-- redefine -->
++	<!-- custom: Long_Comments_XML.txt #221 -->
++	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD</Tag>
+ 		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] (against pre-Renaissance Units (only? Not sure.))</English>
+ 	</TEXT>
+ 	<!-- From CIV4GameText_Warlords_Changed.xml.
+ 		 To be consistent with the above. -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
+ 		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units (only? Not sure.))</English>
+ 	</TEXT>
+ 	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
+ 		 actually is cumulative with culture defense. -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
+ 		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
+ 	</TEXT>
+ 
+ 
+-	<!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
+-	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
+-	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
+-	
+-	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
+-	-->
++	<!-- custom: Long_Comments_XML.txt #220 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
+ 		<English>[ICON_BULLET]%D1_Change%% Air Evasion Chance</English>
+@@ -1735,7 +1716,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
+ 		<English>The USA</English>
+ 	</TEXT>
+-	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
++	<!-- custom: Long_Comments_XML.txt #219 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
+ 		<English>US American</English>
+@@ -1754,7 +1735,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
++	<!-- custom: Long_Comments_XML.txt #222 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
+ 		<English>Legendary cities</English>
+@@ -2085,10 +2066,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILD</Tag>
+ 		<English>Builds</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_BUILD_RESULTS</Tag>
+-		<English>Results</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES</Tag>
+ 		<English>Removes Features</English>
+@@ -2161,6 +2138,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT</Tag>
+ 		<English>Impr.</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_RESULTS_SHORT</Tag>
++		<English>Result</English>
++	</TEXT>
+ 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
+@@ -2181,7 +2162,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: code (TXT_KEYs) for our new placeCivilizations, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not) adjustments -->
++	<!-- custom: for placeCivilizations, placeObsoletesWith, and placeReplace; added in sevopediaunit with the help of Claude AI thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS</Tag>
+ 		<English>Civs</English>
+@@ -2459,7 +2440,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA) to "We fear you are trading more than us" (WFYATMTU), the former is misleading as a player can receive it even if lagging behind in techs and trying to trade, from what i understand/read/remember in the past it is actually related to how much a player trades regardless of tech progress, hopefully clearer now. -->
++	<!-- custom: Long_Comments_XML.txt #224 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
+ 		<English>"We fear you are trading more than us."</English>
+@@ -2603,6 +2584,30 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
+ 		<English>Most Yield Changes</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_INFO</Tag>
++		<English>Improvement Info</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_IMPROVEMENT</Tag>
++		<English>Improvement</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS</Tag>
++		<English>Improvement Weights (Leaders)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_BONUSS_YIELDS</Tag>
++		<English>Bonus' Yields</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_COUNT</Tag>
++		<English>Count</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_WEIGHT</Tag>
++		<English>Weight</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -2712,8 +2717,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: more recent change with the help of chatgpt thanks: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
+-	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
++	<!-- custom: Long_Comments_XML.txt #223 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
+ 		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+@@ -2732,7 +2736,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
+ 	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
+ 		<English>[SPACE]World Wonder (%d1_Num Left)</English>
+ 	</TEXT>
+@@ -2766,18 +2770,18 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 
+ 	<!-- advc.005: was Asoka -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
+ 		<English>Ashoka</English>
+ 	</TEXT>
+ 	<!-- 002b: Shortened leader names -->
+ 	<!-- custom: was Augustus (in Warlords Civ4GameTextObjects XML) -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
+ 		<English>Augustus Caesar</English>
+ 	</TEXT>
+ 	<!-- custom: was Willem -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
+ 		<English>Willem van Oranje</English>
+ 	</TEXT>
+@@ -2790,22 +2794,22 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<!-- custom: was Alexander -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
+ 		<English>Alexander III</English>
+ 	</TEXT>
+ 	<!-- custom: was Tokugawa -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
+ 		<English>Tokugawa Ieyasu</English>
+ 	</TEXT>
+ 	<!-- custom: was Genghis in some languages or some other version -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
+ 		<English>Genghis Khan</English>
+ 	</TEXT>
+ 	<!-- custom: was Isabella -->
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
+ 		<English>
+ 			<Text>Isabella I</Text>
+@@ -2816,43 +2820,40 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: rename "Difficulty" to "Handicap" -->
+-	<!-- custom: rewrite handicap descriptions texts to match reworked advciv-sas gradual handicap settings -->
+-	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
+-		 German. -->
+-	<TEXT> <!-- redefine -->
++	<!-- custom: rename "Difficulty" to "Handicap"; Long_Comments_XML.txt #233 -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc.; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall handicap.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but a bit less now, AI attitude should overall be the same or not too much harder otherwise.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_WARLORD_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but even less now. Warfare should start to feel even or if not should be close to it, vs barbarians but also other players.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_NOBLE_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This is mostly an even game setting with other players, even though barbarians are still getting stronger.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. The penalties increase in this handicap setting. Economy and overall game plan needs to be really efficient and going forward on higher handicap settings to compensate AI advantages. Barbarians are also getting stronger.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_EMPEROR_HELP</Tag>
+ 		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. Efficiency and strategy may need to further be refined to be competitive at this handicap setting that has quite strong penalties. Barbarians are also getting stronger and may start to feel like being on a rampage if not at previous handicap settings, but this affects all players.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
+ 		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting.</English>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
++	<TEXT>
+ 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
+ 		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting as well.</English>
+ 	</TEXT>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 88ab57b67..e0f0c68c3 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -12,9 +12,7 @@ Initial consolidation and formatting by GPT-5.2-Codex (VS Code extension).
+ Moved on: 2025-12-23 10:49:55
+ Source root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+ 
+-Somewhat whitelisted files for now (few comment moves), but we may do it more so in the future, as keeping it lean allows our AI helpers to read the SAS defines much easier, on top of readability and possibly perf gains if any.
+-- Assets/XML/GlobalDefines_advc.xml
+-- Assets/XML/GlobalDefines_advciv_sas.xml
++Try to keep them lean and more so in the future so our AI helpers can easily read the SAS defines, as well as help readability and possibly perf if any gain.
+ 
+ 
+ 
+@@ -646,6 +644,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 
+ ===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+ ----- Comment #38 -----
++
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BULL_REQUIRED</Tag>
+ 		<English>[COLOR_WARNING_TEXT]This feature requires the BUG DLL (BULL).[COLOR_REVERT]</English>
+@@ -3322,3 +3321,266 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
+ ----- Comment #191 -----
+ 
+ <!-- custom: for our new unlimited specialists valuation code, it is great at spreading more evenly civics at various stages of the game vs only civic_caste_system before, but we switch a bit too often. Yet, it is not as attractive to change civics if we'd have anarchy, so add some devaluation depending on anarchy length. E.g. if civic value is 1000 (random number as an example) and this knob's value is 10(%), and we have 2 anarchy turns to change civic, then the new civic value would be ((100 - (2 * 10)) * 1000) / 100 = (80 * 1000) / 100 = 800. But if anarchy length is 0 turns, then value remains 1000 and as attractive, as ((100 - (0 * 10)) * 1000) / 100 = 100 * 1000 / 100 = 1000 (100% value is same). In short, for example -10% civic value loss per turn of anarchy. -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #192 -----
++
++Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such.
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #193 -----
++
++, useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such , then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #194 -----
++
++. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #195 -----
++
++<!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentioned if so, check if accurate). -->
++<!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #196 -----
++
++<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #197 -----
++
++<!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot), so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #198 -----
++
++<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not) -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #199 -----
++
++<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example), where our code remains active. Past this turn, we don't control excess defenders anymore. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less -->
++	<!-- custom: Long_Comments_XML.txt #110 -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #200 -----
++
++<!-- custom: similarly, if you don't want to use the ObsoleteTech new XML field at all, you can disable it without having to tediously manually modify each entry one by one in XML, you can using this SAS define. If disabled (0), the value in XML ObsoleteTech will be ignored and always NONE (i.e. same behaviour as in base AdvCiv/Civ4). If enabled (1), the tech specified for each unit in its XML ObsoleteTech field will be applied e.g. NONE or TECH_BRONZE_WORKING for UNIT_WARRIOR for example. -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #201 -----
++
++<!-- custom: in sevopedia buildings (as of now regular buildings, national wonders, world wonders), group techs by era (obtained from tech prereqs since Buildings don't have eras per-se and as chatgpt 5.2 explained to me thanks) (e.g. Ancient Era, Classical Era, No Tech Prereq (available at any era), etc.) instead of one long list -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #202 -----
++
++	<!-- convenience: block auto-assigning specific specialists for human players only.
++		Manual assignment still allowed. Off by default. -->
++	<!-- // Key points:
++		// 	- It only runs when bHuman and new_job.first (i.e. we�re hiring or switching to a specialist).
++		// 	- It uses the same iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become �last resort� for the governor, same as Citizen.
++		// 	- It doesn�t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
++		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->		
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #203 -----
++
++	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro -->
++	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #204 -----
++
++<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
++	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example, then it means we value this tile 50 value more (addition), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #205 -----
++
++<!-- custom: max number of turns (at normal, auto adjusted to other game speeds) we tolerate to not reject building a wonder. This is adjusted by various things (handicap, etc), but it grossly means that for example if value is 20 (which is computed as 20 * 150 / 100 = 30 turns in gamespeed_epic for example), if a wonder takes 21 or more turns at normal (or 31 at gamespeed_epic for example) to build, we will reject it and not build it, as it is too unlikely we'd finish it in time or fast enough or would gain enough from building it. -->
++	<!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #206 -----
++
++<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.) specifically; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided with the help of chatgpt 5 thanks -->
++	<!--
++	// totally�treat AIObjective as the general �this bonus is strategically important� knob, and then layer your edge rules (iron/copper, horse/camel, elephants (low value)) on top. Because both are multiplicative, order doesn�t change the math, but putting the AIObjective block first reads nicest.
++	// - 1) Generic AIObjective bump (broad rule) -
++	// Each AIObjective point adds X%, capped at Y%
++	-->
++	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example). -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #207 -----
++
++<!-- custom: the lower (e.g. -200 is lower than -100) this number is, the more we penalize and think such a tile is very very bad and thus reduce the likeliness that we'll choose the candidate city site that has this tile in its BFC. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #208 -----
++
++<!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below with the help of chatgpt 5 -->
++	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #209 -----
++
++<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused: we only attempt them if this excess defender unit order (to produce this unit) is not rejected by the above reject flag. -->
++	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure) -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #210 -----
++
++<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases) -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #211 -----
++
++	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should) change AI settling preferences and recommended sites in UI as well. Are accounted as very bad tiles (check if not updated in code), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city)):
++		- peak tiles
++		- ice cap tiles
++		- desert tiles that are not hill and have no bonus, and that are not floodplains nor oasis
++		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
++	Start phase is before our first city is planted/settled/founded.
++	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect
++	-->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #212 -----
++
++<!-- custom: use this to tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
++	<!-- custom: e.g. with a value of 75, if the upgrade cost was 120 gold, now it would be 120 * 75 / 100 = 90 gold -->
++	<!-- custom: note 2: set to 100 to disable (since 100 percent = 1 = same value) -->
++	<!-- 75% of current cost for both human & AI -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #213 -----
++
++<!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
++	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #214 -----
++
++<!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental) via the no production fallback part of the code -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #215 -----
++
++<!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #216 -----
++
++<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI) -->
++
++===== .\\Assets/XML/GlobalDefines_advciv_sas.xml =====
++----- Comment #217 -----
++
++<!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
++	<!-- Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
++	<!-- This doesn�t force a trade with the master/vassal � it just says: �don�t buy that tech from outsiders if there�s a viable internal source.� So it�s conservative: it can only reduce external tech trades, never block internal ones. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #218 -----
++
++<!-- custom: "Unique Units" were not unique (could be built many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
++	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #219 -----
++
++<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #220 -----
++
++<!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
++	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
++	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
++	
++	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
++	-->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #221 -----
++
++	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer. Todo investigate this more if needed. -->
++	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
++		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
++		 defense icon and state that it increases (only) building defense. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #222 -----
++
++<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #223 -----
++
++<!-- custom: more recent change with the help of chatgpt thanks: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
++	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #224 -----
++
++<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA) to "We fear you are trading more than us" (WFYATMTU), the former is misleading as a player can receive it even if lagging behind in techs and trying to trade, from what i understand/read/remember in the past it is actually related to how much a player trades regardless of tech progress, hopefully clearer now. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #225 -----
++
++<!-- custom: rename "Gunpowder Units" to "Gun" to encompass all kind of gun units not just the early ones that use gunpowder and for concision; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of smokeless powder instead -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #226 -----
++
++<!-- custom: use arabic numerals for/in promotions naming(/es), add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use (of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #227 -----
++
++<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details -->
++	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
++		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #228 -----
++
++<!-- custom: was "BtS Concepts", see code comments in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml (or the equivalent of this path in your mod installation path). -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #229 -----
++
++<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this caseeven though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe tooin this case) and we need/want a music tech wonder -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #230 -----
++
++<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentioned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding. After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin. -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #231 -----
++
++<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past(note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems) but at least it's consistent now and hopefully clear(er too)) -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #232 -----
++
++<!-- custom: rename "Difficulty" to "Handicap" -->
++	<!-- advc.009c: Removed the final sentence: "This setting does not affect
++		 MapFinder saves." / "(diese Option hat keinen Einfluss auf
++		 MapFinder-Spielst�nde)" / "Questa impostazione non influenza i
++		 salvataggi di MapFinder." / "Esta opci�n no afecta a las partidas
++		 guardadas por MapFinder." -->
++
++===== .\Assets\XML\Text\AdvCiv-SAS_Main.xml =====
++----- Comment #233 -----
++
++<!-- custom: rewrite handicap descriptions texts to match reworked advciv-sas gradual handicap settings -->
++	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
++		 German. -->
+
+diff --git a/README.md b/README.md
+index f9dec1ecc..2804ca1a5 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel, Traits Charts), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -40,7 +40,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+ &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+-&emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts)  
++&emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts-improvement-weights-leaders-chart)  
+ &emsp;[Some other Sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+ [UI (Common)](/README.md#ui-common)  
+ &emsp;[Images as buttons](/README.md#images-as-buttons)  
+@@ -263,7 +263,7 @@ They notably feature additional fields that do not are not direct XML info field
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+ 
+-### Some higher level reworks (e.g. AI Personality Panel, Traits Charts)
++### Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart)
+ 
+ One of the main and most significant Sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature. Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each Sevopedia leader (and also the ranking of leaders for each of these displayed fields's values) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data). It is computationally lightweight, as all the values are already provided in the mod before the game is launched, the game just displays this data.
+ 
+@@ -271,6 +271,8 @@ As always, ChatGPT is a key co-author and main code contributor and with the hel
+ 
+ Another significant contribution from our AI helpers is the new Traits Charts, that are 2 sortable Traits Charts that show all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking and clickable leader buttons in the charts. Also, the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)", and other enhancements such as new txt keys that are fairly mod-agnostic (added with the help of ChatGPT 5.2 thanks a lot). Implementation with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot.
+ 
++Based on it, we notably also made, in Sevopedia Improvement, a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement.
++
+ Here is below a sample of the example screenshots showing the AI Personality panel, Traits Charts, and the many other reworks we did in Sevopedia in AdvCiv-SAS:
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+@@ -302,7 +304,7 @@ note 3: if you want to mod and modify the xml civ4 leader info, then you need to
+ 
+ #### Concepts (as of now in the "Outdated" Sevopedia category)
+ 
+-These are not supported in advciv-sas, hence the "outdated" name (i.e. i am not making sure the info is in line with our mod's changes if i may say), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or that we used for other purposes such as redirecting for buttons/images (see [README_Sevopedia_Reworks.md#example-35-improvements-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category) for a few examples detailed there), or that i found informative or wanted to add. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
++These are not supported in advciv-sas, hence the "outdated" name. Added a few examples that i found informative or wanted to add. These new entries generally come from [https://civilization.fandom.com/wiki/](https://civilization.fandom.com/wiki/) or some similar place(s).
+ 
+ Added new concepts, as of now:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f7b2c2cd3..bee5097ce 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -297,6 +297,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
++- (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry** : change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp).
+ - (Requires AdvCiv-SAS 5349+) Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a trait**, and **ranking for each trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 32c37e672..f2df342e3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -28,7 +28,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
+ &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
+ &emsp;[example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)  
+-&emsp;[example 3.5: improvements category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category)  
++&emsp;[example 3.5: improvements category (Improvement Weights (Leaders) Chart and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category-improvement-weights-leaders-chart-and-other-changes)  
+ &emsp;[example 4: bonuses category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category)  
+ &emsp;[example 5: religion category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-5-religion-category)  
+ &emsp;[example 6: civilization category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-6-civilization-category)  
+@@ -114,7 +114,7 @@ We then also used this approach to replace the old clunky base advciv's `CONCEPT
+ 
+ #### example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")
+ 
+-Added a new Builds category under Improvements and a dedicated Builds page with Requires, Results, Removes Features, and Build Info panels (build time/cost/consumes unit).
++Added a new Builds category under Improvements and a dedicated Builds page with Requires, Result, Removes Features, and Build Info panels (build time/cost/consumes unit).
+ 
+ Notably among additions, it also has FeatureStruct panels and mod-agnostic new Civilopedia blurbs-based Background panel (added the new XML field `Civilopedia`> to BuildInfos; blurbs generated with the help of ChatGPT-5.2 Thinking thanks).
+ 
+@@ -240,7 +240,7 @@ Since then, also added a new Remove as well as a new Units (Any Build) panel wit
+ <img src="../Images/sevopedia/0.640_sevopedia_features (2).JPG" alt="0.640_sevopedia_features (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.640_sevopedia_features (3).JPG" alt="0.640_sevopedia_features (3).JPG" width="250"></img>
+ 
+-### example 3.5: improvements category
++### example 3.5: improvements category (Improvement Weights (Leaders) Chart and other changes)
+ 
+ One of the oldest Sevopedia reworks, i added it in this readme much later so i hope or i think or maybe it fits quite well or maybe well here.
+ 
+@@ -256,6 +256,12 @@ More recently, entries are now grouped by Land/Water (e.g. Land Improvements ->
+ 
+ Then, also added a Build panel redirecting to the corresponding Sevopedia Builds page we added since then.
+ 
++Since then, reworked the page so we have a new layout and a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement, based on the Sevopedia Traits' Charts.
++
++Also beautified the Improvement pane with text based on the Sevopedia Feature implementation.
++
++Done with the help of GPT-5.2-Codex thanks a lot!
++
+ <img src="../Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.720_sevopedia_improvements (2).JPG" alt="0.720_sevopedia_improvements (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.720_sevopedia_improvements (3).JPG" alt="0.720_sevopedia_improvements (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG
+index 3104fec66..81aa1e572 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG
+index 503afbe4b..959b74be4 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG
+index 7c9fd1ef8..d75215cf5 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG
+index 72a2f830b..455127754 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG
+index 9ce943368..66488dcb2 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG
+index bf0b2c024..0f0ab58fd 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG
+index 6ac5a0b1f..bcb33e6b7 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG
+index 91c427d0b..31893330b 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG
+index a103da3da..562e831f5 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=139429

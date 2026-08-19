@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 650
+# Commit: a57e097d377b88586a4eabf22f6ec80b4f675338
+# History segment: K-Mod history
+# Parent used for diff: 6c7c74299c23264c8ea62456d0e40d5f29f5527c
+# Title: Emphasise production now decreases the value of commerce for the purpose of choosing plot improvements. Tidied up some code.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	23	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a93f8e237..d91d24692 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7039,9 +7039,8 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 						iWorkableFood += aiFinalYields[YIELD_FOOD];
+ 						iWorkableFoodPlotCount++;
+ 					}
+-				} */
++				}
+ 
+-				/* original code
+ 				if (pLoopPlot->isBeingWorked() || (((aiFinalYields[YIELD_FOOD]*10) + (aiFinalYields[YIELD_PRODUCTION]*6) + (aiFinalYields[YIELD_COMMERCE]*4)) > 21))
+ 				{
+ 					iGoodTileCount++;
+@@ -7053,11 +7052,11 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 					{
+ 						iFoodTotal += aiFinalYields[YIELD_FOOD] / 2;
+ 					}
+-                    if (aiFinalYields[YIELD_PRODUCTION] > 1)
+-                    {	
+-                    	iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
+-                    }
+-				}*/
++					if (aiFinalYields[YIELD_PRODUCTION] > 1)
++					{
++						iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
++					}
++				} */
+ 				// K-Mod experimental changes.
+ 				if (!pLoopPlot->isBeingWorked() && aiFinalYields[YIELD_FOOD] > GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 				{
+@@ -7080,9 +7079,9 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 
+ 				if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 				{
+-                    int iNetFood = (aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION());
+-                    iBonusFoodSurplus += std::max(0, iNetFood);
+-                    iBonusFoodDeficit += std::max(0, -iNetFood);
++					int iNetFood = (aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION());
++					iBonusFoodSurplus += std::max(0, iNetFood);
++					iBonusFoodDeficit += std::max(0, -iNetFood);
+ 				}
+ 
+ 				if ((pLoopPlot->getFeatureType()) != NO_FEATURE)
+@@ -7188,14 +7187,14 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 
+ 	if (iProductionTotal < 10)
+ 	{
+-	    iProductionMultiplier += (80 - 8 * iProductionTotal);
++		iProductionMultiplier += (80 - 8 * iProductionTotal);
+ 	}
+ 	//int iProductionTarget = 1 + (std::min(getPopulation(), (iTargetSize * 3) / 5));
+ 	int iProductionTarget = 1 + std::max(getPopulation(), iTargetSize * 3 / 5); // K-Mod
+ 
+ 	if (iProductionTotal < iProductionTarget)
+ 	{
+-	    iProductionMultiplier += 8 * (iProductionTarget - iProductionTotal);
++		iProductionMultiplier += 8 * (iProductionTarget - iProductionTotal);
+ 	}
+ 
+ 	// K-mod
+@@ -7233,13 +7232,8 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 		iCommerceMultiplier += (50 * (iRatio - 40)) / 60;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/06/09                                jdog5000      */
+-/*                                                                                              */
+-/* Worker AI                                                                                    */
+-/************************************************************************************************/
+-	// AI no longer uses emphasis except for short term boosts.
+-	if( isHuman() )
++	// Note: the AI does not use emphasis for this.
++	if (isHuman())
+ 	{
+ 		if (AI_isEmphasizeYield(YIELD_FOOD))
+ 		{
+@@ -7248,8 +7242,12 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 		}
+ 		if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 		{
+-			iProductionMultiplier *= 140;
++			iProductionMultiplier *= 130; // was 140
+ 			iProductionMultiplier /= 100;
++			// K-Mod
++			iCommerceMultiplier *= 80;
++			iCommerceMultiplier /= 100;
++			// K-Mod end
+ 		}
+ 		if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 		{
+@@ -7257,9 +7255,6 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 			iCommerceMultiplier /= 100;
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	int iProductionAdvantage = 100 * AI_yieldMultiplier(YIELD_PRODUCTION);
+ 	iProductionAdvantage /= kPlayer.AI_averageYieldMultiplier(YIELD_PRODUCTION);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4426

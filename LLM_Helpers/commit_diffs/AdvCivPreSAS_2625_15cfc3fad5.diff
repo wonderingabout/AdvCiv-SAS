@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2625
+# Commit: 15cfc3fad58bc035c619b147bfa7ec4db2ac17b4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d91efd9ac2dbcac1bd4590691a6816686019beb3
+# Title: Update draft of hypothetical gameplay changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	7	future gameplay changes/readme.txt
+-	-	future gameplay changes/sources(ODT).zip
+-	-	future gameplay changes/stat changes.pdf
+-	-	future gameplay changes/tech tree.pdf
+
+[PATCHES]
+
+diff --git a/future gameplay changes/readme.txt b/future gameplay changes/readme.txt
+index 924ae528a..bdd453b82 100644
+--- a/future gameplay changes/readme.txt	
++++ b/future gameplay changes/readme.txt	
+@@ -26,7 +26,7 @@ See also: https://forums.civfanatics.com/threads/advanced-civ.614217/page-5#post
+ 5. Make resources less crucial for health and happiness as this disadvantages small civs too much by the mid/late game: A few more resources go obsolete (see tech-tree.pdf) and perhaps cap the total health bonus of buildings like Granary at 2 (not spelled out in stat-changes.pdf). Grant happiness from city culture rate (with diminishing returns) regardless of whether the culture slider is used; have the slider position only matter for Colosseum and Theater.
+ (Already implemented: The AI is willing to sell even non-surplus resources at reasonable prices when it doesn't need those resources for city growth.)
+ 
+-6. Civs running a state religion different from that of the Apostolic Palace (AP) can't be AP members. The AP owner picks all proposals, no election of the AP resident. UN and AP voting populations are weighted by city nationality (i.e. relative city tile culture).
++6. Civs running a state religion different from that of the Apostolic Palace (AP) can't be AP members. (Already implemented: partial members can be targeted by war votes.) The AP owner picks all proposals, no election of the AP resident. UN and AP voting populations are weighted by city nationality (i.e. relative city tile culture).
+ 
+ 7. Increase the cost of drafting and balance it by adding or removing food to/from the city's food store in addition to population loss. And stricter checks and balances. Remove the whip ability of Slavery (see stat-changes.pdf).
+ 
+@@ -36,19 +36,17 @@ See also: https://forums.civfanatics.com/threads/advanced-civ.614217/page-5#post
+ 
+ 10. Make nuke damage to units highly randomized, usually destroying some units outright and leaving others unscathed. Units can't move/attack into a tile on the same turn that it was nuked.
+ 
+-11. Declarations of war take effect only at the end of a turn, i.e. the attacked side gets to make the first move. Or perhaps merely a rule change to ensure that a defending fleet gets a chance to destroy transports before they're able to unload (cf. change id 162 in the AdvCiv manual).
+-
+-12. Ravages of war: (Civ 4 Reimagined and Dawn of Civilization already do some of this.)
++11. Ravages of war: (Civ 4 Reimagined and Dawn of Civilization already do some of this.)
+ * Razing a city takes one attack per population; each attack reduces the population by one and has a chance of destroying a building.
+ * Reduced city defense causes anger; bombardment causes war weariness and has a small chance of destroying a building. Each attack against a city defender has a chance of destroying a building. Upon entering the city, few buildings or none are destroyed (unless razed).
+ * Reduce capture gold; perhaps only grant it when razing.
+ 
+-13. City garrisons need to have sufficient (defensive) combat strength in order to quell "fear for safety" anger. (Already implemented as change 500b, but currently disabled through an XML switch.)
++12. City garrisons need to have sufficient (defensive) combat strength in order to quell "fear for safety" anger. (Already implemented as change 500b, but currently disabled through an XML switch.)
+ 
+-14. Changes to finances:
++13. Changes to finances:
+ * Fold inflation into increased costs for units, civics and cities; i.e. pay for having a lot of stuff, not for the game turn number.
+ * Add a small gold cost to air missions and airlifting.
+ * Stronger impact of upkeep class on civic upkeep costs.
+ * Overhaul of trade route profit modifiers (rewarding trade between coastal cities, even if on the same continent) and the matching of partner cities.
+ 
+-15. A slight waste effect when a commerce slider is in an extreme position (akin to Alpha Centauri) or a small cost for adjusting a slider.
+\ No newline at end of file
++14. A slight waste effect when a commerce slider is in an extreme position (akin to Alpha Centauri) or a small cost for adjusting a slider.
+\ No newline at end of file
+
+[PATCH OMITTED] file=a/future gameplay changes/sources(ODT).zip b/future gameplay changes/sources(ODT).zip reason=binary/generated-file changedLines=0 bytes=240
+
+[PATCH OMITTED] file=a/future gameplay changes/stat changes.pdf b/future gameplay changes/stat changes.pdf reason=binary/generated-file changedLines=0 bytes=240
+
+[PATCH OMITTED] file=a/future gameplay changes/tech tree.pdf b/future gameplay changes/tech tree.pdf reason=binary/generated-file changedLines=0 bytes=228
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=1 omittedFiles=3 embeddedPatchBytes=4184

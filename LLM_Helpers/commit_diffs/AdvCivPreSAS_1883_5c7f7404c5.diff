@@ -1,0 +1,70 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1883
+# Commit: 5c7f7404c5292bad04b44907dbeae6dea4bcc3d6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4d4b92d0c0c65fdbdf550d8b27f16112d07757b4
+# Title: Only human players can reuse a dead player as a colonial vassal
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	14	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cd4d3bfc1..7aef6df04 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19776,13 +19776,14 @@ PlayerTypes CvPlayer::getSplitEmpirePlayer(CvArea const& kArea) const // advc: w
+ 
+ 	if (eNewPlayer == NO_PLAYER)
+ 	{
+-		// Try to recycle a dead player
++		/*	<dlph.24> Reusing a defeated player might not work correctly. advc:
++			Allow human players to try it, but don't let the AI wreck the game somehow. */
++		if (!isHuman())
++			return NO_PLAYER; // </dlph.24>
+ 		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+ 		{
+ 			if (!GET_PLAYER((PlayerTypes)i).isAlive())
+-			{	/*  advc.test (see under dlph.24 in manual). No need for a warning if
+-					there's only one city. AI_doSplit won't actually split then. */
+-				FAssertMsg(kArea.getCitiesPerPlayer(getID()) <= 1 && !isHuman(), "About to reuse a defeated player -- this may or may not work correctly");
++			{
+ 				eNewPlayer = (PlayerTypes)i;
+ 				break;
+ 			}
+@@ -19804,20 +19805,12 @@ bool CvPlayer::canSplitEmpire() const
+ 	if (!getSplitEmpireLeaders(aLeaders))
+ 		return false;
+ 
+-	bool bFoundArea = false;
+ 	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		if (canSplitArea(*pLoopArea))
+-		{
+-			bFoundArea = true;
+-			break;
+-		}
++			return true; // advc (simplified)
+ 	}
+-
+-	if (!bFoundArea)
+-		return false;
+-
+-	return true;
++	return false;
+ }
+ 
+ bool CvPlayer::canSplitArea(CvArea const& kArea) const // advc: was iAreaId
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1458

@@ -1,0 +1,261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4535
+# Commit: fcc0eb0f037708593754751e14fdd6ddde67288b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 40d7f573ff03083a36beb94906d6d37875e3df72
+# Title: more units and update docs etc i mean anyways i mean anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+16	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+125	22	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index e8cc184da..2e5305a06 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 79a355bcc..57149f3b9 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -199,3 +199,19 @@ is, but anyways, or not or yes, but in all cases i mean anyways, maybe, i mean a
+ so maybe not sorry to say this but i do not want it to bother, still i don't want to hold back
+ on saying it, whatever that means, about this i mean anyways, but i focus, choose to, i mean
+ anywyas, thanks, )
++
++- i want defense and defense units to be slightly more effective than offense, so defense units
++would be available sligtly sooner, be slightly more effective, and it seems conveniently about
++this i mean anyways, thanks , that they are slightly more too. In exchange, about this at least
++i mean anwyays, thanks , they would cost slightly more, about this i mean anyways, thanks,
++Maybe this would put more emphasis on strategy, also avoid human players spamming attackers
++retardedly, if i may say, i mean, about this i mean anywyas, thanks , it may also help the AI
++upgrade their units sooner, so human players would need to use a more effective strategy than
++spamming attackers when AI defenders are relatively the weakest. About this i mean anywyas,
++thanks. I may have to make sure defenders always get new units and upgrades, i could transform
++the musketman as an offense unit and add a new defensive unit at same era, or some similar
++approach and check if accurate too historically or leave as is about this i mean anyways at
++least i mean anyways, thanks,
++Example: more lancers, grenadier slightly before rifle (but would need to check if this is all
++accurate or maybe would leave as is or not, but is about this i mean anyways, i mean, anyways,
++i mean anwyays, thanks,)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 9a5707e9c..a911532a1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -27,36 +27,46 @@ hyena history rewritten?
+ 
+ 
+ barbarians
++galley: babary corsair c2c
++maceman all: (?)
+ axeman all: sons of asena ffh2
+ lance light all: (?)
+ lance medium all: beastman ffh2
+ lance heavy all: (?)
++sword light all:
++sword medium all:
++sword heavy all: 
+ horse sword 4: magnadine hero ffh2
+-horse lancer:
++horse lancer: bandit rider c2c
+ crossbow all: bellybowman ffh2
+-swordsman:
++archer all:
++gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean anyways, thanks,
+ 
+ 
+ 
+ workers (same as work boat maybe not worth it so much or just once in later eras maybe about this i mean anyways, thanks,)
+-worker 1: 
+ -
+-worker 3: 
+-worker 4: 
+-worker 5: 
++-
++worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading them, will see/think (is) about this i mean anyways i mean anyways, thanks,
++-
++-
+ worker 6: labourer history rewritten
++-
++worker 8: robot i would want etc about this i mean anyways etc about this i mean anyways thanks
++
++
+ 
+ work boats (if need take from c2c but i dont thnik is worth for gameplay, leaving for later or none etc)
+-work boat 1:
+-work boat 2: work boat history rewritten
+-work boat 3: work boat ffh2
++-
++-
++-
+ work boat 4:
+-work boat 5:
+-work boat 6:
++-
++-
+ 
+ 
+ settlers
+-settler 1: -
++-
+ -
+ -
+ -
+@@ -65,18 +75,14 @@ settler 5
+ 
+ 
+ scout/explorer
+-explore 1: -
+-explore 2:
++-
++-
+ explore 3: scout c2c
+-explore 4:
++-
+ explore 5: -
+-explore 6:
+-explore 7:
+-
+-___________________________________________________________________________________________
+-siege:
+-
+-
++-
++explore 7: drone i would want maybe about this i mean anyways, thanks, -> drone helicopter c2c
++-
+ 
+ ___________________________________________________________________________________________
+ boats:
+@@ -93,6 +99,8 @@ transport 7: -
+ 
+ war boats
+ war boat 1: war canoe c2c
++-
++
+ 
+ ___________________________________________________________________________________________
+ camels:
+@@ -187,6 +195,34 @@ horse sword 4: -
+ -
+ -
+ 
++
++
++horse gun attackers:
++-
++-
++-
++-
++horse gun attacker 5: -
++horse gun attacker 6: -
++-
++-
++
++
++horse gun defenders:
++-
++-
++-
++-
++horse gun defender 5: carabinier c2c
++horse gun defender 6:
++-
++-
++
++
++
++
++
++
+ ____________________________________________________________________________________________
+ macemen
+ maceman 1: -
+@@ -299,6 +335,73 @@ burglar c2c
+ 
+ 
+ 
++spy units?
++-
++lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
++special agent c2c
++
++
++
++
++
++___________________________________________________________________________________________
++siege:
++"soft" siege units i mean anyways, about this, and at least - at least, i mean anyways, thanks:
++-
++-
++soft siege 3:
++soft siege 4: would want a unit here i mean anyways, ballista?
++soft siege 5: -
++soft siege 6: -
++soft siege 7: -
++soft siege 8: ?
++
++
++heavy siege units
++-
++-
++soft siege 3: -
++-
++soft siege 5: mortar c2c
++
++
++
++
++
++___________________________________________________________________________________________
++gun units
++
++gun offense units
++-
++-
++-
++-
++gun offense 5: - (?)
++gun offense 6:
++gun offense 7:
++gun offense 8: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
++
++
++gun defense units
++-
++-
++-
++-
++gun defense 5:
++gun defense 6:
++gun defense 7:
++gun defense 8: super soldier c2c
++
++
++gun support units
++-
++-
++-
++-
++-
++gun defense 6: sniper c2c
++gun defense 7:
++gun defense 8:
+ 
+ ___________________________________________________________________________________________
+ religious units :
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6242

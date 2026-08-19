@@ -1,0 +1,344 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5043
+# Commit: 52cf753676ba24876c1193ab820413da68a19ad3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fcbb00dfcb72ce37854c941e2d83cf9d989a40e5
+# Title: performance optimizations anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/XML/Text/CIV4GameText_advc.xml
+5	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+4	1	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvDLLLogger.cpp
+18	4	CvGameCoreDLL/CvGame.cpp
+5	1	CvGameCoreDLL/CvGameTextMgr.cpp
+5	1	CvGameCoreDLL/CvMapGenerator.cpp
+11	3	CvGameCoreDLL/CvPlayer.cpp
+24	4	CvGameCoreDLL/CvPlayerAI.cpp
+5	1	CvGameCoreDLL/CvUnit.cpp
+3	1	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 054c2ce24..47540d8a6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1385,7 +1385,7 @@
+ 	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
+-		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed and i don't know entirely how but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting if i am not mistaken as well.</English>
++		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting if i am not mistaken as well.</English>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index fd40bd0d8..db730be0d 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -64,6 +64,10 @@ void AdvCiv4lert::check(bool bSilent)
+ // <advc.210a>
+ void WarTradeAlert::check()
+ {
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const bool bAlertOnNoLongerWarTrade = GC.getDefineBOOL("ALERT_ON_NO_LONGER_WAR_TRADE");
++
+ 	CvPlayer const& kOwner = GET_PLAYER(m_eOwner);
+ 	for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> itHireling(kOwner.getTeam());
+ 		itHireling.hasNext(); ++itHireling)
+@@ -103,7 +107,7 @@ void WarTradeAlert::check()
+ 				aeNoLongerTradeMsgTeams.push_back(kTarget.getID());
+ 		}
+ 		showMessage(kHireling.getID(), aeWillTradeMsgTeams, true);
+-		if (GC.getDefineBOOL("ALERT_ON_NO_LONGER_WAR_TRADE"))
++		if (bAlertOnNoLongerWarTrade)
+ 			showMessage(kHireling.getID(), aeNoLongerTradeMsgTeams, false);
+ 		if (!getUWAI().isEnabled() &&
+ 			bNowTooManyWars != m_tooManyWars.get(kHireling.getID()) &&
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f70e692d9..d78566a0e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -379,9 +379,12 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 	kPlot.setPlotCity(NULL);
+ 	kPlot.setRuinsName(getName()); // advc.005c
+ 
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bFloodPlainsAfterRaze = GC.getDefineBOOL("FLOODPLAIN_AFTER_RAZE");
++
+ 	// UNOFFICIAL_PATCH, replace floodplains after city is removed, 03/04/10, jdog5000: START
+ 	if (kPlot.getBonusType() == NO_BONUS &&
+-		GC.getDefineBOOL("FLOODPLAIN_AFTER_RAZE")) // advc.129b
++		bFloodPlainsAfterRaze) // advc.129b
+ 	{
+ 		FOR_EACH_ENUM(Feature)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 7be765d5f..4e0d4d269 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -130,6 +130,7 @@ void appendPercentage(std::ostringstream& os, wchar const* szLabel, int iAbsolut
+ 
+ void CvDLLLogger::logMapStats(bool bAfterNormalization)
+ {
++	// <!-- custom: i am not sure this is safe to static const so left as such, gain should be minimal as well but these are pure speculative guesses of mine//me if i may say but anyways etc as i don't know too much if at all about these in this case i mean but anyways etc, check if accurate anyways etc -->
+ 	if (!isEnabled() || !GC.getDefineBOOL("LOG_MAP_STATS"))
+ 		return;
+ 	std::ostringstream out;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a3dcdd739..0a97d6617 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -219,8 +219,12 @@ void CvGame::setInitialItems()
+ 	// Delay part of the freebies until starting sites have been assigned
+ 	initFreeCivState(); // </advc.tsl>
+ 	initFreeUnits();
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bIncreaseStartTurn = GC.getDefineBOOL("INCREASE_START_TURN");
++
+ 	// <advc.250c>
+-	if (GC.getDefineBOOL("INCREASE_START_TURN") && getStartEra() == 0)
++	if (bIncreaseStartTurn && getStartEra() == 0)
+ 	{
+ 		int iStartTurn = getStartTurn();
+ 		bool bAllHuman = (PlayerIter<HUMAN>::count() >= PlayerIter<CIV_ALIVE>::count());
+@@ -413,8 +417,12 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ 	gDLL->UI().setDirty(ColoredPlots_DIRTY_BIT, true);
+ 
+ 	cycleSelectionGroups_delayed(1, false);
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bShownDawnAfterRegen = GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN");
++
+ 	// <advc.004j>
+-	bool bShowDawn = (GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN") &&
++	bool bShowDawn = (bShownDawnAfterRegen &&
+ 			// Somehow doesn't work with Adv. Start; Dawn screen doesn't appear.
+ 			(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH)));
+ 	// </advc.004j>
+@@ -1710,7 +1718,10 @@ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eL
+ {
+ 	if (eLevel == NORMALIZE_DEFAULT)
+ 	{
+-		eLevel = (GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY") ?
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bNormalizeStartplotsAggressively = GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY");
++
++		eLevel = (bNormalizeStartplotsAggressively ?
+ 				NORMALIZE_HIGH : NORMALIZE_LOW);
+ 		if (eLevel == NORMALIZE_LOW && isGameMultiPlayer() &&
+ 			TeamIter<HUMAN>::count() > 1)
+@@ -9120,8 +9131,11 @@ void CvGame::read(FDataStreamBase* pStream)
+ 
+ 	if (isOption(GAMEOPTION_NEW_RANDOM_SEED))
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bIgnoreNewRandomSeedOption = GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION");
++
+ 		if (!isNetworkMultiPlayer() &&
+-			!GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION")) // advc
++			!bIgnoreNewRandomSeedOption) // advc
+ 		{
+ 			m_sorenRand.reseed(timeGetTime());
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 576a3619d..b0480dcdc 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16353,8 +16353,12 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 	CvGame const& kGame = GC.getGame();
+ 	CvWString szTempBuffer;
+ 	CvWStringBuffer szBreakdown; // advc.sha
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bShowHiddenAttitudeDefine = GC.getDefineBOOL("SHOW_HIDDEN_ATTITUDE");
++
+ 	// <advc.sha>
+-	bool bSHowHiddenAttitude = (GC.getDefineBOOL("SHOW_HIDDEN_ATTITUDE") ||
++	bool bSHowHiddenAttitude = (bShowHiddenAttitudeDefine ||
+ 			kGame.isDebugMode()); // </advc.sha>
+ 	// <advc.004q>
+ 	bool bObscurePersonality = (kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES) &&
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 374013633..a95341678 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -1096,8 +1096,12 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
+ 			if (kPlot.canHaveBonus(eBonus, bIgnoreLatitude))
+ 				iNumPossible++;
+ 		}
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bSublinearBonusQuantities = GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES");
++
+ 		// <advc.129>
+-		if (GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES"))
++		if (bSublinearBonusQuantities)
+ 		{
+ 			int iSubtrahend = kBonus.getTilesPer(); // Typically 16 or 32
+ 			// For normalization; don't want to place fewer resources in general.
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 78254c4af..dca2d888c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9393,8 +9393,12 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ 				addPopup(pInfo);
+ 			}
+ 		}
+-	} // <advc.106>
+-	if (GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY"))
++	}// <advc.106>
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bShowEnteredEraInReplay = GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY");
++
++	if (bShowEnteredEraInReplay)
+ 	{
+ 		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+ 		static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
+@@ -20170,7 +20174,11 @@ void CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission,
+ 			iY = pCapital->getY();
+ 		}
+ 	}
+-	if (GC.getDefineBOOL("ANNOUNCE_ESPIONAGE_REVOLUTION"))
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bAnnounceEspionageRevolution = GC.getDefineBOOL("ANNOUNCE_ESPIONAGE_REVOLUTION");
++
++	if (bAnnounceEspionageRevolution)
+ 	{
+ 		for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> it(TEAMID(eTarget)); it.hasNext(); ++it)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3d52801c2..8f5d14258 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25401,8 +25401,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 		iWeight = (bHuman ? iHumanWeight : kPersonality.getCultureVictoryWeight());
+ 		if (!kGame.culturalVictoryValid())
+ 			return false;
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bBBAIVictoryStrategyCulture = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CULTURE");
++
+ 		if (bCheckBBAIDefine && 
+-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CULTURE"))
++			!bBBAIVictoryStrategyCulture)
+ 		{
+ 			return false;
+ 		}
+@@ -25410,6 +25414,10 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	if (eVictory == kGame.getSpaceVictory())
+ 	{
+ 		iWeight = (bHuman ? iHumanWeight : kPersonality.getSpaceVictoryWeight());
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bBBAIVictoryStrategySpace = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_SPACE");
++
+ 		if (bCheckBBAIDefine &&
+ 			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_SPACE"))
+ 		{
+@@ -25419,8 +25427,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	if (kVictory.isConquest())
+ 	{
+ 		iWeight = (bHuman ? iHumanWeight : kPersonality.getConquestVictoryWeight());
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bBBAIVictoryStrategyConquest = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CONQUEST");
++
+ 		if (bCheckBBAIDefine &&
+-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CONQUEST"))
++			!bBBAIVictoryStrategyConquest)
+ 		{
+ 			return false;
+ 		}
+@@ -25428,8 +25440,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	if (eVictory == kGame.getDominationVictory())
+ 	{
+ 		iWeight = (bHuman ? iHumanWeight : kPersonality.getDominationVictoryWeight());
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bBBAIVictoryStrategyDomination = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DOMINATION");
++
+ 		if (bCheckBBAIDefine &&
+-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DOMINATION"))
++			!bBBAIVictoryStrategyDomination)
+ 		{
+ 			return false;
+ 		}
+@@ -25437,8 +25453,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 	if (kVictory.isDiploVote())
+ 	{
+ 		iWeight = (bHuman ? iHumanWeight : kPersonality.getDiplomacyVictoryWeight());
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bBBAIVictoryStrategyDiplomacy = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DIPLOMACY");
++
+ 		if (bCheckBBAIDefine &&
+-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DIPLOMACY"))
++			!bBBAIVictoryStrategyDiplomacy)
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 257f7e417..1bf1ea04a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -589,9 +589,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 		eCapturingPlayer != BARBARIAN_PLAYER)
+ 	{
+ 		CvPlayerAI& kCaptor = GET_PLAYER(eCapturingPlayer);
++
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const bool bAI_CAN_DISBAND_UNITS = GC.getDefineBOOL("AI_CAN_DISBAND_UNITS");
++
+ 		if (kCaptor.isHuman() ||
+ 			kCaptor.AI_captureUnit(eCaptureUnitType, kPlot) ||
+-			!GC.getDefineBOOL("AI_CAN_DISBAND_UNITS"))
++			!bAI_CAN_DISBAND_UNITS)
+ 		{
+ 			CvUnit* pCapturedUnit = kCaptor.initUnit(
+ 					eCaptureUnitType, kPlot.getX(), kPlot.getY());
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 50c670957..8d7707417 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -2379,9 +2379,11 @@ void UWAI::Team::showWarPlanAbandonedMsg(TeamTypes eTarget)
+ 
+ void UWAI::Team::showWarPlanMsg(TeamTypes eTarget, char const* szKey)
+ {
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bUWAI_SPECTATOR_ENABLED = GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED");
+ 
+ 	CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+-	if (!kActivePlayer.isSpectator() || !GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED"))
++	if (!kActivePlayer.isSpectator() || !bUWAI_SPECTATOR_ENABLED)
+ 		return;
+ 	CvWString szBuffer = gDLL->getText(szKey,
+ 			GET_TEAM(m_eAgent).getName().GetCString(),
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=15898

@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1094
+# Commit: c463b0d89baac8e4e4ae45afb44e3e97220a2f7f
+# History segment: K-Mod history
+# Parent used for diff: 5f74f660cce894e66d725da1cc4ba70dcd4bf506
+# Title: Fixed a bug in getLiberationPlayer
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5e5523a78..2cf455c44 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -15421,7 +15421,7 @@ PlayerTypes CvCity::getLiberationPlayer(bool bConquest) const
+ 
+ 		if (bConquest)
+ 		{
+-			if (iPlayer == getOriginalOwner())
++			if (ePlayer == getOriginalOwner())
+ 			{
+ 				iCultureTimes100 *= 3;
+ 				iCultureTimes100 /= 2;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=411

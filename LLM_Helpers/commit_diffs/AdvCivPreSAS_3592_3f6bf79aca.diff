@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3592
+# Commit: 3f6bf79acac20369d45be8e1787b278a8575eca3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 52444489ce05b3e143a06c8771cabe27ffc8680e
+# Title: A little more misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CityPlotIterator.h
+11	9	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/TrueStarts.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CityPlotIterator.h b/CvGameCoreDLL/CityPlotIterator.h
+index 3f626d701..382a96fc6 100644
+--- a/CvGameCoreDLL/CityPlotIterator.h
++++ b/CvGameCoreDLL/CityPlotIterator.h
+@@ -231,11 +231,11 @@ public:
+ class CityPlotRandIter : public CityPlotIterator<ANY_CITY_PLOT, true>
+ {
+ public:
+-	CityPlotRandIter(CvCity const& kCity, CvRandom& pRandom, bool bIncludeHomePlot) :
++	CityPlotRandIter(CvCity const& kCity, CvRandom& pRandom, bool bIncludeHomePlot = true) :
+ 		CityPlotIterator<ANY_CITY_PLOT, true>(kCity.getX(), kCity.getY(),
+ 		pRandom, bIncludeHomePlot) {}
+ 
+-	CityPlotRandIter(CvPlot const& kCenter, CvRandom& pRandom, bool bIncludeHomePlot) :
++	CityPlotRandIter(CvPlot const& kCenter, CvRandom& pRandom, bool bIncludeHomePlot = true) :
+ 		CityPlotIterator<ANY_CITY_PLOT, true>(kCenter.getX(), kCenter.getY(),
+ 		pRandom, bIncludeHomePlot) {}
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8dc5afde5..f0fefcf80 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1074,7 +1074,7 @@ int CvCity::countNumRiverPlots() const
+ int CvCity::findPopulationRank() const
+ {
+ 	if (m_bPopulationRankValid)
+-		return m_iPopulationRank; // advc
++		return m_iPopulationRank;
+ 
+ 	/*int iRank = 1;
+ 	FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner())) {
+@@ -1087,18 +1087,20 @@ int CvCity::findPopulationRank() const
+ 	m_iPopulationRank = iRank;*/ // BtS
+ 	// K-Mod. Set all ranks at the same time.
+ 	CvPlayer const& kPlayer = GET_PLAYER(getOwner());
+-	std::vector<std::pair<int, int> > city_scores;
++	std::vector<std::pair<int,int> > aiiCityScores;
+ 	FOR_EACH_CITY(pLoopCity, kPlayer)
+-		city_scores.push_back(std::make_pair(-pLoopCity->getPopulation(), pLoopCity->getID()));
++	{
++		aiiCityScores.push_back(std::make_pair(
++				-pLoopCity->getPopulation(), pLoopCity->getID()));
++	}
+ 	// note: we are sorting by minimum of _negative_ score, and then by min cityID.
+-	std::sort(city_scores.begin(), city_scores.end());
+-	FAssert(city_scores.size() == kPlayer.getNumCities());
+-	for (size_t i = 0; i < city_scores.size(); i++)
++	std::sort(aiiCityScores.begin(), aiiCityScores.end());
++	FAssert(aiiCityScores.size() == kPlayer.getNumCities());
++	for (size_t i = 0; i < aiiCityScores.size(); i++)
+ 	{
+-		CvCity* pLoopCity = kPlayer.getCity(city_scores[i].second);
+-		pLoopCity->m_iPopulationRank = i+1;
++		CvCity* pLoopCity = kPlayer.getCity(aiiCityScores[i].second);
++		pLoopCity->m_iPopulationRank = i + 1;
+ 		pLoopCity->m_bPopulationRankValid = true;
+-		// (It's strange that this is allowed. Aren't these values protected or something?)
+ 	}
+ 	FAssert(m_bPopulationRankValid);
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/TrueStarts.cpp b/CvGameCoreDLL/TrueStarts.cpp
+index 444aab1ec..b232c7d95 100644
+--- a/CvGameCoreDLL/TrueStarts.cpp
++++ b/CvGameCoreDLL/TrueStarts.cpp
+@@ -947,7 +947,7 @@ void TrueStarts::changeCivs()
+ 		/*	This XML setting wasn't intended for True Starts. A weight of 0
+ 			is supposed to result in no bias from the leader count. We can easily
+ 			do that. A weight of 100% is supposed to give every leader the same
+-			chance of getting chosen. We can't guarantee that, can only give use
++			chance of getting chosen. We can't guarantee that, can only use a
+ 			pretty strong bias in that case. */
+ 		scaled const rBiasStrength = fixp(4/3.) * (1 - SQR(rExtraWeight - 1));
+ 		FOR_EACH_ENUM(Civilization)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3371

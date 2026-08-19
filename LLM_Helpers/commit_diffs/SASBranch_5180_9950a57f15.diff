@@ -1,0 +1,256 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5180
+# Commit: 9950a57f159d2bd1efde80da9da95eb12e2f9aeb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: daa528a5571ef110a069fbb6da9b3e0d51be326f
+# Title: add the Great Person +n ICON information in City Screen in relevant Buildings' rows - **Beautified** and **Enhanced** the City Screen: added the **Great Pers...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	0	Assets/Python/Screens/CvMainInterface.py
+21	14	README.md
+12	11	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+12	11	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 9fdfbd62b..1ad3386fe 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5197,6 +5197,20 @@ class CvMainInterface:
+ 									gc.getYieldInfo(iYield).getChar())
+ 							szRightBuffer = szRightBuffer + szTempBuffer
+ 						self.yields.addBuilding(iYield, iChange) # BUG - Raw Yields
++
++					# <!-- custom: add the +1 great person icon in buildings list as it is handy to have and tedious to check everytime, with the help of gemini 3 pro thanks anyways etc. -->
++					# --- Start: Add Great Person Rate to Building List ---
++					iGPRate = gc.getBuildingInfo(iBuilding).getGreatPeopleRateChange()
++					if iGPRate > 0:
++						if not bFirst:
++							szRightBuffer = szRightBuffer + ", "
++						else:
++							bFirst = False
++						
++						# Add "+2 [GP Icon]"
++						szRightBuffer = szRightBuffer + u"+%d%c" % (iGPRate, CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
++					# --- End: Add Great Person Rate to Building List ---
++
+ 				# <advc.097> Gray out names of obsolete buildings
+ 				else:
+ 					szLeftBuffer = u"<color=%d,%d,%d,%d>%s</color>" %(
+
+diff --git a/README.md b/README.md
+index 7d0694e34..08cbd1131 100644
+--- a/README.md
++++ b/README.md
+@@ -24,10 +24,11 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
+ [Main Changes Guide](/README.md#main-changes-guide)  
+ [Custom Main Changes Guide](/README.md#custom-main-changes-guide)  
+-[UI (Advisors and related reworks)](/README.md#ui-advisors-and-related-reworks)  
++[UI (Ingame)](/README.md#ui-ingame)  
+ &emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
+-&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
++&emsp;[City Screen rework](/README.md#city-screen-rework)  
++&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
+ &emsp;[Extra notes specifically about the sevopedia leader's AI Personality Panel feature](/README.md#extra-notes-specifically-about-the-sevopedia-leaders-ai-personality-panel-feature)  
+@@ -125,7 +126,7 @@ You can view it here anyways etc [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/D
+ 
+ This is the original, extensive and verbose version of the main change from base AdvCiv 1.12 to AdvCiv-SAS. It should have the same entries as the Main Changes Guide, but be more verbose and less to the point. I'd recommend reading the above main changes guide rather, but if you want a more exhaustive or personal read of the changes i wrote, see: [README_Custom_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md) anyways etc.
+ 
+-## UI (Advisors and related reworks)
++## UI (Ingame)
+ 
+ ### Main Advisors reworks
+ 
+@@ -140,7 +141,21 @@ Some examples below:
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+ 
+-See for related and similar changes [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game).
++See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
++
++### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
++
++We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
++
++### City Screen rework
++
++Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering.
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
+ 
+ ### Untradeable techs (bTrade) display information
+ 
+@@ -151,17 +166,9 @@ For example we added the new this technology "Cannot be traded" and "Can be rese
+ 
+ See also for details:
+ 
+-- [README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)
++- [README_Main_Changes_Guide.md#technologies-non-exhaustive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)
+ - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+-- [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+-
+-### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
+-
+-We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks but anyways etc., icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such anyways etc. Also added a tooltip (on hover). See for details [KI#84](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc).
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG" alt="0.5132_willing_vassal_trade.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
++- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+ 
+ ## UI (Main Sevopedia reworks)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 896119c5c..96ff92252 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -14,8 +14,8 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Main Changes quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#main-changes-quick-starter-guide)  
+ &emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#translations)  
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#renaming-non-exhaustive)  
++&emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui-in-game)  
+ &emsp;[UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui-sevopedia-reworks--related)  
+-&emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui--in-game)  
+ &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#codeperformance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#48-civs-dll)  
+ &emsp;[AI general behaviour (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ai-general-behaviour-non-exhaustive-see-global-defines-and-ai-variables-and-such-xml-files-for-details)  
+@@ -104,6 +104,16 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - renamed "Cavalry" to "Dragoon" (was way too generic, era-aspecific, and old unit's name and art were inaccurate for target advciv-sas early-industrial tech tree time anyways etc)
+ - unit promotions have clearer names now too: for example Counter-Archer, counter Siege, Counter-Tank. Or another example is "City Bombard Damage" (instead of barrage). Numeric naming has been changed too for clarity and ease of read: for example "Combat III" is now "Combat 3" too.
+ 
++### UI (In-game)
++
++- disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
++- removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
++- add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- (Requires AdvCiv-SAS 5180+) **Beautified** and **Enhanced** the City Screen: added the **Great Person +n ICON** information in relevant Buildings' rows (handy to have and was tedious to check through hovering previously). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++
+ ### UI (Sevopedia reworks & related)
+ 
+ - for sevopedia new content and most reworks, see above in this readme or in more detail at [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)
+@@ -115,15 +125,6 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - added the "Cannot be traded" tooltip in sevopedia tech as well as the list of all untradeable techs in any untradeable tech's sevopedia tech entry. Also added the "Can be researched multiple times" tooltip. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ 
+-### UI / In-game
+-
+-- disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+-- removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+-- add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-
+ ## Code/Performance optimizations
+ 
+ - various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
+@@ -369,7 +370,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ 
+ - tech tree is vastly reordered for historical accuracy (for example pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly. Total number of techs is same as in base advciv +/- civ4 too (didn't check how it was in civ4 exactly i mean but i assume so if i am not mistaken but anyways etc), due to the few assessed as inefficient techs removed in advciv-sas, there are now enough techs so that advciv-sas can now have a future era with several / a few techs, all announced by default civ4 announcer with some swapping so that the quote and corresponding audio fits quite well if i may say and if i am not mistaken but anyways etc anyways etc anyways etc.
+ - some gameplay elements happen at different times, can resarch sooner, build culture sooner, slavery sooner, plantations sooner
+-- nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding new this technology "Cannot be traded" (`bTrade`) flags to some techs (in a quite limited/focused way anyways etc.), and in tech tree view (tech advisor) as well, in particular for decisive and potentially snowbally ones. Hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore (at least not for key or decisive ones anymore which is hopefully more balanced as such but anyways etc.), but maybe you can still profit a bit from tech trading if you want to play with tech trading enabled. Info added in UI: see [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui--in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
++- nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding new this technology "Cannot be traded" (`bTrade`) flags to some techs (in a quite limited/focused way anyways etc.), and in tech tree view (tech advisor) as well, in particular for decisive and potentially snowbally ones. Hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore (at least not for key or decisive ones anymore which is hopefully more balanced as such but anyways etc.), but maybe you can still profit a bit from tech trading if you want to play with tech trading enabled. Info added in UI: see [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#ui-in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have relatively fewer techs (except future era that has more techs) and unit types. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc. Note: the future era is the exception: it has it's own GPs anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 0beb773ce..56df85f8c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -593,7 +593,7 @@ see some screenshot(s) about this issue in this [google drive folder link](https
+ 
+ ## 15 - (now fixed) Missing this technology "Cannot be traded" (bTrade if i am not mistaken anyways etc) information in sevopedia tech and tech advisor anyways etc
+ 
+-Fixed missing this technology "Cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [UI (Advisors and related reworks)](/README.md#ui-advisors-and-related-reworks) for details anyways etc and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
++Fixed missing this technology "Cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [UI (Ingame)](/README.md#ui-ingame) for details anyways etc and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
+ 
+ See also [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category) for details or/and additional info anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 6612ecbca..0c8e03dcf 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -12,7 +12,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#main-changes--quick-starter-guide)  
+ &emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#translations)  
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#renaming-non-exhaustive)  
+-&emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game)  
++&emsp;[UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game)  
+ &emsp;[UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related)  
+ &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#codeperformance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#48-civs-dll)  
+@@ -99,6 +99,16 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
+ - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic (“Combat 3”).
+ 
++### UI (In-game)
++
++- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
++- removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
++- Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
++- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- (Requires AdvCiv-SAS 5180+) **Beautified** and **Enhanced** the City Screen: added the **Great Person +n ICON** information in relevant Buildings' rows (handy to have and was tedious to check through hovering previously). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++
+ ### UI (Sevopedia reworks & related)
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+@@ -108,15 +118,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+ - Sevopedia — Techs: added a "Cannot be traded" tooltip to relevant entries and added the list of all untradeable techs in any such entry. Also added a "Can be researched multiple times" tooltip. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ 
+-### UI / In-game
+-
+-- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+-- Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-
+ ### Code/Performance optimizations
+ 
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring; cached hot values via `static const`/hoisting; normalized inconsistent asset names), plus **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), plus **feature-level caching** (AI Personality Panel). See (examples; not exhaustive): [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+@@ -349,7 +350,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ - **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
+ - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
+-- **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **“Cannot be traded”** (`bTrade = 0`) to curb extreme tech-brokering/“tech whoreism” chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui--in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
++- **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **“Cannot be traded”** (`bTrade = 0`) to curb extreme tech-brokering/“tech whoreism” chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **Exponential pacing**: fewer late‑era techs and unit types to avoid a tedious endgame; the **Future** era is the exception and is expanded.
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+new file mode 100644
+index 000000000..a92149c10
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=46807

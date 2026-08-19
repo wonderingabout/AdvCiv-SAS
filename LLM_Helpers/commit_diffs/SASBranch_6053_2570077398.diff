@@ -1,0 +1,485 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6053
+# Commit: 257007739823540334a2a6892e261c30be8cdc8b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 86cb561452df1ecda413a0b293173b0d17e9db30
+# Title: (Fixed/Improved) AdvCiv-SAS peace logic could abandon profitable multi-wars and internally accept blocked victory-denial treaties (KI#65, KI#184)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	0	Assets/XML/GlobalDefines_advciv_sas.xml
+6	24	CvGameCoreDLL/CvDeal.cpp
+18	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+3	0	CvGameCoreDLL/CvPlayerAI.cpp
+127	25	CvGameCoreDLL/UWAIAgent.cpp
+3	3	CvGameCoreDLL/UWAIAgent.h
+6	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e6a189062..e50cebf85 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -3134,6 +3134,19 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: Combined effective enemy power required before AdvCiv-SAS forces emergency peace in a multi-front war. 100 means parity with our power. The extra-war threat define below raises the effective danger of splitting our army across more than two fronts; ordinary UWAI peace evaluation still applies below this emergency threshold. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD</DefineName>
++		<iDefineIntVal>160</iDefineIntVal>
++	</Define>
++	<!-- custom: Percent by which each major war beyond two increases the combined enemy-power threat used for emergency peace. At 25, three wars require more than 128% raw combined enemy power, four require more than about 107%, and five require more than about 91% to exceed the default 160 threshold. Because this multiplies actual enemy power instead of adding a fixed danger per rival, many nearly powerless enemies do not force peace. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index e300eeed6..d151ea3bb 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -106,23 +106,6 @@ namespace
+ 				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
+ 	}
+ 
+-	bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL)
+-	{
+-		static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+-		if (!bSASUWAIVictoryDenialEnable)
+-			return false;
+-		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
+-		int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
+-		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
+-		if (piVictoryCountdown != NULL)
+-			*piVictoryCountdown = iCountdown;
+-		if (piMaxVictoryStage != NULL)
+-			*piMaxVictoryStage = iMaxVictoryStage;
+-		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
+-		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+-		return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
+-	}
+-
+ 	bool isSASUWAIVictoryDenialPeaceDealBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam)
+ 	{
+ 		int iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage;
+@@ -317,6 +300,12 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
+ 		for peace deals, and I don't think AI_dealValue will work correctly when
+ 		no longer at war. */
+ 	bool const bMakingPeace = ::atWar(eFirstTeam, eSecondTeam);
++	bool const bSurrender = bMakingPeace && (isVassalTrade(kFirstList) || isVassalTrade(kSecondList));
++	// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard. Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals; later runs showed stage-4 and configured stage-3 Space threats also making peace before the disruption window.
++	// This safety guard formerly ran after the deal was logged and its trade value was processed. A fresh Pangaea diagnostic run therefore produced 57 ineffective treaty deals that AI_negotiatePeace reported as successful while the guard kept the teams at war.
++	// Reject non-surrender peace before logging or processing the bundle while either side remains a configured victory threat. UWAI now uses the shared threat test to avoid proposing the same blocked treaty through its ordinary peace path. (GPT-5.5 + GPT-5.6-Sol) -->
++	if (bMakingPeace && !bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
++		return;
+ 	bool bUpdateAttitude = false;
+ 	// advc.ctr:
+ 	bool const bAIRequest = (bPeaceTreaty && !bPeaceTreatyFromTrade && !bMakingPeace);
+@@ -353,13 +342,6 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
+ 			Note: the original code didn't bump units for vassal trades. This can
+ 			erroneously allow the vassal's units to stay in the master's land. */
+ 		// <advc.039>
+-		bool bSurrender = isVassalTrade(kFirstList) || isVassalTrade(kSecondList);
+-		// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard.
+-		// Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals, and a later run showed stage-4 anti-spaceship wars against Egypt ending before countdown started.
+-		// Save-file 450's Arabia branch and save-file 452's Churchill win showed that stage-3 Space near completion can also be dangerous before the final countdown.
+-		// Block non-surrender peace here, just before makePeace, while either side is still a countdown, stage-4, or configured stage-3 Space victory threat. (GPT-5.5) -->
+-		if (!bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
+-			return;
+ 		bool bDone = false;
+ 		if(!bSurrender && GC.getDefineBOOL(CvGlobals::ANNOUNCE_REPARATIONS))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 4c339ad7c..c24544da5 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -474,6 +474,24 @@ bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
+ 	return (iPartsBuilt * 100 >= getSASSpaceshipPartsRequired() * iStage3SpacePercentThreshold && getSASLeadingSpaceshipPartsBuilt() - iPartsBuilt <= iLeaderPartMargin);
+ }
+ 
++// <!-- custom: Victory-denial peace refusal was implemented only as a final CvDeal guard. A fresh Pangaea diagnostic run logged 57 negotiations that returned success although the guard kept the teams at war, causing repeated ineffective treaties. Share the exact threat test so UWAI can reject those negotiations before building a deal while CvDeal retains its safety net. (GPT-5.6-Sol) -->
++bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown, int* piMaxVictoryStage)
++{
++	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
++	if (!bSASUWAIVictoryDenialEnable)
++		return false;
++	static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
++	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
++	if (piVictoryCountdown != NULL)
++		*piVictoryCountdown = iCountdown;
++	if (piMaxVictoryStage != NULL)
++		*piMaxVictoryStage = iMaxVictoryStage;
++	static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
++	static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
++	return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
++}
++
+ int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam)
+ {
+ 	return getSASLeadingSpaceshipPartsBuilt() - getSASTeamSpaceshipPartsBuilt(eTeam);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index a12e347d6..b404a8014 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -130,6 +130,7 @@ int getSASSpaceshipPartsRequired();
+ int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
+ int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam);
+ bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. (GPT-5.5) -->
++bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL); // <!-- custom: Shared by UWAI peace decisions and CvDeal's final guard so blocked victory-denial treaties are rejected before negotiation instead of returning false success. (GPT-5.6-Sol) -->
+ 
+ int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3ce566902..658989451 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -871,6 +871,9 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ {
+ 	FAssert(!isHuman());
+ 	CvPlayerAI& kOther = GET_PLAYER(eOther);
++	// <!-- custom: UWAI now avoids ordinary peace with configured victory threats, but retain this shared pre-check for other AI peace callers. CvDeal still has the final safety guard for human and unusual trade paths. This fixed negotiations returning success for treaties that the final guard rejected. (GPT-5.6-Sol) -->
++	if (isSASUWAIVictoryDenialPeaceThreat(getTeam()) || isSASUWAIVictoryDenialPeaceThreat(kOther.getTeam()))
++		return false;
+ 	TechTypes eBestReceiveTech = NO_TECH;
+ 	TechTypes eBestGiveTech = NO_TECH;
+ 	int iReceiveGold = 0;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 68494b4d4..f73adbe00 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -487,12 +487,59 @@ bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
+ 				bScheme = false;
+ 		}
+ 		std::sort(aPlans.begin(), aPlans.end());
++		TeamTypes ePreferredEmergencyPeaceTarget = NO_TEAM;
++		int iPreferredEmergencyPeaceUtility = 0;
++		int iPreferredEmergencyPeaceReluctance = MIN_INT;
++		int const iMajorWars = kAgent.getNumWars(true, true);
++		int const iEnemyPowerPercent = (iMajorWars >= 2 ? kAgent.AI_getEnemyPowerPercent(true) : 0);
++		static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
++		static int const iExtraWarThreatPercent = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT");
++		int const iAdjustedEnemyPowerPercent = iEnemyPowerPercent * (100 + std::max(0, iMajorWars - 2) * iExtraWarThreatPercent) / 100;
++		bool const bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
++		if (bEmergencyPeaceMode)
++		{
++			bool const bAgentVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(kAgent.getID());
++			TeamTypes eLowestUtilityTarget = NO_TEAM;
++			int iLowestUtility = 0;
++			for (size_t i = 0; i < aPlans.size(); i++)
++			{
++				TeamTypes const eTarget = aPlans[i].eTarget;
++				if (!kAgent.isAtWar(eTarget) || !kAgent.canChangeWarPeace(eTarget))
++					continue;
++				// <!-- custom: Capitulation remains possible, but ordinary peace is intentionally unavailable while either side is a configured victory threat. Skip those wars when choosing where the emergency peace override can actually help. (GPT-5.6-Sol) -->
++				if (bAgentVictoryThreat || isSASUWAIVictoryDenialPeaceThreat(eTarget))
++					continue;
++				if (eLowestUtilityTarget == NO_TEAM)
++				{
++					eLowestUtilityTarget = eTarget;
++					iLowestUtility = aPlans[i].iU;
++					// <!-- custom: A newly declared dangerous war cannot negotiate immediately. Preserve the other wars briefly so the AI first tries the preferred opponent instead of abandoning an easy conquest on the declaration turn. (GPT-5.6-Sol) -->
++					if (kAgent.AI_getAtWarCounter(eTarget) <= 2)
++						break;
++				}
++				int const iReluctance = GET_TEAM(eTarget).uwai().reluctanceToPeace(kAgent.getID(), false);
++				if (iReluctance > iMaxReparationUtility)
++					continue;
++				ePreferredEmergencyPeaceTarget = eTarget;
++				iPreferredEmergencyPeaceUtility = aPlans[i].iU;
++				iPreferredEmergencyPeaceReluctance = iReluctance;
++				break;
++			}
++			if (ePreferredEmergencyPeaceTarget == NO_TEAM && eLowestUtilityTarget != NO_TEAM && kAgent.AI_getAtWarCounter(eLowestUtilityTarget) <= 2)
++			{
++				ePreferredEmergencyPeaceTarget = eLowestUtilityTarget;
++				iPreferredEmergencyPeaceUtility = iLowestUtility;
++				iPreferredEmergencyPeaceReluctance = MIN_INT;
++			}
++			if (gWarLogLevel >= 1) logBBAI("WAR_EMERGENCY_PEACE_TARGET turn=%d background=%d agentTeam=%d preferredTarget=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d preferredUtility=%d preferredReluctance=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), ePreferredEmergencyPeaceTarget, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, iPreferredEmergencyPeaceUtility, iPreferredEmergencyPeaceReluctance);
++		}
+ 		bPlanChanged = false;
+ 
+ 		for (size_t i = 0; i < aPlans.size(); i++)
+ 		{
+-			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU,
+-					aPlans[i].iPrepTurns, aPlans[i].bNaval);
++			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU, aPlans[i].iPrepTurns, aPlans[i].bNaval,
++					iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget, iPreferredEmergencyPeaceReluctance);
+ 			if (bPlanChanged)
+ 			{
+ 				aeChangedTargets.insert(aPlans[i].eTarget);
+@@ -617,8 +664,8 @@ void UWAI::Team::alignAreaAI(bool bNaval)
+ }
+ 
+ 
+-// <!-- custom: Added bNaval so a reviewed preparation retains the initial target evaluation's land/naval restriction when checking whether victory denial justifies immediate war. (GPT-5.6-Sol) -->
+-bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval)
++// <!-- custom: Added bNaval so a reviewed preparation retains the initial target evaluation's land/naval restriction when checking whether victory denial justifies immediate war. Added the emergency-peace measurements, preferred target and cached reluctance so multi-war danger is computed once and first seeks feasible peace in the least valuable war instead of forcing peace against every opponent. (GPT-5.6-Sol) -->
++bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+@@ -632,7 +679,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
+ 	if (bAtWar)
+ 	{
+ 		FAssert(eWP != WARPLAN_PREPARING_LIMITED && eWP != WARPLAN_PREPARING_TOTAL);
+-		if (!considerPeace(eTarget, iU))
++		if (!considerPeace(eTarget, iU, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget, iPreferredEmergencyPeaceReluctance))
+ 			return false;
+ 		considerPlanTypeChange(eTarget, iU);
+ 		/*  Changing between attacked_recent, limited and total is unlikely
+@@ -750,7 +797,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
+ }
+ 
+ 
+-bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
++bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	int const iInitialU = iU;
+@@ -776,17 +823,43 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
+ 	//
+ 	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates")
+-	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
++	// const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
+ 
+ 	// Combined enemy power vs us (100 = parity)
+-	const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
++	// const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
+ 
+ 	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace which would be bit boring too if i may say or waste potential) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd so treat it as an emergency) -->
+-	const bool bEmergencyPeace = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
+-	// <!-- custom: Save files 450 and 452 showed 25 of 44 completed wars ending after only two turns, often after the attacker captured just one city or none. Log the inherited UWAI peace valuation and our KI#65 emergency override together so we can distinguish rational retreats from premature peace that lets a weak rival survive and recover. (GPT-5.6-Sol) -->
+-	if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d attitude=%d attitudeValue=%d",
+-			GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace,
+-			kAgent.getPower(true), kTarget.getDefensivePower(kAgent.getID()), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(eTarget).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
++	// const bool bEmergencyPeaceMode = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
++	// <!-- custom: KI#65's SAS rule treated any three wars as an emergency, so save-file 450 Carthage abandoned a four-turn war against two-city Holy Rome despite having 16 cities and all three enemies together contributing only 70% effective power. Multiply actual combined enemy power by a tunable pressure for each front beyond two instead: several meaningful enemies remain dangerous, but any number of nearly powerless enemies cannot force peace. The values were computed once in reviewWarPlans and passed through reviewPlan. (GPT-5.6-Sol) -->
++	static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
++	const bool bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
++	// <!-- custom: The old KI#65 override applied independently to every war. Fresh Pangaea runs showed Arabia abandoning a profitable war against a 34%-power rival and Shaka making peace with a one-city 16%-power rival because a more dangerous new enemy had appeared.
++	// reviewWarPlans already sorts wars from lowest to highest continuation utility. After briefly giving a new preferred war time to become negotiable, force emergency peace only for the lowest-utility opponent willing to accept and preserve the better wars; if peace succeeds, the repeated review recalculates whether another emergency remains. (GPT-5.6-Sol) -->
++	const bool bEmergencyPeace = (bEmergencyPeaceMode && eTarget == ePreferredEmergencyPeaceTarget);
++	// <!-- custom: Save files 450 and 452 showed 25 of 44 completed wars ending after only two turns, often after the attacker captured just one city or none. Log the inherited UWAI peace valuation and our KI#65 emergency override together so we can distinguish rational retreats from premature peace that lets a weak rival survive and recover.
++	// Target thinness, simultaneous enemies and army location also show whether continuing can exploit a weak/distracted rival or would merely prolong a stalemate. Keep the unit scan inside the level-2 gate. (GPT-5.6-Sol) -->
++	if (gWarLogLevel >= 2)
++	{
++		const int iOurPower = std::max(1, kAgent.getPower(true));
++		const int iTargetTotalPower = kTarget.getPower(true);
++		const int iTargetDefensivePower = kTarget.getDefensivePower(kAgent.getID());
++		const int iOurCities = kAgent.getNumCities();
++		const int iTargetCities = kTarget.getNumCities();
++		const int iOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
++		const int iTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
++		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
++		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
++		logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d emergencyPeaceMode=%d preferredEmergencyPeaceTarget=%d emergencyPeace=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWarSuccess=%d targetWarSuccess=%d warSuccessDelta=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d nearestCityDistance=%d attitude=%d attitudeValue=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, bEmergencyPeaceMode, ePreferredEmergencyPeaceTarget, bEmergencyPeace,
++				iOurPower, iTargetTotalPower, iTargetDefensivePower, (100 * iTargetDefensivePower) / iOurPower, iOurCities, iTargetCities, (100 * iOurPower) / std::max(1, iOurCities), (100 * iTargetTotalPower) / std::max(1, iTargetCities), iOurWarSuccess, iTargetWarSuccess, iOurWarSuccess - iTargetWarSuccess, kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
++	}
++	if (bEmergencyPeaceMode && ePreferredEmergencyPeaceTarget != NO_TEAM && !bEmergencyPeace)
++	{
++		m_pReport->log("Preserving this war while emergency peace is sought against the lower-utility target");
++		if (gWarLogLevel >= 1) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeaceMode=1 preferredEmergencyPeaceTarget=%d sought=0 reason=preserve_better_war",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget);
++		return true;
++	}
+ 
+ 	if (bEmergencyPeace)
+ 	{
+@@ -860,10 +933,20 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
+ 		return true; // Can't contact them for capitulation either
+ 	}
+-	scaled rPeaceProb;
++	scaled rPeaceProb = 0;
+ 	bool bOfferPeace = true;
+-	int iTheirReluct = MIN_INT; // Costly, don't compute this sooner than necessary.
+-	if (bHuman)
++	// <!-- custom: Emergency selection already had to compute the preferred target's costly willingness to negotiate; reuse it here instead of evaluating the same peace twice. (GPT-5.6-Sol) -->
++	int iTheirReluct = (bEmergencyPeace ? iPreferredEmergencyPeaceReluctance : MIN_INT);
++	// <!-- custom: CvDeal's final victory-denial guard formerly rejected the treaty after AI_negotiatePeace returned success, so UWAI repeated an ineffective peace deal every turn. Skip ordinary peace here while retaining the later capitulation check; surrender is intentionally exempt from victory-denial refusal. (GPT-5.6-Sol) -->
++	bool const bVictoryDenialPeaceBlocked = (isSASUWAIVictoryDenialPeaceThreat(kAgent.getID()) || isSASUWAIVictoryDenialPeaceThreat(eTarget));
++	if (bVictoryDenialPeaceBlocked)
++	{
++		bOfferPeace = false;
++		m_pReport->log("Ordinary peace blocked while either side remains a configured victory threat");
++		if (gWarLogLevel >= 1) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=victory_denial_treaty_blocked",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
++	}
++	else if (bHuman)
+ 	{
+ 		int const iContactDelay = kAgentPlayer.
+ 				AI_getContactTimer(kTargetPlayer.getID(), CONTACT_PEACE_TREATY);
+@@ -894,7 +977,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 				and wouldn't matter b/c we don't speed-adjust peace rolls.) */
+ 			rPeaceProb = scaled(1, iContactRand); // 5 to 10%
+ 			// Adjust probability based on whether peace looks like win-win or zero-sum
+-			iTheirReluct = kTarget.uwai().reluctanceToPeace(kAgent.getID(), false);
++			if (iTheirReluct == MIN_INT)
++				iTheirReluct = kTarget.uwai().reluctanceToPeace(kAgent.getID(), false);
+ 			scaled rWinWinFactor = scaled(iTheirReluct + iU, -15);
+ 			if (rWinWinFactor < 0)
+ 			{
+@@ -917,7 +1001,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	}
+ 
+ 	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also known issue as of now 65 for details -->
+-	if (bEmergencyPeace)
++	if (bEmergencyPeace && bOfferPeace)
+ 	{
+ 		rPeaceProb = fixp(1); // 100%
+ 	}
+@@ -927,8 +1011,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 		m_pReport->log("Probability for peace negotiation: %d percent",
+ 				rPeaceProb.getPercent());
+ 		bool const bRandomlySkipped = SyncRandSuccess(1 - rPeaceProb);
+-		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
+-				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
++		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
+ 		if (bRandomlySkipped)
+ 		{
+ 			m_pReport->log("Peace negotiation randomly skipped");
+@@ -981,6 +1065,23 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 						iTradeVal);
+ 			}
+ 			bool bPeace = false;
++			// <!-- custom: AI_negotiatePeace clears the war plan, counter and war-success state when peace succeeds. Cache the pre-negotiation values so the result row describes the decision that ended the war instead of logging reset zeros.
++			// A fresh Pangaea diagnostic run also showed that the victory-denial deal guard can reject a treaty after AI_negotiatePeace returns true. Log the post-call war state separately so blocked treaties are not mistaken for completed peace. (GPT-5.6-Sol) -->
++			WarPlanTypes eLoggedWarPlan = NO_WARPLAN;
++			int iLoggedAtWarCounter = -1, iLoggedOurPower = -1, iLoggedTargetDefensivePower = -1, iLoggedTargetPowerPercent = -1;
++			int iLoggedOurCities = -1, iLoggedTargetCities = -1, iLoggedOurWarSuccess = -1, iLoggedTargetWarSuccess = -1;
++			if (gWarLogLevel >= 1)
++			{
++				eLoggedWarPlan = kAgent.AI_getWarPlan(eTarget);
++				iLoggedAtWarCounter = kAgent.AI_getAtWarCounter(eTarget);
++				iLoggedOurPower = std::max(1, kAgent.getPower(true));
++				iLoggedTargetDefensivePower = kTarget.getDefensivePower(kAgent.getID());
++				iLoggedTargetPowerPercent = (100 * iLoggedTargetDefensivePower) / iLoggedOurPower;
++				iLoggedOurCities = kAgent.getNumCities();
++				iLoggedTargetCities = kTarget.getNumCities();
++				iLoggedOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
++				iLoggedTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
++			}
+ 			if (!isInBackground())
+ 			{
+ 				bPeace = kAgentPlayer.AI_negotiatePeace(kTargetPlayer.getID(),
+@@ -993,16 +1094,17 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 				else m_pReport->log("Failed to find a peace offer");
+ 			}
+ 			else m_pReport->log("Peace negotiation %s", (bPeace ? "succeeded" : "failed"));
+-			if (gWarLogLevel >= 2 || (bPeace && gWarLogLevel >= 1)) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d tradeValue=%d demandValue=%d succeeded=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d",
+-					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility, iTradeVal, iDemandVal, bPeace,
+-					kAgent.getPower(true), kTarget.getDefensivePower(kAgent.getID()), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(eTarget).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round());
++			bool const bWarEnded = !kAgent.isAtWar(eTarget);
++			if (gWarLogLevel >= 2 || (bPeace && gWarLogLevel >= 1)) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d tradeValue=%d demandValue=%d negotiationReturnedSuccess=%d warEnded=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eLoggedWarPlan), iInitialU, iU, rPeaceThresh.round(), iLoggedAtWarCounter, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility, iTradeVal, iDemandVal, bPeace,
++					bWarEnded, iLoggedOurPower, iLoggedTargetDefensivePower, iLoggedTargetPowerPercent, iLoggedOurCities, iLoggedTargetCities, iLoggedOurWarSuccess, iLoggedTargetWarSuccess);
+ 			return !bPeace;
+ 		}
+ 		else
+ 		{
+ 			m_pReport->log("No peace negotiation attempted; they're too reluctant");
+-			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d succeeded=0 reason=target_reluctant",
+-					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility);
++			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d negotiationReturnedSuccess=0 warEnded=0 reason=target_reluctant",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility);
+ 		}
+ 	}
+ 	if (considerCapitulation(eTarget, iU, iTheirReluct))
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index d8f3ca9d4..f05e59b92 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -98,10 +98,10 @@ private:
+ 	bool reviewWarPlans(std::set<TeamTypes>& aeChangedTargets);
+ 	/*	Review plan vs. eTarget. Returns true if plan continues unchanged,
+ 		false if any change (abandoned, peace made, target changed). */
+-	// <!-- custom: Added bNaval so reviewing an existing preparation uses the same land/naval victory-denial direct-war gate as its initial target evaluation. (GPT-5.6-Sol) -->
+-	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval);
++	// <!-- custom: Added bNaval so reviewing an existing preparation uses the same land/naval victory-denial direct-war gate as its initial target evaluation. Added the emergency-peace measurements, preferred target and cached reluctance so multi-war danger is computed once and first seeks feasible peace in the least valuable war instead of forcing peace against every opponent. (GPT-5.6-Sol) -->
++	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance);
+ 	// All these return true if the war plan remains unchanged, false otherwise.
+-	bool considerPeace(TeamTypes eTarget, int iU);
++	bool considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance); // <!-- custom: See reviewPlan: only the preferred feasible current war receives the emergency override. (GPT-5.6-Sol) -->
+ 	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace);
+ 	bool tryFindingMaster(TeamTypes eEnemy);
+ 	bool considerPlanTypeChange(TeamTypes eTarget, int iU);
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 3eec54795..58326183a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -2825,6 +2825,10 @@ It seems not important anymore or urgent to fix the cause (religious dogpile) as
+ 
+ As for this change of seemingly much better"emergency peace" prechecks, AI should be much stronger as well thanks to these hopefully and possibly be better at keeping its lead while still keeping the ability to bully the weak (i.e. many weak players) in multi wars for its interest (e.g. shortly before turn 200 hastsheput ai goes at it again and declares war on pacal 2 ai who was dying anyway and who is nearby so nice gain for her and safe as well).
+ 
++**Update:** Save-file 450 BBAI testing showed the original AdvCiv-SAS emergency override was too broad. It could force peace against every opponent and treated any three wars as an emergency even when all enemies together contributed only 70% effective power. It now selects only the lowest-value war whose opponent will negotiate, preserving better wars, and compares a tunable adjusted danger score against the existing 160% threshold. Each front beyond two raises actual combined enemy power by 25%, so numerous nearly powerless enemies cannot cause panic peace.
++
++The confirming run showed Sumer continue safely at three to four wars while capturing Ecbatana, Memphis, Boston, Thebes, and Baghdad. Only when a fourth front raised its 126% raw combined enemy power to 189% adjusted danger did it end one lower-value war, then it retained the others. This preserves KI#65's protection against real dogpiles without surrendering profitable wars merely because of their count.
++
+ ## 66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13hSTVD9mOWRkaCnS3Z21s-8tbYaBr3Sf?usp=sharing).
+@@ -6846,6 +6850,8 @@ The same final run was therefore the after-fix Lincoln branch, not a Lincoln win
+ 
+ Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+ 
++**Update:** A later diagnostic run found 57 peace deals that `AI_negotiatePeace` reported as successful even though the final AdvCiv-SAS victory-denial guard kept the teams at war. The guard ran after deal logging and trade-value processing, so UWAI could repeatedly propose an ineffective treaty after already clearing its war state. The shared victory-threat check now blocks ordinary peace earlier in UWAI, `AI_negotiatePeace`, and final deal processing while leaving capitulation available. Confirming runs recorded zero false peace successes.
++
+ ## 184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sbQXIw23MagHuJcdzoCugLR8iX2_cMp4?usp=sharing).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index be4e10664..edff5d3a4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -184,6 +184,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ Note 2: AI victory stages are internal AI strategy markers per victory route (`AI_VICTORY_*1` to `AI_VICTORY_*4`); stage 4 means a late/near-completion push. A victory countdown means the AI has an active turns-to-win estimate/launch countdown. UWAI war preparation means the AI has selected `WARPLAN_PREPARING_*` rather than declaring immediately; this can be too slow when a rival is close to winning.
+ 
+ - (Requires AdvCiv-SAS 6038+) **AI victory denial is much more urgent:** BBAI testing in save file 450 showed a deep UWAI issue that UWAI could let a rival close to winning survive too easily: in the Lincoln runs, Lincoln was very weak militarily (~0.7 military power) but still won Space despite much stronger nearby AIs (up to ~2.1) and no war declared on him in the checked late-game snapshots (`wars=-` at T260, T270, T280, T290, then wins Space at T292); in the Ramesses runs, Ramesses was militarily strong (top 2 at ~1.9 vs ~2.1 for top 1) and likewise won Space without being at war in the checked late-game snapshots either (`wars=-` at T260, T270, T280, then wins Space at T290). After fixing the missing-war response, follow-up tests exposed additional failure modes: war could start too late, start but end after 1-2 turns through ordinary peace deals, or happen without enough impact. The decisive checks in this fix are now therefore low-level enough, because higher-level targeted patches did not reliably solve the observed chain of failures (similar in spirit to the AdvCiv-SAS scrapping or `AI_chooseUnit` final guards): in `UWAI::Team::scheme` and related functions. The fix now boosts war utility for stage-4/countdown victory threats, can convert that into direct war when the target is weak and near enough, and refuses ordinary peace while the target remains a serious victory threat. In the final Lincoln-branch retest, Lincoln was weak at T260 as usual (4 cities / 55 military units / 1818 power), but this time Persia, Egypt, France, and Babylon declared at T267-T269, peace was blocked, and America was eliminated at T272. In the separate Ramesses-branch retest, strong Ramesses still survived, but was no longer ignored: he lost 2 cities, 49 city-population points, 28 total units / 30 military units, and about a quarter of his power from T260 to T290. The direct-war gates stay intentionally narrow so distant or naval-heavy threats can receive utility pressure without forcing reckless cross-map attacks. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
++- (Requires AdvCiv-SAS 6053+) Update: Follow-up diagnostics found 57 cases in which an AI tried to make ordinary peace with a rival close to victory. The earlier AdvCiv-SAS fix kept the war active as intended, but didn't take into account that UWAI had already accepted the peace treaty internally even though the teams remained at war: the SAS rejection was too late in the process. To fix this, these treaties are now rejected before UWAI processes them, so its decisions and logs correctly show that the war continues; capitulation remains available, and confirming runs had zero false peace successes. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ - (Requires AdvCiv-SAS 6039+) **Space victory denial now starts before the final launch window when parts are already high:** After KI#184 made AIs react faster and harder to immediate Space-win threats, BBAI follow-up logs showed that some Space rivals were sometimes still too close to winning before the countdown response began. In save file 450, Arabia still won because its recent war with Hannibal, the strongest nearby threat, had ended in normal Civ4 forced peace, temporarily preventing Hannibal from immediately restarting the war; by the time another anti-Space war could happen, Arabia was already at countdown 4. Save file 452 showed why this was not only a forced-peace edge case: Churchill's fast Space race was already dangerous while still pre-countdown / stage 3, so the KI#184 countdown/stage-4 response had not yet become strong enough. So Stage-3 Space leaders now also receive earlier utility pressure, direct-war consideration, and peace refusal once their spaceship is sufficiently complete and they are close enough to the spaceship-parts leader. In save file 452, Churchill still won, but was attacked around the 8/16-parts point and lost Oxford next turn; in save file 450, the Ramesses branch won, but likewise triggered wars and peace blocking at 8/16 parts, with later direct wars and cities changing hands. This is meant to start real pressure before the countdown, not to dogpile every Apollo builder. See [KI#184.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown).
+ - **Cultural-victory AI is viability and bottleneck-focused:** The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory. Even the early preparation stage could then raise culture priorities in every city. As a result, the AI could spend production, specialists, and commerce on cities culturally ranked lower than the cultural-victory target group (i.e., the top 3 cities that must reach Legendary culture), on a target city already much closer to Legendary than another target city, or even on a city that had already become Legendary. This was inefficient and could leave the AI dangerously underinvested in stronger economic, scientific, or military priorities. To address these issues, the AI no longer treats its culture slider alone as a cultural-victory commitment, and early preparation no longer raises culture priority throughout the empire. Before serious cultural victory pursuit begins, at least 2 of the 3 target cities must now each have already accumulated a tunable share of the Legendary requirement (10% by default), and the AI must rank among the configured number of leading cultural contenders (No point pursuing culture if we won't win culturally anyway). Once committed, only the target cities receive victory-specific culture weight, shifted toward the city projected to take longest (no point having a city have 70% legendary culture and another 10% legendary culture only, as several legendary cities are required to win culturally, so have the spread be more even); a city that is already Legendary keeps only independent local-border value. Converting production to culture remains available for first-ring expansion and strongly contested borders, but otherwise only to active target cities.
+ - **Hopeless late cultural pursuits are abandoned:** The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes. The AI now returns to preparation when its maximum affordable culture-slider projection misses the estimated deadline beyond the tunable grace or falls too far behind competing cultural contenders, freeing resources for stronger victory routes.
+@@ -273,6 +274,7 @@ Note: Most, if not all, diplomacy AI changes apply both to **AI–AI** and **AI
+ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by improving cooperation between masters and vassals, rather than simply over-boosting one party. The aim is that, in many cases, they also benefit vassals (or at least do not clearly reduce their own chances of winning) while being in the master's interest, since a stronger vassal is more likely to be useful.
+ 
+ - **Multi-war threat management — "emergency peace" pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp)**.
++- (Requires AdvCiv-SAS 6053+) Update: Later BBAI testing showed that the original AdvCiv-SAS rule treated any 3 wars as an emergency and tried to make peace with every opponent, which was good against strong coalitions, but bad and needlessly cautious when their combined power was, for example, only 70% of the AI's power and it could safely fight them all. So instead of a blunt total max wars formula, the AI now tries to end a war only when the combined power of its enemies is dangerous (a tunable gradual increase as of now of 25% for every simultaneous war beyond 2 wars because the more enemies there are the harder and riskier it is: for example, 4 enemies with 120% combined power count as 180% power). When peace is needed, the AI first approaches the opponent whose war is least valuable to continue. In the confirming run, Sumer safely continued 3 to 4 wars when their combined power was weak and captured five cities, then ended one war when 126% combined enemy power became 189% adjusted danger. See [KI#65](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp).
+ - **Tribute/counter-propose consistency fix for pure Vassal/Surrender offers:** base AdvCiv/BtS diplomacy would **reject** direct **Tribute/Demand** ("Not bloody likely"), yet clicking **"What do you want in exchange?"** would **accept** for the same demand (with nothing extra). So players had to do an unnecessary extra click to get the same vassal result. Fixed by making `CvPlayerAI::AI_considerOffer` accept this exact pure one-item vassal/surrender demand directly, and by making [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) not remember this narrow accepted case as a tribute demand memory (because this is rather a UI consistency fix). See [KI#108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added).
+ - **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI<->AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but)**.
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=54688

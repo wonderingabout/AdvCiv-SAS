@@ -1,0 +1,235 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 128
+# Commit: 90493be308dda987b6388189ffe87099c782a867
+# History segment: K-Mod history
+# Parent used for diff: 8809c09d8b80aec4724a44714b5749c4b04bf8a3
+# Title: Rewrote the code for prioritizing great person missions, so that all possible value orderings are considered correctly. The AI will now always check its civi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvPlayerAI.cpp
+89	56	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f570f7f67..9ce7f032b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14212,7 +14212,10 @@ void CvPlayerAI::AI_doCivics()
+ 	if (AI_getCivicTimer() > 0)
+ 	{
+ 		AI_changeCivicTimer(-1);
+-		return;
++		if (getGoldenAgeTurns() != 1) // K-Mod. If its the last turn of a golden age, consider switching civics anyway.
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (!canRevolution(NULL))
+@@ -14220,7 +14223,7 @@ void CvPlayerAI::AI_doCivics()
+ 		return;
+ 	}
+ 
+-	FAssertMsg(AI_getCivicTimer() == 0, "AI Civic timer is expected to be 0");
++	// FAssertMsg(AI_getCivicTimer() == 0, "AI Civic timer is expected to be 0"); // Disabled by K-Mod
+ 
+ 	CivicTypes* paeBestCivic = new CivicTypes[GC.getNumCivicOptionInfos()];
+ 	int* paiCurrentValue = new int[GC.getNumCivicOptionInfos()];
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c34f87ba7..abff837e5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5297,7 +5297,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	int iFirstDiscoverValue = iDiscoverValue;
+ 	iFirstDiscoverValue *= (200 - GC.getLeaderHeadInfo(kPlayer.getPersonalityType()).getTechTradeKnownPercent());
+ 	iFirstDiscoverValue /= std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+-	iFirstDiscoverValue *= 130;
++	iFirstDiscoverValue *= 150;
+ 	iFirstDiscoverValue /= std::max(1, GET_TEAM(getTeam()).getBestKnownTechScorePercent()); // twice, because this is important
+ 
+ 	// SlowValue is meant to be a rough estimation of how much value we'll get from doing the best join / build mission.
+@@ -5316,82 +5316,115 @@ bool CvUnitAI::AI_greatPersonMove()
+ 
+ 	CvPlot* pBestTradePlot;
+ 	int iTradeValue = AI_tradeMissionValue(pBestTradePlot, iDiscoverValue / 2);
++	// make it roughly comparable to research points
+ 	iTradeValue *= kPlayer.AI_commerceWeight(COMMERCE_GOLD);
+ 	iTradeValue /= 100;
++	iTradeValue *= kPlayer.AI_averageCommerceMultiplier(COMMERCE_RESEARCH);
++	iTradeValue /= kPlayer.AI_averageCommerceMultiplier(COMMERCE_GOLD);
++	// and unlike bulb beckers, gold can be targeted where it is needed
++	iTradeValue *= 130;
++	iTradeValue /= 100;
+ 	iTradeValue *= (75 + kPlayer.AI_getStrategyRand(9) % 51);
+ 	iTradeValue /= 100;
+ 
+-	if (iSlowValue < iFirstDiscoverValue)
+-	{
+-		if (iTradeValue < iFirstDiscoverValue && AI_discover(false, true))
+-		{
+-			if (gUnitLogLevel > 2) logBBAI("    %S chooses 'first discover' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iFirstDiscoverValue);
+-			return true;
+-		}
+-		
+-		if (iTradeValue >= iGoldenAgeValue * 2 && AI_doTrade(pBestTradePlot))
+-		{
+-			if (gUnitLogLevel > 2) logBBAI("    %S chooses 'trade mission' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iTradeValue);
+-			return true;
+-		}
+-
+-		if (AI_discover(false, true))
+-		{
+-			if (gUnitLogLevel > 2) logBBAI("    %S chooses 'first discover' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iFirstDiscoverValue);
+-			return true;
+-		}
++	//
++	enum
++	{
++		GP_SLOW,
++		GP_FIRSTDISCOVER,
++		GP_DISCOVER,
++		GP_GOLDENAGE,
++		GP_TRADE
++	};
++	std::multimap<int, int> ordered_missions;
++	ordered_missions.insert(std::make_pair<int, int>(iGoldenAgeValue, GP_GOLDENAGE));
++	ordered_missions.insert(std::make_pair<int, int>(iTradeValue, GP_TRADE));
++	ordered_missions.insert(std::make_pair<int, int>(iSlowValue, GP_SLOW));
++	ordered_missions.insert(std::make_pair<int, int>(iFirstDiscoverValue, GP_FIRSTDISCOVER));
++	ordered_missions.insert(std::make_pair<int, int>(iDiscoverValue, GP_DISCOVER));
++	std::multimap<int, int>::reverse_iterator rit;
++	int iChoice = 1;
++	for (rit = ordered_missions.rbegin(); rit != ordered_missions.rend(); ++rit)
++	{
++		switch (rit->second)
++		{
++		case GP_FIRSTDISCOVER:
++			if (AI_discover(false, true))
++			{
++				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'first discover' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iFirstDiscoverValue, iChoice);
++				return true;
++			}
++			break;
+ 
+-		if (iGoldenAgeValue > iDiscoverValue && iGoldenAgeValue > iSlowValue)
+-		{
+-			if (AI_goldenAge())
++		case GP_DISCOVER:
++			if (AI_discover())
+ 			{
+-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'golden age' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue);
++				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'discover' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iDiscoverValue, iChoice);
+ 				return true;
+ 			}
+-			if (iTradeValue >= iGoldenAgeValue && AI_doTrade(pBestTradePlot))
++			break;
++
++		case GP_TRADE:
++			if (AI_doTrade(pBestTradePlot))
+ 			{
+-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'trade mission' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iTradeValue);
++				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'trade mission' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iTradeValue, iChoice);
+ 				return true;
+ 			}
+-		}
+-
+-		if (iDiscoverValue > iSlowValue && AI_discover())
+-		{
+-			if (gUnitLogLevel > 2) logBBAI("    %S chooses 'discover' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iDiscoverValue);
+-			return true;
+-		}
+-	}
++			break;
+ 
+-	// do slow
+-	int iDeadTime = GC.getGameINLINE().getGameTurn() - getGameTurnCreated();
+-	iDeadTime *= 100;
+-	iDeadTime /= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
+-	if (pBestPlot != NULL && 100 * iSlowValue > (100-iDeadTime) * iGoldenAgeValue)
+-	{
+-		if (atPlot(pBestPlot))
+-		{
+-			if (eBestSpecialist != NO_SPECIALIST)
++		case GP_GOLDENAGE:
++			if (AI_goldenAge())
+ 			{
+-				getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'join' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iSlowValue);
++				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
+ 				return true;
+ 			}
++			else
++			{
++				// Do we want to wait for another great person?
++				int iDeadTime = GC.getGameINLINE().getGameTurn() - getGameTurnCreated();
++				iDeadTime *= 100;
++				iDeadTime /= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++				std::multimap<int, int>::reverse_iterator next = rit;
++				++next;
++				if (next == ordered_missions.rend() || next->first * 100 < (100-iDeadTime) * rit->first)
++				{
++					if (gUnitLogLevel > 2) logBBAI("    %S chooses 'wait' with their %S (dead time: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iDeadTime, iChoice);
++					return false;
++				}
++			}
++			break;
+ 
+-			if (eBestBuilding != NO_BUILDING)
++		case GP_SLOW:
++			// no dedicated function for this.
++			if (pBestPlot != NULL)
+ 			{
+-				getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
+-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'build' with their %S (value: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iSlowValue);
+-				return true;
++				if (atPlot(pBestPlot))
++				{
++					if (eBestSpecialist != NO_SPECIALIST)
++					{
++						getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
++						if (gUnitLogLevel > 2) logBBAI("    %S chooses 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iSlowValue, iChoice);
++						return true;
++					}
++
++					if (eBestBuilding != NO_BUILDING)
++					{
++						getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
++						if (gUnitLogLevel > 2) logBBAI("    %S chooses 'build' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iSlowValue, iChoice);
++						return true;
++					}
++				}
++				else
++				{
++					getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_SAFE_TERRITORY);
++					return true;
++				}
+ 			}
++			break;
+ 		}
+-		else
+-		{
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_SAFE_TERRITORY);
+-			return true;
+-		}
++		iChoice++;
+ 	}
+-	// wait for a better opportunity.
+-	if (gUnitLogLevel > 2) logBBAI("    %S chooses 'wait' with their %S (dead time: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iDeadTime);
++	FAssert(false);
+ 	return false;
+ }
+ // K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=8992

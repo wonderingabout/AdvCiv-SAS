@@ -1,0 +1,796 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5210
+# Commit: 39914c9b3d5f0422b05cab7fbba55d088658932a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a2ec040e6b66cf0f1678843aece59cb7e4d7e214
+# Title: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM, fix the production chooser bar auto-scrolling to the bottom rows when clicking on one of the lower row...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL_48_civs_dll.dll
+49	2	Assets/Python/Screens/CvMainInterface.py
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+6	18	Assets/XML/Buildings/CIV4BuildingInfos.xml
+6	12	Assets/XML/Events/CIV4EventTriggerInfos.xml
+31	39	Assets/XML/Technologies/CIV4TechInfos.xml
+3	3	Assets/XML/Terrain/CIV4BonusInfos.xml
+1	1	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+5	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+5	0	Assets/XML/Text/CIV4GameText_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	README.md
+4	4	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+13	11	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+12	10	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_dll.dll b/Assets/CvGameCoreDLL_48_civs_dll.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 793269a61..deba7ab12 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -453,6 +453,10 @@ class CvMainInterface:
+ 		# <!-- custom: note: for some reason, unlike what we could do in other files, it seems setting this as a global variable and fetching from gc in the global scope there does not seem to work (regardless of our value in sas defines the extra rows of the city screen's production chooser bar are always disabled ingame), so doing it as such is maybe fine and cheaper than fetching gc at each call maybe (check if accurate as just a guess of mine but i guess so (but i don't know too much about these to tell precisely i mean if i may say but anyways etc.)) -->
+ 		self.iBarExtraRows = None
+ 		self.iBarExtraRowsExtraManualAdjust = None
++		# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
++		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
++		# 1) Add a pinned-row member (once)
++		self.iCityBuildBarPinnedRow = None
+ 
+ ############## Basic operational functions ###################
+ 
+@@ -3521,8 +3525,30 @@ class CvMainInterface:
+ 						iCount += 1
+ 						bFound = True
+ 
+-				screen.selectMultiList("BottomButtonList",
+-						CyInterface().getCityTabSelectionRow())
++				# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
++				# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
++				# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
++				# 3) Replace the selectMultiList(...getCityTabSelectionRow()) in the city-screen block
++				# When extra rows are shown, don't let clicks on lower rows change the scroll position
++				# <!-- custom: note: after applying all the 3 steps of this fix, when clicking on lower rows while we are in the top rows sections, we successfully prevent auto-scrolling down as we want, however it seems that we click on the upper rows when we are in the bottom rows sections, then we auto-scroll back to top. It may not be ideal; or, maybe this is a nice side effect we can keep, as bottom rows mostly only have wonders and processes, and we don't want to build too many of them anyway, so kept as such anyways etc. -->
++				# screen.selectMultiList("BottomButtonList", CyInterface().getCityTabSelectionRow())
++				if self.iBarExtraRows > 0:
++					if self.iCityBuildBarPinnedRow is None:
++						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
++
++					# Clamp to the last non-empty row we actually filled
++					if bFound:
++						iLastRowUsed = iRow
++					else:
++						iLastRowUsed = max(0, iRow - 1)
++					if self.iCityBuildBarPinnedRow < 0:
++						self.iCityBuildBarPinnedRow = 0
++					elif self.iCityBuildBarPinnedRow > iLastRowUsed:
++						self.iCityBuildBarPinnedRow = iLastRowUsed
++
++					screen.selectMultiList("BottomButtonList", self.iCityBuildBarPinnedRow)
++				else:
++					screen.selectMultiList("BottomButtonList", CyInterface().getCityTabSelectionRow())
+ 
+ 		elif (not CyEngine().isGlobeviewUp() and
+ 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and
+@@ -7343,6 +7369,27 @@ class CvMainInterface:
+ 				return self.MainInterfaceInputMap.get(inputClass.getFunctionName() + "1")(inputClass)
+ # BUG - PLE - end
+ 
++			# <!-- custom: fix production chooser bar auto-scrolling when we click on one of the lower rows (distracting and annoying and not necessary; the player can scroll if they want rather anyways etc.). Fix with the help of chatgpt 5.2 thanks anyways etc. -->
++			# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
++			# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
++			# 2) Update that pin only when the user clicks the city tab / scroll arrows
++			# Prevent BottomButtonList from auto-jumping when showing multiple build rows
++			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
++				fn = inputClass.getFunctionName()
++				if fn.startswith("CityTab"):
++					self.iCityBuildBarPinnedRow = inputClass.getData1()
++					return 0
++				elif fn == "CityScrollMinus" or fn == "MainCityScrollMinus":
++					if self.iCityBuildBarPinnedRow is None:
++						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
++					self.iCityBuildBarPinnedRow -= 1
++					return 0
++				elif fn == "CityScrollPlus" or fn == "MainCityScrollPlus":
++					if self.iCityBuildBarPinnedRow is None:
++						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
++					self.iCityBuildBarPinnedRow += 1
++					return 0
++
+ # BUG - BUG Option Button - Start
+ 			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+ 				if inputClass.getFunctionName() == "BUGOptionsScreenWidget":
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 02d191f27..c87872aff 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -13864,8 +13864,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_REFRIGERATION</ScriptID>
+-		<SoundID>SND_TECH_REFRIGERATION</SoundID>
++		<ScriptID>AS2D_TECH_ENVIRONMENTALISM</ScriptID>
++		<SoundID>SND_TECH_ENVIRONMENTALISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15980,8 +15980,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_REFRIGERATION</ScriptID>
+-		<SoundID>SND_TECH_MP_REFRIGERATION</SoundID>
++		<ScriptID>AS2D_TECH_MP_ENVIRONMENTALISM</ScriptID>
++		<SoundID>SND_TECH_MP_ENVIRONMENTALISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index a23712904..86e379db9 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8956,7 +8956,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_REFRIGERATION</SoundID>
++			<SoundID>SND_TECH_ENVIRONMENTALISM</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Refrigeration</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9600,7 +9600,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_REFRIGERATION</SoundID>
++			<SoundID>SND_TECH_MP_ENVIRONMENTALISM</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Refrigeration</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index b49c348fe..964eb5e3e 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -10752,11 +10752,7 @@
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: make the building available sooner while it is more relevant while the game lasts anyways etc especially considering its science effect would be pointless if there are no more not anymore any tech to research but anyways etc..., is maybe more historically accurate this was as per our reworked tech tree at least if not in civ4 +/- base advciv too maybe (didn't check) or not but anyways etc, was TECH_SUPERCONDUCTORS and tech types empty -->
+ 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -13132,7 +13128,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
++			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CURRENCY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -13662,13 +13658,9 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_REFRIGERATION with tech types empty -->
++			<!-- custom: was TECH_REFRIGERATION (now removed) with tech types empty -->
+ 			<PrereqTech>TECH_CORPORATION</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -13863,13 +13855,9 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_REFRIGERATION with tech types empty -->
++			<!-- custom: was TECH_REFRIGERATION (now removed) with tech types empty -->
+ 			<PrereqTech>TECH_CORPORATION</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index d09870890..adf8e5a8d 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -189,7 +189,6 @@
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+@@ -912,11 +911,10 @@
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -8325,11 +8323,10 @@
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -11137,7 +11134,7 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
++				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -12107,11 +12104,10 @@
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -12198,11 +12194,10 @@
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -12802,11 +12797,10 @@
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
+-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 02c92bb92..c8934efbe 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1859,7 +1859,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>15</iGridX>
+-			<iGridY>17</iGridY>
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4030,8 +4030,8 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>-8</iHealth>
+-			<iHappiness>-8</iHappiness>
++			<iHealth>-9</iHealth>
++			<iHappiness>-9</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>56</iAsset>
+ 			<iPower>0</iPower>
+@@ -4073,7 +4073,6 @@
+ 				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+ 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+ 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_DEPOPULATION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_DEPOPULATION</Sound>
+@@ -4142,7 +4141,9 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
++			<AndPreReqs>
++				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
++			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_COMPOSITES_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_COMPOSITES</Sound>
+ 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
+@@ -5963,11 +5964,9 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+-			</OrPreReqs>
+-			<AndPreReqs>
+ 				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+-			</AndPreReqs>
++			</OrPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MARINE_TECHNOLOGY</SoundMP>
+@@ -6346,28 +6345,27 @@
+ 			<SoundMP>AS2D_TECH_MP_RADIO</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Radio.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,11</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_REFRIGERATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_REFRIGERATION</Type>
+-			<Description>TXT_KEY_TECH_REFRIGERATION</Description>
+-			<Civilopedia>TXT_KEY_TECH_REFRIGERATION_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_ENVIRONMENTALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_ENVIRONMENTALISM</Type>
++			<Description>TXT_KEY_TECH_ENVIRONMENTALISM</Description>
++			<Civilopedia>TXT_KEY_TECH_ENVIRONMENTALISM_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2050</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: was ERA_MODERN -->
+-			<Era>ERA_INDUSTRIAL</Era>
++			<Era>ERA_MODERN</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>0</iHealth>
++			<iHealth>1</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>40</iAsset>
++			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -6387,35 +6385,29 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
+-			<iGridY>1</iGridY>
++			<iGridX>19</iGridX>
++			<iGridY>11</iGridY>
+ 			<!-- custom: was DOMAIN_SEA 1 -->
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>4</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
++				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_REFRIGERATION_QUOTE</Quote>
+-			<Sound>AS2D_TECH_REFRIGERATION</Sound>
+-			<SoundMP>AS2D_TECH_MP_REFRIGERATION</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Refrigeration.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,7</Button>
++			<AndPreReqs>
++				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
++			</AndPreReqs>
++			<Quote>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Quote>
++			<Sound>AS2D_TECH_ENVIRONMENTALISM</Sound>
++			<SoundMP>AS2D_TECH_MP_ENVIRONMENTALISM</SoundMP>
++			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_SUPERCONDUCTORS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_SUPERCONDUCTORS</Type>
+@@ -6574,7 +6566,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>2</iHappiness>
++			<iHappiness>3</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>64</iAsset>
+ 			<iPower>10</iPower>
+@@ -6615,7 +6607,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -6863,7 +6855,7 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>1</iHealth>
++			<iHealth>2</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>56</iAsset>
+@@ -6899,7 +6891,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index fa8cb0a6f..99bf88d66 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1314,7 +1314,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
+ 			<!-- custom: was the now removed anyways etc TECH_PLASTICS -->
+-			<TechObsolete>TECH_COMPOSITES</TechObsolete>
++			<TechObsolete>TECH_ENVIRONMENTALISM</TechObsolete>
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+@@ -1582,7 +1582,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
+ 			<!-- custom: was TECH_INDUSTRIALISM -->
+-			<TechObsolete>TECH_MASS_MEDIA</TechObsolete>
++			<TechObsolete>TECH_ENVIRONMENTALISM</TechObsolete>
+ 			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
+ 			<YieldChanges>
+ 				<iYieldChange>1</iYieldChange>
+@@ -1964,7 +1964,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_SEAFARING</TechCityTrade>
+ 			<!-- custom: was TECH_COMBUSTION -->
+-			<TechObsolete>TECH_MASS_MEDIA</TechObsolete>
++			<TechObsolete>TECH_ENVIRONMENTALISM</TechObsolete>
+ 			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps anyways etc anyways etc anyways etc -->
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 2eb1ada27..97a9f84dc 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -1696,7 +1696,7 @@
+ 			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+-					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<TechYields>
+ 						<iYield>0</iYield>
+ 						<iYield>0</iYield>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index a78e9150d..93d478eb6 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -976,4 +976,9 @@
+ 		<Tag>TXT_KEY_TECH_ROMANTICISM</Tag>
+ 		<English>Romanticism</English>
+ 	</TEXT>
++	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM</Tag>
++		<English>Environmentalism</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 463ffe12f..7b6713aa4 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -457,6 +457,11 @@
+ 		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
+ 		<English>"If music be the food of love, play on." - William Shakespeare</English>
+ 	</TEXT>
++	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
++		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 4e9b22b11..ba160b880 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -919,4 +919,12 @@
+ 		<English>[TAB]A bank is a financial institution that accepts deposits from the public and creates a demand deposit while simultaneously making loans. Lending activities can be directly performed by the bank or indirectly through capital markets.	
+ 		[PARAGRAPH:1]As banks play an important role in financial stability and the economy of a country, most jurisdictions exercise a high degree of regulation over banks. Most countries have institutionalized a system known as fractional-reserve banking, under which banks hold liquid assets equal to only a portion of their current liabilities. In addition to other regulations intended to ensure liquidity, banks are generally subject to minimum capital requirements based on an international set of capital standards, the Basel Accords.[PARAGRAPH:2]Banking as an archaic activity (or quasi-banking) is thought to have begun as early as the latter part of the 4th millennium BCE, to the 3rd millennia BCE.[PARAGRAPH:1]From the fourth millennium previously agricultural settlements began administrative activities.[PARAGRAPH:2]All early religious systems in the ancient Near East, and the secular codes arising from them, were strict on this practice being forbidden usury. These societies regarded inanimate matter as alive, like plants, animals and people, and capable of reproducing itself. Hence if you lent 'food money', or monetary tokens of any kind, it was legitimate to charge interest. Food money in the shape of olives, dates, seeds or animals was lent out as early as c. 5000 BCE, if not earlier. Among the Mesopotamians, Hittites, Phoenicians and Egyptians, interest was legal and often fixed by the state.[PARAGRAPH:2]The roots of modern banking are traceable to medieval and early Renaissance Europe, including Italy's Lombards in the 12th and 13th centuries, France's Cahorsins in the 13th century and in particular the rich Italian cities such as Florence, Venice, and Genoa.[PARAGRAPH:2]Banking in its modern sense evolved in the fourteenth century in the prosperous cities of Renaissance Italy but, in many ways, functioned as a continuation of ideas and concepts of credit and lending that had their roots in the ancient world. In the history of banking, a number of banking dynasties - notably, the Medicis, the Pazzi, the Fuggers, the Welsers, the Berenbergs, and the Rothschilds - have played a central role over many centuries. The oldest existing retail bank is Banca Monte dei Paschi di Siena (founded in 1472), while the oldest existing merchant bank is Berenberg Bank (founded in 1590).</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM : Reuses civ4's CIVIC_ENVIRONMENTALISM's button and TECH_REFRIGERATION's quote + a modern later tech so industrial goes faster and to thematically cover this part of history as well (plus modern was quite most importantly while industrial was too slow anyways etc.); pedia entry similarly from https://en.wikipedia.org/wiki/Environmentalism anyways etc. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_PEDIA</Tag>
++		<English>[TAB]Environmentalism is a broad philosophy, ideology, and social movement about supporting life, habitats, and surroundings. While environmentalism focuses on the environmental and nature-related aspects of green ideology and politics, ecologism combines the ideology of social ecology and environmentalism. Ecologism is a term more commonly used in continental European languages, while environmentalism is more commonly used in English, but the words have slightly different connotations.[PARAGRAPH:1]Environmentalism advocates the preservation, restoration and improvement of the natural environment and critical earth system elements or processes such as the climate, and may be referred to as a movement to control pollution or protect plant and animal diversity. For this reason, concepts such as a land ethics, environmental ethics, biodiversity, ecology, and the biophilia hypothesis figure predominantly. The environmentalist movement encompasses various approaches to addressing environmental issues, including free market environmentalism, evangelical environmentalism, and the environmental conservation movement.[PARAGRAPH:1]At its crux, environmentalism is an attempt to balance relations between humans and the various natural systems on which they depend in such a way that all the components are accorded a proper degree of sustainability. The exact measures and outcomes of this balance is controversial and there are many different ways for environmental concerns to be expressed in practice. Environmentalism and environmental concerns are often represented by the colour green, but this association has been appropriated by the marketing industries for the tactic known as greenwashing.[PARAGRAPH:1]Environmentalism is opposed by anti-environmentalism, which says that the Earth is less fragile than some environmentalists maintain, and portrays environmentalism as overreacting to the human contribution to climate change or opposing human advancement.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 5580666d8..a030f27f4 100644
+--- a/README.md
++++ b/README.md
+@@ -4,7 +4,7 @@ This mod (AdvCiv-SAS (Simple Advanced Strategy)) ([Discussion thread here](https
+ 
+ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
+ 
+-The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers in particular, as well as AI more generally being opportunistic and efficiency driven more than anything else as much as possible. Heavy reworks were made, while otherwise staying for most in the base advciv frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia reworks in particular.
++The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers in particular, as well as AI more generally being opportunistic and efficiency driven more than anything else as much as possible. Heavy reworks were made, while otherwise staying for most in the base advciv frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia, some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+ 
+ Content overall addition is minimal, as of now mostly in the future era, and here and there otherwise (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 3b3010754..38ef44c3a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -243,10 +243,10 @@ git fetch origin
+ 
+ # choose names
+ # new tag
+-TAG=5160
+-SHA=2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c  # <- the TAG commit
+-OLDNAME="AdvCiv-SAS 5082"                     # quote because of spaces
+-BASE=37615028018c14723ab4598cf095c39604f2a002 # <- the OLDNAME commit
++TAG=5210
++SHA=fe81dbb347d47347b3386969f275a868d562eac7  # <- the TAG commit
++OLDNAME="AdvCiv-SAS 5160"                     # quote because of spaces
++BASE=2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c # <- the OLDNAME commit
+ WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+ 
+ # replace the tag locally with correct date + message
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index bbc6e0ce0..97f17846c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -96,8 +96,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this [civfanatics forums nukes and such thread](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/) for details
+ - the civilopedia is renamed the sevopedia, it is the same thing but is the name of the more modern version (made by modders) of it.
+ - Renamed "Ressource" to "Bonus" (so "ressources" would be "bonuses" now anyways etc) for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.
+-- Renamed some bonuses such as "Ivory" to "Elephants", "Cow" to "Cattle", "Clam" to the more general "Molluscs", and for example also "Wine" to "Grapes", for example. See also Bonus: grapes changes for more / related details anyways etc. Or .
++- Renamed some bonuses such as "Ivory" to "Elephants", "Cow" to "Cattle", "Clam" to the more general "Molluscs", and for example also "Wine" to "Grapes", for example. See also Bonus: grapes changes for more / related details anyways etc.
+ - Renamed "Ice" (Terrain) to "Ice Sheet", and "Ice" (Feature) to "Ice Cap", hopefully clearer and more accurate, see their Sevopedia entries for details
++- Renamed "Horseback Riding" to "Mounted Combat" (includes all mounts, not just horse-based ones)
+ - Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.
+ - Renamed some leaders such as "Montezuma" to "Moctezuma II" for accuracy and exhaustiveness, see xml or/and sevopedia list of leaders ingame or/and docs for details if any details are there as well anyways etc
+ - religion "taoism" has been renamed to "daoism" and all related entries (temple and other buildings, units such as missionary etc, and description/history in sevopedia and such), i have heard many times of the "Dao" (or read maybe rather anyways etc) in manhua (translated) but never ever saw "Tao", while both seem correct as chinese translitterations if am not mistaken, it seemed that Dao is perhaps more fit, but in all cases even if not i'd rather use this one i'm more famililar with and that makes more sense to me, hopefully clearer for others or/and maybe not anyways etc
+@@ -111,11 +112,11 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. (Requires AdvCiv-SAS 5209+) Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+-- (Requires AdvCiv-SAS 5191+) Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed) (Note 2: may be disabled at turn 0, see [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)).
++- **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+ 
+ ### UI (Sevopedia reworks & related)
+ 
+@@ -217,9 +218,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Buildings (AI)
+ 
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+-- (Requires AdvCiv-SAS 5203+) Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
+-- added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc. (Requires AdvCiv-SAS 5204+) Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
+-- (Requires AdvCiv-SAS 5203+) Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` tunable by era in SAS defines): early, we have prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
++- Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
++- added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc. Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
++- Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` gates tunable by era in SAS defines): early, we want to prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it), but this should not be necessary and not recommended to change SAS building wonder defaults to have an optimal AI play, as this build cheap wonders ASAP change causes most wonders to built by turn 200 (when it is more efficient to do so). Adjust as you see fit.
+ - Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, by replacing in our prechecks in `CvCityAI::AI_buildingValue` the use of the too broad and unreliable base advciv +/- civ4's `CvCity::getAdditionalHappinessByBuilding` with our new `AI_strictAdditionalHappy`, as well as better account the expected food gains from them after removing unhappy citizens; these changes yielded (no pun but anyways etc) great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
+ 
+ #### Leaders (AI)
+@@ -239,7 +240,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather than easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
+ - Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
+ - Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen for example that don't require any bonus, and cannons only requiring iron as of now but anyways etc). Similarly, elephants bonus is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc. Update: now does not apply anymore to trades between members of the same master-vassal(s) locus (as it is in their interest to be mutually stronger anyways etc.).
+-- (Requires AdvCiv-SAS 5161+) **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower difficulties). See for details [KI#83](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
++- **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower difficulties). See for details [KI#83](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
+ - Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this seemingly leads to better tech sharing between vassal(s) and their master (a vassal was mostly way ahead in tech and now the master has more techs). Added a second parameter to `AI_contactRoll(CONTACT_TRADE_TECH` (was using a default of 1 in the header file anyways etc.) so that tech trading is now more dynamic and not passively based only on personality anyways etc. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc). Update: also added vassal<->vassal siblings extra tech trading chance similarly, which leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
+ - If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier in `CvPlayerAI::AI_doDiplo`, so that we have a higher chance to trade with militarily weaker players to us (safer, less likely to backstab us) and a lower chance for stronger players to us (more likely to become our ennemies or to bite us back in some way). In autoplay, seemingly results in much closer game, where the runaway Ewuare is now regularly and repeatedly caught up by other rivals and vice versa when these take the lead as well, until late in the game where game ends at turn 419 vs 288 before and was close until the last few or such dozen turns. See for details [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+@@ -316,7 +317,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ - air explore/recon units (as of now for example the airship (see sevopedia unit or the military changes section in this readme for details about the airship changes anyways etc)) or/and land-air type of units like as of now the only the gunship can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). This effect applies to these tiles even if they are roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
+ - some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
+-- terrains and features have a higher importance in military, more units have terrain/feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and feature page(s) to easily (or at least much more easily hopefully but anyways etc) visualize these with the new UI additions we made there as well but anyways etc (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc. (Requires AdvCiv-SAS 5195+) Update: players can now selectively disable terrain/feature attack/defense modifiers as they prefer i.e. it is now tunable anyways etc. Change in `CvUnitInfo::getTerrainAttackModifier` and similar functions.
++- terrains and features have a higher importance in military, more units have terrain/feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and feature page(s) to easily (or at least much more easily hopefully but anyways etc) visualize these with the new UI additions we made there as well but anyways etc (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc. Update: players can now selectively disable terrain/feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.) as they prefer i.e. it is now tunable anyways etc. Change in `CvUnitInfo::getTerrainAttackModifier` and similar functions.
+ - buff build_jungle: now gives hammer on remove, as of now increased from 0 to 20, see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml) for updated value, anyways etc
+ - reworked feature_jungle: now does not give any food penalty as according to the few websites or such i visited, jungle is vegetation and animal(s? But anyways etc) rich, and since it is so much weaker than feature_forest, removing the food yield penalty to compensate and rebalance it. As part of this change, also increasing health penalty from jungle tiles; so although jungle is still weaker than forest for balance (giving it food yield would make jungle op and not necessarily realistic nor immersive for example anyways etc) hopefully it is closer now and jungle tiles can have some use at least they are not too bad as compared to forest as of now at least now anyways etc, as of now iHealthPercent has been increased from -25 to -50 (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), see sevopedia feature category's jungle entry or/and xml for details anyways etc
+ - feature_jungle: reduce `iDefense` (base feature jungle if i am not mistaken but anyways etc) as of now from 0 to -25: gotta get something out of all those jungle penalties, reduce tile defense, which would make it easier for city owners to indirectly defend their cities or/and attack invaders if i am not mistaken, as as outside of cities provide a more man vs man kind of warfare xd if i may say but anyways etc, as also in the jungle everyone is left on their own, which is quite realistic maybe too anyways etc, also this doesn't affect city tile warfare as features are cleared on found if i am not mistaken but anyways etc so should be fine at least i want to do it so anyways etc (note: as of now rival defense of +25% still applies for all features if i am not mistaken, so as of now -25 to +25 (seemingly 25 for all features but i am not 100.0% sure if i may say but anyways etc..., check to be sure anyways etc) would be 0 total feature_jungle defense, vs 0 + 25 = 25 total defense on feature_forest if i am not mistaken anyways etc)
+@@ -380,6 +381,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ - game pace advances exponentially: later eras have relatively fewer techs (except future era that has more techs) and unit types. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc. Note: the future era is the exception: it has it's own GPs anyways etc.
+ - reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tech_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 4 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unlike this message xd but that i hope is sitll helpful i mean but anyways etc)
++- **Delayed Requirements**: Some techs (e.g. `TECH_MOUNTED_COMBAT`) can optionally be researched fairly early (e.g. at Classical Era) or skipped until significantly later when they become mandatory (e.g. mid-Medieval Era for `TECH_CHIVALRY`). This gives more strategic flexibility and research costs management, as these techs would be cheaper to research later on with a stronger economy, while shorter-term concerns have more room to be addressed sooner if desired.
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 14f456639..488ef257c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -92,6 +92,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
+ - “Civilopedia” → “Sevopedia.”
+ - “Ressource(s)” → “Bonus(es).”
++- Renamed "Horseback Riding" to "Mounted Combat" (includes all mounts, not just horse-based ones).
+ - Bonus names standardized: Ivory → Elephants; Cow → Cattle; Clam → Molluscs; Wine → Grapes, etc.
+ - Terrain/Feature: Ice (Terrain) → Ice Sheet; Ice (Feature) → Ice Cap.
+ - “Great wonders” → “World wonders” (functionally the same).
+@@ -107,11 +108,11 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ - Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. (Requires AdvCiv-SAS 5209+) Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+-- (Requires AdvCiv-SAS 5191+) Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed) (Note 2: may be disabled at turn 0, see [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)).
++- **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py).  Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+ 
+ ### UI (Sevopedia reworks & related)
+ 
+@@ -209,9 +210,9 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### Buildings (AI)
+ 
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+-- (Requires AdvCiv-SAS 5203+) Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
+-- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**. (Requires AdvCiv-SAS 5204+) Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
+-- (Requires AdvCiv-SAS 5203+) Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` tunable by era in SAS defines): early, we have prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
++- Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
++- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**. Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
++- Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` gates tunable by era in SAS defines): early, we want to prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it), but this should not be necessary and not recommended to change SAS building wonder defaults to have an optimal AI play, as this build cheap wonders ASAP change causes most wonders to built by turn 200 (when it is more efficient to do so). Adjust as you see fit.
+ - **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings (now using, in our prechecks, the new `AI_strictAdditionalHappy` instead of the too-broad `CvCity::getAdditionalHappinessByBuilding`) and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
+ 
+ #### Leaders (AI)
+@@ -231,7 +232,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)**.
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+ - **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. **Update:** this adjustment no longer applies to trades *within* the same master–vassal(s) locus, since it is generally in their shared interest to strengthen each other.
+-- (Requires AdvCiv-SAS 5161+) **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower difficulties). See [KI#83](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
++- **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower difficulties). See [KI#83](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
+ - **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier “devalue techs your master/vassal already knows” change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this *seemed* to **reduce tech overlap** and **improve sharing** between vassals (who had many more techs) and their master (who now picks up more of them). Also updated `AI_contactRoll(CONTACT_TRADE_TECH` to pass an explicit probability multiplier (rather than relying on the default of 1), making tech-trade frequency more dynamic and tunable instead of solely personality-driven. See [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate-anyways-etc). **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades.
+ - **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - **Master–vassal(s) locus first for tech trades:** Whenever the AI wants to contact other players for a tech trade in `CvPlayerAI::AI_doDiplo`, it now **first checks** whether the desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+@@ -303,7 +304,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Air explore/recon and land-air units**: the **Airship** (see its Sevopedia entry or this guide's military section) and **Gunship** can move through **all terrains, including peaks and water tiles** using `bCanMoveImpassable` and `bCanMoveAllTerrain`.
+ - **Movement restrictions (outside cultural borders)**: some units (e.g. chariots, some siege) **cannot enter forest/jungle** feature tiles outside borders. This restriction still applies even if the tile is roaded (base Civ4/AdvCiv logic reused). See Sevopedia Feature entries and the feature-category rework ([example-3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)) and/or unit pages for the exact list.
+ - **Forest/jungle combat penalties**: some units (notably UNITCOMBAT_MOUNTED_MELEE) now get forest/jungle penalties; UNITCOMBAT_MOUNTED_RANGED penalties are milder/limited (defense-only). See Sevopedia Feature entries ([example-3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)) and unit pages for the exact modifiers.
+-- **Terrain/feature modifiers matter more in combat**: many more **units** have **terrain/feature modifiers** (and sometimes plot-type like **Hill**). **Civ-specific units** generally have the **strongest modifiers**; **generic units** only get them when especially **relevant**. The goal is usually a "dominant terrain, minor terrains" approach (strong enough to matter, but not so strong that it replaces core roles like city-defense Longbowmen). See unit pages, Sevopedia Terrain/Feature pages ([example-9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category), [example-3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)), and [other maps used for terrain modifiers](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units). (Requires AdvCiv-SAS 5195+) **Update:** Now optional: players can now **selectively disable** terrain/feature attack modifiers and/or terrain/feature defense modifiers via SAS defines. Implemented in `CvUnitInfo::getTerrainAttackModifier` / `CvUnitInfo::getTerrainDefenseModifier` (and feature equivalents).
++- **Terrain/feature modifiers matter more in combat**: many more **units** have **terrain/feature modifiers** (and sometimes plot-type like **Hill**). **Civ-specific units** generally have the **strongest modifiers**; **generic units** only get them when especially **relevant**. The goal is usually a "dominant terrain, minor terrains" approach (strong enough to matter, but not so strong that it replaces core roles like city-defense Longbowmen). See unit pages, Sevopedia Terrain/Feature pages ([example-9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category), [example-3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)), and [other maps used for terrain modifiers](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units). **Update:** Now optional: players can now **selectively disable** terrain/feature attack modifiers and/or terrain/feature defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.) via SAS defines. Implemented in `CvUnitInfo::getTerrainAttackModifier` / `CvUnitInfo::getTerrainDefenseModifier` (and feature equivalents).
+ - **Build: Remove Jungle** now yields **+20 hammers** on removal (see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml)).
+ - **Feature: Jungle rework**: remove the food penalty (no food malus), increase unhealth to `iHealthPercent` **-50**, set feature defense `iDefense` **-25** (still +25% rival defense in features, so net 0 in jungle if you consider that baseline).
+ - **Feature: Fallout** `iHealthPercent` **-50 -> -75**.
+@@ -368,6 +369,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Exponential pacing**: fewer late-era techs/unit types (Future era is the exception and is expanded), partly reflecting that ancient eras cover far more “years” than modern ones.
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.
+ - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc).
++- **Delayed Requirements**: Some techs (e.g. `TECH_MOUNTED_COMBAT`) can optionally be researched fairly early (e.g. at Classical Era) or skipped until significantly later when they become mandatory (e.g. mid-Medieval Era for `TECH_CHIVALRY`). This gives more strategic flexibility and research costs management, as these techs would be cheaper to research later on with a stronger economy, while shorter-term concerns have more room to be addressed sooner if desired.
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index e0dcea7de..3ef3980bb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -122,6 +122,8 @@ For example, to see the tech bulbing indicators, enable "GP Research" in the BUG
+ 
+ <img src="../Images_In_General/misc_0.x/0.97_bug_menu_demo_show_recommended_advisors.jpg" alt="0.97_bug_menu_demo_show_recommended_advisors.jpg" width="250"></img>
+ 
++Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
++
+ ## Settings if you want to develop/modify the mod or try some autoplay or such anyways etc (skip this section if only playing without wanting extra details)
+ 
+ (skip this section if only playing without wanting extra details)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG
+index c3c3fb4ee..eb2958a71 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index aa596e190..1affa4898 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index d077eb687..9d9977e8c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 9ce3bf7f8..88e97ecac 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 617445881..b61761f9e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=21 omittedFiles=1 embeddedPatchBytes=117744

@@ -1,0 +1,405 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5271
+# Commit: 2ac9b5b71d5836e0ec7e14e97a596b1c8b449dd7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2e1df7d43ecd49789bcab5607ba1620ff3a3f632
+# Title: further beautify the victory screens: add more buttons/icons + rename Willem - rename "Willem van Oranje" to "Willem" (back to base AdvCiv's name if i'm not...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/BUG/Scoreboard.py
+3	2	Assets/Python/Contrib/RandomNameUtils.py
+2	0	Assets/Python/Contrib/UnitUpgradesGraph.py
+1	0	Assets/Python/CvUtil.py
+54	14	Assets/Python/Screens/CvVictoryScreen.py
+1	2	Assets/Python/Screens/EconomicsAdvisor.py
+1	2	Assets/Python/Screens/IconGrid_BUG.py
+3	2	Assets/Python/Screens/PLE.py
+1	1	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	2	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 29c4d18cb..b36d2dac2 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -19,6 +19,7 @@ import FontUtil
+ import CvUtil
+ import re
+ # <!-- custom: remove or comment out seemingly unused imports -->
++#import string
+ import MonkeyTools # advc.085: For checking Ctrl key
+ import LayoutDict # advc.092
+ import CvScreensInterface # advc.092
+
+diff --git a/Assets/Python/Contrib/RandomNameUtils.py b/Assets/Python/Contrib/RandomNameUtils.py
+index d5a08711b..eca59f3b7 100644
+--- a/Assets/Python/Contrib/RandomNameUtils.py
++++ b/Assets/Python/Contrib/RandomNameUtils.py
+@@ -7,8 +7,9 @@ from CvPythonExtensions import *
+ 
+ import CvUtil
+ # <!-- custom: remove or comment out seemingly unused imports -->
+-#import sys
+-#import math
++import sys
++import math
++#import string
+ 
+ gc = CyGlobalContext()
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index 8b0ebea1d..9083bc113 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -5,6 +5,8 @@
+ ##
+ 
+ # <!-- custom: remove or comment out seemingly unused imports -->
++#import string
++
+ from CvPythonExtensions import *
+ 
+ import CvUtil
+
+diff --git a/Assets/Python/CvUtil.py b/Assets/Python/CvUtil.py
+index 89e8f246d..ad1682336 100644
+--- a/Assets/Python/CvUtil.py
++++ b/Assets/Python/CvUtil.py
+@@ -388,6 +388,7 @@ def addIconToMap(infoChar, desc):
+ 	if (uc>=0):
+ 		FontIconMap[desc] = u"%c" %(uc,)
+ # advc (note): Don't add to this list; it seems that BUG's FontUtil.py handles the values of the FontSymbols enum in the DLL (so long as they're exposed to Python). Adding to the IconMap in CvTranslator.py also seems moot.
++# <!-- custom: note: i didn't add anything, but it looks like some chars like FontSymbols.CITIZEN_CHAR are missing here, yet calling them for example from CvVictoryScreen.py works successfully ingame to display said char (for example as of now in the Victories tab, so maybe fine as such (i don't know too much about these, check if accurate). -->
+ OtherFontIcons = { 'happy' : FontSymbols.HAPPY_CHAR,
+ 				'unhappy' : FontSymbols.UNHAPPY_CHAR,
+ 				'healthy' : FontSymbols.HEALTHY_CHAR,
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 593ecec34..99f863fd6 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import PyHelpers
+ import time
+ 
+@@ -16,6 +15,10 @@ import ColorUtil
+ import GameUtil
+ import PlayerUtil
+ import TechUtil
++# <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
++import TraitUtil
++
++AdvisorOpt = BugCore.game.Advisors
+ 
+ AdvisorOpt = BugCore.game.Advisors
+ # BUG - end
+@@ -153,7 +156,8 @@ class CvVictoryScreen:
+ 		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
+ 			return u""
+ 		pPlayer = gc.getPlayer(iPlayer)
+-		if not pPlayer.isAlive():
++		# <!-- custom: show icon even for dead players (for Settings tab) (claude opus 4.5) -->
++		if not pPlayer.isEverAlive():
+ 			return u""
+ 		szLeaderButton = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton()
+ 		return u"<img=%s size=%d></img>" % (szLeaderButton, self.iLeaderIconSize)
+@@ -166,6 +170,17 @@ class CvVictoryScreen:
+ 		szLeaderIcon = self.getLeaderIconTag(iPlayer)
+ 		return u"%s %s" % (szLeaderIcon, pPlayer.getName())
+ 
++	# <!-- custom: helper function to get trait icons string for a player (claude opus 4.5) -->
++	def getTraitIconsString(self, iPlayer):
++		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
++			return u""
++		pPlayer = gc.getPlayer(iPlayer)
++		szTraits = u""
++		for iTrait in range(gc.getNumTraitInfos()):
++			if pPlayer.hasTrait(iTrait):
++				szTraits += TraitUtil.getIcon(iTrait)
++		return szTraits
++
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+ 
+@@ -987,7 +1002,10 @@ class CvVictoryScreen:
+ 		# <!-- custom: add leader icon to active player name -->
+ 		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(self.iActivePlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++
++		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
++		szTraitIcons = self.getTraitIconsString(self.iActivePlayer)
++		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		g = gc.getGame() # advc
+ 		m = gc.getMap() # advc
+@@ -1202,7 +1220,10 @@ class CvVictoryScreen:
+ 			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
+ 			screen.appendListBoxStringNoUpdate(szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
++			szTraitIcons = self.getTraitIconsString(p.getID())
++			screen.appendListBoxStringNoUpdate(szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# <advc.190c>
+ 		for p in knownRivalsNotMet:
+@@ -1227,7 +1248,10 @@ class CvVictoryScreen:
+ 				eCiv = CivilizationTypes.NO_CIVILIZATION
+ 				if not p.wasCivRandomlyChosen():
+ 					eCiv = p.getCivilizationType()
+-				screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
++				szTraitIcons = self.getTraitIconsString(p.getID())
++				screen.appendListBoxStringNoUpdate(szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
+ 		if iUnknownRivals > 0:
+ 			szUnknown = localText.getText("TXT_KEY_UNKNOWN_RIVALS", (iUnknownRivals,))
+@@ -1393,7 +1417,7 @@ class CvVictoryScreen:
+ 
+ 					iRow = screen.appendTableRow(szTable)
+ 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (gc.getGame().getTargetScore(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					# <!-- custom: add leader icon to active player -->
++					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+ 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -1416,7 +1440,7 @@ class CvVictoryScreen:
+ 
+ 					iRow = screen.appendTableRow(szTable)
+ 					screen.setTableText(szTable, 0, iRow, szText1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					# <!-- custom: add leader icon to active player -->
++					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+ 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -1451,8 +1475,13 @@ class CvVictoryScreen:
+ 
+ 				if (gc.getGame().getAdjustedPopulationPercent(iLoopVC) > 0):
+ 					iRow = screen.appendTableRow(szTable)
+-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					# <!-- custom: add leader icon to active player -->
++
++					# <!-- custom: add population icon (claude opus 4.5) -->
++					iPopIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
++					szPopText = u"%c %s" % (iPopIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )))
++					screen.setTableText(szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+ 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -1471,8 +1500,12 @@ class CvVictoryScreen:
+ 
+ 				if (gc.getGame().getAdjustedLandPercent(iLoopVC) > 0):
+ 					iRow = screen.appendTableRow(szTable)
+-					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					# <!-- custom: add leader icon to active player -->
++					# <!-- custom: add map icon (claude opus 4.5) -->
++					iMapIcon = CyGame().getSymbolID(FontSymbols.MAP_CHAR)
++					szLandText = u"%c %s" % (iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )))
++					screen.setTableText(szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
+ 					szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
+ 					screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -1680,8 +1713,11 @@ class CvVictoryScreen:
+ 								szNumber = unicode(gc.getProjectInfo(i).getVictoryThreshold(iLoopVC))
+ 							else:
+ 								szNumber = unicode(gc.getProjectInfo(i).getVictoryMinThreshold(iLoopVC)) + u"-" + unicode(gc.getProjectInfo(i).getVictoryThreshold(iLoopVC))
++
+ 							screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-							screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							# <!-- custom: add leader icon to active player (claude opus 4.5) -->
++							szActivePlayerName = self.getPlayerNameWithIcon(self.iActivePlayer) + ":"
++							screen.setTableText(szTable, 2, iRow, szActivePlayerName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							screen.setTableText(szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							
+ 							#check if spaceship
+@@ -1716,7 +1752,11 @@ class CvVictoryScreen:
+ 				if (victory.isDiploVote()):
+ 					for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
+ 						iRow = screen.appendTableRow(szTable)
+-						screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add building icon for UN/AP (claude opus 4.5) -->
++						iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
++						szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
++						szElectionText = u"<img=%s size=%d></img> %s" % (szBuildingButton, self.iLeaderIconSize, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )))
++						screen.setTableText(szTable, 0, iRow, szElectionText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 						if (iUNTeam != -1):
+ 							if bUnknown:
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 43e423f61..4e8973bd1 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -3,8 +3,7 @@
+ from CvPythonExtensions import *
+ import PyHelpers
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ #import BugDll # advc.004: now unused
+ import BugUtil
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index 2bde554aa..f519b4539 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -1,7 +1,6 @@
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ import BugUtil
+ import math
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 08d26e01b..de401dc96 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -1,13 +1,14 @@
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ import CvEventInterface
+ 
+ from AStarTools import *
+ import MonkeyTools as mt
+ import UnitUtil
++# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
++#import string
+ 
+ import PyHelpers 
+ PyPlayer = PyHelpers.PyPlayer
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 77bbc1895..2b6afc8be 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -212,7 +212,7 @@
+ 			<KFM/>
+ 			<Button>Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time anyways etc, and adjusted or not anyways etc for advciv-sas anyways etc, vry pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and do but anyways etc anyways etc worth it i would say maybe yes in this case but anywas etc anyways etc anyways etc -->
++		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time anyways etc, and adjusted or not anyways etc for advciv-sas anyways etc, very pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and do but anyways etc anyways etc worth it i would say maybe yes in this case but anywas etc anyways etc anyways etc -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
+ 			<LSystem>LSYSTEM_2x1</LSystem>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index c85f11d32..c920bc44d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3491,10 +3491,9 @@
+ 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
+ 		<English>Augustus Caesar</English>
+ 	</TEXT>
+-	<!-- custom: was Willem (in BtS Civ4GameTextObjects XML) -->
+ 	<TEXT> <!-- redefine -->
+ 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
+-		<English>Willem van Oranje</English>
++		<English>Willem</English>
+ 	</TEXT>
+ 	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
+ 	<TEXT>
+
+diff --git a/README.md b/README.md
+index b3e98f57b..067003528 100644
+--- a/README.md
++++ b/README.md
+@@ -558,7 +558,7 @@ Examples of using some or most of these tools in AdvCiv-SAS modding is also avai
+ 
+ Some useful tools while doing this advciv-sas mod i mean anyways etc:
+ 
+-- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover but anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and vry nice errors i found in python thanks to ruff and chatgpt which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) ; the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
++- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover but anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and some very nice errors i found in python thanks to ruff and chatgpt which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) (see also [KI#21.6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#216---addressed-old-python-code-not-being-optimized-with-many-ruff-linter-that-we-added-vs-code-errors-that-dont-allow-to-read-the-files)); the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
+ - Windows 10 (Windows 11 was so laggy and broken after update, now going back to Windows 10
+ that i bombarded with updates and installs still works amazing so i recommend it)
+ - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 21e76b5a4..78a8da3fa 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -122,7 +122,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+-- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, etc.).
++- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index ecfe54164..bd1475b00 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -784,6 +784,8 @@ Note: in case i was too aggressive with these and somehow caused bugs, we may re
+ 
+ Note 2: example case of where i was too aggressive and caused a bug by remoing an unused variable shown [here in this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/56ea046e0da6e55652841d4cc3181b92e294323c#diff-354807997b1a5f7626ae7eee99c7f4841125b08e0dd67675269502697cc9fdc6L145-R147), so although a variable itself is unused doesn't mean the call was. Preserving the call while removing the old unused variable was the/a correct way to fix the ruff warning instead of simply removing the line, which was my mistake but perhaps a good example of cases where some extra caution is needed if i may say but anyways etc
+ 
++Note 3: reverted some of them to be safe and as not necessary to fix all of them (e.g. bare except rule added to exceptions in [/ruff.toml](/ruff.toml)).
++
+ ## 22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS anyways etc) in tech advisor (i.e. tech tree view anyways etc) failing to redirect to sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc
+ 
+ See screenshots of this issue in this [google drive folder link](https://drive.google.com/drive/folders/127ReqMyucJZ2gH88ARhgTWwuh6jl4oCs?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 1231761fa..92fdd74f6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+-- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, etc.).
++- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+index 0e376881f..3ff887791 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+index c85fa04b1..aa9432835 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=33650

@@ -1,0 +1,300 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 64
+# Commit: 544862810c1fed57343910b2e747d9c199ccc0f2
+# History segment: K-Mod history
+# Parent used for diff: ebbadc12d6451e07f88151ac0067eb18aac8172d
+# Title: Corrected some non-standard-compliant code. Adjusted the culture pressure formula. Added cache for the value of buildings in cities (without focus flags).
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvCity.cpp
+31	2	CvGameCoreDLL/CvCityAI.cpp
+4	0	CvGameCoreDLL/CvCityAI.h
+5	4	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+15	0	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 40b95a2ae..27313de1d 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5007,7 +5007,11 @@ int CvCity::culturePressureFactor() const
+ 				const CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iP);
+ 				if (kPlayer.isAlive() && kPlayer.getTeam() != getTeam() && !kPlayer.isBarbarian())
+ 				{
+-					int iForeignCulture = pLoopPlot->calculateCulturePercent((PlayerTypes)iP) / ((!pLoopPlot->isWithinCultureRange((PlayerTypes)iP) || GET_TEAM(kPlayer.getTeam()).isVassal(getTeam()))?2 :1);
++					int iForeignCulture = pLoopPlot->calculateCulturePercent((PlayerTypes)iP);
++					// lower the value if the foreign culture is not allowed take control of the plot
++					iForeignCulture /= ((!pLoopPlot->isWithinCultureRange((PlayerTypes)iP) || GET_TEAM(kPlayer.getTeam()).isVassal(getTeam()))?2 :1);
++					// lower the value if the foreign culture is not allowed to flip the city (with the default option for no conquest flipping)
++					iForeignCulture /= (isEverOwned((PlayerTypes)iP)?2 : 1);
+ 					iAnswer += iForeignCulture * iForeignCulture;
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7108e30bc..4d88199bf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -57,6 +57,7 @@ CvCityAI::CvCityAI()
+ 	m_bForceEmphasizeCulture = false;
+ 	m_aiSpecialYieldMultiplier = new int[NUM_YIELD_TYPES];
+ 	m_aiPlayerCloseness = new int[MAX_PLAYERS];
++	m_aiConstructionValue = new int[GC.getNumBuildingClassInfos()]; // K-Mod
+ 
+ 	m_pbEmphasize = NULL;
+ 
+@@ -72,6 +73,7 @@ CvCityAI::~CvCityAI()
+ 	SAFE_DELETE_ARRAY(m_aiEmphasizeCommerceCount);
+ 	SAFE_DELETE_ARRAY(m_aiSpecialYieldMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiPlayerCloseness);
++	SAFE_DELETE_ARRAY(m_aiConstructionValue); // K-Mod
+ }
+ 
+ 
+@@ -153,6 +155,11 @@ void CvCityAI::AI_reset()
+ 	{
+ 		m_aiPlayerCloseness[iI] = 0;
+ 	}
++	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++) // K-Mod
++	{
++		m_aiConstructionValue[iI] = -1;
++	}
++
+ 	m_iCachePlayerClosenessTurn = -1;
+ 	m_iCachePlayerClosenessDistance = -1;
+ 	
+@@ -3504,6 +3511,12 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
+ 	bool bIsLimitedWonder = (iLimitedWonderLimit >= 0);
+ 
++	// K-Mod, constructionValue cache
++	if (iFocusFlags == 0 && iThreshold == 0 && m_aiConstructionValue[eBuildingClass] != -1)
++	{
++		return m_aiConstructionValue[eBuildingClass];
++	}
++
+ 	int iCountMaking = kOwner.getBuildingClassMaking(eBuildingClass); // K-Mod
+ 
+ 	ReligionTypes eStateReligion = kOwner.getStateReligion();
+@@ -5169,7 +5182,15 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 		
+ 	}
+ 
+-	return std::max(0, iValue);
++	iValue = std::max(0, iValue);
++
++	// K-Mod, constructionValue cache
++	if (iFocusFlags == 0 && iThreshold == 0)
++	{
++		m_aiConstructionValue[eBuildingClass] = iValue;
++	}
++
++	return iValue;
+ }
+ 
+ 
+@@ -6894,7 +6915,7 @@ int CvCityAI::AI_getImprovementValue( CvPlot* pPlot, ImprovementTypes eImproveme
+ 
+ 			iValue /= 2;
+ 
+-            for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++            for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+ 			{
+ 				aiFinalYields[iJ] /= 2;
+ 				aiDiffYields[iJ] /= 2;
+@@ -12419,6 +12440,14 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iWorkersHave);
+ }
+ 
++// K-Mod
++void CvCityAI::AI_ClearConstructionValueCache()
++{
++	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++	{
++		m_aiConstructionValue[iI] = -1;
++	}
++}
+ 
+ /***
+ **** K-Mod, 13/sep/10, Karadoc
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 267817345..babdbd8b4 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -150,6 +150,8 @@ public:
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+ 
++	void AI_ClearConstructionValueCache(); // K-Mod
++
+ protected:
+ 
+ 	int m_iEmphasizeAvoidGrowthCount;
+@@ -182,6 +184,8 @@ protected:
+ 	int m_iWorkersNeeded;
+ 	int m_iWorkersHave;
+ 
++	int* m_aiConstructionValue; // K-Mod. (cache)
++	
+ 
+ 	void AI_doDraft(bool bForce = false);
+ 	void AI_doHurry(bool bForce = false);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 105cb41c4..799995ed0 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1847,7 +1847,7 @@ void CvGame::normalizeAddExtras()
+ 												{
+ 												pLoopPlot->setFeatureType(NO_FEATURE);
+ 
+-													for (iK = 0; iK < GC.getNumBonusInfos(); iK++)
++													for (int iK = 0; iK < GC.getNumBonusInfos(); iK++)
+ 													{
+ 														if (GC.getBonusInfo((BonusTypes)iK).isNormalize())
+ 														{
+@@ -1879,7 +1879,7 @@ void CvGame::normalizeAddExtras()
+ 				
+ 				shuffleArray(aiShuffle, NUM_CITY_PLOTS, getMapRand());
+ 
+-				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+ 					if (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), -1, true) >= iTargetValue)
+ 					{
+@@ -6358,7 +6358,8 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
+ 	{
+ 		// I want to be able to select a water tile with ice on it; so I can't just exclude water completely...
+ 		//CvPlot* pTestPlot = GC.getMapINLINE().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+-		for (int j = 0; j < 100; j++)
++		int j;
++		for (j = 0; j < 100; j++)
+ 		{
+ 			pTestPlot = GC.getMapINLINE().syncRandPlot(RANDPLOT_NOT_CITY);
+ 
+@@ -8795,7 +8796,7 @@ void CvGame::changeHumanPlayer( PlayerTypes eNewHuman )
+ 		GET_PLAYER(eNewHuman).setOption( (PlayerOptionTypes)iI, GET_PLAYER(eCurHuman).isOption((PlayerOptionTypes)iI) );
+ 	}
+ 
+-	for (iI = 0; iI < NUM_PLAYEROPTION_TYPES; iI++)
++	for (int iI = 0; iI < NUM_PLAYEROPTION_TYPES; iI++)
+ 	{
+ 		gDLL->sendPlayerOption(((PlayerOptionTypes)iI), GET_PLAYER(eNewHuman).isOption((PlayerOptionTypes)iI));
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 961cc2c7d..02b4bedbe 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2069,7 +2069,7 @@ void CvGame::startFlyoutMenu(const CvPlot* pPlot, std::vector<CvFlyoutMenuData>&
+ 				if (eConscriptUnit != NO_UNIT)
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_DRAFT_UNIT", GC.getUnitInfo(eConscriptUnit).getDescription(), pCity->getConscriptPopulation());
+-					aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CONSCRIPT, iI, pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
++					aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CONSCRIPT, GC.getNumHurryInfos(), pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 18fbc8ab1..e211a20ab 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15363,7 +15363,7 @@ void CvGameTextMgr::assignFontIds(int iFirstSymbolCode, int iPadAmount)
+ 	} while (iCurSymbolID % iPadAmount != 0);
+ 
+ 	// set commerce symbols
+-	for (i=0;i<GC.getNUM_COMMERCE_TYPES();i++)
++	for (int i=0;i<GC.getNUM_COMMERCE_TYPES();i++)
+ 	{
+ 		GC.getCommerceInfo((CommerceTypes) i).setChar(iCurSymbolID);  
+ 		++iCurSymbolID;
+@@ -15389,7 +15389,7 @@ void CvGameTextMgr::assignFontIds(int iFirstSymbolCode, int iPadAmount)
+ 		GC.getReligionInfo((ReligionTypes) i).setHolyCityChar(iCurSymbolID);
+ 		++iCurSymbolID;
+ 	}
+-	for (i = 0; i < GC.getNumCorporationInfos(); i++)
++	for (int i = 0; i < GC.getNumCorporationInfos(); i++)
+ 	{
+ 		GC.getCorporationInfo((CorporationTypes) i).setChar(iCurSymbolID);
+ 		++iCurSymbolID;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d57be80e5..5f6483d35 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -406,6 +406,9 @@ void CvPlayerAI::AI_doTurnPre()
+ 	
+ 	AI_doEnemyUnitData();
+ 
++	// K-Mod: clear construction value cache
++	AI_ClearConstructionValueCache();
++	
+ 	if (isHuman())
+ 	{
+ 		return;
+@@ -22058,6 +22061,18 @@ void CvPlayerAI::AI_invalidateAttitudeCache()
+ 		AI_invalidateAttitudeCache((PlayerTypes)iI);
+ 	}
+ }
++
++// K-Mod
++void CvPlayerAI::AI_ClearConstructionValueCache()
++{
++	CvCity *pLoopCity;
++	int iLoop;
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		// Have I meantioned that the way the "AI" classes are used in this code is an abomination and an insult to OO programming?
++		static_cast<CvCityAI*>(pLoopCity)->AI_ClearConstructionValueCache();
++	}
++}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index acaf5ad47..23d3d5e24 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -416,6 +416,7 @@ public:
+ 	// Attitude cache
+ 	void AI_invalidateAttitudeCache(PlayerTypes ePlayer);
+ 	void AI_invalidateAttitudeCache();
++	void AI_ClearConstructionValueCache(); // K-Mod
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a0c6a1907..610104ccd 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12202,7 +12202,8 @@ bool CvUnitAI::AI_spreadCorporation()
+ 
+ 	CorporationTypes eCorporation = NO_CORPORATION;	
+ 
+-	for (int iI = 0; iI < GC.getNumCorporationInfos(); ++iI)
++	int iI;
++	for (iI = 0; iI < GC.getNumCorporationInfos(); ++iI)
+ 	{
+ 		if (m_pUnitInfo->getCorporationSpreads((CorporationTypes)iI) > 0)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=9947

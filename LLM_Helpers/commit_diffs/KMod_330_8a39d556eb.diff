@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 330
+# Commit: 8a39d556ebe752b2ca3fcb4f46cf38b086318259
+# History segment: K-Mod history
+# Parent used for diff: 406dd336e3a922411e4ee311ae20c6116924fb1e
+# Title: City info on the main screen will now be updated after espionage missions. (So that, for example, production is shown to be zero after a sabotaged production...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	CvGameCoreDLL/CvCityAI.cpp
+2	0	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 948f9a52b..142ccb422 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2073,10 +2073,12 @@ void CvCityAI::AI_chooseProduction()
+ 		if (iNumSpies < iNeededSpies)
+ 		{
+ 			int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || GET_TEAM(getTeam()).getAnyWarPlanCount(true)) ?45 : 35;
+-			iOdds *= (50 + iBestBuildingValue);
+-			iOdds /= (20 + 2 * iBestBuildingValue);
++			iOdds *= 50 + iBestBuildingValue;
++			iOdds /= 20 + 2 * iBestBuildingValue;
+ 			iOdds *= iNeededSpies;
+-			iOdds /= (4*iNumSpies+iNeededSpies);
++			iOdds /= 4*iNumSpies + iNeededSpies;
++			iOdds -= bUnitExempt ? 10 : 0; // not completely exempt, but at least reduced probability.
++			iOdds = std::max(0, iOdds);
+ 			if (AI_chooseUnit(UNITAI_SPY, iOdds))
+ 			{
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S chooses spy with %d/%d needed, at %d odds", getName().GetCString(), iNumSpies, iNeededSpies, iOdds);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 17707b63a..a335c1fe1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14992,6 +14992,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 
+ 				bSomethingHappened = true;
+ 				bShowExplosion = true;
++				pCity->AI_setChooseProductionDirty(true); // K-Mod
+ 			}
+ 		}
+ 	}
+@@ -15034,6 +15035,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 
+ 				bSomethingHappened = true;
+ 				bShowExplosion = true;
++				pCity->AI_setChooseProductionDirty(true); // K-Mod
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index c285b9355..f90224e9e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6684,7 +6684,10 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
+ 					gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_POSITIVE_DINK", MESSAGE_TYPE_INFO, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pCapital->getX_INLINE(), pCapital->getY_INLINE(), true, true);
+ 				}
+ 			}
+-
++			// K-Mod
++			if (getTeam() == GC.getGameINLINE().getActiveTeam())
++				gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
++			// K-Mod end
+ 			return true;
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2369

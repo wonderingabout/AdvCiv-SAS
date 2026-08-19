@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3652
+# Commit: 549d50014d513e3ae0514be56597efefb6e2a8f8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1c62194c840c55304b61e1e86a96618a8f299037
+# Title: Ramp up Raging Barbarian aggression more smoothly
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 126cb93d5..ebde1dd52 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2130,7 +2130,7 @@ void CvUnitAI::AI_barbAttackMove()
+ 			/*	advc.300: Don't rage right away. (Don't recall why I had originally
+ 				only wanted this on slower game speed.) */
+ 			(//GC.getInfo(kGame.getGameSpeedType()).getBarbPercent() < 125 ||
+-			rAggressionRoll < barbarianAggressionChance(rCitiesPerCiv, fixp(1.6))))
++			rAggressionRoll < barbarianAggressionChance(rCitiesPerCiv, 2)))
+ 		{
+ 			if (AI_pillageRange(4))
+ 			{
+@@ -2163,7 +2163,9 @@ void CvUnitAI::AI_barbAttackMove()
+ 			}
+ 		}
+ 		else if (//iCivCities > iCivs * 3
+-			rAggressionRoll < barbarianAggressionChance(rCitiesPerCiv, 3)) // advc.300
++			// <advc.300>
++			rAggressionRoll < barbarianAggressionChance(rCitiesPerCiv,
++			kGame.isOption(GAMEOPTION_RAGING_BARBARIANS) ? fixp(1.6) : 3)) // </advc.300>
+ 		{
+ 			if (AI_cityAttack(1, 15))
+ 			{
+@@ -2201,7 +2203,9 @@ void CvUnitAI::AI_barbAttackMove()
+ 			}
+ 		}
+ 		else if (//iCivCities > iCivs * 2
+-			rAggressionRoll < barbarianAggressionChance(rCitiesPerCiv, 2)) // advc.300
++			// <advc.300>
++			rAggressionRoll < barbarianAggressionChance(rCitiesPerCiv,
++			kGame.isOption(GAMEOPTION_RAGING_BARBARIANS) ? fixp(1.25) : 2)) // </advc.300>
+ 		{
+ 			if (AI_pillageRange(2))
+ 				return;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1383

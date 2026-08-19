@@ -1,0 +1,410 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2866
+# Commit: cd9adde129653b646461ed28319d9742296414dc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cfccfec4620ff89fe011f7ad2e0e2f1492e7d72e
+# Title: Little bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	35	CvGameCoreDLL/CvCityAI.cpp
+7	9	CvGameCoreDLL/CvPlayer.cpp
+4	6	CvGameCoreDLL/CvPlayer.h
+4	3	CvGameCoreDLL/CvPlayerAI.cpp
+5	6	CvGameCoreDLL/CvTeam.cpp
+8	8	CvGameCoreDLL/CvTeamAI.cpp
+9	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e60d8dbff..8a2fb99a9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12145,10 +12145,11 @@ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield) const
+ 
+ 	return iMultiplier;
+ }
+-//this should be called before doing governor stuff.
+-//This is the function which replaces emphasis
+-//Could stand for a Commerce Variety to be added
+-//especially now that there is Espionage
++
++/*	This should be called before doing governor stuff.
++	This is the function which replaces emphasis.
++	Could stand for a Commerce Variety to be added,
++	especially now that there is Espionage. */
+ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ {
+ 	PROFILE_FUNC();
+@@ -12205,77 +12206,71 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
+ 		return; // advc
+ 	// non-human production value increase
+ 
+-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+-	AreaAITypes eAreaAIType = getArea().getAreaAIType(getTeam());
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	AreaAITypes const eAreaAIType = getArea().getAreaAIType(getTeam());
+ 
+ 	// K-Mod. special strategy / personality adjustments
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++	if (kOwner.AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 20;
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 20;
+ 	}
+-	else if (findBaseYieldRateRank(YIELD_PRODUCTION) <= kPlayer.getNumCities()/3 &&
++	else if (findBaseYieldRateRank(YIELD_PRODUCTION) <= kOwner.getNumCities()/3 &&
+ 		findBaseYieldRateRank(YIELD_PRODUCTION) < findBaseYieldRateRank(YIELD_COMMERCE))
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 10;
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 10;
+ 	}
+ 
+-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE1 | AI_VICTORY_SPACE1))
+-	{
++	if (kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1 | AI_VICTORY_SPACE1))
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] += 5;
+-	}
+ 
+-	if (kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0)
++	if (kOwner.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0)
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 5 +
+-				2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION);
++				2 * kOwner.AI_getFlavorValue(FLAVOR_PRODUCTION);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
++	if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] -= 10;
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] += 20;
+ 	}  // advc.001: was AI_isDoVictoryStrategy
+-	else if (kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS)) // doesn't stack with ec focus.
++	else if (kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS)) // doesn't stack with ec focus.
+ 	{
+ 		m_aiSpecialYieldMultiplier[YIELD_COMMERCE] += 20;
+ 	} // K-Mod end
+ 
+-	if ((kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) && getPopulation() >= 4) ||
++	if ((kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER) && getPopulation() >= 4) ||
+ 		(eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) ||
+ 		(eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
+ 	{
+ 		/*m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 10;
+-		if (!kPlayer.AI_isFinancialTrouble())
++		if (!kOwner.AI_isFinancialTrouble())
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 40;*/ // BtS
+ 		// K-Mod. Don't sacrifice lots of commerce unless we're on the defensive, or this is 'total war'.
+ 		// advc.018: Removed crush from the isDoStrategy call
+-		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += kPlayer.
++		m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += kOwner.
+ 				AI_isDoStrategy(AI_STRATEGY_DAGGER | AI_STRATEGY_TURTLE) ? 20 : 10;
+-		if (eAreaAIType != AREAAI_NEUTRAL && !kPlayer.AI_isFinancialTrouble() &&
+-			!kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS | AI_STRATEGY_GET_BETTER_UNITS))
++		if (eAreaAIType != AREAAI_NEUTRAL && !kOwner.AI_isFinancialTrouble() &&
++			!kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS | AI_STRATEGY_GET_BETTER_UNITS))
+ 		{
+-			const CvTeamAI& kTeam = GET_TEAM(kPlayer.getTeam());
+-			bool bSeriousWar = eAreaAIType == AREAAI_DEFENSIVE || kPlayer.isBarbarian();
+-			for (TeamTypes i = (TeamTypes)0; !bSeriousWar && i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
++			bool bSeriousWar = (eAreaAIType == AREAAI_DEFENSIVE || kOwner.isBarbarian());
++			for (TeamIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getTeam());
++				!bSeriousWar && itEnemy.hasNext(); ++itEnemy)
+ 			{
+-				if (GET_TEAM(i).isAlive())
+-				{
+-					WarPlanTypes ePlan = kTeam.AI_getWarPlan(i);
+-					FAssert(ePlan == NO_WARPLAN || (kTeam.isHasMet(i) && GET_TEAM(i).isAlive()));
+-					bSeriousWar = ePlan == WARPLAN_PREPARING_TOTAL || ePlan == WARPLAN_TOTAL;
+-				}
++				WarPlanTypes eWarPlan = GET_TEAM(getTeam()).AI_getWarPlan(itEnemy->getID());
++				bSeriousWar = (eWarPlan == WARPLAN_PREPARING_TOTAL || eWarPlan == WARPLAN_TOTAL);
+ 			}
+-			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= bSeriousWar ? 35 : 10;
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= (bSeriousWar ? 35 : 10);
+ 		} // K-Mod end
+ 	}
+ 
+-	//int iIncome = 1 + kPlayer.getCommerceRate(COMMERCE_GOLD) + kPlayer.getCommerceRate(COMMERCE_RESEARCH) + std::max(0, kPlayer.getGoldPerTurn());
+-	int iIncome = 1 + kPlayer.AI_getAvailableIncome(); // K-Mod
+-	int iExpenses = 1 + kPlayer.calculateInflatedCosts() +
+-			//-std::min(0, kPlayer.getGoldPerTurn());
++	//int iIncome = 1 + kOwner.getCommerceRate(COMMERCE_GOLD) + kOwner.getCommerceRate(COMMERCE_RESEARCH) + std::max(0, kOwner.getGoldPerTurn());
++	int iIncome = 1 + kOwner.AI_getAvailableIncome(); // K-Mod
++	int iExpenses = 1 + kOwner.calculateInflatedCosts() +
++			//-std::min(0, kOwner.getGoldPerTurn());
+ 			// K-Mod (just to be consistent with similar calculations)
+-			std::max(0, -kPlayer.getGoldPerTurn()); 
++			std::max(0, -kOwner.getGoldPerTurn()); 
+ 	FAssert(iIncome > 0);
+ 
+ 	int iRatio = (100 * iExpenses) / iIncome;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bdadc9207..cce235922 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3234,7 +3234,7 @@ int CvPlayer::upgradeAllXPChange(UnitTypes eUpgradeUnit, UnitTypes eFromUnit) co
+ } // </advc.080>
+ 
+ int CvPlayer::countReligionSpreadUnits(CvArea const* pArea,
+-	ReligionTypes eReligion, bool bIncludeTraining) const
++	ReligionTypes eReligion, /* BBAI: */ bool bIncludeTraining) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3247,8 +3247,7 @@ int CvPlayer::countReligionSpreadUnits(CvArea const* pArea,
+ 				iCount++;
+ 		}
+ 	}
+-
+-	// bbai
++	// BETTER_BTS_AI_MOD (11/14/09, jdog5000): START
+ 	if (bIncludeTraining)
+ 	{
+ 		FOR_EACH_CITY(pLoopCity, *this)
+@@ -3260,13 +3259,13 @@ int CvPlayer::countReligionSpreadUnits(CvArea const* pArea,
+ 					iCount++;
+ 			}
+ 		}
+-	} // bbai end
++	} // BETTER_BTS_AI_MOD: END
+ 
+ 	return iCount;
+ }
+ 
+ int CvPlayer::countCorporationSpreadUnits(CvArea const* pArea,
+-	CorporationTypes eCorporation, bool bIncludeTraining) const
++	CorporationTypes eCorporation, /* BBAI: */ bool bIncludeTraining) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3280,8 +3279,7 @@ int CvPlayer::countCorporationSpreadUnits(CvArea const* pArea,
+ 				iCount++;
+ 		}
+ 	}
+-
+-	// bbai
++	// BETTER_BTS_AI_MOD (11/14/09, jdog5000): START
+ 	if (bIncludeTraining)
+ 	{
+ 		FOR_EACH_CITY(pLoopCity, *this)
+@@ -3296,7 +3294,7 @@ int CvPlayer::countCorporationSpreadUnits(CvArea const* pArea,
+ 				}
+ 			}
+ 		}
+-	} // bbai end
++	} // BETTER_BTS_AI_MOD: END
+ 
+ 	return iCount;
+ }
+@@ -8900,7 +8898,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 
+ /*	K-Mod. The body of this function use to be part of setTurnActive.
+ 	I've moved it here just to improve the readability of that function.
+-	(This logging is from bbai.) */
++	(Based on BETTER_BTS_AI_MOD, 10/26/09, jdog5000 - AI logging.) */
+ void CvPlayer::onTurnLogging() const
+ {
+ 	if (gPlayerLogLevel > 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 7b7812b61..bef4fa17c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -202,12 +202,10 @@ public:
+ 	// advc.080:
+ 	int upgradeAllXPChange(UnitTypes eUpgradeUnit, UnitTypes eFromUnit) const;
+ 
+-	// note: bbai added bIncludeTraining to the following two functions
+-	int countReligionSpreadUnits(CvArea const* pArea,																// Exposed to Python
+-			ReligionTypes eReligion, bool bIncludeTraining = false) const;
+-	int countCorporationSpreadUnits(CvArea const* pArea,															// Exposed to Python
+-			CorporationTypes eCorporation, bool bIncludeTraining = false) const;
+-
++	int countReligionSpreadUnits(CvArea const* pArea, ReligionTypes eReligion,										// Exposed to Python
++			bool bIncludeTraining = false) const; // BBAI
++	int countCorporationSpreadUnits(CvArea const* pArea, CorporationTypes eCorporation,								// Exposed to Python
++			bool bIncludeTraining = false) const; // BBAI
+ 	int countNumCoastalCities() const;																				// Exposed to Python
+ 	int countNumCoastalCitiesByArea(CvArea const& kArea) const;														// Exposed to Python
+ 	int countTotalCulture() const;																					// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 559a7e8c1..941512145 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -638,7 +638,8 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+ 		pLoopUnit->AI_promote(); // </advc.mnai>
+ 
+-	// UF bugfix: AI_doSplit moved here per alexman's suggestion
++	/*	UNOFFICIAL_PATCH, 06/16/09, jdog5000 (bugfix):
++		AI_doSplit moved here per alexman's suggestion */
+ 	AI_doSplit();
+ 	/*	K-Mod note: the reason for moving it here is that player turn ordering
+ 		can get messed up if a new player is created, recycling an old player number,
+@@ -9438,9 +9439,9 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 			if (bSameTeam)
+ 				iThreshold *= 5; // </advc.155>
+ 			else if (!bVassal) // advc.130v
+-			{
++			{	// BETTER_BTS_AI_MOD (06/12/10, jdog5000, Diplomacy AI): START
+ 				if (GET_TEAM(ePlayer).AI_isLandTarget(getTeam()))
+-					iThreshold *= 3;
++					iThreshold *= 3; // BETTER_BTS_AI_MOD: END
+ 				iThreshold *= (GET_TEAM(ePlayer).getPower(false) + 100);
+ 				iThreshold /= (kOurTeam.getPower(false) + 100);
+ 			} // <advc.144>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ab2643a53..44fa62c89 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1030,14 +1030,14 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
+ 	return true;
+ }
+ 
+-// bbai (advc: refactored)
++// BETTER_BTS_AI_MOD, 01/16/10, jdog5000, War Strategy AI:
+ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
+ {
+ 	return (eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive() &&
+ 			!isAtWar(eTeam) && isHasMet(eTeam) && canChangeWarPeace(eTeam, true) &&
+ 			!GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) &&
+ 			GC.getPythonCaller()->canDeclareWar(getID(), eTeam));
+-} // bbai end
++}
+ 
+ // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
+ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan,
+@@ -1053,7 +1053,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 			TEAMID(eSponsor) != eTarget)); // </advc.100>
+ 	if (isAtWar(eTarget))
+ 		return;
+-	if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget);
++	if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
+ 	CvTeam& kTarget = GET_TEAM(eTarget);
+ 	std::vector<CvPlayer*> kMembers; // advc: of either team
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+@@ -1082,11 +1082,10 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 	// <advc.162>
+ 	if(GC.getDefineBOOL(CvGlobals::ENABLE_162))
+ 		m_abJustDeclaredWar.set(eTarget, true); // </advc.162>
+-
+-	// Plot danger cache (bbai)
++	// BETTER_BTS_AI_MOD (08/21/09, jdog5000, Efficiency): START
+ 	GC.getMap().invalidateBorderDangerCache(eTarget);
+ 	GC.getMap().invalidateBorderDangerCache(getID());
+-
++	// BETTER_BTS_AI_MOD: END
+ 	for (size_t i = 0; i < kMembers.size(); i++)
+ 		kMembers[i]->updatePlunder(1, false);
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 7ea7da57f..90cf12b47 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2337,9 +2337,9 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 				return DENIAL_PEACE_NOT_POSSIBLE_US;
+ 		}
+ 	} // K-Mod end
+-
++	// BETTER_BTS_AI_MOD (12/07/09,  jdog5000, Diplomacy);
+ 	if (isHuman() && kMasterTeam.isHuman())
+-		return NO_DENIAL;
++		return NO_DENIAL; // BETTER_BTS_AI_MOD: END
+ 	// <advc.112>
+ 	if(AI_anyMemberAtVictoryStage3())
+ 		return DENIAL_VICTORY;
+@@ -2552,10 +2552,11 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		// </advc.112>
+ 	}
+ 	else if (/* advc.112: */ !bColony &&
++		// BETTER_BTS_AI_MOD (06/12/10, jdog5000): START
+ 		!kMasterTeam.AI_isLandTarget(getID()))
+ 	{
+ 		rMasterPower /= 2;
+-	}
++	} // BETTER_BTS_AI_MOD: END
+ 	// K-Mod. (condition moved here from lower down; for efficiency.)
+ 	// <advc.112> Special treatment of vassal-master power ratio if colony
+ 	if ((!bColony && 3 * rVassalPower > 2 * rMasterPower) ||
+@@ -2662,7 +2663,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 	if(!bColony) // advc.112
+ 	{
+ 		// if (iVassalPower > iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
+-		// advc.112: Changed coefficients from 5/4 to 1/0.76
++		// advc.112: Changed coefficients from 5/4 (BBAI, K-Mod) to 1/0.76
+ 		if (rVassalPower > fixp(0.76) * rAveragePower || // K-Mod. (second condition already checked)
+ 			// <advc.112> Median condition; randomization when breaking free
+ 			(!bWar && rVassalPower > fixp(0.76) * rMedianPow))
+@@ -5602,10 +5603,9 @@ bool CvTeamAI::AI_isPursuingCircumnavigation() const
+ 	return false;
+ }
+ 
+-// Make war decisions, mainly for starting or switching war plans.
+-//
+-// This function has been tweaked throughout by BBAI and K-Mod, some changes marked others not.
+-// (K-Mod has made several structural changes.)
++/*	Make war decisions, mainly for starting or switching war plans.
++	This function has been tweaked throughout by BBAI and K-Mod,
++	some changes marked, others not. (K-Mod has made several structural changes.) */
+ void CvTeamAI::AI_doWar()
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d0325f00b..a94f7d4d2 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2305,7 +2305,10 @@ void CvUnitAI::AI_attackMove()
+ 			{
+ 				// Defend colonies in new world
+ 				//if (AI_guardCity(true, true, 3))
+-				if (getGroup()->getNumUnits() == 1 ? AI_guardCityMinDefender(true) : AI_guardCity(true, true, 3)) // K-Mod
++				// <K-Mod>
++				if (getGroup()->getNumUnits() == 1 ?
++					AI_guardCityMinDefender(true) :
++					AI_guardCity(true, true, 3)) // </K-Mod>
+ 				{
+ 					return;
+ 				}
+@@ -12643,11 +12646,10 @@ bool CvUnitAI::AI_safety()
+ 			//iValue += p.defenseModifier(getTeam(), false);
+ 			iValue += AI_plotDefense(&p); // advc.012
+ 			// K-Mod
+-			iValue += (bEnemyTerritory ? !isEnemy(p) :
+-					p.getTeam() == getTeam()) ? 30 : 0;
+-			iValue += p.isValidRoute(this, /* advc.001i: */ false)
+-					? 25 : 0;
+-			// K-Mod end
++			if (bEnemyTerritory ? !isEnemy(p) : (p.getTeam() == getTeam()))
++				iValue += 30;
++			if (p.isValidRoute(this, /* advc.001i: */ false))
++				iValue += 25; // K-Mod end
+ 			if (at(p))
+ 				iValue += 50;
+ 			else iValue += GC.getGame().getSorenRandNum(50, "AI Safety");
+@@ -12663,8 +12665,7 @@ bool CvUnitAI::AI_safety()
+ 			if (bIgnoreDanger)
+ 				break; // no suitable plot, even when ignoring danger
+ 			else bIgnoreDanger = true; // try harder next time
+-		}
+-		// K-Mod end
++		} // K-Mod end
+ 	} while (pBestPlot == NULL);
+ 
+ 	if (pBestPlot != NULL)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=16051

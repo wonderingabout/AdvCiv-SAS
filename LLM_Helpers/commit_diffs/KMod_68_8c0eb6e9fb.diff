@@ -1,0 +1,239 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 68
+# Commit: 8c0eb6e9fbad3532a20c91c9beb7293fe1732f89
+# History segment: K-Mod history
+# Parent used for diff: bb6145040b30bfed15e297b14306d5c018fba093
+# Title: Made some adjustments to the AI's crush strategy - it will now keep some floating defenders. Taught the AI compare its units to its enemies' units, to decide...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	0	CvGameCoreDLL/CvPlayer.cpp
+3	9	CvGameCoreDLL/CvPlayer.h
+66	5	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 10627ef36..1d43ca0e8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9452,6 +9452,29 @@ void CvPlayer::changeFreeMilitaryUnitsPopulationPercent(int iChange)
+ 	}
+ }
+ 
++// K-Mod
++int CvPlayer::getTypicalUnitValue(UnitAITypes eUnitAI) const
++{
++	//UnitTypes eBestUnit = NO_UNIT;
++	int iHighestValue = 0;
++
++	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++	{
++		UnitTypes eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++
++		if (eLoopUnit != NO_UNIT && GC.getUnitInfo(eLoopUnit).getUnitAIType(eUnitAI) && canTrain(eLoopUnit))
++		{
++			int iValue = GC.getGameINLINE().AI_combatValue(eLoopUnit);
++			if (iValue > iHighestValue)
++			{
++				iHighestValue = iValue;
++				//eBestUnit = eLoopUnit;
++			}
++		}
++	}
++
++	return iHighestValue;
++}
+ 
+ int CvPlayer::getGoldPerUnit() const																		
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index e51e4dfc1..d63ac694e 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -481,6 +481,9 @@ public:
+ 	int getFreeMilitaryUnitsPopulationPercent() const;																										// Exposed to Python
+ 	void changeFreeMilitaryUnitsPopulationPercent(int iChange);											
+ 
++	// K-Mod
++	int getTypicalUnitValue(UnitAITypes eUnitAI) const;
++
+ 	int getGoldPerUnit() const;																																								// Exposed to Python
+ 	void changeGoldPerUnit(int iChange);															
+ 
+@@ -1062,15 +1065,6 @@ public:
+ 	virtual void AI_assignWorkingPlots() = 0;
+ 	virtual void AI_updateAssignWork() = 0;
+ 	virtual void AI_makeProductionDirty() = 0;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/08/09                                jdog5000      */
+-/*                                                                                              */
+-/* City AI                                                                                      */
+-/************************************************************************************************/
+-	//virtual void AI_doCentralizedProduction() = 0;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 	virtual void AI_conquerCity(CvCity* pCity) = 0;
+ 	virtual int AI_foundValue(int iX, int iY, int iMinUnitRange = -1, bool bStartingLoc = false) const = 0; // Exposed to Python
+ 	virtual bool AI_isCommercePlot(CvPlot* pPlot) const = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 403c4dcb6..a54c5ada0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10672,7 +10672,11 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 			int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * 8;
+ 			if (iBombardValue > 0)
+ 			{
+-				int iGoalTotalBombardRate = 200;
++				//int iGoalTotalBombardRate = 200;
++				// K-Mod note: This goal has no dependancy on civ size, map size, era, strategy, or anything else that matters
++				// a flat goal of 200... This needs to be fixed. For now, I'll just replace it with something rough.
++				// But this is a future "todo".
++				int iGoalTotalBombardRate = (getNumCities()+2) * (getCurrentEra()+2) * (AI_isDoStrategy(AI_STRATEGY_CRUSH)?8 :4);
+ 
+ 				// Note: this also counts UNITAI_COLLATERAL units, which only play defense
+ 				int iTotalBombardRate = AI_calculateTotalBombard(DOMAIN_LAND);
+@@ -15149,7 +15153,7 @@ void CvPlayerAI::AI_doDiplo()
+ 
+ 															if (GET_PLAYER((PlayerTypes)iI).isHuman())
+ 															{
+-																//if (!(abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()]))
++																if (!(abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()])) // uncommented by K-Mod
+ 																{
+ 																	pDiplo = new CvDiploParameters(getID());
+ 																	FAssertMsg(pDiplo != NULL, "pDiplo must be valid");
+@@ -18022,11 +18026,13 @@ int CvPlayerAI::AI_getConquestVictoryStage() const
+ 		
+ 		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
+ 
+-		int iNonsense = AI_getStrategyRand() + 30;
++		//int iNonsense = AI_getStrategyRand() + 30;
++		int iNonsense = AI_getStrategyRand() + 8191; // K-Mod, a prime number, and bigger than 100.
+ 		iValue += (iNonsense % 100);
+ 
+ 		if (iValue >= 100)
+ 		{
++			// K-Mod note: I don't know why this is here. We need better units therefore we should go for conquest?
+ 			if( m_iStrategyHash & AI_STRATEGY_GET_BETTER_UNITS )
+ 			{
+ 				if( (getNumCities() > 3) && (4*iOurPower > 5*iAverageOtherPower) )
+@@ -18525,6 +18531,12 @@ int CvPlayerAI::AI_getStrategyHash() const
+     int iNukeCount = 0;
+     
+     int iAttackUnitCount = 0;
++	// K-Mod
++	int iAverageEnemyUnit = 0;
++	int iTypicalAttack = getTypicalUnitValue(UNITAI_ATTACK);
++	int iTypicalDefence = getTypicalUnitValue(UNITAI_CITY_DEFENSE);
++	// K-Mod end
++
+ 	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+ 		eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+@@ -18611,10 +18623,38 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 		}
+ 	}
+ 
+-	if (iAttackUnitCount <= 1)
++	// K-Mod
++	{
++		int iTotalPower = 0;
++		int iTotalWeightedValue = 0;
++		for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++		{
++			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iI);
++			if (kPlayer.getTeam() != getTeam())
++			{
++				if (kPlayer.isAlive() && GET_TEAM(getTeam()).isHasMet(kPlayer.getTeam()))
++				{
++					int iValue = kPlayer.getTypicalUnitValue(UNITAI_ATTACK);
++					if (iValue <= 1)
++						iValue = kPlayer.getTypicalUnitValue(UNITAI_CITY_DEFENSE);
++					iTotalWeightedValue += kPlayer.getPower() * iValue;
++					iTotalPower += kPlayer.getPower();
++				}
++			}
++		}
++		if (iTotalPower == 0)
++			iAverageEnemyUnit = 0;
++		else
++			iAverageEnemyUnit = iTotalWeightedValue / iTotalPower;
++	}
++
++	//if (iAttackUnitCount <= 1)
++	if (iAttackUnitCount <= 1 ||
++		(iAverageEnemyUnit > 3*iTypicalAttack/2 && iAverageEnemyUnit > 5*iTypicalDefence/3))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_GET_BETTER_UNITS;
+ 	}
++	// K-Mod end
+ 	if (iBestFastUnitCombat > iBestSlowUnitCombat)
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_FASTMOVERS;		
+@@ -18905,7 +18945,8 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 	}
+ 
+ 	// Economic focus (K-Mod) - Note: this strategy is a gambit. The goal is catch up in tech by avoiding building units.
+-	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) == 0 && iParanoia <= 2*(100-GET_TEAM(getTeam()).getBestKnownTechScorePercent()))
++	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) == 0 &&
++		(iAverageEnemyUnit >= 2*iTypicalAttack && iAverageEnemyUnit >= 5*iTypicalDefence/2))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_ECONOMY_FOCUS;
+ 	}
+@@ -19936,6 +19977,18 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 	
+ 	int iLoop;
+ 
++	// K-Mod
++	int* aiSpareUnits = new int[GC.getMapINLINE().getNumAreas()];
++	for (iLoop = 0; iLoop < GC.getMapINLINE().getNumAreas(); iLoop++)
++	{
++		CvArea* pArea = GC.getMapINLINE().getArea(iLoop);
++		if (pArea)
++			aiSpareUnits[iLoop] = 2 * AI_getTotalFloatingDefenders(pArea) - AI_getTotalFloatingDefendersNeeded(pArea);
++		else
++			aiSpareUnits[iLoop] = 0;
++	}
++	// K-Mod end
++	
+ 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+ 	{
+ 		bool bValid = false;
+@@ -19955,6 +20008,10 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 			bValid = false;
+ 		}
+ 
++		// K-Mod
++		if (aiSpareUnits[pLoopUnit->area()->getID()] <= 0)
++			bValid = false;
++	
+ 		if (bValid)
+ 		{
+ 			if (pLoopUnit->plot()->isCity())
+@@ -19972,8 +20029,12 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 		if (bValid)
+ 		{
+ 			pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK_CITY);			
++			// K-Mod
++			aiSpareUnits[pLoopUnit->area()->getID()]--;
+ 		}
+ 	}
++
++	SAFE_DELETE_ARRAY(aiSpareUnits);
+ }
+ 
+ int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance) const
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8195

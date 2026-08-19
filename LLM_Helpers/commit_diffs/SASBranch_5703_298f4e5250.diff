@@ -1,0 +1,533 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5703
+# Commit: 298f4e52500f23fa9213608e23b15900696255a1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 72e780b452f6878366ad7d131e243af4a692dabf
+# Title: add much more SevoPediaEventTrigger prereqs with the very nice help of GPT-5.5 thanks a lot
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+184	4	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+36	9	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+1	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+156	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index e0039dc01..ec0beeade 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -16,6 +16,16 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order.
++# Centralize labels here so the rare case of changing enum order is easy to audit.
++# (GPT-5.5) -->
++SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS = (
++	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK",
++	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS",
++	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND",
++	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN",
++)
++
+ 
+ class SevoPediaEventTrigger:
+ 
+@@ -209,6 +219,97 @@ class SevoPediaEventTrigger:
+ 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_UNITS", ()) + u": %d" % info.getNumUnitsGlobal())
+ 			if info.getNumBuildingsGlobal() > 0:
+ 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS", ()) + u": %d" % info.getNumBuildingsGlobal())
++			if info.getMinDifficulty() >= 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_DIFFICULTY", ()) + u": " + gc.getHandicapInfo(info.getMinDifficulty()).getDescription())
++			if info.getAngry() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ANGRY", ()) + u": %d" % info.getAngry())
++			if info.getUnhealthy() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNHEALTHY", ()) + u": %d" % info.getUnhealthy())
++			if info.getMinMapLandmass() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_MAP_LANDMASS", ()) + u": %d" % info.getMinMapLandmass())
++			if info.getMinOurLandmass() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_OUR_LANDMASS", ()) + u": %d" % info.getMinOurLandmass())
++			if info.getMaxOurLandmass() >= 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_OUR_LANDMASS", ()) + u": %d" % info.getMaxOurLandmass())
++			if info.getNumPlotsRequired() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOTS_REQUIRED", ()) + u": %d" % info.getNumPlotsRequired())
++			if info.isOwnPlot():
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OWN_PLOT", ()))
++			if info.getPlotsType() >= 0:
++				iPlotType = info.getPlotsType()
++				if iPlotType < len(SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS):
++					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": " + localText.getText(SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS[iPlotType], ()))
++				else:
++					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": %d" % iPlotType)
++			if info.getNumReligions() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_RELIGIONS", ()) + u": %d" % info.getNumReligions())
++			if info.getNumCorporations() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_CORPORATIONS", ()) + u": %d" % info.getNumCorporations())
++			listFlagKeys = []
++			if info.isPickReligion():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_RELIGION")
++			if info.isStateReligion():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_STATE_RELIGION")
++			if info.isHolyCity():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HOLY_CITY")
++			if info.isPickCorporation():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CORPORATION")
++			if info.isHeadquarters():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HEADQUARTERS")
++			if info.isPrereqEventCity():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PREREQ_EVENT_CITY")
++			if info.isPickPlayer():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_PLAYER")
++			if info.isOtherPlayerWar():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_WAR")
++			if info.isOtherPlayerHasReligion():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_RELIGION")
++			if info.isOtherPlayerHasOtherReligion():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_OTHER_RELIGION")
++			if info.isOtherPlayerAI():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_AI")
++			if info.isPickCity():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CITY")
++			if info.isPickOtherPlayerCity():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_OTHER_PLAYER_CITY")
++			if info.isShowPlot():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SHOW_PLOT")
++			if info.isUnitsOnPlot():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT")
++			if info.isProbabilityUnitMultiply():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY")
++			if info.isProbabilityBuildingMultiply():
++				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY")
++			for szKey in listFlagKeys:
++				lines.append(self.BULLET_PREFIX + localText.getText(szKey, ()))
++			if info.getOtherPlayerShareBorders() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS", ()) + u": %d" % info.getOtherPlayerShareBorders())
++			if info.getCityFoodWeight() != 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_FOOD_WEIGHT", ()) + u": %d" % info.getCityFoodWeight())
++			if info.getUnitDamagedWeight() != 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DAMAGED_WEIGHT", ()) + u": %d" % info.getUnitDamagedWeight())
++			if info.getUnitDistanceWeight() != 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DISTANCE_WEIGHT", ()) + u": %d" % info.getUnitDistanceWeight())
++			if info.getUnitExperienceWeight() != 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_EXPERIENCE_WEIGHT", ()) + u": %d" % info.getUnitExperienceWeight())
++			listRoutes = []
++			for i in range(info.getNumRoutesRequired()):
++				iRoute = info.getRouteRequired(i)
++				if iRoute >= 0:
++					routeInfo = gc.getRouteInfo(iRoute)
++					if routeInfo:
++						listRoutes.append(routeInfo.getDescription())
++			if listRoutes:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_REQUIRED_ROUTES", ()) + u": " + localText.getText("TXT_KEY_OR", ()).join([u" " + szRoute + u" " for szRoute in listRoutes]).strip())
++			listPython = []
++			if info.getPythonCanDo() and len(info.getPythonCanDo().strip()) > 0:
++				listPython.append(info.getPythonCanDo())
++			if info.getPythonCanDoCity() and len(info.getPythonCanDoCity().strip()) > 0:
++				listPython.append(info.getPythonCanDoCity())
++			if info.getPythonCanDoUnit() and len(info.getPythonCanDoUnit().strip()) > 0:
++				listPython.append(info.getPythonCanDoUnit())
++			if listPython:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PYTHON_GATES", ()) + u": " + u", ".join(listPython))
+ 
+ 		if lines:
+ 			szText = u"\n".join(lines)
+@@ -714,6 +815,7 @@ class SevoPediaEventTrigger:
+ 
+ 		iButtonIndex = 0
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
++		szOrLabel = localText.getText("TXT_KEY_OR", ())
+ 
+ 		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands
+ 		# in the earliest grid slot. numTxt is placed at absolute coordinates (no grid
+@@ -728,7 +830,10 @@ class SevoPediaEventTrigger:
+ 				add_multilist_numTxt_under_button(multiListX, multiListY, -3, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, u"Oth.P.", screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 				iButtonIndex += 1
+ 
+-		# Direct AND prereq techs — no numTxt, icon alone = implicit AND.
++		# <!-- custom: direct AND prereqs are intentionally shown as adjacent unlabeled
++		# icons. Rendering "and" between every required icon makes dense panels noisy;
++		# in Sevopedia icon rows, plain adjacency means all are required, while explicit
++		# connector numTxt is reserved for real alternatives such as "A or B". (GPT-5.5) -->
+ 		seenAnd = {}
+ 		for i in range(info.getNumPrereqAndTechs()):
+ 			iTech = info.getPrereqAndTechs(i)
+@@ -750,9 +855,6 @@ class SevoPediaEventTrigger:
+ 			if iTech >= 0 and iTech not in seenOr:
+ 				seenOr[iTech] = True
+ 				orTechList.append(iTech)
+-		szOrLabel = None
+-		if len(orTechList) > 1:
+-			szOrLabel = localText.getText("TXT_KEY_OR", ())
+ 		bFirstOrTech = True
+ 		for iTech in orTechList:
+ 			techInfo = gc.getTechInfo(iTech)
+@@ -826,6 +928,84 @@ class SevoPediaEventTrigger:
+ 				screen.appendMultiListButton(rowListName, corpInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iCorp, 1, False)
+ 				iButtonIndex += 1
+ 
++		iListButtonIndex = 0
++		for i in range(info.getNumFeaturesRequired()):
++			iFeature = info.getFeatureRequired(i)
++			if iFeature < 0:
++				continue
++			featureInfo = gc.getFeatureInfo(iFeature)
++			if featureInfo:
++				if iListButtonIndex > 0:
++					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, featureInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
++				iButtonIndex += 1
++				iListButtonIndex += 1
++
++		iListButtonIndex = 0
++		for i in range(info.getNumTerrainsRequired()):
++			iTerrain = info.getTerrainRequired(i)
++			if iTerrain < 0:
++				continue
++			terrainInfo = gc.getTerrainInfo(iTerrain)
++			if terrainInfo:
++				if iListButtonIndex > 0:
++					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, terrainInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
++				iButtonIndex += 1
++				iListButtonIndex += 1
++
++		iListButtonIndex = 0
++		for i in range(info.getNumImprovementsRequired()):
++			iImprovement = info.getImprovementRequired(i)
++			if iImprovement < 0:
++				continue
++			improvementInfo = gc.getImprovementInfo(iImprovement)
++			if improvementInfo:
++				if iListButtonIndex > 0:
++					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, improvementInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
++				iButtonIndex += 1
++				iListButtonIndex += 1
++
++		iListButtonIndex = 0
++		for i in range(info.getNumBonusesRequired()):
++			iBonus = info.getBonusRequired(i)
++			if iBonus < 0:
++				continue
++			bonusInfo = gc.getBonusInfo(iBonus)
++			if bonusInfo:
++				if iListButtonIndex > 0:
++					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, bonusInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
++				iButtonIndex += 1
++				iListButtonIndex += 1
++
++		iListButtonIndex = 0
++		for i in range(info.getNumPrereqEvents()):
++			iPrereqEvent = info.getPrereqEvent(i)
++			if iPrereqEvent < 0:
++				continue
++			eventInfo = gc.getEventInfo(iPrereqEvent)
++			if not eventInfo:
++				continue
++			iTargetTrigger = -1
++			for iLoopTrigger in range(gc.getNumEventTriggerInfos()):
++				loopInfo = gc.getEventTriggerInfo(iLoopTrigger)
++				if not loopInfo:
++					continue
++				for j in range(loopInfo.getNumEvents()):
++					if loopInfo.getEvent(j) == iPrereqEvent:
++						iTargetTrigger = iLoopTrigger
++						break
++				if iTargetTrigger >= 0:
++					break
++			if iTargetTrigger >= 0:
++				if iListButtonIndex > 0:
++					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.appendMultiListButton(rowListName, eventInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY, iTargetTrigger, False)
++				iButtonIndex += 1
++				iListButtonIndex += 1
++
+ 		if iButtonIndex == 0:
+ 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+ 			yCenter = self.Y_REQUIRES_BUTTONS + (self.H_REQUIRES_BUTTONS / 2)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index e43c435c8..db73eafdd 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1440,16 +1440,34 @@ def _SAS_getUnitClassEra(iUnitClass):
+ 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
+ 
+ 
+-def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
++def _SAS_getEventTriggerForEvent(iEvent):
++	if iEvent < 0:
++		return -1
++	for iTrigger in range(gc.getNumEventTriggerInfos()):
++		info = gc.getEventTriggerInfo(iTrigger)
++		if not info:
++			continue
++		for i in range(info.getNumEvents()):
++			if info.getEvent(i) == iEvent:
++				return iTrigger
++	return -1
++
++
++def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
+ 	# <!-- custom: returns (iEra, bDirect). bDirect is True when the trigger declares
+ 	# at least one entry in <OrPreReqs> or <AndPreReqs> — i.e. the era is visible at
+ 	# a glance on the trigger itself. bDirect is False when the era had to be inferred
+-	# indirectly via chain lookups (OtherPlayerHasTech, required civic/building/unit/
+-	# religion/corporation). The grouping function uses this to split each era section
++	# indirectly via chain lookups (OtherPlayerHasTech, prerequisite event chains,
++	# required civic/building/unit/religion/corporation). The grouping function uses this to split each era section
+ 	# into "Ancient" vs "Ancient (indirect)" so readers can tell at-a-glance which
+ 	# triggers are obviously era-gated vs which rely on our indirect inference.
+ 	# iEra is -1 only when NO prereq of any kind gives an era — in that case bDirect
+-	# is irrelevant (caller puts those in the "Any era" bucket). (Claude code Opus 4.7) -->
++	# is irrelevant (caller puts those in the "Any era" bucket). (Claude code Opus 4.7; GPT-5.5 update) -->
++	if seenTriggers is None:
++		seenTriggers = {}
++	if iTrigger in seenTriggers:
++		return (-1, False)
++	seenTriggers[iTrigger] = True
+ 	info = gc.getEventTriggerInfo(iTrigger)
+ 	if not info:
+ 		return (-1, False)
+@@ -1471,8 +1489,8 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
+ 			iAndMax = iEra
+ 	bHasDirectAnd = (iAndMax >= 0)
+ 
+-	# Indirect constraints (OtherPlayerHasTech, required civic/building/unit/religion/
+-	# corporation) are all AND-ish — the trigger can't fire until the latest-era
++	# Indirect constraints (OtherPlayerHasTech, prerequisite event chains, required
++	# civic/building/unit/religion/corporation) are all AND-ish — the trigger can't fire until the latest-era
+ 	# inference is satisfied. Collected separately so we can classify direct vs indirect.
+ 	iIndirectMax = -1
+ 	def _bumpIndirect(iEra):
+@@ -1506,6 +1524,15 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
+ 			corpInfo = gc.getCorporationInfo(iCorp)
+ 			if corpInfo:
+ 				_bumpIndirect(_SAS_getTechEra(corpInfo.getTechPrereq()))
++	# <!-- custom: prerequisite event chains inherit the prerequisite trigger's inferred era.
++	# This stays indirect because the current trigger does not declare the tech itself; it
++	# depends on a prior event outcome that may have its own tech or chain gate. (GPT-5.5) -->
++	for i in range(info.getNumPrereqEvents()):
++		iPrereqEvent = info.getPrereqEvent(i)
++		iPrereqTrigger = _SAS_getEventTriggerForEvent(iPrereqEvent)
++		if iPrereqTrigger >= 0:
++			iPrereqEra = _SAS_getEventTriggerEarliestEraAndSource(iPrereqTrigger, seenTriggers.copy())[0]
++			_bumpIndirect(iPrereqEra)
+ 	# Routes use TechMovementChanges (a list, not a single prereq) so there's no clean
+ 	# single-era answer — skipped. Route-required triggers are rare enough that the
+ 	# other constraints on the same trigger usually give a correct era anyway.
+@@ -1557,8 +1584,8 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
+ #   mental model better than appending them at the end.
+ # - Each real era produces TWO buckets: "Ancient" (triggers whose tech prereq is visible
+ #   directly in <OrPreReqs> / <AndPreReqs>) and "Ancient (indirect)" (triggers whose era
+-#   was inferred from <OtherPlayerHasTech> or from a required civic/building/unit/
+-#   religion/corporation's own tech prereq). The indirect bucket exists so readers can
++#   was inferred from <OtherPlayerHasTech>, a prerequisite event chain, or a required
++#   civic/building/unit/religion/corporation's own tech prereq). The indirect bucket exists so readers can
+ #   tell at-a-glance which placements are "the XML says so" vs "our chain-lookup says so".
+ # - Within each section, triggers are emitted in XML declaration order. This preserves
+ #   the modder's intended grouping (families like FESTIVAL / FESTIVAL_AGAIN / FESTIVAL_DONE
+@@ -1566,7 +1593,7 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
+ #   in the list for free). If a family is ever scattered in the XML, fix at XML level.
+ # - bSortLists is honored: when the user enables Sort Lists, entries within each section
+ #   sort alphabetically by label instead of XML order (same convention as other pedia
+-#   categories in this module). (Claude code Opus 4.7) -->
++#   categories in this module). (Claude code Opus 4.7; GPT-5.5 update) -->
+ def SAS_getEventTriggersGroupedByEra(bSortLists):
+ 	listEntries = []
+ 	iNumEras = gc.getNumEraInfos()
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index bc9522398..d98825678 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -182,7 +182,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND_PEDIA</Tag>
+-		<English>[H1]Sevopedia Event Triggers Legend[\H1][PARAGRAPH:2]This page explains the era groupings and abbreviations used in Sevopedia Event Triggers.[PARAGRAPH:2]Era grouping:[PARAGRAPH:2]- Any era (no tech requirement): triggers that can fire from turn 1 because they declare no tech prerequisite of any kind.[PARAGRAPH:2]- Ancient / Classical / Medieval / ... : triggers whose earliest tech prerequisite is visible directly on the trigger XML, i.e. in its OrPreReqs or AndPreReqs tech list. These are "direct" era classifications - the gate is explicit on the trigger itself.[PARAGRAPH:2]- Ancient (indirect) / Classical (indirect) / ... : triggers whose era was inferred via chain lookup because the trigger XML does not list a direct tech prereq. The era comes from one of: OtherPlayerHasTech (another player must have a tech), the required Civic's prereq tech, a required Building/Unit class's default building/unit prereq tech, a required Religion's prereq tech, or a required Corporation's prereq tech. These are "indirect" - the trigger never reads "requires Flight" directly, but it requires something that implies Flight.[PARAGRAPH:2]Numbered labels (numTxt) under buttons:[PARAGRAPH:2]- Oth.P. : other player has this tech. Pairs with the OtherPlayerHasTech field. This tech does not need to be researched by the trigger's player - someone else in the game must have it. The label appears because the icon art is identical to a self-prereq tech icon and would otherwise be ambiguous.[PARAGRAPH:2]- OR : appears between adjacent buttons in a Requires OR-prereq group of two or more techs, or between adjacent Obsolete with techs when multiple techs can obsolete the trigger. Means any single one satisfies that group; for Obsolete with, any single one blocks the trigger.[PARAGRAPH:2]- No label on an AND prereq tech, a civic, or a required building/unit/religion/corporation - the icon art alone identifies those unambiguously in the Requires panel context.</English>
++		<English>[H1]Sevopedia Event Triggers Legend[\H1][PARAGRAPH:2]This page explains the era groupings and abbreviations used in Sevopedia Event Triggers.[PARAGRAPH:2]Era grouping:[PARAGRAPH:2]- Any era (no tech requirement): triggers that can fire from turn 1 because they declare no tech prerequisite of any kind.[PARAGRAPH:2]- Ancient / Classical / Medieval / ... : triggers whose earliest tech prerequisite is visible directly on the trigger XML, i.e. in its OrPreReqs or AndPreReqs tech list. These are "direct" era classifications - the gate is explicit on the trigger itself.[PARAGRAPH:2]- Ancient (indirect) / Classical (indirect) / ... : triggers whose era was inferred via chain lookup because the trigger XML does not list a direct tech prereq. The era comes from one of: OtherPlayerHasTech (another player must have a tech), a prerequisite event trigger's inferred era, the required Civic's prereq tech, a required Building/Unit class's default building/unit prereq tech, a required Religion's prereq tech, or a required Corporation's prereq tech. These are "indirect" - the trigger never reads "requires Flight" directly, but it requires something that implies Flight.[PARAGRAPH:2]Requirements display:[PARAGRAPH:2]- Requires (Buttons) shows linkable requirements such as techs, civics, buildings, units, religions, corporations, terrains, features, improvements, bonuses, and prerequisite event triggers.[PARAGRAPH:2]- Requires (Text) shows numeric, flag, route, target-selection, and Python-gate constraints that have no clear pedia button target.[PARAGRAPH:2]Numbered labels (numTxt) under buttons:[PARAGRAPH:2]- Oth.P. : other player has this tech. Pairs with the OtherPlayerHasTech field. This tech does not need to be researched by the trigger's player - someone else in the game must have it. The label appears because the icon art is identical to a self-prereq tech icon and would otherwise be ambiguous.[PARAGRAPH:2]- OR : appears between adjacent buttons in a Requires OR-prereq group of two or more techs, between same-field plot alternatives such as terrain/feature/improvement/bonus options, or between adjacent Obsolete with techs when multiple techs can obsolete the trigger. Means any single one satisfies that group; for Obsolete with, any single one blocks the trigger.[PARAGRAPH:2]- No connector between adjacent buttons means AND: all shown requirements apply. AND is left implicit because writing "and" between every required icon makes dense panels harder to scan.</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 760601cc3..27323c245 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3850,6 +3850,162 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS</Tag>
+ 		<English>Global Buildings</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_DIFFICULTY</Tag>
++		<English>Min Difficulty</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ANGRY</Tag>
++		<English>Angry Citizens</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNHEALTHY</Tag>
++		<English>Unhealthy</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_MAP_LANDMASS</Tag>
++		<English>Min Map Landmass</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_OUR_LANDMASS</Tag>
++		<English>Min Our Landmass</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_OUR_LANDMASS</Tag>
++		<English>Max Our Landmass</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOTS_REQUIRED</Tag>
++		<English>Plots Required</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OWN_PLOT</Tag>
++		<English>Requires our plot</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE</Tag>
++		<English>Plot Type</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK</Tag>
++		<English>Peak</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS</Tag>
++		<English>Hills</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND</Tag>
++		<English>Land</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN</Tag>
++		<English>Ocean</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_RELIGIONS</Tag>
++		<English>Religions Count</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_CORPORATIONS</Tag>
++		<English>Corporations Count</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_RELIGION</Tag>
++		<English>Picks a religion</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_STATE_RELIGION</Tag>
++		<English>Requires state religion</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HOLY_CITY</Tag>
++		<English>Requires holy city</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CORPORATION</Tag>
++		<English>Picks a corporation</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HEADQUARTERS</Tag>
++		<English>Requires headquarters</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PREREQ_EVENT_CITY</Tag>
++		<English>Prereq event must be in the same city</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_PLAYER</Tag>
++		<English>Picks another player</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_WAR</Tag>
++		<English>Other player at war</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_RELIGION</Tag>
++		<English>Other player has religion</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_OTHER_RELIGION</Tag>
++		<English>Other player has another religion</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_AI</Tag>
++		<English>Other player must be AI</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CITY</Tag>
++		<English>Picks one of our cities</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_OTHER_PLAYER_CITY</Tag>
++		<English>Picks another player's city</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SHOW_PLOT</Tag>
++		<English>Shows target plot</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT</Tag>
++		<English>Requires units on plot</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY</Tag>
++		<English>Probability multiplied by unit count</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY</Tag>
++		<English>Probability multiplied by building count</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS</Tag>
++		<English>Other Player Shared Borders</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_FOOD_WEIGHT</Tag>
++		<English>City Food Weight</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DAMAGED_WEIGHT</Tag>
++		<English>Unit Damaged Weight</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DISTANCE_WEIGHT</Tag>
++		<English>Unit Distance Weight</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_EXPERIENCE_WEIGHT</Tag>
++		<English>Unit Experience Weight</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_REQUIRED_ROUTES</Tag>
++		<English>Required Routes</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PYTHON_GATES</Tag>
++		<English>Python Gates</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER</Tag>
+ 		<English>Events</English>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=28889

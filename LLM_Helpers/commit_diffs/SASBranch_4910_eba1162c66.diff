@@ -1,0 +1,2614 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4910
+# Commit: eba1162c664defd0de3e50627e57b5a3998d9021
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b2560ac6b6b3231e0239a1ab738e45c7d591d5b8
+# Title: add levitation_artillery (import from c2c mod anyways etc), "UNIT_ARTILLERY" and such to "UNIT_MODERN_ARTILLERY" and such anyways etc, rename "UNIT_MOBILE_AR...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor_gloss.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/texture.dds
+140	106	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+5	1	Assets/XML/Technologies/CIV4TechInfos.xml
+12	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+2	2	Assets/XML/Text/CIV4GameText_advc.xml
+24	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+87	78	Assets/XML/Units/CIV4UnitClassInfos.xml
+560	338	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor_gloss.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/texture.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds
+new file mode 100644
+index 000000000..bda6f91e8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor.dds b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor.dds
+new file mode 100644
+index 000000000..fb5b83ade
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor_gloss.dds
+new file mode 100644
+index 000000000..eda7a6349
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/disruptor_gloss.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif
+new file mode 100644
+index 000000000..42e8d96d9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/texture.dds b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/texture.dds
+new file mode 100644
+index 000000000..1f935c8d9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/texture.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 756fd4091..41a1bb0c5 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1253,54 +1253,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_GRENADIER</Type>
+-			<Button>,Art/Interface/Buttons/Units/Grenadier.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,6</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Grenadier/Grenadier.nif</NIF>
+-			<KFM>Art/Units/Grenadier/Grenadier.kfm</KFM>
+-			<SHADERNIF>Art/Units/Grenadier/Grenadier_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>0.95</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_AT_INFANTRY</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,11</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/AntiTankInfantry/WWAntiTankInfantry.nif</NIF>
+-			<KFM>Art/Units/AntiTankInfantry/WWAntiTankInfantry.kfm</KFM>
+-			<SHADERNIF>Art/Units/AntiTankInfantry/WWAntiTankInfantry_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_INFANTRY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Infantry.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,3</Button>
+@@ -1398,6 +1350,30 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_MACHINE_GUN</Type>
++			<Button>,Art/Interface/Buttons/Units/MachineGun.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,6</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/MachineGun/MachineGunner.nif</NIF>
++			<KFM>Art/Units/MachineGun/MachineGunner.kfm</KFM>
++			<SHADERNIF>Art/Units/MachineGun/MachineGunner_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.05</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MECHANIZED_INFANTRY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/MechanizedInfantry.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,8</Button>
+@@ -1431,6 +1407,54 @@
+ 				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_GRENADIER</Type>
++			<Button>,Art/Interface/Buttons/Units/Grenadier.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,6</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Grenadier/Grenadier.nif</NIF>
++			<KFM>Art/Units/Grenadier/Grenadier.kfm</KFM>
++			<SHADERNIF>Art/Units/Grenadier/Grenadier_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.95</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_AT_INFANTRY</Type>
++			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,11</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/AntiTankInfantry/WWAntiTankInfantry.nif</NIF>
++			<KFM>Art/Units/AntiTankInfantry/WWAntiTankInfantry.kfm</KFM>
++			<SHADERNIF>Art/Units/AntiTankInfantry/WWAntiTankInfantry_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SAM_INFANTRY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/SAM_Infantry.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,8</Button>
+@@ -2222,31 +2246,7 @@
+ 			<ActionSound>AS3D_UN_CATAPULT_HEAL</ActionSound>
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_MACHINE_GUN</Type>
+-			<Button>,Art/Interface/Buttons/Units/MachineGun.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,6</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/MachineGun/MachineGunner.nif</NIF>
+-			<KFM>Art/Units/MachineGun/MachineGunner.kfm</KFM>
+-			<SHADERNIF>Art/Units/MachineGun/MachineGunner_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.05</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_ARTILLERY</Type>
++			<Type>ART_DEF_UNIT_MODERN_ARTILLERY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Artillery.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,11</Button>
+ 			<fScale>0.65</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+@@ -2279,6 +2279,73 @@
+ 			<SelectionSound>AS3D_UN_ARTILLERY_FORT</SelectionSound>
+ 			<ActionSound>AS3D_UN_ARTILLERY_FORT</ActionSound>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_SELF_PROPELLED_ARTILLERY</Type>
++			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,11</Button>
++			<fScale>0.57</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/MobileArtillery/MobileArtillery.nif</NIF>
++			<KFM>Art/Units/MobileArtillery/MobileArtillery.kfm</KFM>
++			<SHADERNIF>Art/Units/MobileArtillery/MobileArtillery_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/MechInfantryShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.8</fShadowScale>
++			</ShadowDef>
++			<iDamageStates>4</iDamageStates>
++			<TrailDefinition>
++				<Texture>Art/Shared/tanktread.dds</Texture>
++				<fWidth>.7</fWidth>
++				<fLength>180.0</fLength>
++				<fTaper>0.0</fTaper>
++				<fFadeStartTime>0.2</fFadeStartTime>
++				<fFadeFalloff>0.35</fFadeFalloff>
++			</TrailDefinition>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.12</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop>LOOPSTEP_TANK</AudioRunTypeLoop>
++				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
++			</AudioRunSounds>
++		</UnitArtInfo>
++		<!-- custom: import from c2c mod's "levitation_artillery" (and also some files in "nlos_artillery" according to the nif as they were not directly in the "levitation_artillery" folder, and adjusted or not for advciv-sas anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_LEVITATION_ARTILLERY</Type>
++			<Button>Art/AdvCiv_SAS/Units/Levitation_Artillery/levitation_artillery.dds</Button>
++			<fScale>0.4</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif</NIF>
++			<KFM>Art/Units/MobileArtillery/MobileArtillery.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Levitation_Artillery/nif/levart.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/MechInfantryShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.8</fShadowScale>
++			</ShadowDef>
++			<iDamageStates>4</iDamageStates>
++			<TrailDefinition>
++				<Texture>Art/Shared/tanktread.dds</Texture>
++				<fWidth>.7</fWidth>
++				<fLength>180.0</fLength>
++				<fTaper>0.0</fTaper>
++				<fFadeStartTime>0.2</fFadeStartTime>
++				<fFadeFalloff>0.35</fFadeFalloff>
++			</TrailDefinition>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.12</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop>LOOPSTEP_TANK</AudioRunTypeLoop>
++				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKBOAT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WorkBoat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,9</Button>
+@@ -3821,39 +3888,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_MOBILE_ARTILLERY</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,11</Button>
+-			<fScale>0.57</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/MobileArtillery/MobileArtillery.nif</NIF>
+-			<KFM>Art/Units/MobileArtillery/MobileArtillery.kfm</KFM>
+-			<SHADERNIF>Art/Units/MobileArtillery/MobileArtillery_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/MechInfantryShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>0.8</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<TrailDefinition>
+-				<Texture>Art/Shared/tanktread.dds</Texture>
+-				<fWidth>.7</fWidth>
+-				<fLength>180.0</fLength>
+-				<fTaper>0.0</fTaper>
+-				<fFadeStartTime>0.2</fFadeStartTime>
+-				<fFadeFalloff>0.35</fFadeFalloff>
+-			</TrailDefinition>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.12</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop>LOOPSTEP_TANK</AudioRunTypeLoop>
+-				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MISSILE_CRUISER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,12</Button>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 094f5b717..95d510a82 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -6147,7 +6147,11 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>12</iFlavor>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 8074f85c8..b73e457e5 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -456,6 +456,14 @@
+ 		<Tag>TXT_KEY_UNIT_MODERN_TANK</Tag>
+ 		<English>Modern Tank</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_MODERN_ARTILLERY</Tag>
++		<English>Modern Artillery</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Tag>
++		<English>Self-Propelled Artillery</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Tag>
+ 		<English>Robotic Infantry</English>
+@@ -464,6 +472,10 @@
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_TANK</Tag>
+ 		<English>Robotic Tank</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_LEVITATION_ARTILLERY</Tag>
++		<English>Levitation Artillery</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 1e938f1ad..5df8698c3 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5762,12 +5762,12 @@
+ 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
+-		<English>[ICON_BULLET]Collateral Damage (base %d1%%, max. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
++		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+ 	</TEXT>
+ 	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too but anyways etc: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly i mean but anyways etc) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
+-		<English>[ICON_BULLET]Coll. Damage (base %d1%%, max. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
++		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+ 	</TEXT>
+ 	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name ; since this shouldn't refer to iCollateralDamage if i am not mistaken in my guess, adding the word "extra", anyways etc -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index ce0dbd7cc..a839dd1ec 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -285,6 +285,22 @@
+ 
+ 
+ 
++	<!-- custom: rename "UNIT_ARTILLERY" and such to "UNIT_MODERN_ARTILLERY" and such anyways etc ; pedia entry based on https://en.wikipedia.org/wiki/Artillery and adjusted or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_MODERN_ARTILLERY_PEDIA</Tag>
++		<English>[TAB]In the 20th century, target acquisition devices (such as radar) and techniques (such as sound ranging and flash spotting) emerged, primarily for artillery. These are usually utilized by one or more of the artillery arms. The widespread adoption of indirect fire in the early 20th century introduced the need for specialist data for field artillery, notably survey and meteorological, and in some armies, provision of these are the responsibility of the artillery arm. The majority of combat deaths in the Napoleonic Wars, World War I, and World War II were caused by artillery. In 1944, Joseph Stalin said in a speech that artillery was "the god of war".[PARAGRAPH:2]The development of modern artillery occurred in the mid to late 19th century as a result of the convergence of various improvements in the underlying technology. Advances in metallurgy allowed for the construction of breech-loading rifled guns that could fire at a much greater muzzle velocity.[PARAGRAPH:1]After the British artillery was shown up in the Crimean War as having barely changed since the Napoleonic Wars, the industrialist William Armstrong was awarded a contract by the government to design a new piece of artillery. Production started in 1855 at the Elswick Ordnance Company and the Royal Arsenal at Woolwich, and the outcome was the revolutionary Armstrong Gun, which marked the birth of modern artillery. Three of its features particularly stand out.[PARAGRAPH:1]First, the piece was rifled, which allowed for a much more accurate and powerful action. Although rifling had been tried on small arms since the 15th century, the necessary machinery to accurately rifle artillery was not available until the mid-19th century. Martin von Wahrendorff, and Joseph Whitworth independently produced rifled cannon in the 1840s, but it was Armstrong's gun that was first to see widespread use during the Crimean War. The cast iron shell of the Armstrong gun was similar in shape to a Mini� ball and had a thin lead coating which made it fractionally larger than the gun's bore and which engaged with the gun's rifling grooves to impart spin to the shell. This spin, together with the elimination of windage as a result of the tight fit, enabled the gun to achieve greater range and accuracy than existing smooth-bore muzzle-loaders with a smaller powder charge.[PARAGRAPH:1]His gun was also a breech-loader. Although attempts at breech-loading mechanisms had been made since medieval times, the essential engineering problem was that the mechanism could not withstand the explosive charge. It was only with the advances in metallurgy and precision engineering capabilities during the Industrial Revolution that Armstrong was able to construct a viable solution. The gun combined all the properties that make up an effective artillery piece. The gun was mounted on a carriage in such a way as to return the gun to firing position after the recoil.[PARAGRAPH:1]What made the gun really revolutionary lay in the technique of the construction of the gun barrel that allowed it to withstand much more powerful explosive forces. The "built-up" method involved assembling the barrel with wrought-iron (later mild steel was used) tubes of successively smaller diameter. The tube would then be heated to allow it to expand and fit over the previous tube. When it cooled the gun would contract although not back to its original size, which allowed an even pressure along the walls of the gun which was directed inward against the outward forces that the gun's firing exerted on the barrel.[PARAGRAPH:1]Another innovative feature, more usually associated with 20th-century guns, was what Armstrong called its "grip", which was essentially a squeeze bore; the 6 inches of the bore at the muzzle end was of slightly smaller diameter, which centered the shell before it left the barrel and at the same time slightly swaged down its lead coating, reducing its diameter and slightly improving its ballistic qualities.[PARAGRAPH:1]Armstrong's system was adopted in 1858, initially for "special service in the field" and initially he produced only smaller artillery pieces, 6-pounder (2.5 in/64 mm) mountain or light field guns, 9-pounder (3 in/76 mm) guns for horse artillery, and 12-pounder (3 inches /76 mm) field guns.[PARAGRAPH:1]The first cannon to contain all 'modern' features is generally considered to be the French 75 of 1897. The gun used cased ammunition, was breech-loading, had modern sights, and a self-contained firing mechanism. It was the first field gun to include a hydro-pneumatic recoil mechanism, which kept the gun's trail and wheels perfectly still during the firing sequence. Since it did not need to be re-aimed after each shot, the crew could fire as soon as the barrel returned to its resting position. In typical use, the French 75 could deliver fifteen rounds per minute on its target, either shrapnel or melinite high-explosive, up to about 5 miles (8,500 m) away. Its firing rate could even reach close to 30 rounds per minute, albeit only for a very short time and with a highly experienced crew. These were rates that contemporary bolt action rifles could not match.</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename "UNIT_MOBILE_ARTILLERY" and such to "UNIT_SELF_PROPELLED_ARTILLERY" and such anyways etc ; pedia entry based on https://en.wikipedia.org/wiki/Self-propelled_artillery and adjusted or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY_PEDIA</Tag>
++		<English>[TAB]Self-propelled artillery (also called locomotive artillery) is artillery equipped with its own propulsion system to move toward its firing position. Within the terminology are the self-propelled gun, self-propelled howitzer, self-propelled mortar, and self-propelled rocket artillery. They are high-mobility vehicles, usually based on continuous tracks carrying either a large field gun, howitzer, mortar, or some form of rocket/missile launcher. They are usually used for long-range indirect bombardment support on the battlefield.[PARAGRAPH:1]In the past, self-propelled artillery has included direct-fire vehicles, such as assault guns and tank destroyers, which were typically well-armoured vehicles often based upon the chassis of a tank. In lieu of the standard tank's general-purpose main gun that fired both high-explosive and anti-tank ammunition, direct-fire vehicles had specialized roles, with assault guns providing close fire-support for infantry and tank destroyers mounting an anti-tank gun to take on enemy armour.[PARAGRAPH:1]Modern self-propelled artillery vehicles often mount their main gun in a turret on a tracked chassis so they superficially resemble tanks. However, they are generally lightly armoured, which is insufficient to withstand direct-fire combat; nonetheless this protects their crews against shrapnel and small arms and therefore they are usually included as armoured fighting vehicles. Many are equipped with machine guns for defense against enemy infantry.[PARAGRAPH:1]The key advantage of self-propelled over towed artillery is that it can be brought into action much faster. Before the towed artillery can be used, it has to stop, unlimber and set up the guns. To move position, the guns must be limbered up again and brought�usually towed�to the new location. By comparison, self-propelled artillery can stop at a chosen location and begin firing almost immediately, then quickly move on to a new position. This shoot-and-scoot ability is very useful in a mobile conflict and particularly on the advance in open battlefields.[PARAGRAPH:1]Conversely, towed artillery was and remains cheaper to build and maintain. It is also lighter and can be deployed in areas that self-propelled guns cannot reach. Since the Vietnam War, heavy transport helicopters have also been used for rapid artillery deployment albeit at considerable expense and risk, mitigating one of towed artillery's disadvantages. Both self-propelled and towed artillery remain in the arsenals of many modern armies.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: pedia entry based on https://en.wikipedia.org/wiki/Military_robot anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY_PEDIA</Tag>
+@@ -301,6 +317,14 @@
+ 
+ 
+ 
++	<!-- custom: pedia entry based on a part of https://en.wikipedia.org/wiki/Levitation_(physics)# and on the robotic_infantry's entry  and adjusted or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_LEVITATION_ARTILLERY_PEDIA</Tag>
++		<English>[TAB]Levitation (from Latin levitas, lit. 'lightness') is the process by which an object is held aloft in a stable position, without mechanical support via any physical contact.[PARAGRAPH:1]Levitation is accomplished by providing an upward force that counteracts the pull of gravity (in relation to gravity on earth), plus a smaller stabilizing force that pushes the object toward a home position whenever it is a small distance away from that home position. The force can be a fundamental force such as magnetic or electrostatic, or it can be a reactive force such as optical, buoyant, aerodynamic, or hydrodynamic. Levitation excludes floating at the surface of a liquid because the liquid provides direct mechanical support. Levitation excludes hovering flight by insects, hummingbirds, helicopters, rockets, and balloons because the object provides its own counter-gravity force.[PARAGRAPH:2]Military robots are autonomous robots or remote-controlled mobile robots designed for military applications, from transport to search and rescue and attack.[PARAGRAPH:1]Some such systems are currently in use, and many are under development. The difference between military robots and military drones is unclear as of 2025: some say that lethal autonomous weapons are robots whereas others describe "fully autonomous military drones".[PARAGRAPH:2]Autonomous robotics would save and preserve soldiers' lives by removing serving soldiers, who might otherwise be killed, from the battlefield. Lt. Gen. Richard Lynch of the United States Army Installation Management Command and assistant Army chief of staff for installation stated at a 2011 conference:[PARAGRAPH:1]"As I think about what's happening on the battlefield today ... I contend there are things we could do to improve the survivability of our service members. And you all know that's true."[PARAGRAPH:1]Major Kenneth Rose of the US Army's Training and Doctrine Command outlined some of the advantages of robotic technology in warfare:[PARAGRAPH:1]"Machines don't get tired. They don't close their eyes. They don't hide under trees when it rains and they don't talk to their friends ... A human's attention to detail on guard duty drops dramatically in the first 30 minutes ... Machines know no fear."[PARAGRAPH:1]Increasing attention is also paid to how to make the robots more autonomous, with a view of eventually allowing them to operate on their own for extended periods of time, possibly behind enemy lines. For such functions, systems like the Energetically Autonomous Tactical Robot are being tried, which is intended to gain its own energy by foraging for plant matter. The majority of military robots are tele-operated and not equipped with weapons; they are used for reconnaissance, surveillance, sniper detection, neutralizing explosive devices, etc. Current robots that are equipped with weapons are tele-operated so they are not capable of taking lives autonomously. Advantages regarding the lack of emotion and passion in robotic combat is also taken into consideration as a beneficial factor in significantly reducing instances of unethical behavior in wartime. Autonomous machines are created not to be "truly 'ethical' robots", yet ones that comply with the laws of war (LOW) and rules of engagement (ROE). Hence the fatigue, stress, emotion, adrenaline, etc. that affect a human soldier's rash decisions are removed; there will be no effect on the battlefield caused by the decisions made by the individual.[PARAGRAPH:2]Human rights groups and NGOs such as Human Rights Watch and the Campaign to Stop Killer Robots have started urging governments and the United Nations to issue policy to outlaw the development of so-called "lethal autonomous weapons systems" (LAWS). The United Kingdom opposed such campaigns, with the Foreign Office declaring that "international humanitarian law already provides sufficient regulation for this area".[PARAGRAPH:1]In July 2015, over 1,000 experts in artificial intelligence signed a letter calling for a ban on autonomous weapons. The letter was presented in Buenos Aires at the 24th International Joint Conference on Artificial Intelligence (IJCAI-15) and was co-signed by Stephen Hawking, Elon Musk, Steve Wozniak, Noam Chomsky, Skype co-founder Jaan Tallinn and Google DeepMind co-founder Demis Hassabis, among others.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml and then modified for AdvCiv-SAS -->
+ 	<!-- custom: description from: https://en.wikipedia.org/wiki/Paganism and https://en.wikipedia.org/wiki/Polytheism -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index 33383bf88..3e1e92c1f 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -270,211 +270,220 @@
+ 			<DefaultUnit>UNIT_PIKEMAN</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_MUSKETMAN</Type>
+-			<Description>TXT_KEY_UNIT_MUSKETMAN</Description>
++			<Type>UNITCLASS_ARCHER</Type>
++			<Description>TXT_KEY_UNIT_ARCHER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_MUSKETMAN</DefaultUnit>
++			<DefaultUnit>UNIT_ARCHER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_RIFLEMAN</Type>
+-			<Description>TXT_KEY_UNIT_RIFLEMAN</Description>
++			<Type>UNITCLASS_LONGBOWMAN</Type>
++			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_RIFLEMAN</DefaultUnit>
++			<DefaultUnit>UNIT_LONGBOWMAN</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_GRENADIER</Type>
+-			<Description>TXT_KEY_UNIT_GRENADIER</Description>
++			<Type>UNITCLASS_CROSSBOWMAN</Type>
++			<Description>TXT_KEY_UNIT_CROSSBOWMAN</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_GRENADIER</DefaultUnit>
++			<DefaultUnit>UNIT_CROSSBOWMAN</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_INFANTRY</Type>
+-			<Description>TXT_KEY_UNIT_INFANTRY</Description>
++			<Type>UNITCLASS_CHARIOT</Type>
++			<Description>TXT_KEY_UNIT_CHARIOT</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_INFANTRY</DefaultUnit>
++			<DefaultUnit>UNIT_CHARIOT</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_AT_INFANTRY</Type>
+-			<Description>TXT_KEY_UNIT_AT_INFANTRY</Description>
++			<Type>UNITCLASS_HORSE_ARCHER</Type>
++			<Description>TXT_KEY_UNIT_HORSE_ARCHER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_AT_INFANTRY</DefaultUnit>
++			<DefaultUnit>UNIT_HORSE_ARCHER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_SAM_INFANTRY</Type>
+-			<Description>TXT_KEY_UNIT_SAM_INFANTRY</Description>
++			<Type>UNITCLASS_CAMEL_ARCHER</Type>
++			<Description>TXT_KEY_UNIT_CAMEL_ARCHER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_SAM_INFANTRY</DefaultUnit>
++			<DefaultUnit>UNIT_CAMEL_ARCHER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_MOBILE_SAM</Type>
+-			<Description>TXT_KEY_UNIT_MOBILE_SAM</Description>
++			<Type>UNITCLASS_HORSE_KNIGHT</Type>
++			<Description>TXT_KEY_UNIT_HORSE_KNIGHT</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_MOBILE_SAM</DefaultUnit>
++			<DefaultUnit>UNIT_HORSE_KNIGHT</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_MODERN_INFANTRY</Type>
+-			<Description>TXT_KEY_UNIT_MODERN_INFANTRY</Description>
++			<Type>UNITCLASS_CAMEL_KNIGHT</Type>
++			<Description>TXT_KEY_UNIT_CAMEL_KNIGHT</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_MODERN_INFANTRY</DefaultUnit>
++			<DefaultUnit>UNIT_CAMEL_KNIGHT</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_PARATROOPER</Type>
+-			<Description>TXT_KEY_UNIT_PARATROOPER</Description>
++			<Type>UNITCLASS_HORSE_CUIRASSIER</Type>
++			<Description>TXT_KEY_UNIT_HORSE_CUIRASSIER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_PARATROOPER</DefaultUnit>
++			<DefaultUnit>UNIT_HORSE_CUIRASSIER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_ROBOTIC_INFANTRY</Type>
+-			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
++			<Type>UNITCLASS_CAMEL_CUIRASSIER</Type>
++			<Description>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_ROBOTIC_INFANTRY</DefaultUnit>
++			<DefaultUnit>UNIT_CAMEL_CUIRASSIER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_MECHANIZED_INFANTRY</Type>
+-			<Description>TXT_KEY_UNIT_MECHANIZED_INFANTRY</Description>
++			<Type>UNITCLASS_CAVALRY</Type>
++			<Description>TXT_KEY_UNIT_CAVALRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_MECHANIZED_INFANTRY</DefaultUnit>
++			<DefaultUnit>UNIT_CAVALRY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_ARCHER</Type>
+-			<Description>TXT_KEY_UNIT_ARCHER</Description>
++			<Type>UNITCLASS_WAR_ELEPHANT</Type>
++			<Description>TXT_KEY_UNIT_WAR_ELEPHANT</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_ARCHER</DefaultUnit>
++			<DefaultUnit>UNIT_WAR_ELEPHANT</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_LONGBOWMAN</Type>
+-			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
++			<Type>UNITCLASS_MUSKETMAN</Type>
++			<Description>TXT_KEY_UNIT_MUSKETMAN</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_LONGBOWMAN</DefaultUnit>
++			<DefaultUnit>UNIT_MUSKETMAN</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_CROSSBOWMAN</Type>
+-			<Description>TXT_KEY_UNIT_CROSSBOWMAN</Description>
++			<Type>UNITCLASS_RIFLEMAN</Type>
++			<Description>TXT_KEY_UNIT_RIFLEMAN</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_CROSSBOWMAN</DefaultUnit>
++			<DefaultUnit>UNIT_RIFLEMAN</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_CHARIOT</Type>
+-			<Description>TXT_KEY_UNIT_CHARIOT</Description>
++			<Type>UNITCLASS_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_INFANTRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_CHARIOT</DefaultUnit>
++			<DefaultUnit>UNIT_INFANTRY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_HORSE_ARCHER</Type>
+-			<Description>TXT_KEY_UNIT_HORSE_ARCHER</Description>
++			<Type>UNITCLASS_MODERN_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_MODERN_INFANTRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_HORSE_ARCHER</DefaultUnit>
++			<DefaultUnit>UNIT_MODERN_INFANTRY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_CAMEL_ARCHER</Type>
+-			<Description>TXT_KEY_UNIT_CAMEL_ARCHER</Description>
++			<Type>UNITCLASS_PARATROOPER</Type>
++			<Description>TXT_KEY_UNIT_PARATROOPER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_CAMEL_ARCHER</DefaultUnit>
++			<DefaultUnit>UNIT_PARATROOPER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_HORSE_KNIGHT</Type>
+-			<Description>TXT_KEY_UNIT_HORSE_KNIGHT</Description>
++			<Type>UNITCLASS_ROBOTIC_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_HORSE_KNIGHT</DefaultUnit>
++			<DefaultUnit>UNIT_ROBOTIC_INFANTRY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_CAMEL_KNIGHT</Type>
+-			<Description>TXT_KEY_UNIT_CAMEL_KNIGHT</Description>
++			<Type>UNITCLASS_MACHINE_GUN</Type>
++			<Description>TXT_KEY_UNIT_MACHINE_GUN</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_CAMEL_KNIGHT</DefaultUnit>
++			<DefaultUnit>UNIT_MACHINE_GUN</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_HORSE_CUIRASSIER</Type>
+-			<Description>TXT_KEY_UNIT_HORSE_CUIRASSIER</Description>
++			<Type>UNITCLASS_MECHANIZED_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_MECHANIZED_INFANTRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_HORSE_CUIRASSIER</DefaultUnit>
++			<DefaultUnit>UNIT_MECHANIZED_INFANTRY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_CAMEL_CUIRASSIER</Type>
+-			<Description>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Description>
++			<Type>UNITCLASS_GRENADIER</Type>
++			<Description>TXT_KEY_UNIT_GRENADIER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_CAMEL_CUIRASSIER</DefaultUnit>
++			<DefaultUnit>UNIT_GRENADIER</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_CAVALRY</Type>
+-			<Description>TXT_KEY_UNIT_CAVALRY</Description>
++			<Type>UNITCLASS_AT_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_AT_INFANTRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_CAVALRY</DefaultUnit>
++			<DefaultUnit>UNIT_AT_INFANTRY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_WAR_ELEPHANT</Type>
+-			<Description>TXT_KEY_UNIT_WAR_ELEPHANT</Description>
++			<Type>UNITCLASS_SAM_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_SAM_INFANTRY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_WAR_ELEPHANT</DefaultUnit>
++			<DefaultUnit>UNIT_SAM_INFANTRY</DefaultUnit>
++		</UnitClassInfo>
++		<UnitClassInfo>
++			<Type>UNITCLASS_MOBILE_SAM</Type>
++			<Description>TXT_KEY_UNIT_MOBILE_SAM</Description>
++			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
++			<iMaxTeamInstances>-1</iMaxTeamInstances>
++			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<iInstanceCostModifier>0</iInstanceCostModifier>
++			<DefaultUnit>UNIT_MOBILE_SAM</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_TANK</Type>
+@@ -540,31 +549,31 @@
+ 			<DefaultUnit>UNIT_CANNON</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_MACHINE_GUN</Type>
+-			<Description>TXT_KEY_UNIT_MACHINE_GUN</Description>
++			<Type>UNITCLASS_MODERN_ARTILLERY</Type>
++			<Description>TXT_KEY_UNIT_MODERN_ARTILLERY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_MACHINE_GUN</DefaultUnit>
++			<DefaultUnit>UNIT_MODERN_ARTILLERY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_ARTILLERY</Type>
+-			<Description>TXT_KEY_UNIT_ARTILLERY</Description>
++			<Type>UNITCLASS_LEVITATION_ARTILLERY</Type>
++			<Description>TXT_KEY_UNIT_LEVITATION_ARTILLERY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_ARTILLERY</DefaultUnit>
++			<DefaultUnit>UNIT_LEVITATION_ARTILLERY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+-			<Type>UNITCLASS_MOBILE_ARTILLERY</Type>
+-			<Description>TXT_KEY_UNIT_MOBILE_ARTILLERY</Description>
++			<Type>UNITCLASS_SELF_PROPELLED_ARTILLERY</Type>
++			<Description>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_MOBILE_ARTILLERY</DefaultUnit>
++			<DefaultUnit>UNIT_SELF_PROPELLED_ARTILLERY</DefaultUnit>
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_WORKBOAT</Type>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index cc49e7f1c..12193c744 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -12201,20 +12201,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_GRENADIER</Class>
+-			<Type>UNIT_GRENADIER</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_INFANTRY, type: UNIT_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_INFANTRY</Class>
++			<Type>UNIT_INFANTRY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_GRENADIER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_GRENADIER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_GRENADIER_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_INFANTRY</Description>
++			<Civilopedia>TXT_KEY_UNIT_INFANTRY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_INFANTRY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -12250,14 +12250,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_INFANTRY and UNITCLASS_MACHINE_GUN -->
++			<!-- custom: add marines as an upgrade now of the ww1 infantry anyways etc, and remove defensive gun unit path (so here the UNITCLASS_SAM_INFANTRY if i am not mistaken anyways etc) from this seemingly offensive type of unit if i am not mistaken anyways etc, this should mostly help the AI so they don't waste their precious infantry units just to build SAM if i am not mistaken, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit anyways etc or/and much less valuable than foot gun infantry if i may say if i am not mistaken anyways etc, may also be fine for human players if they don't want a sam from an infantry as well but anyways etc) ; also add the UNITCLASS_PARATROOPER so that it anyways etc appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_AT_INFANTRY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_MODERN_INFANTRY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MACHINE_GUN</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_PARATROOPER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -12272,15 +12276,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -12296,15 +12301,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was TECH_ASSEMBLY_LINE and tech types TECH_RIFLING -->
++			<PrereqTech>TECH_FASCISM</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 100 -->
+-			<iCost>95</iCost>
++			<!-- custom: was 140 -->
++			<iCost>130</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12328,8 +12338,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 12 -->
+-			<iCombat>11</iCombat>
++			<!-- custom: was 20 -->
++			<iCombat>18</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -12343,8 +12353,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<!-- K-Mod: was 0 -->
+-			<iCityAttack>10</iCityAttack>
++			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -12355,14 +12364,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitClassAttackMods>
+-				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassAttackMod>
+-			</UnitClassAttackMods>
++			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -12371,12 +12388,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+-			<iConscription>1</iConscription>
+-			<iCultureGarrison>7</iCultureGarrison>
++			<iConscription>6</iConscription>
++			<iCultureGarrison>10</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<!-- custom: was 12 -->
+-			<iPower>11</iPower>
++			<!-- advc.131: was 3 -->
++			<iAsset>4</iAsset>
++			<!-- custom: was 22 -->
++			<!-- advc.104e: was 20 -->
++			<iPower>18</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12385,10 +12404,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_GRENADIER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_INFANTRY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+@@ -12398,20 +12417,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_AT_INFANTRY, type: UNIT_AT_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_AT_INFANTRY</Class>
+-			<Type>UNIT_AT_INFANTRY</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_INFANTRY, type: UNIT_MODERN_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_MODERN_INFANTRY</Class>
++			<Type>UNIT_MODERN_INFANTRY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_AT_INFANTRY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_AT_INFANTRY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_AT_INFANTRY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_MODERN_INFANTRY</Description>
++			<Civilopedia>TXT_KEY_UNIT_MODERN_INFANTRY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -12447,10 +12466,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anywyas etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_INFANTRY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -12461,17 +12479,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -12485,10 +12507,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: add TECH_ARTILLERY as it seems from very quick glances of it it seems they launch rockets/bazookas/rpgs and such from very little i know or guess of it anyways etc, so fits more and quite well tech_artillery rather maybe, would make anti_tanks not appear too soon in history  too in the game i mean anyways etc, was TECH_ASSEMBLY_LINE -->
+-			<PrereqTech>TECH_ARTILLERY</PrereqTech>
++			<!-- custom: was tech_industrialism and tech_types tech_rifling -->
++			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++				<PrereqTech>TECH_FASCISM</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -12497,7 +12519,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>120</iCost>
++			<!-- custom: was 160 -->
++			<iCost>145</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12521,7 +12544,209 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>14</iCombat>
++			<!-- custom: was 24 -->
++			<iCombat>22</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<!-- custom: was UNITCLASS_MACHINE_GUN 50 and UNITCLASS_MODERN_ARTILLERY 50 -->
++			<UnitClassAttackMods>
++				<UnitClassAttackMod>
++					<UnitClassType>UNITCLASS_MODERN_ARTILLERY</UnitClassType>
++					<iUnitClassMod>25</iUnitClassMod>
++				</UnitClassAttackMod>
++			</UnitClassAttackMods>
++			<UnitClassDefenseMods/>
++			<!-- custom: was empty -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>1</iConscription>
++			<iCultureGarrison>12</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>4</iAsset>
++			<!-- custom: was 28 -->
++			<iPower>24</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_INFANTRY</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was PROMOTION_AMPHIBIOUS -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
++		<UnitInfo> <!-- custom: class: UNITCLASS_PARATROOPER, type: UNIT_PARATROOPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_PARATROOPER</Class>
++			<Type>UNIT_PARATROOPER</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_GUN</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_PARADROP</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_PARATROOPER</Description>
++			<Civilopedia>TXT_KEY_UNIT_PARATROOPER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_PARATROOPER_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_PARADROP</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling anyways etc -->
++			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
++			<TechTypes/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 160 -->
++			<iCost>155</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>5</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<!-- custom: was 24 -->
++			<iCombat>22</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -12530,7 +12755,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
++			<iEvasionProbability>25</iEvasionProbability>
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -12548,12 +12773,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -12563,10 +12783,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>1</iConscription>
+-			<iCultureGarrison>8</iCultureGarrison>
++			<iCultureGarrison>12</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<iPower>14</iPower>
++			<iAsset>4</iAsset>
++			<!-- custom: was 30 -->
++			<iPower>22</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12575,7 +12796,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_AT_INFANTRY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_PARATROOPER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -12584,29 +12805,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_COUNTER_TANK</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_INFANTRY, type: UNIT_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_INFANTRY</Class>
+-			<Type>UNIT_INFANTRY</Type>
++<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_INFANTRY, type: UNIT_ROBOTIC_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_ROBOTIC_INFANTRY</Class>
++			<Type>UNIT_ROBOTIC_INFANTRY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_INFANTRY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_INFANTRY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_INFANTRY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
++			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_INFANTRY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -12616,7 +12832,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bQuickCombat>0</bQuickCombat>
+ 			<bRivalTerritory>0</bRivalTerritory>
+ 			<bMilitaryHappiness>1</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
++			<!-- custom: not sure if fully robotic units should cost unit maintenance, but to fit the theme, and to make the unit somewhat op or at least relevant vs other units, making it free support -->
++			<bMilitarySupport>0</bMilitarySupport>
+ 			<bMilitaryProduction>1</bMilitaryProduction>
+ 			<bPillage>1</bPillage>
+ 			<bSpy>0</bSpy>
+@@ -12642,21 +12859,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: add marines as an upgrade now of the ww1 infantry anyways etc, and remove defensive gun unit path (so here the UNITCLASS_SAM_INFANTRY if i am not mistaken anyways etc) from this seemingly offensive type of unit if i am not mistaken anyways etc, this should mostly help the AI so they don't waste their precious infantry units just to build SAM if i am not mistaken, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit anyways etc or/and much less valuable than foot gun infantry if i may say if i am not mistaken anyways etc, may also be fine for human players if they don't want a sam from an infantry as well but anyways etc) ; also add the UNITCLASS_PARATROOPER so that it anyways etc appears in units tree plus is now an alternative unit path, was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY -->
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MODERN_INFANTRY</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_PARATROOPER</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
++			<UnitClassUpgrades/>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -12668,16 +12871,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- K-Mod -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -12693,10 +12895,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ASSEMBLY_LINE and tech types TECH_RIFLING -->
+-			<PrereqTech>TECH_FASCISM</PrereqTech>
++			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits if i may say but anyways etc -->
++			<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++				<PrereqTech>TECH_AI</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -12705,8 +12907,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 140 -->
+-			<iCost>130</iCost>
++			<iCost>160</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12730,8 +12931,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 20 -->
+-			<iCombat>18</iCombat>
++			<iCombat>35</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -12758,19 +12958,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: make it strong vs humans in particular if i may say but or not but or yes but but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -12780,14 +12973,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+-			<iConscription>6</iConscription>
+-			<iCultureGarrison>10</iCultureGarrison>
++			<iConscription>1</iConscription>
++			<iCultureGarrison>12</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<!-- advc.131: was 3 -->
+ 			<iAsset>4</iAsset>
+-			<!-- custom: was 22 -->
+-			<!-- advc.104e: was 20 -->
+-			<iPower>18</iPower>
++			<iPower>35</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12796,33 +12986,39 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_INFANTRY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ROBOTIC_INFANTRY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_INFANTRY, type: UNIT_MODERN_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_MODERN_INFANTRY</Class>
+-			<Type>UNIT_MODERN_INFANTRY</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_GRENADIER</Class>
++			<Type>UNIT_GRENADIER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MODERN_INFANTRY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MODERN_INFANTRY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_GRENADIER</Description>
++			<Civilopedia>TXT_KEY_UNIT_GRENADIER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_GRENADIER_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -12858,9 +13054,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: was UNITCLASS_INFANTRY and UNITCLASS_MACHINE_GUN -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_INFANTRY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_AT_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MACHINE_GUN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -12883,7 +13084,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -12899,20 +13100,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was tech_industrialism and tech_types tech_rifling -->
+-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_FASCISM</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 160 -->
+-			<iCost>145</iCost>
++			<!-- custom: was 100 -->
++			<iCost>95</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12936,8 +13132,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 24 -->
+-			<iCombat>22</iCombat>
++			<!-- custom: was 12 -->
++			<iCombat>11</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -12951,7 +13147,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
++			<!-- K-Mod: was 0 -->
++			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -12962,29 +13159,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<!-- custom: was UNITCLASS_MACHINE_GUN 50 and UNITCLASS_ARTILLERY 50 -->
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_ARTILLERY</UnitClassType>
+-					<iUnitClassMod>25</iUnitClassMod>
++					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
++					<iUnitClassMod>50</iUnitClassMod>
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was empty -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -12994,11 +13176,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>1</iConscription>
+-			<iCultureGarrison>12</iCultureGarrison>
++			<iCultureGarrison>7</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
+-			<!-- custom: was 28 -->
+-			<iPower>24</iPower>
++			<iAsset>3</iAsset>
++			<!-- custom: was 12 -->
++			<iPower>11</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -13007,7 +13189,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_INFANTRY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_GRENADIER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -13016,30 +13198,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was PROMOTION_AMPHIBIOUS -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_PARATROOPER, type: UNIT_PARATROOPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_PARATROOPER</Class>
+-			<Type>UNIT_PARATROOPER</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_AT_INFANTRY, type: UNIT_AT_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_AT_INFANTRY</Class>
++			<Type>UNIT_AT_INFANTRY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_GUN</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_PARADROP</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_PARATROOPER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_PARATROOPER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_PARATROOPER_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_AT_INFANTRY</Description>
++			<Civilopedia>TXT_KEY_UNIT_AT_INFANTRY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_AT_INFANTRY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -13075,9 +13251,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anywyas etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_INFANTRY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -13088,7 +13265,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_PARADROP</UnitAIType>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -13104,16 +13289,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling anyways etc -->
+-			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: add TECH_ARTILLERY as it seems from very quick glances of it it seems they launch rockets/bazookas/rpgs and such from very little i know or guess of it anyways etc, so fits more and quite well tech_artillery rather maybe, would make anti_tanks not appear too soon in history  too in the game i mean anyways etc, was TECH_ASSEMBLY_LINE -->
++			<PrereqTech>TECH_ARTILLERY</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 160 -->
+-			<iCost>155</iCost>
++			<iCost>120</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -13122,7 +13310,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+-			<iDropRange>5</iDropRange>
++			<iDropRange>0</iDropRange>
+ 			<iNukeRange>-1</iNukeRange>
+ 			<iWorkRate>0</iWorkRate>
+ 			<iBaseDiscover>0</iBaseDiscover>
+@@ -13137,8 +13325,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 24 -->
+-			<iCombat>22</iCombat>
++			<iCombat>14</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -13147,7 +13334,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>25</iEvasionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+@@ -13165,7 +13352,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<iUnitCombatMod>100</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -13175,11 +13367,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>1</iConscription>
+-			<iCultureGarrison>12</iCultureGarrison>
++			<iCultureGarrison>8</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
+-			<!-- custom: was 30 -->
+-			<iPower>22</iPower>
++			<iAsset>3</iAsset>
++			<iPower>14</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -13188,7 +13379,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_PARATROOPER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_AT_INFANTRY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -13197,35 +13388,39 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COUNTER_TANK</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_INFANTRY, type: UNIT_ROBOTIC_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_ROBOTIC_INFANTRY</Class>
+-			<Type>UNIT_ROBOTIC_INFANTRY</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_MACHINE_GUN, type: UNIT_MACHINE_GUN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_MACHINE_GUN</Class>
++			<Type>UNIT_MACHINE_GUN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_GUN</Combat>
++			<Combat>UNITCOMBAT_SIEGE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_CITY_SPECIAL</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_INFANTRY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_MACHINE_GUN</Description>
++			<Civilopedia>TXT_KEY_UNIT_MACHINE_GUN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_MACHINE_GUN_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+ 			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
++			<bOnlyDefensive>1</bOnlyDefensive>
+ 			<bNoCapture>0</bNoCapture>
+ 			<bQuickCombat>0</bQuickCombat>
+ 			<bRivalTerritory>0</bRivalTerritory>
+ 			<bMilitaryHappiness>1</bMilitaryHappiness>
+-			<!-- custom: not sure if fully robotic units should cost unit maintenance, but to fit the theme, and to make the unit somewhat op or at least relevant vs other units, making it free support -->
+-			<bMilitarySupport>0</bMilitarySupport>
++			<bMilitarySupport>1</bMilitarySupport>
+ 			<bMilitaryProduction>1</bMilitaryProduction>
+ 			<bPillage>1</bPillage>
+ 			<bSpy>0</bSpy>
+@@ -13251,7 +13446,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -13259,17 +13459,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -13287,10 +13484,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits if i may say but anyways etc -->
+-			<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
++			<!-- custom: was TECH_ASSEMBLY_LINE -->
++			<PrereqTech>TECH_FASCISM</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_AI</PrereqTech>
++				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -13299,7 +13496,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>160</iCost>
++			<!-- custom: was 125 -->
++			<iCost>130</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -13323,15 +13521,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>35</iCombat>
++			<iCombat>18</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
++			<iFirstStrikes>1</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
++			<iInterceptionProbability>20</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+@@ -13350,14 +13548,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: make it strong vs humans in particular if i may say but or not but or yes but but anyways etc -->
++			<!-- advc.909a: 25% vs. Mounted (was 10% in K-Mod, 0 in BtS) -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+-			<UnitCombatCollateralImmunes/>
++			<UnitCombatCollateralImmunes>
++				<UnitCombatCollateralImmune>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<iUnitCombatCollateralImmune>1</iUnitCombatCollateralImmune>
++				</UnitCombatCollateralImmune>
++			</UnitCombatCollateralImmunes>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+ 			<iBombRate>0</iBombRate>
+@@ -13365,20 +13576,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+-			<iConscription>1</iConscription>
+-			<iCultureGarrison>12</iCultureGarrison>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>9</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
+-			<iPower>35</iPower>
++			<iAsset>3</iAsset>
++			<iPower>14</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+ 				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>0</iRangedWaveSize>
++				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ROBOTIC_INFANTRY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MACHINE_GUN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -13387,13 +13598,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost anyways etc -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -18530,9 +18735,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<!-- custom: make it so oil is not needed anymore by the time these are popular or in production anyways -->
+-			<BonusType>BONUS_ALUMINUM</BonusType>
+-			<PrereqBonuses/>
++			<!-- custom: make it so oil is not needed anymore, it requiring uranium to propell if i may say but anyways etc and be powered or such for a long time and long distances of travel with the power of explosions and or such too if i may say in this case but anyways etc anyways etc anyways etc ; may also help for balance or/and flavor, as this unit is at the tech_fusion as of now and so it doesn't become op maybe anyways etc, to have rivalry and fights over bonuses even in late game anyways etc at least in theory if i may say and in this case but anyways etc -->
++			<BonusType>BONUS_URANIUM</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_ALUMINUM</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+@@ -18692,11 +18902,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iFlankingStrength>100</iFlankingStrength>
+ 				</FlankingStrike>
+ 				<FlankingStrike>
+-					<FlankingStrikeUnitClass>UNITCLASS_ARTILLERY</FlankingStrikeUnitClass>
++					<FlankingStrikeUnitClass>UNITCLASS_MODERN_ARTILLERY</FlankingStrikeUnitClass>
+ 					<iFlankingStrength>100</iFlankingStrength>
+ 				</FlankingStrike>
+ 				<FlankingStrike>
+-					<FlankingStrikeUnitClass>UNITCLASS_MOBILE_ARTILLERY</FlankingStrikeUnitClass>
++					<FlankingStrikeUnitClass>UNITCLASS_SELF_PROPELLED_ARTILLERY</FlankingStrikeUnitClass>
+ 					<iFlankingStrength>100</iFlankingStrength>
+ 				</FlankingStrike>
+ 			</FlankingStrikes>
+@@ -19369,7 +19579,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_ARTILLERY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_MODERN_ARTILLERY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -19408,7 +19618,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<!-- custom: was 100 -->
++			<iCost>120</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -19552,7 +19763,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_ARTILLERY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_MODERN_ARTILLERY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -19592,7 +19803,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<!-- custom: was 100 -->
++			<iCost>120</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -19705,25 +19917,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MACHINE_GUN, type: UNIT_MACHINE_GUN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_MACHINE_GUN</Class>
+-			<Type>UNIT_MACHINE_GUN</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_ARTILLERY, type: UNIT_MODERN_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_MODERN_ARTILLERY</Class>
++			<Type>UNIT_MODERN_ARTILLERY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_SIEGE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_CITY_SPECIAL</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MACHINE_GUN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MACHINE_GUN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_MACHINE_GUN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_MODERN_ARTILLERY</Description>
++			<Civilopedia>TXT_KEY_UNIT_MODERN_ARTILLERY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+ 			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>1</bOnlyDefensive>
++			<bOnlyDefensive>0</bOnlyDefensive>
+ 			<bNoCapture>0</bNoCapture>
+ 			<bQuickCombat>0</bQuickCombat>
+ 			<bRivalTerritory>0</bRivalTerritory>
+@@ -19741,7 +19953,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+ 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+@@ -19750,13 +19962,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqBonuses>0</bPrereqBonuses>
+ 			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>0</bMechanized>
++			<bMechanized>1</bMechanized>
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_SELF_PROPELLED_ARTILLERY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -19767,16 +19979,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- K-Mod -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -19792,20 +19999,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ASSEMBLY_LINE -->
+-			<PrereqTech>TECH_FASCISM</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_ARTILLERY</PrereqTech>
++			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 125 -->
+-			<iCost>130</iCost>
++			<!-- custom: was 150 -->
++			<iCost>170</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -19830,19 +20032,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<iCombat>18</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
++			<iCombatLimit>85</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>1</iFirstStrikes>
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>20</iInterceptionProbability>
++			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<!-- K-Mod: was 8 -->
++			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -19856,20 +20059,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- advc.909a: 25% vs. Mounted (was 10% in K-Mod, 0 in BtS) -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes>
+ 				<UnitCombatCollateralImmune>
+@@ -19880,27 +20074,28 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+ 			<iBombRate>0</iBombRate>
+-			<iBombardRate>0</iBombardRate>
++			<iBombardRate>16</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>9</iCultureGarrison>
++			<!-- advc.101: was 10 (unused since AdvCiv 0.97) -->
++			<iCultureGarrison>5</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
+-			<iPower>14</iPower>
++			<iAsset>4</iAsset>
++			<iPower>18</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>3</iGroupSize>
++				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>3</iRangedWaveSize>
++				<iMeleeWaveSize>2</iMeleeWaveSize>
++				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MACHINE_GUN</EarlyArtDefineTag>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_ARTILLERY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+@@ -19910,9 +20105,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_ARTILLERY, type: UNIT_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_ARTILLERY</Class>
+-			<Type>UNIT_ARTILLERY</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_SELF_PROPELLED_ARTILLERY, type: UNIT_SELF_PROPELLED_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_SELF_PROPELLED_ARTILLERY</Class>
++			<Type>UNIT_SELF_PROPELLED_ARTILLERY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -19921,9 +20116,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_ARTILLERY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_ARTILLERY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_ARTILLERY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Description>
++			<Civilopedia>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -19961,7 +20156,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MOBILE_ARTILLERY</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_LEVITATION_ARTILLERY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -19992,19 +20187,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ARTILLERY</PrereqTech>
+-			<TechTypes/>
+-			<BonusType>NONE</BonusType>
++			<!-- custom: move later in our reworked tech tree anyways etc, was the now removed TECH_LASER and techTypes TECH_ARTILLERY -->
++			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ARTILLERY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<BonusType>BONUS_OIL</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>150</iCost>
++			<!-- custom: was 200 -->
++			<iCost>230</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
++			<iMoves>2</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -20023,7 +20224,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>18</iCombat>
++			<!-- custom: was 26 -->
++			<iCombat>28</iCombat>
+ 			<iCombatLimit>85</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -20071,20 +20273,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 10 (unused since AdvCiv 0.97) -->
+-			<iCultureGarrison>5</iCultureGarrison>
++			<!-- advc.101: was 12 (unused since AdvCiv 0.97) -->
++			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
+-			<iPower>18</iPower>
++			<iAsset>5</iAsset>
++			<!-- custom: was 26 -->
++			<iPower>28</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>2</iGroupSize>
++				<iGroupSize>1</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+ 				<iMeleeWaveSize>2</iMeleeWaveSize>
+ 				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_ARTILLERY</EarlyArtDefineTag>
++					<iRequired>1</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_SELF_PROPELLED_ARTILLERY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+@@ -20097,9 +20300,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MOBILE_ARTILLERY, type: UNIT_MOBILE_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_MOBILE_ARTILLERY</Class>
+-			<Type>UNIT_MOBILE_ARTILLERY</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_LEVITATION_ARTILLERY, type: UNIT_LEVITATION_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_LEVITATION_ARTILLERY</Class>
++			<Type>UNIT_LEVITATION_ARTILLERY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -20108,9 +20311,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MOBILE_ARTILLERY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MOBILE_ARTILLERY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_MOBILE_ARTILLERY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_LEVITATION_ARTILLERY</Description>
++			<Civilopedia>TXT_KEY_UNIT_LEVITATION_ARTILLERY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -20120,7 +20323,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bQuickCombat>0</bQuickCombat>
+ 			<bRivalTerritory>0</bRivalTerritory>
+ 			<bMilitaryHappiness>1</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
++			<!-- custom: not sure if fully robotic units should cost unit maintenance, but to fit the theme, and to make the unit somewhat op or at least relevant vs other units, making it free support -->
++			<bMilitarySupport>0</bMilitarySupport>
+ 			<bMilitaryProduction>1</bMilitaryProduction>
+ 			<bPillage>1</bPillage>
+ 			<bSpy>0</bSpy>
+@@ -20135,7 +20339,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<!-- custom: same as the scout and as a continuation of modern artillery -> self-propelled artilery -> then greater mobility with levitaiton, so can walk on all land tiles, but not water tiles as seems a bit too unrealistic, after asking chatgpt, it seems levitaiton woudl be far harder to achieve on water (actually asked autogpt chatgpt 4-o but should be about the same if i am not mistaken anyways etc...), this is also convenient as it walking on water tiles may confuse the AI possibly or/and be tedious or super hassle to maintian if i may say too in this case but anyways etc or simply implement with all the unitAIs or/and such, warfare should be more efficient as such, it behaves like as of now scouts and such but hopefully helpful or/and informative or/and is also how i want to do it in advciv-sas but or not but or yes but anyways etc -->
++			<bCanMoveImpassable>1</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+ 			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+@@ -20174,25 +20379,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: move later in our reworked tech tree anyways etc, was the now removed TECH_LASER and techTypes TECH_ARTILLERY -->
+-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
++			<!-- custom: making it at latest tech(s) so that aoe effect is not abused early in robotic/future era anyways etc ; suits also well its atypical effect or/and extra perks if i may say too but anyways etc such as of now move impassable and/or such anyways etc -->
++			<PrereqTech>TECH_QUANTUM_MECHANICS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARTILLERY</PrereqTech>
++				<PrereqTech>TECH_AI</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_OIL</BonusType>
+-			<PrereqBonuses/>
++			<!-- custom: make it so oil is not needed anymore, it requiring uranium to self lift or such maybe anyways etc -->
++			<BonusType>BONUS_URANIUM</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_ALUMINUM</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 200 -->
+-			<iCost>220</iCost>
++			<iCost>300</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
++			<!-- custom: make it an extra mobile unit anyways etc -->
++			<iMoves>3</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -20211,7 +20422,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>26</iCombat>
++			<iCombat>48</iCombat>
+ 			<iCombatLimit>85</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -20221,7 +20432,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<!-- custom: make it an extra mobile unit anyways etc -->
++			<iWithdrawalProb>50</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<!-- K-Mod: was 8 -->
+@@ -20254,7 +20466,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+ 			<iBombRate>0</iBombRate>
+-			<iBombardRate>16</iBombardRate>
++			<iBombardRate>20</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+@@ -20263,7 +20475,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>5</iAsset>
+-			<iPower>26</iPower>
++			<iPower>53</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -20272,7 +20484,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MOBILE_ARTILLERY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_LEVITATION_ARTILLERY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+@@ -20281,7 +20493,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: simulate it being able to walk at day and night non-stop and freely regardless of terrain or such since it levitates anyways etc minimal energetic cost anyways etc, so add PROMOTION_MOBILITY_COST as well to this unit's free promotions that were based on the modern_tank's free promotions anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_MOBILITY_RANGE</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index dd8503826..56b716c82 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -45,8 +45,8 @@ etc.. as i coudl successfully feed these to chatgpt in chatbox message (no file
+ 
+ ### based on this ChatGPT can analyze data
+ 
+-find trends, fix errors, adjust weights or inversions, very very easily, or if not should help if you are aware of its limitations (not very persistent memory that trims often, some files not being possible to send, invents or tends to invent if doesn't know, errs if you mislead it or if scope is too large or/and prompt too long, or/and other things, etc) :) anyways gogogogoog anyways
++Find trends, fix errors, adjust weights or inversions, very very easily, or if not should help if you are aware of its limitations (not very persistent memory that trims often, some files not being possible to send, invents or tends to invent if doesn't know, errs if you mislead it or if scope is too large or/and prompt too long, or/and other things, etc) :) anyways gogogogogo anyways
+ 
+ ## More personal notes and how i self relate to it and related and such anyways etc
+ 
+-see the mod's google drive for details
++See the mod's google drive for details
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index ffae46941..89b1057b4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 767d409a0..1d3414e2b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 131915b4d..b12c927c0 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index c9f396849..fb923a788 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+index ae0ee8ac7..b6f3b9e4f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index 8f7ce96e0..58d0d512a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index 2d4b4344d..70d3d6e36 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+index 8bc29f9d2..c3d592cb7 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 2cf7fc331..9eff54d58 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=127714

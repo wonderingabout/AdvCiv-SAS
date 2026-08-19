@@ -1,0 +1,152 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 386
+# Commit: f6caadc1f7fab71cb7809b26b833ad165b0deea7
+# History segment: K-Mod history
+# Parent used for diff: 25134da1a7dd6bbfc322ba0e8d9ffb703e75aeb4
+# Title: When forming a permanent alliance, deals are now canceled /after/ the team numbers have been reassigned. This is to prevent the new allies from being bumped...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+53	50	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 132a2f0e8..c9fdad431 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -416,13 +416,6 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	FAssert(eTeam != NO_TEAM);
+ 	FAssert(eTeam != getID());
+ 
+-	// K-Mod
+-	FAssert(GC.getGameINLINE().isFinalInitialized());
+-	//FAssert(GC.getMapINLINE().numPlotsINLINE() == GET_TEAM(eTeam).m_aiStrengthMemory.size()); // I'd assert this, but the array is protected.
+-	// AI_initMemory use to be required here. It isn't required anymore, but we still need to clear the memory - and I'd rather play it safe...
+-	GET_TEAM(eTeam).AI_initMemory();
+-	// K-Mod end
+-
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -442,49 +435,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 
+-	for (pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+-	{
+-		if (((GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == getID()) && (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == eTeam)) ||
+-			  ((GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == eTeam) && (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == getID())))
+-		{
+-			bValid = true;
+-
+-			if (pLoopDeal->getFirstTrades() != NULL)
+-			{
+-				for (pNode = pLoopDeal->getFirstTrades()->head(); pNode; pNode = pLoopDeal->getFirstTrades()->next(pNode))
+-				{
+-					if ((pNode->m_data.m_eItemType == TRADE_OPEN_BORDERS) ||
+-						  (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT) ||
+-						  (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY) ||
+-						  (pNode->m_data.m_eItemType == TRADE_VASSAL) ||
+-						  (pNode->m_data.m_eItemType == TRADE_SURRENDER))
+-					{
+-						bValid = false;
+-					}
+-				}
+-			}
+-
+-			if (pLoopDeal->getSecondTrades() != NULL)
+-			{
+-				for (pNode = pLoopDeal->getSecondTrades()->head(); pNode; pNode = pLoopDeal->getSecondTrades()->next(pNode))
+-				{
+-					if ((pNode->m_data.m_eItemType == TRADE_OPEN_BORDERS) ||
+-						  (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT) ||
+-						  (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY) ||
+-						  (pNode->m_data.m_eItemType == TRADE_VASSAL) ||
+-						  (pNode->m_data.m_eItemType == TRADE_SURRENDER))
+-					{
+-						bValid = false;
+-					}
+-				}
+-			}
+-
+-			if (!bValid)
+-			{
+-				pLoopDeal->kill();
+-			}
+-		}
+-	}
++	// K-Mod note: the cancel deals code use to be here. I've moved it lower down.
++	//
+ 
+ 	shareItems(eTeam);
+ 	GET_TEAM(eTeam).shareItems(getID());
+@@ -650,6 +602,57 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 		}
+ 	}
+ 
++	// K-Mod. The following cancel deals code has been moved from higher up.
++	// I've done this so that when open-borders is canceled, it doesn't bump our new allies out of our borders.
++	for (pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
++	{
++		/* original bts code
++		if (((GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == getID()) && (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == eTeam)) ||
++			  ((GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == eTeam) && (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == getID()))) */
++		// K-Mod. The player's teams have already been reassigned - so we don't check for eTeam anymore.
++		if (GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == getID() && GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == getID())
++		// K-Mod end
++		{
++			bValid = true;
++
++			if (pLoopDeal->getFirstTrades() != NULL)
++			{
++				for (pNode = pLoopDeal->getFirstTrades()->head(); pNode; pNode = pLoopDeal->getFirstTrades()->next(pNode))
++				{
++					if ((pNode->m_data.m_eItemType == TRADE_OPEN_BORDERS) ||
++						  (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT) ||
++						  (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY) ||
++						  (pNode->m_data.m_eItemType == TRADE_VASSAL) ||
++						  (pNode->m_data.m_eItemType == TRADE_SURRENDER))
++					{
++						bValid = false;
++					}
++				}
++			}
++
++			if (pLoopDeal->getSecondTrades() != NULL)
++			{
++				for (pNode = pLoopDeal->getSecondTrades()->head(); pNode; pNode = pLoopDeal->getSecondTrades()->next(pNode))
++				{
++					if ((pNode->m_data.m_eItemType == TRADE_OPEN_BORDERS) ||
++						  (pNode->m_data.m_eItemType == TRADE_DEFENSIVE_PACT) ||
++						  (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY) ||
++						  (pNode->m_data.m_eItemType == TRADE_VASSAL) ||
++						  (pNode->m_data.m_eItemType == TRADE_SURRENDER))
++					{
++						bValid = false;
++					}
++				}
++			}
++
++			if (!bValid)
++			{
++				pLoopDeal->kill();
++			}
++		}
++	}
++	// K-Mod end
++
+ 	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+ 		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4908

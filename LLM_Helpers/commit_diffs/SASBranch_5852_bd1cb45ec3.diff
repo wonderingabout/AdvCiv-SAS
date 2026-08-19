@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5852
+# Commit: bd1cb45ec3247ebd3e3fc282ef5ceb9c5910bf12
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4a2c6394d1d4add7ac1c0e2f094413e299912295
+# Title: merge base advciv 1.12 changes part 2
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_18_civs_DLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+6	5	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+2	2	Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 0315f8eda..367c60357 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -101,7 +101,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Generally comment from the old/base AdvCiv perspective to explain what we changed. Some code we change is already AdvCiv-SAS custom code; when that is clear, try to convey it briefly so the comment stays accurate and shows the logic behind the change (e.g., `# <!-- custom: Manually positioning the mouse on footer Back/Next for each pedia link is tedious. After we added Up/Down item-list navigation, map Left/Right arrows to Sevopedia Back/Next history as the natural keyboard counterpart. (GPT-5.5) -->`). Tracing code origin is hard though and not critical, so do not overthink it; leave it to the user if in doubt.
+ - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
+ - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
+-- When adding new comments, use the format `<!-- custom: ... (GPT-5.3-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
++- When adding new comments, use the format `<!-- custom: ... (GPT-5.3-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like `advc.sas` (which we do not use, but base advciv uses it to reference our AdvCiv-SAS changes).
+ - Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easier to manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
+ - Add a suffix with your model name to your code comments; e.g., `(GPT-5.3-Codex (summarized)) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`.
+ - When writing new code, do not use other credentials than our custom ones, e.g. no `// advc.`, as they do not belong to us. Use `<!-- custom:` instead.
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_18_civs_DLL.dll b/Assets/CvGameCoreDLL_18_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 08a5122db..ae8fe1e4a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -81,7 +81,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
+ 	<Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 183c9281e..8ac2a152d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1449,16 +1449,17 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+ 		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
+-	<!-- custom: advisor shortcuts updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, World Advisor = F7, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex + GPT-5.5), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
+-	<TEXT>
+-		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
+-		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt + F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Policy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Diplomacy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Trade Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]World Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
+-	</TEXT>
++	<!-- advc (note): Could just replace all the [NEWLINE] with \n for easier editing -->
+ 	<!-- advc.002b: Added/removed tabs to fix alignment (only for English
+ 		 though) -->
+ 	<!-- advc.004y: Stylistic changes to most of the _PEDIA keys, but only for
+ 		 English. -->
+ 	<!-- custom: duplicate TXT_KEY_SHORTCUTS_ADVISORS_PEDIA removed from base file; active English override is in AdvCiv-SAS_Sevopedia_Lengthy.xml. (GPT-5.3-Codex) -->
++	<!-- custom: advisor shortcuts updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, World Advisor = F7, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex + GPT-5.5), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
++	<TEXT>
++		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
++		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt + F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Policy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Diplomacy Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Trade Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]World Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl + E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
++	</TEXT>
+ 	<!-- advc.004: Ctrl+A, NUM 0, Alt+G, H added. Unit cycling commands moved from Game section.
+ 		 Ctrl+H (was present only in Italian). -->
+ 	<TEXT>
+
+diff --git a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+index 5bb03987a..d8b94bb3c 100644
+--- a/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
++++ b/Long_Comments/AI_Variables_GlobalDefines_for_comments.xml
+@@ -202,8 +202,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Discourages early war against humans; not fair when the AI has a
+-			 head start. -->
++		<!-- Discourages dogpiling and early war against humans; not fair
++			 when the AI has a head start. -->
+ 		<!-- custom: give a bit more time for the human player to catch up, but
+ 		not too much. Hopefully this also helps prevent suicidal war declarations
+ 		that are done too soon and do not profit the player that declared war vs
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=4 omittedFiles=2 embeddedPatchBytes=9146

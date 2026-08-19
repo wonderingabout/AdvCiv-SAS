@@ -1,0 +1,765 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5307
+# Commit: c81414cc080acf9f5a39485725b2ddba61b840c3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9fd0575c0c9e1e92d4b3d3aa2d7cf66683fed93b
+# Title: add world sizes chart sevopedia category
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+306	0	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+9	0	Assets/XML/GlobalDefines_advciv_sas.xml
+4	0	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+5	0	CvGameCoreDLL/CvInfo_GameOption.h
+5	0	CvGameCoreDLL/CyInfoInterface3.cpp
+17	16	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+3	2	_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+4	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+17	8	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicap_chart (1).PNG => codex_ gpt_5.2_handicaps_chart (1).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicap_chart (2).PNG => codex_ gpt_5.2_handicaps_chart (2).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicap_chart (3).PNG => codex_ gpt_5.2_handicaps_chart (3).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex (1).PNG => gpt_codex_summarizing (1).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex (2).PNG => gpt_codex_summarizing (2).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex (3).PNG => gpt_codex_summarizing (3).PNG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/{0.6251_sevopedia_handicap_chart_free_techs.JPG => 0.6251_sevopedia_handicaps_chart_free_techs.JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/{0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG => 0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/{0.625_sevopedia_handicap_chart (1).JPG => 0.625_sevopedia_handicaps_chart (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/{0.625_sevopedia_handicap_chart (2).JPG => 0.625_sevopedia_handicaps_chart (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/{0.626_sevopedia_game_speed_chart (1).JPG => 0.626_sevopedia_game_speeds_chart (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/{0.626_sevopedia_game_speed_chart (2).JPG => 0.626_sevopedia_game_speeds_chart (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicap_chart (1).PNG => codex_ gpt_5.2_handicaps_chart (1).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicap_chart (2).PNG => codex_ gpt_5.2_handicaps_chart (2).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicap_chart (3).PNG => codex_ gpt_5.2_handicaps_chart (3).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex (1).PNG => gpt_codex_summarizing (1).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex (2).PNG => gpt_codex_summarizing (2).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex (3).PNG => gpt_codex_summarizing (3).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia_reworks/{0.6251_sevopedia_handicap_chart_free_techs.JPG => 0.6251_sevopedia_handicaps_chart_free_techs.JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia_reworks/{0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG => 0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia_reworks/{0.625_sevopedia_handicap_chart (1).JPG => 0.625_sevopedia_handicaps_chart (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia_reworks/{0.625_sevopedia_handicap_chart (2).JPG => 0.625_sevopedia_handicaps_chart (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia_reworks/{0.626_sevopedia_game_speed_chart (1).JPG => 0.626_sevopedia_game_speeds_chart (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia_reworks/{0.626_sevopedia_game_speed_chart (2).JPG => 0.626_sevopedia_game_speeds_chart (2).JPG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 98ed95644..a8abd93ea 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -26,6 +26,7 @@ import SevoPediaPromotion
+ import SevoPediaUnitChart
+ import SevoPediaHandicapChart
+ import SevoPediaGameSpeedChart
++import SevoPediaWorldSizeChart
+ import SevoPediaBonus
+ import SevoPediaTerrain
+ import SevoPediaFeature
+@@ -235,6 +236,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
+ 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
+ 		self.pediaGameSpeedChart = SevoPediaGameSpeedChart.SevoPediaGameSpeedChart(self)
++		self.pediaWorldSizeChart = SevoPediaWorldSizeChart.SevoPediaWorldSizeChart(self)
+ 
+ 		# <!-- custom: category list refactor: previously category order, list generators, screen handlers, and link keys
+ 		# lived in separate maps and hardcoded blocks, so reordering or adding a category required edits in multiple places
+@@ -263,6 +265,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			(SevoScreenEnums.PEDIA_INDEX, "TXT_KEY_PEDIA_SCREEN_INDEX", iconHint, "placeIndexCategory", None, None),
+ 			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconSas, "placeHandicapChart", self.pediaHandicapChart, None),
+ 			(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART", iconSas, "placeGameSpeedChart", self.pediaGameSpeedChart, None),
++			(SevoScreenEnums.PEDIA_WORLD_SIZE_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_WORLD_SIZE_CHART", iconSas, "placeWorldSizeChart", self.pediaWorldSizeChart, None),
+ 			(SevoScreenEnums.PEDIA_TERRAINS, "TXT_KEY_PEDIA_CATEGORY_TERRAIN", iconTerrain, "placeTerrains", SevoPediaTerrain.SevoPediaTerrain, "PEDIA_MAIN_TERRAIN"),
+ 			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconTerrain, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
+ 			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconTerrain, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
+@@ -298,7 +301,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if szListMethod:
+ 				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
+ 			if screenSpec:
+-				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart):
++				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart):
+ 					self.mapScreenFunctions[iEnum] = screenSpec
+ 				else:
+ 					self.mapScreenFunctions[iEnum] = screenSpec(self)
+@@ -968,6 +971,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.getScreen().deleteWidget("PediaMainItemList")
+ 		self.pediaGameSpeedChart.interfaceScreen()
+ 
++	def placeWorldSizeChart(self):
++		self.SAS_szSearchString = u""
++		self.SAS_lastItemsWidget = None
++		self.SAS_lastItemsInfo = None
++		self.SAS_deleteSearchWidgets()
++
++		self.getScreen().deleteWidget("PediaMainItemList")
++		self.pediaWorldSizeChart.interfaceScreen()
++
+ 
+ 	def placeUnitCategories(self):
+ 		self.list = self.getUnitCategoryList()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+new file mode 100644
+index 000000000..7a47431f8
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -0,0 +1,306 @@
++# --- World size chart page for Sevopedia (AdvCiv-SAS) ---
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Mirrors the handicap chart layout, but for WorldInfo.
++
++
++
++from CvPythonExtensions import *
++import CvUtil
++import re
++
++gc = CyGlobalContext()
++localText = CyTranslator()
++
++def _font2(szText):
++	return u"<font=2>%s</font>" % unicode(szText)
++
++
++
++class SevoPediaWorldSizeChart:
++	def __init__(self, main):
++		self.top = main
++		self._cachedTable = None
++
++		self.MARGIN = 4
++		self.ROW_H = 15
++		self.W_ICON = 24
++		self.W_FIELD = 210
++		iHeaderIcons = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS")
++		if iHeaderIcons == 0:
++			iHeaderIcons = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS")
++		self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS = (iHeaderIcons != 0)
++		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT")
++		if self.TABLE_FILL_PERCENT <= 0:
++			raise ValueError("[FATAL] SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT must be >= 1.")
++
++	def interfaceScreen(self):
++		screen = self.top.getScreen()
++		self._drawTable(screen)
++
++	def _drawTable(self, screen):
++		x = self.top.X_ITEMS
++		y = self.top.Y_PEDIA_PAGE
++		w = self.top.W_SCREEN - self.top.X_ITEMS - self.MARGIN
++		h = self.top.H_PEDIA_PAGE
++
++		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++
++		table = self.top.getNextWidgetName()
++		tableX = x + self.MARGIN
++		tableY = y + self.MARGIN + 4
++		tableW = w - (self.MARGIN * 2)
++		tableH = h - (self.MARGIN * 2) - 4
++
++		data = self._getTableData()
++		if not data:
++			screen.setLabel(self.top.getNextWidgetName(), "Background",
++					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
++					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
++					WidgetTypes.WIDGET_GENERAL, -1, -1)
++			return
++
++		header = data[0]
++		rows = data[1:]
++		nCols = len(header)
++		if nCols < 2:
++			return
++
++		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
++		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
++			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
++			value_cols = nCols - 2
++		else:
++			remainingW = max(0, totalW - self.W_FIELD)
++			value_cols = nCols - 1
++		if value_cols > 0:
++			wNum = remainingW / value_cols
++		else:
++			wNum = 0
++
++		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.enableSort(table)
++
++		# Minor Python-level micro-opt: bind methods used in hot loops.
++		setHeader = screen.setTableColumnHeader
++		appendRow = screen.appendTableRow
++		setCell = screen.setTableText
++
++		for iCol in range(nCols):
++			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0:
++				colW = self.W_ICON
++			elif (self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0):
++				colW = self.W_FIELD
++			else:
++				colW = wNum
++			setHeader(table, iCol, header[iCol], colW)
++
++		for row in rows:
++			iRow = appendRow(table)
++			for iCol in range(nCols):
++				if iCol < len(row):
++					cell = row[iCol]
++				else:
++					cell = u""
++
++				# Icon column: cell is (text, buttonPath) tuple
++				if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0:
++					if isinstance(cell, tuple):
++						text = cell[0]
++						icon_button = cell[1]
++					else:
++						text = cell
++						icon_button = ""
++					if icon_button:
++						icon_button = CvUtil.convertToStr(icon_button)
++					setCell(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++				# Field column (left)
++				elif (self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0):
++					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++				# Value columns (center)
++				else:
++					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++	def _getTableData(self):
++		if self._cachedTable is not None:
++			return self._cachedTable
++
++		data = self._buildTableFromGameData()
++		self._cachedTable = data
++		return data
++
++	def _buildTableFromGameData(self):
++		row_specs = (
++			("GridSize",                    None,                          "glyph:map"),
++			("GridTiles",                   None,                          "glyph:map"),
++			("iDefaultPlayers",             "getDefaultPlayers",           "glyph:citizen"),
++			("iTargetNumCities",            "getTargetNumCities",          "glyph:citizen"),
++			("iNumFreeBuildingBonuses",     "getNumFreeBuildingBonuses",   "glyph:prod"),
++			("iBuildingClassPrereqModifier","getBuildingClassPrereqModifier","glyph:prod"),
++			("iUnitNameModifier",           "getUnitNameModifier",         "btn:swords"),
++			("iMaxConscriptModifier",       "getMaxConscriptModifier",     "btn:swords"),
++			("iWarWearinessModifier",       "getWarWearinessModifier",     "glyph:unhappy"),
++			("iUnitCostPercent",            "getUnitCostPercent",          "btn:swords"),
++			("iTerrainGrainChange",         "getTerrainGrainChange",       "btn:herb"),
++			("iFeatureGrainChange",         "getFeatureGrainChange",       "btn:herb"),
++			("iResearchPercent",            "getResearchPercent",          "glyph:research"),
++			("iTradeProfitPercent",         "getTradeProfitPercent",       "glyph:gold"),
++			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent","glyph:gold"),
++			("iNumCitiesMaintenancePercent","getNumCitiesMaintenancePercent","glyph:gold"),
++			("iColonyMaintenancePercent",   "getColonyMaintenancePercent", "glyph:gold"),
++			("iCorporationMaintenancePercent","getCorporationMaintenancePercent","glyph:gold"),
++			("iNumCitiesAnarchyPercent",    "getNumCitiesAnarchyPercent",  "btn:fire"),
++			("iAdvancedStartPointsMod",     "getAdvancedStartPointsMod",   "glyph:defense"),
++		)
++
++		field_getters_list = []
++		for field_name, getter_name, _icon_token in row_specs:
++			if getter_name:
++				field_getters_list.append((field_name, getter_name))
++		field_getters = tuple(field_getters_list)
++
++		if gc.getNumWorldInfos() > 0:
++			info = gc.getWorldInfo(0)
++			missing = []
++			for field_name, getter_name in field_getters:
++				if not hasattr(info, getter_name):
++					missing.append(getter_name)
++			if not hasattr(info, "getGridWidth"):
++				missing.append("getGridWidth")
++			if not hasattr(info, "getGridHeight"):
++				missing.append("getGridHeight")
++			if missing:
++				raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvWorldInfo Python getters: %s. Please expose them in CyInfoInterface2.cpp and rebuild the DLL." % ", ".join(missing))
++
++		game = CyGame()
++		btn_by_name = {
++			"swords": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", ())), 2),
++			"skull": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", ())), 3),
++			"herb": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH", ())), 4),
++			"fire": (CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ())), 5),
++		}
++
++		glyph_by_name = {
++			"map": u"%c" % game.getSymbolID(FontSymbols.MAP_CHAR),
++			"citizen": u"%c" % game.getSymbolID(FontSymbols.CITIZEN_CHAR),
++			"prod": u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(),
++			"gold": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(),
++			"research": u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar(),
++			"defense": u"%c" % game.getSymbolID(FontSymbols.DEFENSE_CHAR),
++			"unhappy": u"%c" % game.getSymbolID(FontSymbols.UNHAPPY_CHAR),
++		}
++
++		icon_token_by_key = {}
++		for field_name, _getter_name, icon_token in row_specs:
++			if icon_token:
++				icon_token_by_key[field_name] = icon_token
++
++		def _sort_char(code):
++			if code <= 0:
++				code = 31
++			elif code > 31:
++				code = 31
++			return u"<font=1>%c</font>" % code
++
++		def icon_cell_for_key(icon_key):
++			if not icon_key:
++				return (u"", "")
++			token = icon_token_by_key.get(icon_key, "")
++			if not token:
++				return (u"", "")
++			if token.startswith("btn:"):
++				name = token[4:]
++				btn = btn_by_name.get(name)
++				if btn is None:
++					return (u"", "")
++				path, sort_code = btn[0], btn[1]
++				if not path:
++					return (u"", "")
++				return (_sort_char(sort_code), path)
++			if token.startswith("glyph:"):
++				name = token[6:]
++				glyph = glyph_by_name.get(name, u"")
++				if not glyph:
++					return (u"", "")
++				return (_font2(glyph), "")
++			return (u"", "")
++
++		world_types = []
++		world_labels = []
++		parsed_data = {}
++
++		for iWorld in xrange(gc.getNumWorldInfos()):
++			info = gc.getWorldInfo(iWorld)
++			world_type = info.getType()
++			world_types.append(world_type)
++			world_labels.append(info.getDescription())
++
++			world_dict = {}
++			for field_name, getter_name in field_getters:
++				getter = getattr(info, getter_name)
++				world_dict[field_name] = str(getter())
++
++			grid_w = info.getGridWidth()
++			grid_h = info.getGridHeight()
++			world_dict["GridSize"] = "%d x %d" % (grid_w, grid_h)
++			world_dict["GridTiles"] = str(grid_w * grid_h)
++
++			parsed_data[world_type] = world_dict
++
++		header = []
++		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
++			header.append(u"")
++			header.append(_font2("Field"))
++		else:
++			header.append(_font2("Field"))
++		for label in world_labels:
++			header.append(_font2(label))
++
++		table = [header]
++
++		for field_name, _getter_name, _icon_token in row_specs:
++			szFieldName = self._display_field_name(field_name)
++
++			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
++				row = [icon_cell_for_key(field_name), _font2(szFieldName)]
++			else:
++				row = [_font2(szFieldName)]
++
++			for world_type in world_types:
++				row.append(_font2(parsed_data.get(world_type, {}).get(field_name, "")))
++
++			table.append(row)
++
++		return table
++
++	def _display_field_name(self, field_name):
++		field_map = {
++			"GridSize": "Grid Size (W x H)",
++			"GridTiles": "Grid Tiles",
++			"iDefaultPlayers": "Default Players",
++			"iTargetNumCities": "Target Num Cities",
++			"iNumFreeBuildingBonuses": "Free Building Bonuses",
++			"iBuildingClassPrereqModifier": "Building Class Prereq Mod",
++			"iUnitNameModifier": "Unit Name Modifier",
++			"iMaxConscriptModifier": "Max Conscript Mod",
++			"iWarWearinessModifier": "War Weariness Mod",
++			"iAdvancedStartPointsMod": "Advanced Start Points Mod",
++		}
++		name = field_map.get(field_name, "")
++		if name:
++			return name
++		return self._beautify_field_name(field_name)
++
++	def _beautify_field_name(self, raw_name):
++		name = raw_name
++		if name.startswith("i") and len(name) > 1 and name[1].isupper():
++			name = name[1:]
++		name = re.sub(r"_", " ", name)
++		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
++		if name.endswith("Percent"):
++			name = name[:-len("Percent")] + "%"
++		return name
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+index 754e9b43e..985cd784e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+@@ -31,3 +31,4 @@ PEDIA_HANDICAP_CHART	= 226
+ PEDIA_INDEX		= 227
+ PEDIA_STRATEGY  	= 228
+ PEDIA_GAME_SPEED_CHART	= 229
++PEDIA_WORLD_SIZE_CHART	= 230
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index b54d5c21e..c4d1ba16b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -140,6 +140,15 @@
+ 		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: set the world size chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT</DefineName>
++		<iDefineIntVal>45</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index bbbdfc13c..545565c11 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -135,6 +135,10 @@
+ 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART</Tag>
+ 		<English>Speeds</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_WORLD_SIZE_CHART</Tag>
++		<English>W. Sizes</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE</Tag>
+ 		<English>None</English>
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 29deaafbe..52a511433 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -723,6 +723,11 @@ public:
+ 	int getColonyMaintenancePercent() const;
+ 	int getCorporationMaintenancePercent() const;
+ 	int getNumCitiesAnarchyPercent() const;
++
++	// <!-- custom: expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
++	int getUnitCostPercent() const { return get(UnitCostPercent); }
++	// <!-- custom: End - expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
++
+ 	int getAdvancedStartPointsMod() const;
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index ea5ea0bc4..b9d9205a9 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -296,6 +296,11 @@ void CyInfoPythonInterface3()
+ 		.def("getColonyMaintenancePercent", &CvWorldInfo::getColonyMaintenancePercent, "int ()")
+ 		.def("getCorporationMaintenancePercent", &CvWorldInfo::getCorporationMaintenancePercent, "int ()")
+ 		.def("getNumCitiesAnarchyPercent", &CvWorldInfo::getNumCitiesAnarchyPercent, "int ()")
++
++		// <!-- custom: expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
++		.def("getUnitCostPercent", &CvWorldInfo::getUnitCostPercent, "int ()")
++		.def("getAdvancedStartPointsMod", &CvWorldInfo::getAdvancedStartPointsMod, "int ()")
++		// <!-- custom: End - expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+ 		;
+ 
+ 	python::class_<CvClimateInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvClimateInfo")
+
+diff --git a/README.md b/README.md
+index daae896a7..82674bf37 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, Handicap Chart category, AI Personality Panel, etc.), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g. Handicap Chart, Game Speed Chart, World Sizes, etc.), AI Personality Panel), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and for mechanics such as new Game Speeds (Nitro, Turbo, etc., Slow, Very Slow); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -35,8 +35,8 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok
+ &emsp;[City Screen rework](/README.md#city-screen-rework)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
+-&emsp;[Other new categories (Handicap Chart, Game Speed Chart, etc.)](/README.md#other-new-categories-handicap-chart-game-speed-chart-etc)  
+-&emsp;[Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc)  
++&emsp;[Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart)  
++&emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
+ &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+ [UI (Common)](/README.md#ui-common)  
+ &emsp;[Images as buttons](/README.md#images-as-buttons)  
+@@ -220,16 +220,17 @@ Inspired by Middle-earth mod's very nice and amazing platypedia thanks, i moved
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+ 
+-### Other new categories (Handicap Chart, Game Speed Chart, etc.)
++### Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)
+ 
+-New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, the Game Speed Chart, etc. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
++New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart, Game Speed Chart, World Sizes Chart. Added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and ChatGPT 5.2 (web) based on the Middle-earth's Platypedia code.
+ 
+-They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30kAD"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
++They are very handy to see all handicap or game settings info in one go, are sortable by theme (e.g. all war-related handicap fields have the war emoji), and allow to show efficiently (cached after being computed) info for the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m4"` for all increments and all game speeds! It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+ 
+-### Some higher level reworks (AI Personality Panel, etc.)
++### Some higher level reworks (e.g. AI Personality Panel)
+ 
+ One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
+ 
+@@ -730,19 +731,19 @@ Note: see also [AGENTS.md](/AGENTS.md).
+ 
+ #### Create a new Sevopedia category (e.g. Handicap Chart)
+ 
+-Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories (Handicap Chart, Game Speed Chart, etc.)](/README.md#other-new-categories-handicap-chart-game-speed-chart-etc)).
++Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart)).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG" alt="codex_ gpt_5.2_handicap_chart (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG" alt="codex_ gpt_5.2_handicap_chart (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG" alt="codex_ gpt_5.2_handicap_chart (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG" alt="codex_ gpt_5.2_handicaps_chart (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG" alt="codex_ gpt_5.2_handicaps_chart (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG" alt="codex_ gpt_5.2_handicaps_chart (3).PNG" width="250"></img>
+ 
+ #### Long_Comments extracting
+ 
+ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG" alt="gpt_codex (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG" alt="gpt_codex (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG" alt="gpt_codex (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG" alt="gpt_codex_summarizing (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG" alt="gpt_codex_summarizing (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG" alt="gpt_codex_summarizing (3).PNG" width="250"></img>
+ 
+ #### code comments summarizing
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index cb50e9b4b..10ad76bde 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -90,7 +90,7 @@ A code block like this means for example that for the line:
+ "getMaxWarRand": ("T.W Likely", True),
+ ```
+ 
+-that in the label in sevopedia leader ingame "T.W Likely" refers to the field's getter name "getMaxWarRand", but to get info on what this field does, remove the "get" or some similar prefix to be safe, then search online what "MaxWarRand" means and does in civ4, for example go on the 2 sources mentionned in [Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc) (kujira's and modiki's websites (for example)), then you'll hopefully find more info about what they do that should be quite if not very reliable anyways.
++that in the label in sevopedia leader ingame "T.W Likely" refers to the field's getter name "getMaxWarRand", but to get info on what this field does, remove the "get" or some similar prefix to be safe, then search online what "MaxWarRand" means and does in civ4, for example go on kujira's and modiki's websites, then you'll hopefully find more info about what they do that should be quite if not very reliable anyways.
+ 
+ Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "broad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+index e3202ad25..6e2bbb363 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+@@ -69,7 +69,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ <img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+ 
+ - **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+ 
+@@ -132,7 +132,8 @@ For sevopedia new content and most reworks, see above the main README.md's [UI (
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30kAD"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m4"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all world size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ - Sevopedia — Techs: add the list of all untradeable techs. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 2d504f3ff..21b9bc731 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -70,8 +70,8 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ <img src="../Images/sevopedia_reworks/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+ 
+ - **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+ 
+@@ -132,7 +132,8 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+-- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30kAD"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m4"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
++- (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all world size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 5366626b2..e25394532 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -14,9 +14,10 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
+ &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+ &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
+-[Other new categories (Handicap Chart, Game Speed Chart, etc.)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories-handicap-chart-game-speed-chart-etc)  
++[Other new categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart)](/README.md#other-new-categories-eg-handicap-chart-game-speed-chart-world-sizes-chart)  
+ &emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+ &emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
++&emsp;[example 0.7: World Sizes Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category)  
+ [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
+ &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
+@@ -96,21 +97,29 @@ Then, chatgpt 5.2 (web) helped refactor it for perf opt, clarity, and such; than
+ 
+ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
+ 
+-<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG" alt="0.625_sevopedia_handicap_chart (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" alt="0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (2).JPG" alt="0.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicaps_chart_free_techs.JPG" alt="0.6251_sevopedia_handicaps_chart_free_techs.JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG" alt="0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG" width="250"></img>
+ 
+ ### example 0.6: Game Speed Chart category
+ 
+ Extending on the Handicap Chart, with the help of GPT-Codex-5.2 and ChatGPT 5.2 (web) i added a Game Speed Chart category in sevopedia to show gamespeed info.
+ 
+-Especially useful to see the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30kAD"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
++Especially useful to see the full calendar/timeline info in compact rows such as `"50kBC+2*10k=30k"` or `"2070+40*m2=2076m4"` for all increments and all game speeds. It allowed me to spot a mistaken in Very Slow that ended in 2116 AD instead of 2105 AD!
+ 
+ Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+ 
+-<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG" alt="0.626_sevopedia_game_speed_chart (1).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG" alt="0.626_sevopedia_game_speed_chart (2).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (1).JPG" alt="0.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
++
++### example 0.7: World Sizes Chart category
++
++Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2, i also added a World Sizes Sevopedia category.
++
++Note: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
++
++<img src="../Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+ 
+ ## Sevopedia Pages individual reworks
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicaps_chart_free_techs.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicaps_chart_free_techs.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicaps_chart_DLL_getters_required.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicaps_chart (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speeds_chart (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+new file mode 100644
+index 000000000..2edc0997c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=25 omittedFiles=1 embeddedPatchBytes=48641

@@ -1,0 +1,101 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4202
+# Commit: 0fef4a455f15ad4470337fb8302aa855659b9753
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 19d3d43a8c420ab1fa972f50952bfc76d034e2d5
+# Title: Fix minor bug in AI checks for danger from sea units
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	CvGameCoreDLL/CvPlayerAI.cpp
+7	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 674ade734..2d9d1ea6e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3463,6 +3463,8 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 			/*	advc.300: Let civs not worry about Barbarian borders and vice versa
+ 				No need then to check for border danger at peacetime. */
+ 			GET_TEAM(getTeam()).getNumWars(false) > 0 && !isBarbarian() &&
++			// advc: Maybe (force-)disable the border check for water units?
++			//!kPlot.isWater() &&
+ 			//bool bCheckBorder = (!isHuman() && !kPlot.isCity());
+ 			/*  K-Mod. I don't want auto-workers on the frontline.
+ 				So count border danger for humans too, unless the plot is defended. */
+@@ -3670,7 +3672,11 @@ int CvPlayerAI::AI_getWaterDanger(CvPlot const& kPlot, int iRange,
+ 	{
+ 		CvPlot const& p = *it;
+ 		if (!p.isWater() || /* advc.opt: */ !p.isUnit() ||
+-			!p.isAdjacentToArea(p.getArea()))
++			/*	advc: More for clarity than for 1-plot lakes (which aren't adjacent
++				to their own area). Or perhaps better to restrict this function to
++				kPlot being land and to use AI_getPlotDanger for water? */
++			(kPlot.isWater() ? !kPlot.sameArea(p) :
++			!kPlot.isAdjacentToArea(p.getArea())))
+ 		{
+ 			continue;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b9d2643db..9c62150fe 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5891,7 +5891,8 @@ void CvUnitAI::AI_workerSeaMove()
+ 	{
+ 		// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/20/09, jdog5000: was AI_getPlotDanger
+ 		//if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot()))
+-		// advc.mnai (bugfix arguably; tagging advc.001)
++		/*	advc.mnai (for performance, arguably; tagging advc.opt)
++			Tbd.: Maybe plot danger should really be used; it's more accurate. */
+ 		if (GET_PLAYER(getOwner()).AI_isAnyWaterDanger(getPlot()))
+ 		{
+ 			if (AI_retreatToCity())
+@@ -6290,6 +6291,7 @@ void CvUnitAI::AI_attackSeaMove()
+ 			int iAttackers = getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam());
+ 			// advc.114a: Why count only group heads? Need to count all attackers!
+ 					//PUF_isGroupHead, -1, -1);
++			// advc (tbd.): Use AI_getPlotDanger? It's more accurate but slower.
+ 			int iBlockaders = kOwner.AI_getWaterDanger(getPlot(), 4);
+ 			//if (iAttackers > iBlockaders + 2)
+ 			// advc.114a: Replacing the above
+@@ -6464,7 +6466,8 @@ void CvUnitAI::AI_reserveSeaMove()
+ 	} // BETTER_BTS_AI_MOD: END
+ 
+ 	/*  <advc.017b> Defend bonus if it's threatened, otherwise, consider a bunch of
+-		other activities first. (K-Mod's AI_guardBonus(15) moved down instead.) */
++		other activities first. (K-Mod's AI_guardBonus(15) moved down instead.)
++		Tbd.: Use PlotDanger instead? More accurate but slower. */
+ 	if(kOwner.AI_isAnyWaterDanger(
+ 		getPlot(), std::min(maxMoves(), CvPlayerAI::DANGER_RANGE)) &&
+ 		AI_guardBonus(10))
+@@ -7111,6 +7114,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			if (kOwner.AI_isAnyUnitTargetMissionAI(*this, &eMissionAIType, 1, getGroup(), 3) ||
++				// advc (tbd.): Use PlotDanger instead? More accurate but slower.
+ 				kOwner.AI_isAnyWaterDanger(getPlot(), 4))
+ 			{
+ 				// Loaded but with no escort, wait for others joining us soon or avoid dangerous waters
+@@ -7352,7 +7356,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			if (kOwner.AI_isAnyUnitTargetMissionAI(
+ 				*this, &eMissionAIType, 1, getGroup(), 1))
+-			{
++			{	// advc (tbd.): Use PlotDanger instead? More accurate but slower.
+ 				if (iEscorts < kOwner.AI_getWaterDanger(getPlot(), 2))
+ 				{
+ 					// Wait for units which are joining our group this turn (hopefully escorts)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3801

@@ -1,0 +1,377 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1887
+# Commit: 9f296435d19adf72f15a4bc2f0ccec1c70982b88
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e484c1991666a1ec2b4f6ae750609ab62fb9060f
+# Title: Update player AI cache data after loading savegame
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvDLLLogger.cpp
+51	50	CvGameCoreDLL/CvGame.cpp
+2	3	CvGameCoreDLL/CvPlayer.cpp
+6	7	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index f08d5235d..7d0771f76 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -28,7 +28,7 @@ void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
+ 	TCHAR szOut[1024];
+ 	// <advc.007>
+ 	CvString szData;
+-	if(iData1 > MIN_INT)
++	if (iData1 < MIN_INT)
+ 	{
+ 		if(iData2 == MIN_INT)
+ 			szData.Format(" (%d)", iData1);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 905c567eb..db873fead 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8860,8 +8860,6 @@ uint CvGame::getNumReplayMessages() const
+ 
+ void CvGame::read(FDataStreamBase* pStream)
+ {
+-	int iI;
+-
+ 	reset(NO_HANDICAP);
+ 
+ 	uint uiFlag=0;
+@@ -8962,16 +8960,15 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumSpecialBuildingInfos(), m_pabSpecialBuildingValid);
+ 	pStream->Read(GC.getNumReligionInfos(), m_abReligionSlotTaken);
+ 
+-	for (iI=0;iI<GC.getNumReligionInfos();iI++)
++	FOR_EACH_ENUM(Religion)
+ 	{
+-		pStream->Read((int*)&m_paHolyCity[iI].eOwner);
+-		pStream->Read(&m_paHolyCity[iI].iID);
++		pStream->Read((int*)&m_paHolyCity[eLoopReligion].eOwner);
++		pStream->Read(&m_paHolyCity[eLoopReligion].iID);
+ 	}
+-
+-	for (iI=0;iI<GC.getNumCorporationInfos();iI++)
++	FOR_EACH_ENUM(Corporation)
+ 	{
+-		pStream->Read((int*)&m_paHeadquarters[iI].eOwner);
+-		pStream->Read(&m_paHeadquarters[iI].iID);
++		pStream->Read((int*)&m_paHeadquarters[eLoopCorporation].eOwner);
++		pStream->Read(&m_paHeadquarters[eLoopCorporation].iID);
+ 	}
+ 
+ 	{
+@@ -9022,10 +9019,8 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		for (ReplayMessageList::_Alloc::size_type i = 0; i < iSize; i++)
+ 		{
+ 			CvReplayMessage* pMessage = new CvReplayMessage(0);
+-			if (NULL != pMessage)
+-			{
++			if (pMessage != NULL)
+ 				pMessage->read(*pStream);
+-			}
+ 			m_listReplayMessages.push_back(pMessage);
+ 		}
+ 	}
+@@ -9033,13 +9028,13 @@ void CvGame::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&m_iNumSessions);
+ 	if (!isNetworkMultiPlayer())
+-		++m_iNumSessions;
++		m_iNumSessions++;
+ 
+ 	{
+ 		int iSize;
+ 		m_aPlotExtraYields.clear();
+ 		pStream->Read(&iSize);
+-		for (int i = 0; i < iSize; ++i)
++		for (int i = 0; i < iSize; i++)
+ 		{
+ 			PlotExtraYield kPlotYield;
+ 			kPlotYield.read(pStream);
+@@ -9051,7 +9046,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		int iSize;
+ 		m_aPlotExtraCosts.clear();
+ 		pStream->Read(&iSize);
+-		for (int i = 0; i < iSize; ++i)
++		for (int i = 0; i < iSize; i++)
+ 		{
+ 			PlotExtraCost kPlotCost;
+ 			kPlotCost.read(pStream);
+@@ -9063,7 +9058,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		int iSize;
+ 		m_mapVoteSourceReligions.clear();
+ 		pStream->Read(&iSize);
+-		for (int i = 0; i < iSize; ++i)
++		for (int i = 0; i < iSize; i++)
+ 		{
+ 			VoteSourceTypes eVoteSource;
+ 			ReligionTypes eReligion;
+@@ -9077,7 +9072,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		int iSize;
+ 		m_aeInactiveTriggers.clear();
+ 		pStream->Read(&iSize);
+-		for (int i = 0; i < iSize; ++i)
++		for (int i = 0; i < iSize; i++)
+ 		{
+ 			int iTrigger;
+ 			pStream->Read(&iTrigger);
+@@ -9088,15 +9083,16 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	// Get the active player information from the initialization structure
+ 	if (!isGameMultiPlayer())
+ 	{
+-		for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).isHuman())
++			if (GET_PLAYER((PlayerTypes)i).isHuman())
+ 			{
+-				setActivePlayer((PlayerTypes)iI);
++				setActivePlayer((PlayerTypes)i);
+ 				break;
+ 			}
+ 		}
+-		addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getActivePlayer(), gDLL->getText("TXT_KEY_MISC_RELOAD", m_iNumSessions));
++		addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getActivePlayer(),
++				gDLL->getText("TXT_KEY_MISC_RELOAD", m_iNumSessions));
+ 	}
+ 
+ 	if (isOption(GAMEOPTION_NEW_RANDOM_SEED))
+@@ -9124,7 +9120,6 @@ void CvGame::read(FDataStreamBase* pStream)
+ void CvGame::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
+-	int iI;
+ 
+ 	uint uiFlag=1;
+ 	uiFlag = 2; // advc.701: R&F option
+@@ -9208,29 +9203,27 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	pStream->Write(GC.getNumSpecialBuildingInfos(), m_pabSpecialBuildingValid);
+ 	pStream->Write(GC.getNumReligionInfos(), m_abReligionSlotTaken);
+ 
+-	for (iI=0;iI<GC.getNumReligionInfos();iI++)
++	FOR_EACH_ENUM(Religion)
+ 	{
+-		pStream->Write(m_paHolyCity[iI].eOwner);
+-		pStream->Write(m_paHolyCity[iI].iID);
++		pStream->Write(m_paHolyCity[eLoopReligion].eOwner);
++		pStream->Write(m_paHolyCity[eLoopReligion].iID);
+ 	}
+-
+-	for (iI=0;iI<GC.getNumCorporationInfos();iI++)
++	FOR_EACH_ENUM(Corporation)
+ 	{
+-		pStream->Write(m_paHeadquarters[iI].eOwner);
+-		pStream->Write(m_paHeadquarters[iI].iID);
++		pStream->Write(m_paHeadquarters[eLoopCorporation].eOwner);
++		pStream->Write(m_paHeadquarters[eLoopCorporation].iID);
+ 	}
+ 
+ 	{
+ 		std::vector<CvWString>::iterator it;
+-
+ 		pStream->Write(m_aszDestroyedCities.size());
+-		for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); it++)
++		for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); ++it)
+ 		{
+ 			pStream->WriteString(*it);
+ 		}
+ 
+ 		pStream->Write(m_aszGreatPeopleBorn.size());
+-		for (it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); it++)
++		for (it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); ++it)
+ 		{
+ 			pStream->WriteString(*it);
+ 		}
+@@ -9250,39 +9243,42 @@ void CvGame::write(FDataStreamBase* pStream)
+ 		m_pRiseFall->write(pStream); // </advc.701>
+ 	ReplayMessageList::_Alloc::size_type iSize = m_listReplayMessages.size();
+ 	pStream->Write(iSize);
+-	for (ReplayMessageList::const_iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); it++)
++	for (ReplayMessageList::const_iterator it = m_listReplayMessages.begin();
++		it != m_listReplayMessages.end(); ++it)
+ 	{
+ 		const CvReplayMessage* pMessage = *it;
+-		if (NULL != pMessage)
+-		{
++		if (pMessage != NULL)
+ 			pMessage->write(*pStream);
+-		}
+ 	}
+ 	// m_pReplayInfo not saved
+ 
+ 	pStream->Write(m_iNumSessions);
+ 
+ 	pStream->Write(m_aPlotExtraYields.size());
+-	for (std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)
++	for (std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin();
++		it != m_aPlotExtraYields.end(); ++it)
+ 	{
+ 		it->write(pStream);
+ 	}
+ 
+ 	pStream->Write(m_aPlotExtraCosts.size());
+-	for (std::vector<PlotExtraCost>::iterator it = m_aPlotExtraCosts.begin(); it != m_aPlotExtraCosts.end(); ++it)
++	for (std::vector<PlotExtraCost>::iterator it = m_aPlotExtraCosts.begin();
++		it != m_aPlotExtraCosts.end(); ++it)
+ 	{
+ 		it->write(pStream);
+ 	}
+ 
+ 	pStream->Write(m_mapVoteSourceReligions.size());
+-	for (stdext::hash_map<VoteSourceTypes, ReligionTypes>::iterator it = m_mapVoteSourceReligions.begin(); it != m_mapVoteSourceReligions.end(); ++it)
++	for (stdext::hash_map<VoteSourceTypes,ReligionTypes>::iterator it = m_mapVoteSourceReligions.begin();
++		it != m_mapVoteSourceReligions.end(); ++it)
+ 	{
+ 		pStream->Write(it->first);
+ 		pStream->Write(it->second);
+ 	}
+ 
+ 	pStream->Write(m_aeInactiveTriggers.size());
+-	for (std::vector<EventTriggerTypes>::iterator it = m_aeInactiveTriggers.begin(); it != m_aeInactiveTriggers.end(); ++it)
++	for (std::vector<EventTriggerTypes>::iterator it = m_aeInactiveTriggers.begin();
++		it != m_aeInactiveTriggers.end(); ++it)
+ 	{
+ 		pStream->Write(*it);
+ 	}
+@@ -9311,7 +9307,7 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+ 	}
+ }
+ 
+-/*  <advc> When loading a savegame, this function is called once all
++/*  advc: When loading a savegame, this function is called once all
+ 	read functions have been called. */
+ void CvGame::onAllGameDataRead()
+ {
+@@ -9342,27 +9338,32 @@ void CvGame::onAllGameDataRead()
+ 			}
+ 		}
+ 	} // </advc.opt>
+-	GET_PLAYER(getActivePlayer()).validateDiplomacy(); // advc.134a
+ 	m_bAllGameDataRead = true;
++	for (PlayerIter<HUMAN> it; it.hasNext(); ++it)
++	{
++		CvPlayerAI& kActive = *it;
++		if (!kActive.isTurnActive())
++			continue;
++		// So that the cache data doesn't necessarily have to be serialized
++		kActive.AI_updateCacheData();
++		kActive.validateDiplomacy(); // advc.134a
++	}
+ 	// <advc.127> Save created during AI Auto Play
+ 	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
+ 	{
+-		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+-		{
+-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+-			if (kPlayer.isAlive())
+-				kPlayer.AI_updateAttitude();
+-		}
++		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++			it->AI_updateAttitude();
+ 	}
+ 	m_iAIAutoPlay = 0; // </advc.127>
+ }
+ 
+-// Called once the EXE signals that graphics have been initialized (w/e that means exactly)
++/*	advc: Called once the EXE signals that graphics have been initialized
++	(w/e that means exactly) */
+ void CvGame::onGraphicsInitialized()
+ {
+ 	// (Nothing to be done here currently)
+ }
+-// </advc>
++
+ 
+ void CvGame::saveReplay(PlayerTypes ePlayer)
+ {	// advc.106i: Hack to prepend sth. to the replay file name
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ac94484a0..ddcd34a07 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9870,14 +9870,13 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 	CvGame& g = GC.getGame();
+ 	if (isTurnActive())
+ 	{
++		FAssert(isAlive());
+ 		// K-Mod
+-		AI().updateCacheData();
++		AI().AI_updateCacheData();
+ 		onTurnLogging(); // bbai logging
+ 		// K-Mod end
+ 		GC.getLogger().logTurnActive(getID()); // advc.003t
+ 
+-		FAssertMsg(isAlive(), "isAlive is expected to be true");
+-
+ 		setEndTurn(false);
+ 		g.resetTurnTimer();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d61b5cb88..4accda6c1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -132,7 +132,7 @@ void CvPlayerAI::AI_init()
+ 	AI_setReligionTimer(1);
+ 	AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? 1 : 2);
+ 	AI_initStrategyRand(); // K-Mod
+-	updateCacheData(); // K-Mod
++	AI_updateCacheData(); // K-Mod
+ 	// <advc.104>
+ 	if(isEverAlive() && !isBarbarian() && !isMinorCiv())
+ 		m_pUWAI->init(getID()); // </advc.104>
+@@ -329,11 +329,10 @@ int CvPlayerAI::AI_getFlavorValue(FlavorTypes eFlavor) const
+ }
+ 
+ // K-Mod
+-void CvPlayerAI::updateCacheData()
++/*	advc (note): Now called on all active players after loading a savegame;
++	so that the data doesn't necessarily have to be serialized. */
++void CvPlayerAI::AI_updateCacheData()
+ {
+-	if (!isAlive())
+-		return;
+-
+ 	// AI_updateCloseBorderAttitude();
+ 	// AI_updateAttitude(); // attitude of this player is relevant to other players too, so this needs to be done elsewhere.
+ 	AI_updateNeededExplorers(); // advc.opt
+@@ -363,8 +362,8 @@ void CvPlayerAI::updateCacheData()
+ 		c->AI_updateSafety();
+ 		i++;
+ 	} // </advc.139>
+-}
+-// K-Mod end
++} // K-Mod end
++
+ 
+ void CvPlayerAI::AI_doTurnPre()
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index cd9869303..f1162a067 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -78,7 +78,7 @@ public:
+ 	// </advc.003u>
+ 	int AI_getFlavorValue(FlavorTypes eFlavor) const;
+ 
+-	void updateCacheData(); // K-Mod
++	void AI_updateCacheData(); // K-Mod
+ 
+ 	void AI_doTurnPre();
+ 	void AI_doTurnPost();
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=11322

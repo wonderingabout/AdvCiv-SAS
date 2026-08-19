@@ -1,0 +1,276 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3247
+# Commit: a833c33e7117e44c3bbeecaa74322421757163eb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7ac3f011c9cfbeab548a050dafc9f6cada0533bd
+# Title: Point out various balance changes in 'Pedia strategy help
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+216	5	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index d1b5fa5d6..abb6a0986 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -241,16 +241,35 @@
+ 	</TEXT>
+ 
+ 	<!-- Overwrites CIV4GameText_Warlords_Changed.
+-		 advc.310: Describes AdvCiv dynamic Great Wall abilities. -->
++		 advc.310: Describes AdvCiv dynamic Great Wall abilities.
++		 advc.911: Mention extra specialist at Courthouse. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_GREAT_WALL_STRATEGY</Tag>
+-		<English>The [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] affects the area inside its owner's cultural borders on that continent, even if it is physically outside of the Great Wall. The effects are that [COLOR_HIGHLIGHT_TEXT]Barbarians[COLOR_REVERT] cannot enter that area, and the owner receives more [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points from combat within that area. [BOLD]AdvCiv[\BOLD]: Since the utility of the anti-Barbarian ability depends very much on game settings, the Great Wall now grants an extra trade route unless when playing with Raging Barbarians. When playing with No Barbarians, the trade route ability replaces the anti-Barbarian ability; under default settings, the trade route ability replaces the Great General ability. Also requires some Walls now.</English>
++		<English>The [COLOR_BUILDING_TEXT]Great Wall[COLOR_REVERT] affects the area inside its owner's cultural borders on that continent, even if it is physically outside of the Great Wall. The effects are that [COLOR_HIGHLIGHT_TEXT]Barbarians[COLOR_REVERT] cannot enter that area, and the owner receives more [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points from combat within that area. [BOLD]AdvCiv[\BOLD]: Since the utility of the anti-Barbarian effect depends very much on game settings, the Great Wall now grants an extra [ICON_TRADE] when not playing with the [COLOR_HIGHLIGHT_TEXT]Raging Barbarians[COLOR_REVERT] option. When playing with [COLOR_HIGHLIGHT_TEXT]No Barbarians[COLOR_REVERT], the [ICON_TRADE] effect replaces the anti-Barbarian effect; under default settings, the [ICON_TRADE] effect replaces the Great General effect. Moreover, Great Merchant points are generated instead of Great Spy points. (The earliest path to a [LINK=UNIT_GREAT_SPY]Great Spy[\LINK] is now [LINK=BUILDING_COURTHOUSE]Courthouse[\LINK], which gains a second Spy specialist.) The Great Wall also requires Archery and a number of Walls now.</English>
+ 		<French>La [COLOR_BUILDING_TEXT]Grande muraille[COLOR_REVERT] affecte la zone situ&#233;e au sein des fronti&#232;res culturelles de son propri&#233;taire sur ce continent, m&#234;me si elle se trouve physiquement en dehors de la Grande muraille. Les [COLOR_HIGHLIGHT_TEXT]barbares[COLOR_REVERT] ne peuvent alors plus entrer dans cette zone. Le propri&#233;taire re&#231;oit, quant &#224; lui, davantage de points de [COLOR_HIGHLIGHT_TEXT]g&#233;n&#233;ral illustre[COLOR_REVERT] en combattant dans cette zone.</French>
+-		<German>Der Einflussbereich der [COLOR_BUILDING_TEXT]Gro�en Mauer[COLOR_REVERT] erstreckt sich �ber das innerhalb der kulturellen Grenzen der besitzenden Zivilisation befindliche Gebiet auf dem jeweiligen Kontinent - auch dann, wenn es sich physikalisch au�erhalb der Gro�en Mauer befindet. Dadurch wird [COLOR_HIGHLIGHT_TEXT]Barbaren[COLOR_REVERT] der Zutritt zu diesem Territorium verwehrt und die besitzende Zivilisation gewinnt durch K�mpfe innerhalb dieses Gebiets mehr [COLOR_HIGHLIGHT_TEXT]Gro�er General[COLOR_REVERT]-Punkte. [BOLD]AdvCiv[\BOLD]-�nderung: Da der Nutzen der Anti-Barbaren-F�higkeit stark von den Spieloptionen abh�ngt, liefert die Gro�e Mauer nun eine zus�tzliche Handelsroute falls nicht mit "W�tende Barbaren" gespielt wird. Wenn "Keine Barbaren" aktiviert ist, dann ersetzt die Handelsrouten-F�higkeit die Anti-Barbaren-F�higkeit; andernfalls (Standardeinstellung) ersetzt die Handelsrouten-F�higkeit die Gro�er-General-F�higkeit. Au�erdem setzt die Gro�e Mauer neuerdings mehrere (gew�hnliche) Mauern voraus.</German>
++		<German>Der Einflussbereich der [COLOR_BUILDING_TEXT]Gro�en Mauer[COLOR_REVERT] erstreckt sich �ber das innerhalb der kulturellen Grenzen der besitzenden Zivilisation befindliche Gebiet auf dem jeweiligen Kontinent - auch dann, wenn es sich physikalisch au�erhalb der Gro�en Mauer befindet. Dadurch wird [COLOR_HIGHLIGHT_TEXT]Barbaren[COLOR_REVERT] der Zutritt zu diesem Territorium verwehrt und die besitzende Zivilisation gewinnt durch K�mpfe innerhalb dieses Gebiets mehr [COLOR_HIGHLIGHT_TEXT]Gro�er General[COLOR_REVERT]-Punkte. [BOLD]AdvCiv[\BOLD]-�nderung: Da der Nutzen des Anti-Barbaren-Effekts stark von den Spieloptionen abh�ngt, liefert die Gro�e Mauer nun eine zus�tzliche [ICON_TRADE] falls nicht mit der Option [COLOR_HIGHLIGHT_TEXT]W�tende Barbaren[COLOR_REVERT] gespielt wird. Wenn [COLOR_HIGHLIGHT_TEXT]Keine Barbaren[COLOR_REVERT] aktiviert ist, dann ersetzt der [ICON_TRADE]-Effekt den Anti-Barbaren-Effekt; andernfalls (Standardeinstellung) ersetzt der [ICON_TRADE]-Effekt den Gro�er-General-Effekt. Des Weiteren bringt die Gro�e Mauer nun Gro�e H�ndler hervor anstatt Gro�er Spione. (Einen fr�hen [LINK=UNIT_GREAT_SPY]Gro�en Spion[\LINK] erh�lt man nun am ehesten �ber das [LINK=BUILDING_COURTHOUSE]Gerichtsgeb�ude[\LINK], welches einen weiteren Spion-Spezialisten erm�glicht.) Au�erdem setzt die Gro�e Mauer neuerdings Bogenschie�en und mehrere (gew�hnliche) Mauern voraus.</German>
+ 		<Italian>La [COLOR_BUILDING_TEXT]Grande Muraglia[COLOR_REVERT] produce effetti all'interno dei confini culturali presenti sul continente, anche su territori materialmente all'esterno della Grande Muraglia. Tali effetti si sostanziano nel fatto che i [COLOR_HIGHLIGHT_TEXT]barbari[COLOR_REVERT] non possono mettere piede in quei territori e che la civilt&#224; riceve pi&#249; punti da [COLOR_HIGHLIGHT_TEXT]Grande Generale[COLOR_REVERT] per gli scontri combattuti all'interno dell'area.</Italian>
+ 		<Spanish>La [COLOR_BUILDING_TEXT]Gran muralla[COLOR_REVERT] afecta al &#225;rea situada dentro de las fronteras culturales de su propietario en ese continente, aunque &#233;sta se encuentre fuera de la Gran muralla. Los efectos son que los [COLOR_HIGHLIGHT_TEXT]B&#225;rbaros[COLOR_REVERT] no pueden entrar en dicha &#225;rea y que el propietario recibe m&#225;s puntos de [COLOR_HIGHLIGHT_TEXT]Gran general[COLOR_REVERT] por los combates que se libren en ella.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.310 (also describe the K-Mod change) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_COLOSSUS_STRATEGY</Tag>
++		<English>The [COLOR_BUILDING_TEXT]Colossus[COLOR_REVERT] adds extra commerce to all water tiles in your coastal cities. It also increases its city's odds of generating a [COLOR_UNIT_TEXT]Great Merchant[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] lets this wonder go obsolete with Chemistry instead of [LINK=TECH_ASTRONOMY]Astronomy[\LINK] because Astronomy now obsoletes the [LINK=BUILDING_GREAT_LIGHTHOUSE}Great Lighthouse[\LINK]. K-Mod has increased the [ICON_PRODUCTION] cost of the Colossus.</English>
++		<French>Le [COLOR_BUILDING_TEXT]Colosse[COLOR_REVERT] g&#233;n&#232;re plus de commerce dans toutes les cases de mer pr&#232;s de vos villes c&#244;ti&#232;res. Il augmente aussi les chances d'apparition d'un [COLOR_UNIT_TEXT]marchand illustre[COLOR_REVERT].</French>
++		<German>Der [COLOR_BUILDING_TEXT]Koloss[COLOR_REVERT] st&#228;rkt auf allen Wasserfeldern Ihrer K&#252;stenst&#228;dte den Handel. Dar&#252;ber hinaus erh&#246;hen sich die Chancen der Stadt, einen [COLOR_UNIT_TEXT]Gro&#223;en H&#228;ndler[COLOR_REVERT] hervorzubringen. [BOLD]AdvCiv[\BOLD] l�sst dieses Wunder durch Chemie veralten anstatt [LINK=TECH_ASTRONOMY]Astronomie[\LINK], weil Astronomie nun den [LINK=BUILDING_GREAT_LIGHTHOUSE}Gro�en Leuchtturm[\LINK] veralten l�sst. K-Mod hat die [ICON_PRODUCTION]-Kosten des Kolosses erh�ht.</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]Colosso[COLOR_REVERT] aggiunge commercio extra in tutte le caselle acquatiche nelle citt&#224; costiere. Inoltre, aumenta la probabilit&#224; di generare un [COLOR_UNIT_TEXT]Grande Mercante[COLOR_REVERT].</Italian>
++		<Spanish>El [COLOR_BUILDING_TEXT]Coloso[COLOR_REVERT] a&#241;ade comercio extra a todas las casillas de agua en las ciudades costeras propias. Tambi&#233;n aumenta mucho las probabilidades de que la ciudad en la que est&#233; genere un [COLOR_UNIT_TEXT]Gran mercader[COLOR_REVERT].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GREAT_LIGHTHOUSE_STRATEGY</Tag>
++		<English>The [COLOR_BUILDING_TEXT]Great Lighthouse[COLOR_REVERT] adds two additional trade routes to all coastal cities. The [COLOR_BUILDING_TEXT]Great Lighthouse[COLOR_REVERT] also increases its city's odds of generating a [COLOR_UNIT_TEXT]Great Merchant[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] lets this wonder go obsolete with Astronomy instead of [LINK=TECH_CORPORATION]Corporation[\LINK] because Corporation obsoletes the [LINK=BUILDING_GREAT_WALL]Great Wall[\LINK] now and because the Great Lighthouse becomes too powerful once intercontinental [ICON_TRADE] becomes available.</English>
++		<French>Le [COLOR_BUILDING_TEXT]Grand phare[COLOR_REVERT] ajoute 2 routes commerciales &#224; toutes les villes c&#244;ti&#232;res et augmente les chances d'apparition d'un [COLOR_UNIT_TEXT]marchand illustre[COLOR_REVERT].</French>
++		<German>Der [COLOR_BUILDING_TEXT]Gro&#223;e Leuchtturm[COLOR_REVERT] erschlie&#223;t zwei zus&#228;tzliche Handelswege zu allen K&#252;stenst&#228;dten. Dar&#252;ber hinaus erh&#246;hen sich durch einen [COLOR_BUILDING_TEXT]Gro&#223;en Leuchtturm[COLOR_REVERT] die Chancen der Stadt, einen [COLOR_UNIT_TEXT]Gro&#223;en H&#228;ndler[COLOR_REVERT] hervorzubringen. [BOLD]AdvCiv[\BOLD] l�sst dieses Wunder durch Astronoie veralten anstatt [LINK=TECH_CORPORATION]Kapitalgesellschaften[\LINK], da Kapitalgesellschaften nun die [LINK=BUILDING_GREAT_WALL]Gro�e Mauer[\LINK] veralten l�sst, und da der Gro�e Leuchtturm durch interkontinentale [ICON_TRADE]-Wege zu m�chtig wird.</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]Grande Faro[COLOR_REVERT] aggiunge due rotte commerciali a tutte le citt&#224; costiere. Il [COLOR_BUILDING_TEXT]Grande Faro[COLOR_REVERT] aumenta la probabilit&#224; di generare un [COLOR_UNIT_TEXT]Grande Mercante[COLOR_REVERT].</Italian>
++		<Spanish>El [COLOR_BUILDING_TEXT]Gran Faro[COLOR_REVERT] a&#241;ade dos rutas comerciales a todas las ciudades costeras. El [COLOR_BUILDING_TEXT]Gran Faro[COLOR_REVERT] tambi&#233;n aumenta las probabilidades de que en su ciudad se genere un [COLOR_UNIT_TEXT]Gran mercader[COLOR_REVERT].</Spanish>
++	</TEXT>
++	
+ 	<!-- Overwrites CIV4GameText_BTS_Fixed.
+ 		 Added warning on top about page being partly outdated. -->
+ 	<TEXT>
+@@ -1012,9 +1031,9 @@
+ 	<!-- advc.907c -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_INDIAN_FAST_WORKER_STRATEGY</Tag>
+-		<English>Build the special Indian [COLOR_UNIT_TEXT]Fast Worker[COLOR_REVERT] to construct roads and railroads and to improve your land. It can move further than regular workers, allowing it to move and carry out an action on the same turn. [BOLD]AdvCiv[\BOLD]: No longer has an extra movement point; instead ignores extra movement costs from terrain.</English>
++		<English>Build the special Indian [COLOR_UNIT_TEXT]Fast Worker[COLOR_REVERT] to construct roads and railroads and to improve your land. It can move further than regular workers, allowing it to move and carry out an action on the same turn. [BOLD]AdvCiv[\BOLD]: No longer has an extra [ICON_MOVES] point; instead ignores extra [ICON_MOVES] costs from terrain.</English>
+ 		<French>Produisez des [COLOR_UNIT_TEXT]ouvriers rapides[COLOR_REVERT] indiens pour construire routes et voies ferr&#233;es et am&#233;nager le terrain. Son rayon d'action est sup&#233;rieur &#224; celui d'un ouvrier normal, ce qui lui permet de se d&#233;placer et effectuer une action pendant le m&#234;me tour. </French>
+-		<German>Die [COLOR_UNIT_TEXT]schnellen Bautrupps[COLOR_REVERT] Indiens erm&#246;glichen Ihnen den Bau von Stra&#223;en und Eisenbahnstrecken sowie die Verbesserung Ihres Landes. Schnelle Bautrupps haben eine gr&#246;&#223;ere Reichweite und k&#246;nnen in einer Runde mehr Arbeiten verrichten als normale Bautrupps. [BOLD]AdvCiv[\BOLD]: Anstatt einen zus�tzlichen Bewegungspunkt zu erhalten, sind schnelle Bautrupps von gel�ndebasierten Bewegungskosten ausgenommen.</German>
++		<German>Die [COLOR_UNIT_TEXT]schnellen Bautrupps[COLOR_REVERT] Indiens erm&#246;glichen Ihnen den Bau von Stra&#223;en und Eisenbahnstrecken sowie die Verbesserung Ihres Landes. Schnelle Bautrupps haben eine gr&#246;&#223;ere Reichweite und k&#246;nnen in einer Runde mehr Arbeiten verrichten als normale Bautrupps. [BOLD]AdvCiv[\BOLD]: Anstatt einen zus�tzlichen [ICON_MOVES]-Punkt zu erhalten, sind schnelle Bautrupps von gel�ndebasierten [ICON_MOVES]-Kosten ausgenommen.</German>
+ 		<Italian>Realizza lo speciale [COLOR_UNIT_TEXT]lavoratore veloce[COLOR_REVERT] Indiano per costruire strade, ferrovie e migliorare il territorio. Rispetto ai normali lavoratori, si muove pi&#249; rapidamente, riuscendo cos&#236; a muovere e compiere un'azione nello stesso turno.</Italian>
+ 		<Spanish>La unidad especial del [COLOR_UNIT_TEXT]Trabajador r&#225;pido[COLOR_REVERT] indio permite construir carreteras y ferrocarriles, as&#237; como mejorar la tierra. Es capaz de moverse m&#225;s que los trabajadores normales, por lo que puede desplazarse y llevar a cabo una acci&#243;n en el mismo turno. </Spanish>
+ 	</TEXT>
+@@ -1052,4 +1071,196 @@
+ 		<Spanish>Esta unidad montada temprana (que reemplaza al [COLOR_UNIT_TEXT]Carro[COLOR_REVERT] en la civilizaci&#243;n egipcia) es inmune a los ataques de iniciativa pero no recibe bonificaciones defensivas.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.911: from CIV4GameTextChanged_BTS.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_JAIL_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Jails[COLOR_REVERT] lower a city's [COLOR_HIGHLIGHT_TEXT]War Weariness[COLOR_REVERT] and increase espionage significantly. Build them if you are involved in a long war and your citizens are starting to complain. [BOLD]AdvCiv[\BOLD] moves one of the two Spy specialists from Jail to [LINK=BUILDING_COURTHOUSE]Courthouse[\LINK]. K-Mod has reduced the flat [ICON_ESPIONAGE] rate (was 4 in BtS) and added a [ICON_PRODUCTION] boost from the [LINK=literal]Aggressive[\LINK] trait.</English>
++		<French>Les [COLOR_BUILDING_TEXT]Prisons[COLOR_REVERT] r&#233;duisent le [COLOR_HIGHLIGHT_TEXT]m&#233;contentement d&#251; &#224; la guerre[COLOR_REVERT] dans les villes et am&#233;liorent nettement l'espionnage. Construisez-en si vous &#234;tes en guerre depuis longtemps et que vos citoyens commencent &#224; se plaindre.</French>
++		<German>[COLOR_BUILDING_TEXT]Gef&#228;ngnisse[COLOR_REVERT] senken die [COLOR_HIGHLIGHT_TEXT]Kriegsm&#252;digkeit[COLOR_REVERT] einer Stadt und steigern die Spionageleistung deutlich. Bauen Sie sie, wenn sich Ihre Bev&#246;lkerung angesichts eines lange andauernden Krieges zu beschweren beginnt. [BOLD]AdvCiv[\BOLD] verschiebt einen der beiden Spion-Spezialisten vom Gef�ngnis zum [LINK=BUILDING_COURTHOUSE]Gerichtsgeb�ude[\LINK]. K-Mod hat au�erdem die [ICON_ESPIONAGE]/Runde reduziert (war 4/Runde in BtS) und schnellere [ICON_PRODUCTION] durch das Merkmal [LINK=literal]Aggressiv[\LINK] erg�nzt.</German>
++		<Italian>La [COLOR_BUILDING_TEXT]prigione[COLOR_REVERT] riduce la [COLOR_HIGHLIGHT_TEXT]stanchezza della guerra[COLOR_REVERT] di una citt&#224; e aumenta in maniera significativa la resa dello Spionaggio. Costruiscila quando ti troverai coinvolto in una lunga guerra e i tuoi cittadini iniziano a lamentarsi.</Italian>
++		<Spanish>Las [COLOR_BUILDING_TEXT]C&#225;rceles[COLOR_REVERT] reducen el [COLOR_HIGHLIGHT_TEXT]Hast&#237;o b&#233;lico[COLOR_REVERT] de la ciudad y aumentan el espionaje significativamente. Conviene construirlas cuando se est&#225; enzarzado en una larga guerra y los ciudadanos se empiezan a quejar.</Spanish>
++	</TEXT>
++	<!-- (advc.310: also mention the Great Wall change) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_COURTHOUSE_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Courthouses[COLOR_REVERT] lower city maintenance costs, provide you with a bonus to espionage and are required to build the [COLOR_BUILDING_TEXT]Forbidden Palace[COLOR_REVERT] national wonder. [COLOR_BUILDING_TEXT]Courthouses[COLOR_REVERT] help manage the cost of controlling large empires. [BOLD]AdvCiv[\BOLD] adds another Spy specialist to Courthouse (moved from [LINK=BUILDING_JAIL]Jail[\LINK]) in order to keep an espionage-based economy viable before the midgame - now that the [LINK=BUILDING_GREAT_WALL]Great Wall[\LINK] no longer generates Great Spy points.</English>
++		<French>Les [COLOR_BUILDING_TEXT]Tribunaux[COLOR_REVERT] r&#233;duisent le co&#251;t d'entretien des villes, procurent un bonus en espionnage et facilitent la gestion des grands empires. Les [COLOR_BUILDING_TEXT]Tribunaux[COLOR_REVERT] sont n&#233;cessaires pour construire la [COLOR_BUILDING_TEXT]Cit&#233; interdite[COLOR_REVERT].</French>
++		<German>[COLOR_BUILDING_TEXT]Gerichtsgeb&#228;ude[COLOR_REVERT] senken die Verwaltungskosten einer Stadt, gew&#228;hren einen Spionagebonus und sind die Voraussetzung f&#252;r den Bau des Nationalen Wunders [COLOR_BUILDING_TEXT]Verbotene Stadt[COLOR_REVERT]. [COLOR_BUILDING_TEXT]Gerichtsgeb&#228;ude[COLOR_REVERT] erleichtern die Verwaltung der Kosten gro&#223;er Reiche. [BOLD]AdvCiv[\BOLD] f�gt einen weiteren Spion-Spezialisten hinzu (daf�r wird beim [LINK=BUILDING_JAIL]Gef�ngnis[\LINK] einer abgezogen), um Spionage-fokussierte Strategien im fr�hen Spiel zu erm�glichen, obwohl die [LINK=BUILDING_GREAT_WALL]Gro�e Mauer[\LINK] keine Gro�en Spione mehr hervorbringt.</German>
++		<Italian>I [COLOR_BUILDING_TEXT]tribunali[COLOR_REVERT] riducono i costi di mantenimento, danno un bonus di Spionaggio e sono necessari per la costruzione della Meraviglia Nazionale [COLOR_BUILDING_TEXT]Palazzo Proibito[COLOR_REVERT]. I [COLOR_BUILDING_TEXT]tribunali[COLOR_REVERT] aiutano a ridurre il costo del controllo sugli imperi pi&#249; vasti. </Italian>
++		<Spanish>Las [COLOR_BUILDING_TEXT]Delegaciones[COLOR_REVERT] reducen los costes de mantenimiento de la ciudad, proporcionan una bonificaci&#243;n al espionaje y permiten construir la maravilla nacional de la [COLOR_BUILDING_TEXT]Ciudad Prohibida[COLOR_REVERT]. Tambi&#233;n ayudan a gestionar el coste que supone controlar un gran imperio. </Spanish>
++	</TEXT>
++	<!-- (from CIV4GameText_Strategy.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_MARKET_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Markets[COLOR_REVERT] increase a city's wealth. They also increase the city's happiness with access to [COLOR_HIGHLIGHT_TEXT]Fur[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Ivory[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Silk[COLOR_REVERT], or [COLOR_HIGHLIGHT_TEXT]Whales[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] (moderately) reduces the [ICON_PRODUCTION] cost of Market (and Grocer).</English>
++		<French>Les [COLOR_BUILDING_TEXT]march&#233;s[COLOR_REVERT] augmentent la richesse des villes. Ils am&#233;liorent &#233;galement leur bonheur en leur donnant acc&#232;s &#224; la [COLOR_HIGHLIGHT_TEXT]fourrure[COLOR_REVERT], &#224; l'[COLOR_HIGHLIGHT_TEXT]ivoire[COLOR_REVERT], &#224; la [COLOR_HIGHLIGHT_TEXT]soie[COLOR_REVERT] ou aux [COLOR_HIGHLIGHT_TEXT]baleines[COLOR_REVERT].</French>
++		<German>[COLOR_BUILDING_TEXT]M&#228;rkte[COLOR_REVERT] steigern den Wohlstand einer Stadt. Dar&#252;ber hinaus erh&#246;ht der Zugriff auf [COLOR_HIGHLIGHT_TEXT]Felle[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Elfenbein[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Seide[COLOR_REVERT] oder [COLOR_HIGHLIGHT_TEXT]Wale[COLOR_REVERT] die Zufriedenheit der Bev&#246;lkerung. [BOLD]AdvCiv[\BOLD] verringert moderat die [ICON_PRODUCTION]-Kosten von Markt (und Kr�mer).</German>
++		<Italian>I [COLOR_BUILDING_TEXT]mercati[COLOR_REVERT] aumentano la ricchezza della citt&#224;. Inoltre, con l'accesso a varie risorse, aumenta la felicit&#224; dei cittadini ed &#232; richiesto per la costruzione delle [COLOR_BUILDING_TEXT]banche[COLOR_REVERT].</Italian>
++		<Spanish>Los [COLOR_BUILDING_TEXT]Mercados[COLOR_REVERT] aumentan la riqueza de la ciudad. Tambi&#233;n incrementan la felicidad en las ciudades con acceso a [COLOR_HIGHLIGHT_TEXT]Pieles[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Marfil[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Seda[COLOR_REVERT] o [COLOR_HIGHLIGHT_TEXT]Ballenas[COLOR_REVERT].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GROCER_STRATEGY</Tag>
++		<English>A [COLOR_BUILDING_TEXT]Grocer[COLOR_REVERT] increases a city's wealth. It also increases the city's health with access to [COLOR_HIGHLIGHT_TEXT]Spices[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Sugar[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Wine[COLOR_REVERT], or [COLOR_HIGHLIGHT_TEXT]Bananas[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] (moderately) reduces the [ICON_PRODUCTION] cost of Grocer (and Market).</English>
++		<French>Les [COLOR_BUILDING_TEXT]&#233;piceries[COLOR_REVERT] augmentent la richesse des villes. Elles am&#233;liorent &#233;galement leur sant&#233; en leur donnant acc&#232;s aux [COLOR_HIGHLIGHT_TEXT]&#233;pices[COLOR_REVERT], au [COLOR_HIGHLIGHT_TEXT]sucre[COLOR_REVERT], au [COLOR_HIGHLIGHT_TEXT]vin[COLOR_REVERT] ou aux [COLOR_HIGHLIGHT_TEXT]bananes[COLOR_REVERT].</French>
++		<German>Ein [COLOR_BUILDING_TEXT]Kr&#228;mer[COLOR_REVERT] steigert den Wohlstand einer Stadt. Dar&#252;ber hinaus erh&#246;ht der Zugriff auf verschiedene Ressourcen die Zufriedenheit der Bev&#246;lkerung. F&#252;r den Bau einer [COLOR_BUILDING_TEXT]Bank[COLOR_REVERT] ist ebenfalls ein [COLOR_BUILDING_TEXT]Kr&#228;mer[COLOR_REVERT] erforderlich. [BOLD]AdvCiv[\BOLD] verringert moderat die [ICON_PRODUCTION]-Kosten von Kr�mer (und Markt).</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]droghiere[COLOR_REVERT] aumenta la ricchezza della citt&#224;. Inoltre, con l'accesso a varie risorse, aumenta la salute dei cittadini ed &#232; richiesto per la costruzione delle [COLOR_BUILDING_TEXT]banche[COLOR_REVERT].</Italian>
++		<Spanish>El [COLOR_BUILDING_TEXT]Colmado[COLOR_REVERT] aumenta la riqueza de la ciudad. Tambi&#233;n incrementa la salubridad de las ciudades con acceso a [COLOR_HIGHLIGHT_TEXT]Especias[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Az&#250;car[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Vino[COLOR_REVERT] o [COLOR_HIGHLIGHT_TEXT]Pl&#225;tanos[COLOR_REVERT].</Spanish>
++	</TEXT>
++
++	<!-- advc.652 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NUCLEAR_PLANT_STRATEGY</Tag>
++		<English>With access to [COLOR_HIGHLIGHT_TEXT]Uranium[COLOR_REVERT], [COLOR_BUILDING_TEXT]Nuclear Plants[COLOR_REVERT] provide power for [COLOR_BUILDING_TEXT]Factories[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] slightly increases the per-turn chance of a nuclear meltdown. K-Mod has made meltdowns far less consequential, allowing them only to destroy the Nuclear Plant itself and to create [LINK=FEATURE_FALLOUT]Fallout[\LINK].</English>
++		<French>Si vous avez acc&#232;s &#224; des gisements d'[COLOR_HIGHLIGHT_TEXT]uranium[COLOR_REVERT], les [COLOR_BUILDING_TEXT]centrales nucl&#233;aires[COLOR_REVERT] fournissent de l'&#233;nergie aux [COLOR_BUILDING_TEXT]usines[COLOR_REVERT].</French>
++		<German>Haben Sie [COLOR_HIGHLIGHT_TEXT]Uran[COLOR_REVERT], liefern [COLOR_BUILDING_TEXT]Atomkraftwerke[COLOR_REVERT] Energie f&#252;r Ihre [COLOR_BUILDING_TEXT]Fabriken[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] erh�ht die Wahrscheinlichkeit einer Kernschmelze ein wenig. Durch K-Mod sind Kernschmelzen weit weniger katastrophal als noch in BtS; sie zerst�ren lediglich das Atomkraftwerk selbst und erzeugen radioaktiven [LINK=FEATURE_FALLOUT]Fallout[\LINK].</German>
++		<Italian>Con l'accesso all'[COLOR_HIGHLIGHT_TEXT]Uranio[COLOR_REVERT], le [COLOR_BUILDING_TEXT]centrali nucleari[COLOR_REVERT] forniscono energia per le [COLOR_BUILDING_TEXT]fabbriche[COLOR_REVERT].</Italian>
++		<Spanish>Con el acceso al [COLOR_HIGHLIGHT_TEXT]Uranio[COLOR_REVERT], las [COLOR_BUILDING_TEXT]Centrales nucleares[COLOR_REVERT] suministran energ&#237;a a las [COLOR_BUILDING_TEXT]F&#225;bricas[COLOR_REVERT].</Spanish>
++	</TEXT>
++
++	<!-- advc.912d -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GRANARY_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Granaries[COLOR_REVERT] store food to help increase a city's growth rate. They add additional health if your civ has access to [COLOR_HIGHLIGHT_TEXT]Corn[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Wheat[COLOR_REVERT], and [COLOR_HIGHLIGHT_TEXT]Rice[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] slightly reduces the amount of [ICON_FOOD] stored - except when playing with the [COLOR_HIGHLIGHT_TEXT]No Slavery[COLOR_REVERT] option. ([LINK=CIVIC_SLAVERY]Slavery[\LINK] has a powerful synergy with [ICON_FOOD] being stored after growth.)</English>
++		<French>Les [COLOR_BUILDING_TEXT]greniers[COLOR_REVERT] stockent de la nourriture pour favoriser la croissance de la ville. Ils am&#233;liorent la sant&#233; des citoyens si votre civilisation dispose de [COLOR_HIGHLIGHT_TEXT]ma&#239;s[COLOR_REVERT], de [COLOR_HIGHLIGHT_TEXT]bl&#233;[COLOR_REVERT] et de [COLOR_HIGHLIGHT_TEXT]riz[COLOR_REVERT].</French>
++		<German>[COLOR_BUILDING_TEXT]Kornspeicher[COLOR_REVERT] beschleunigen das Bev&#246;lkerungswachstum und verbessern die Gesundheit Ihrer Zivilisation, wenn Sie &#252;ber [COLOR_HIGHLIGHT_TEXT]Mais[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Weizen[COLOR_REVERT] und [COLOR_HIGHLIGHT_TEXT]Reis[COLOR_REVERT] verf&#252;gen. [BOLD]AdvCiv[\BOLD] verringert den Wachstumseffekt ein wenig - au�er wenn die Option [COLOR_HIGHLIGHT_TEXT]Keine Sklaverei[COLOR_REVERT] aktiviert ist. (Die Staatsform [LINK=CIVIC_SLAVERY]Sklaverei[\LINK] profitiert besonders von beschleunigtem Bev�lkerungswachstum.)</German>
++		<Italian>I [COLOR_BUILDING_TEXT]granai[COLOR_REVERT] conservano il cibo per favorire la crescita della citt&#224;. Se la tua civilt&#224; ha accesso a [COLOR_HIGHLIGHT_TEXT]Granoturco[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Frumento[COLOR_REVERT] e [COLOR_HIGHLIGHT_TEXT]Riso[COLOR_REVERT], genereranno salute extra.</Italian>
++		<Spanish>Los [COLOR_BUILDING_TEXT]Graneros[COLOR_REVERT] almacenan alimentos, lo que ayuda a aumentar el ritmo de crecimiento de la ciudad. Suman m&#225;s salud si la civilizaci&#243;n tiene acceso al [COLOR_HIGHLIGHT_TEXT]Ma&#237;z[COLOR_REVERT], el [COLOR_HIGHLIGHT_TEXT]Trigo[COLOR_REVERT] y el [COLOR_HIGHLIGHT_TEXT]Arroz[COLOR_REVERT].</Spanish>
++	</TEXT>
++
++	<!-- advc.908b -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_THEATRE_STRATEGY</Tag>
++		<English>A [COLOR_BUILDING_TEXT]Theatre[COLOR_REVERT] increases a city's culture and increases the happiness output from using the culture slider. A [COLOR_BUILDING_TEXT]Theatre[COLOR_REVERT] also provides culture and is required to build the [COLOR_BUILDING_TEXT]Globe Theatre[COLOR_REVERT] national wonder. [BOLD]AdvCiv[\BOLD] decreases the impact of Theatre on happiness from the culture slider (and instead increases the impact of Colosseum).</English>
++		<French>Un [COLOR_BUILDING_TEXT]th&#233;&#226;tre[COLOR_REVERT] am&#233;liore la culture d'une ville et accro&#238;t son bonheur gr&#226;ce au curseur de culture. Un [COLOR_BUILDING_TEXT]th&#233;&#226;tre[COLOR_REVERT] g&#233;n&#232;re aussi de la culture et est n&#233;cessaire pour construire le [COLOR_BUILDING_TEXT]Th&#233;&#226;tre du Globe[COLOR_REVERT].</French>
++		<German>[COLOR_BUILDING_TEXT]Theater[COLOR_REVERT] erh&#246;hen den kulturellen Wert einer Stadt und steigern die mit dem Kultur-Regler erzeugte Zufriedenheit. Dar&#252;ber hinaus sind [COLOR_BUILDING_TEXT]Theater[COLOR_REVERT] die Voraussetzung f&#252;r den Bau des Nationalen Wunders [COLOR_BUILDING_TEXT]Globe Theatre[COLOR_REVERT]. [BOLD]AdvCiv[\BOLD] verringert die Zufriedenheit, die das Theater durch den Kulturregler erzeugt (und erh�ht die Extra-Zufriedenheit des Kolosseums entsprechend).</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]teatro[COLOR_REVERT] aumenta la cultura e la felicit&#224; della citt&#224; utilizzando l'indicatore della cultura. Inoltre, il [COLOR_BUILDING_TEXT]teatro[COLOR_REVERT] fornisce cultura ed &#232; richiesto per la Meraviglia Nazionale [COLOR_BUILDING_TEXT]Teatro di Shakespeare[COLOR_REVERT].</Italian>
++		<Spanish>El [COLOR_BUILDING_TEXT]Teatro[COLOR_REVERT] aumenta la cultura de la ciudad y el rendimiento de su felicidad por usar el control deslizante de cultura. Tambi&#233;n proporciona cultura y es necesario para construir la maravilla nacional del [COLOR_BUILDING_TEXT]Globe Theatre[COLOR_REVERT]. </Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_COLOSSEUM_STRATEGY</Tag>
++		<English>A [COLOR_BUILDING_TEXT]Colosseum[COLOR_REVERT] increases a city's happiness and its happiness output from using the culture slider. [BOLD]AdvCiv[\BOLD] increases the impact of Colosseum on happiness from the culture slider (and instead decreases the impact of Theatre). On the flip side, Colosseum is no longer sped up by the [LINK=literal]Creative[\LINK] trait.</English>
++		<French>Un [COLOR_BUILDING_TEXT]colis&#233;e[COLOR_REVERT] augmente le bonheur de la ville mais aussi sa production de bonheur gr&#226;ce au curseur de culture.</French>
++		<German>Ein [COLOR_BUILDING_TEXT]Kolosseum[COLOR_REVERT] erh&#246;ht die Zufriedenheit einer Stadt und steigert die mit dem Kultur-Regler erzeugte Zufriedenheit. [BOLD]AdvCiv[\BOLD] erh�ht die Extra-Zufriedenheit, die das Kolosseum durch den Kulturregler erzeugt (und verringert die Extra-Zufriedenheit des Theaters entsprechend). Allerdings wird der Bau eines Kolosseums nicht mehr durch das Merkmal [LINK=literal]Kreativ[\LINK] beschleunigt.</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]colosseo[COLOR_REVERT] aumenta la felicit&#224; della citt&#224; e la felicit&#224; propria utilizzando l'indicatore della cultura.</Italian>
++		<Spanish>El [COLOR_BUILDING_TEXT]Coliseo[COLOR_REVERT] aumenta la felicidad de la ciudad y el rendimiento de su felicidad por usar el control deslizante de cultura.</Spanish>
++	</TEXT>
++
++	<!-- advc.004y: Heading for "changes" box in trait articles -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CHANGES</Tag>
++		<English>Changes</English>
++		<German>�nderungen</German>
++	</TEXT>
++	<!-- advc.908c (new text key) -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_PHILOSOPHICAL_PEDIA</Tag>
++		<English>The AdvCiv mod has reduced the birth rate from originally 100%% as part of an effort to weaken the strongest traits. Fractional birth rates get rounded down, so the reduction is not as modest as it may appear.</English>
++		<German>AdvCiv hat die Geburtsrate reduziert (ehemals 100%%), um dieses spielstarke Merkmale zu schw�chen. Da Geburtsraten auf ganze Zahlen abgerundet werden, macht selbst eine gringf�gige Reduzierung einen deutlichen Unterschied.</German>
++	</TEXT>
++	<!-- advc -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_AGGRESSIVE_PEDIA</Tag>
++		<English>The faster [ICON_PRODUCTION] of Jail was added by K-Mod in order to strengthen this trait.</English>
++		<German>Die erh�hte [ICON_PRODUCTION]-Geschwindigkeit von Gef�ngnissen wurde von K-Mod erg�nzt, um dieses Merkmal spielst�rker zu machen.</German>
++	</TEXT>
++	<!-- advc.908b -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_CREATIVE_PEDIA</Tag>
++		<English>Since K-Mod and AdvCiv make [ICON_CULTURE] points more worthwhile in several ways, AdvCiv reduces the [ICON_CULTURE] rate (was 2 in BtS) and adds some free initial [ICON_CULTURE] instead. AdvCiv has also removed the faster [ICON_PRODUCTION] of Colosseum - which doesn't seem to fit the culture theme well.</English>
++		<German>Da verschiedene �nderungen in K-Mod und AdvCiv den Nutzen von [ICON_CULTURE]-Punkten erh�hen, reduziert AdvCiv die [ICON_CULTURE]/Runde (war 2 in BtS) und erh�ht stattdessen die anf�ngliche [ICON_CULTURE]-Stufe von St�dten. AdvCiv entfernt au�erdem die erh�hte [ICON_PRODUCTION]-Geschwindigkeit f�rs Kolosseum - welches nicht so recht zu den kulturellen Effekten passte.</German>
++	</TEXT>
++	<!-- advc.908a -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_FINANCIAL_PEDIA</Tag>
++		<English>In order to weaken this trait and to prevent a synergy with the K-Mod effect of the [LINK=CIVIC_SERFDOM]Serfdom[\LINK] civic, AdvCiv increases the threshold for the extra [ICON_COMMERCE] - unless the natural [ICON_COMMERCE] (not counting terrain improvements) reaches the original threshold.</English>
++		<German>Um dieses Merkmal zu schw�chen und eine Wechselwirkung mit der durch K-Mod ver�nderten Staatsform [LINK=CIVIC_SERFDOM]Leibeigenschaft[\LINK] zu verhindern, erh�ht AdvCiv die Schwelle f�r den zus�tzlichen [ICON_COMMERCE]-Ertrag - au�er wenn der nat�rliche [ICON_COMMERCE]-Ertrag (ohne Gel�ndeverbesserungen) die urspr�ngliche Schwelle erreicht.</German>
++	</TEXT>
++	<!-- advc -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_PROTECTIVE_PEDIA</Tag>
++		<English>The faster [ICON_PRODUCTION] of Security Bureau was added by K-Mod in order to strengthen this trait.</English>
++		<German>Die erh�hte [ICON_PRODUCTION]-Geschwindigkeit des Sicherheitsdienstes wurde von K-Mod erg�nzt, um dieses Merkmal spielst�rker zu machen.</German>
++	</TEXT>
++
++	<!-- advc.908b: (Also deleted text that had been copied from Granary) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_INCAN_TERRACE_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Terraces[COLOR_REVERT], the Incan replacements for [COLOR_BUILDING_TEXT]Granaries[COLOR_REVERT], provide a small amount of [ICON_CULTURE]. [BOLD]AdvCiv[\BOLD] has reduced the [ICON_CULTURE] rate (was 2 in BtS).</English>
++		<French>La [COLOR_BUILDING_TEXT]terrasse[COLOR_REVERT], version inca du [COLOR_BUILDING_TEXT]grenier[COLOR_REVERT], fournit une petite quantit&#233; de culture, et stocke la nourriture pour acc&#233;l&#233;rer la croissance de la ville. Elle am&#233;liore la sant&#233; des citoyens si votre civilisation dispose de [COLOR_HIGHLIGHT_TEXT]ma&#239;s[COLOR_REVERT], de [COLOR_HIGHLIGHT_TEXT]bl&#233;[COLOR_REVERT] et de [COLOR_HIGHLIGHT_TEXT]riz[COLOR_REVERT].</French>
++		<German>Die [COLOR_BUILDING_TEXT]Inka-Terrassen[COLOR_REVERT] ersetzen die [COLOR_BUILDING_TEXT]Nahrungslager[COLOR_REVERT]. Sie erzeugen ein wenig [ICON_CULTURE]/Runde. [BOLD]AdvCiv[\BOLD] reduziert die [ICON_CULTURE]/Runde (war 2 in BtS).</German>
++		<Italian>Le [COLOR_BUILDING_TEXT]terrazze[COLOR_REVERT], l'equivalente inca dei [COLOR_BUILDING_TEXT]granai[COLOR_REVERT], forniscono un piccolo bonus in cultura e conservano il cibo per favorire la crescita della citt&#224;. Se la tua civilt&#224; ha accesso a [COLOR_HIGHLIGHT_TEXT]Granoturco[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Frumento[COLOR_REVERT] e [COLOR_HIGHLIGHT_TEXT]Riso[COLOR_REVERT], genereranno salute extra.</Italian>
++		<Spanish>Las [COLOR_BUILDING_TEXT]Terrazas[COLOR_REVERT], los equivalentes incas de los [COLOR_BUILDING_TEXT]Graneros[COLOR_REVERT], otorgan una peque&#241;a cantidad de cultura y almacenan los alimentos necesarios para ayudar a aumentar el ritmo de crecimiento de la ciudad. Suman m&#225;s salud si la civilizaci&#243;n tiene acceso al [COLOR_HIGHLIGHT_TEXT]Ma&#237;z[COLOR_REVERT], el [COLOR_HIGHLIGHT_TEXT]Trigo[COLOR_REVERT] y el [COLOR_HIGHLIGHT_TEXT]Arroz[COLOR_REVERT].</Spanish>
++	</TEXT>
++
++	<!-- advc.911c: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_AQUEDUCT_STRATEGY</Tag>
++		<English>The [COLOR_BUILDING_TEXT]Aqueduct[COLOR_REVERT] improves a city's health and is required to build the [COLOR_BUILDING_TEXT]Hanging Gardens[COLOR_REVERT] wonder. Build [COLOR_BUILDING_TEXT]Aqueducts[COLOR_REVERT] when you want to grow a city, or when the populace begins clamoring for it. [BOLD]AdvCiv[\BOLD] slightly reduces the [ICON_PRODUCTION] cost of this building.</English>
++		<French>L'[COLOR_BUILDING_TEXT]aqueduc[COLOR_REVERT] am&#233;liore la sant&#233; des citoyens et est n&#233;cessaire pour construire les [COLOR_BUILDING_TEXT]Jardins suspendus[COLOR_REVERT]. Construisez des [COLOR_BUILDING_TEXT]aqueducs[COLOR_REVERT] dans les villes qui ont besoin de croissance ou quand la populace commence &#224; en r&#233;clamer un.</French>
++		<German>Das [COLOR_BUILDING_TEXT]Aqu&#228;dukt[COLOR_REVERT] verbessert die Gesundheit einer Stadt. Gleichzeitig ist es die Voraussetzung f&#252;r den Bau der [COLOR_BUILDING_TEXT]H&#228;ngenden G&#228;rten[COLOR_REVERT]. Errichten Sie [COLOR_BUILDING_TEXT]Aqu&#228;dukte[COLOR_REVERT], wenn Sie eine Stadt vergr&#246;&#223;ern m&#246;chten oder die Bev&#246;lkerung danach verlangt. [BOLD]AdvCiv[\BOLD] verringert die [ICON_PRODUCTION]-Kosten dieses Geb�udes ein wenig.</German>
++		<Italian>L'[COLOR_BUILDING_TEXT]acquedotto[COLOR_REVERT] aumenta la salute della citt&#224; ed &#232; necessario per la costruzione della Meraviglia [COLOR_BUILDING_TEXT]Giardini Pensili[COLOR_REVERT]. Costruisci l'[COLOR_BUILDING_TEXT]acquedotto[COLOR_REVERT] quando vuoi sviluppare una citt&#224; o quando la popolazione inizia a richiederlo.</Italian>
++		<Spanish>El [COLOR_BUILDING_TEXT]Acueducto[COLOR_REVERT] mejora la salud de la ciudad y es necesario para construir la maravilla de los [COLOR_BUILDING_TEXT]Jardines Colgantes[COLOR_REVERT]. Conviene construir [COLOR_BUILDING_TEXT]Acueductos[COLOR_REVERT] cuando se quiera que una ciudad crezca o cuando el populacho lo empiece a pedir a gritos.</Spanish>
++	</TEXT>
++	<!-- (advc: also deleted text that had been copied from Aqueduct) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_STRATEGY</Tag>
++		<English>The [COLOR_BUILDING_TEXT]Hammam[COLOR_REVERT], the Ottoman replacement for the [COLOR_BUILDING_TEXT]Aqueduct[COLOR_REVERT], improves a city's happiness in addition to its health. For balance reasons, this building has been exempted from the [BOLD]AdvCiv[\BOLD] [ICON_PRODUCTION] cost reduction for Aqueduct; it is therefore slightly more expensive than an Aqueduct.</English>
++		<French>Le [COLOR_BUILDING_TEXT]Hammam[COLOR_REVERT], version ottomane de l'[COLOR_BUILDING_TEXT]aqueduc[COLOR_REVERT], am&#233;liore la sant&#233; et le bonheur dans les villes. Construisez des [COLOR_BUILDING_TEXT]hammam[COLOR_REVERT] dans les villes qui ont besoin de croissance ou quand la populace commence &#224; en r&#233;clamer un.</French>
++		<German>Das osmanische [COLOR_BUILDING_TEXT]Hamam[COLOR_REVERT] ersetzt den [COLOR_BUILDING_TEXT]Aqu&#228;dukt[COLOR_REVERT]. Es verbessert die Zufriedenheit und die Gesundheit einer Stadt. Die Errichtung von [COLOR_BUILDING_TEXT]Hamams[COLOR_REVERT] empfiehlt sich dann, wenn eine Stadt vergr&#246;&#223;ert werden soll oder die Bev&#246;lkerung danach verlangt. Aus Gr�nden der Spielbalance nimmt [BOLD]AdvCiv[\BOLD] dieses Geb�ude von der [ICON_PRODUCTION]-Kosten-Reduktion f�r Aqu�dukte aus; es ist also etwas teurer als ein gew�hnliches Aqu�dukt.</German>
++		<Italian>L'[COLOR_BUILDING_TEXT]hammam[COLOR_REVERT], l'equivalente ottomano dell'[COLOR_BUILDING_TEXT]acquedotto[COLOR_REVERT], aumenta la salute e la felicit&#224; della citt&#224;. Costruisci l'[COLOR_BUILDING_TEXT]hammam[COLOR_REVERT] quando vuoi sviluppare una citt&#224; o quando la popolazione inizia a richiederlo.</Italian>
++		<Spanish>La [COLOR_BUILDING_TEXT]Hammam[COLOR_REVERT], el equivalente otomano del [COLOR_BUILDING_TEXT]Acueducto[COLOR_REVERT], mejora la felicidad y la salud de la ciudad. Conviene construir una [COLOR_BUILDING_TEXT]Hammam[COLOR_REVERT] cuando se quiera que una ciudad crezca o cuando el populacho lo empiece a pedir a gritos.</Spanish>
++	</TEXT>
++
++	<!-- advc.909b -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GERMAN_PANZER_STRATEGY</Tag>
++		<English>The [COLOR_UNIT_TEXT]Panzer[COLOR_REVERT] is the German replacement for the [COLOR_UNIT_TEXT]Tank[COLOR_REVERT] and gets a bonus when fighting other tanks. [BOLD]AdvCiv[\BOLD] adds two first strikes to this unit (replacing the 1-2 first strikes plus free [LINK=PROMOTION_FLANKING1]Flanking I[\LINK] promotion that K-Mod had added).</English>
++		<French>Le [COLOR_UNIT_TEXT]panzer[COLOR_REVERT] est l'unit&#233; allemande qui vient remplacer le [COLOR_UNIT_TEXT]blind&#233;[COLOR_REVERT]. Il b&#233;n&#233;ficie d'un bonus contre les autres blind&#233;s.</French>
++		<German>Der [COLOR_UNIT_TEXT]Deutsche Panzer[COLOR_REVERT] ist die deutsche Version des [COLOR_UNIT_TEXT]Panzers[COLOR_REVERT] und hat einen Bonus im Kampf gegen andere Panzer. [BOLD]AdvCiv[\BOLD] f�gt zwei Erstangriffe hinzu (anstatt des 1-2 Erstangriffe plus Bef�rderung [LINK=PROMOTION_FLANKING1]Flanke I[\LINK], die K-Mod hinzugef�gt hatte).</German>
++		<Italian>Il [COLOR_UNIT_TEXT]panzer[COLOR_REVERT] &#232; l'equivalente Tedesco dei [COLOR_UNIT_TEXT]carri armati[COLOR_REVERT] e ottiene un bonus quando affronta altri carri armati.</Italian>
++		<Spanish>El [COLOR_UNIT_TEXT]Panzer[COLOR_REVERT] reemplaza al [COLOR_UNIT_TEXT]Tanque[COLOR_REVERT] en la civilizaci&#243;n alemana y obtiene una bonificaci&#243;n cuando combate contra otros tanques. </Spanish>
++	</TEXT>
++
++	<!-- advc.306: (Repetition of effects deleted.)
++		 Not a good diea after all - not so long as tech strategy help
++		 is only shown in Sid's tips. -->
++	<!--TEXT>
++		<Tag>TXT_KEY_TECH_METAL_CASTING_STRATEGY</Tag>
++		<English>[BOLD]AdvCiv[\BOLD] (moderately) reduces the [ICON_RESEARCH] cost of this tech (and increases the [ICON_RESEARCH] cost of [LINK=TECH_OPTICS]Optics[\LINK] a little to avoid making that tech too easy to reach).</English>
++		<French>La [COLOR_TECH_TEXT]m&#233;tallurgie[COLOR_REVERT] permet de construire des [COLOR_BUILDING_TEXT]forges[COLOR_REVERT], qui am&#233;liorent la production des villes. Vous pouvez aussi &#233;riger le [COLOR_BUILDING_TEXT]Colosse[COLOR_REVERT] et vos ouvriers peuvent construire des [COLOR_HIGHLIGHT_TEXT]ateliers[COLOR_REVERT].</French>
++		<German>[BOLD]AdvCiv[\BOLD] verringert die [ICON_RESEARCH]-Kosten dieser Technologie moderat (und erh�ht die [ICON_RESEARCH]-Kosten von [LINK=TECH_OPTICS]Optik[\LINK] ein wenig, um jene Technologie nicht zu leicht erreichbar zu machen).</German>
++		<Italian>La [COLOR_TECH_TEXT]Fusione del metallo[COLOR_REVERT] permette la realizzazione della [COLOR_BUILDING_TEXT]fucina[COLOR_REVERT], che aumenta la produzione delle citt&#224;. Inoltre, permette la costruzione della Meraviglia [COLOR_BUILDING_TEXT]Colosso[COLOR_REVERT] e permette ai lavoratori di costruire il miglioramento [COLOR_HIGHLIGHT_TEXT]bottega[COLOR_REVERT].</Italian>
++		<Spanish>El [COLOR_TECH_TEXT]Vaciado del metal[COLOR_REVERT] permite construir [COLOR_BUILDING_TEXT]Fraguas[COLOR_REVERT], lo que aumenta la producci&#243;n de la ciudad. Tambi&#233;n activa la maravilla del [COLOR_BUILDING_TEXT]Coloso[COLOR_REVERT] y permite a los trabajadores construir la mejora del [COLOR_HIGHLIGHT_TEXT]Taller[COLOR_REVERT].</Spanish>
++	</TEXT-->
++	
++	<!-- advc: Point out K-Mod change -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SISTINE_CHAPEL_STRATEGY</Tag>
++		<English>The [COLOR_BUILDING_TEXT]Sistine Chapel[COLOR_REVERT] causes each specialist in every city to generate culture. The [COLOR_BUILDING_TEXT]Sistine Chapel[COLOR_REVERT] has a very high cultural value, and it increases its city's odds of generating a [COLOR_UNIT_TEXT]Great Artist[COLOR_REVERT]. [BOLD]K-Mod[\BOLD] has reduced the [ICON_CULTURE] rate that gets added to religious buildings (was +5 in BtS) and, unlike other building [ICON_CULTURE] rates, the added [ICON_CULTURE] rate doesn't double after 1000 years.</English>
++		<French>Avec la [COLOR_BUILDING_TEXT]Chapelle Sixtine[COLOR_REVERT], tous les sp&#233;cialistes de chaque ville g&#233;n&#232;rent de la culture. La [COLOR_BUILDING_TEXT]Chapelle Sixtine[COLOR_REVERT] a un tr&#232;s fort potentiel culturel et augmente les chances d'apparition d'un [COLOR_UNIT_TEXT]artiste illustre[COLOR_REVERT].</French>
++		<German>Haben Sie die [COLOR_BUILDING_TEXT]Sixtinische Kapelle[COLOR_REVERT], erzeugen alle Spezialisten in Ihren St&#228;dten Kultur. Aufgrund des hohen kulturellen Werts der [COLOR_BUILDING_TEXT]Sixtinischen Kapelle[COLOR_REVERT] erh&#246;ht diese die Chancen einer Stadt, einen [COLOR_UNIT_TEXT]Gro&#223;en K&#252;nstler[COLOR_REVERT] hervorzubringen. [BOLD]K-Mod[\BOLD] hat die zus�tzliche [ICON_CULTURE]/Rundef�r religi�se Geb�ude reduziert (war +5 in BtS) und die zus�tzliche [ICON_CULTURE]/Runde wird (anders als bei Geb�uden sonst der Fall) nach 1000 Jahren nicht verdoppelt.</German>
++		<Italian>La [COLOR_BUILDING_TEXT]Cappella Sistina[COLOR_REVERT] concede a ogni specialista una produzione di cultura. La [COLOR_BUILDING_TEXT]Cappella Sistina[COLOR_REVERT] ha un alto valore culturale e aumenta la probabilit&#224; di generare un [COLOR_UNIT_TEXT]Grande Artista[COLOR_REVERT].</Italian>
++		<Spanish>La [COLOR_BUILDING_TEXT]Capilla Sixtina[COLOR_REVERT] hace que todos los especialistas de todas las ciudades generen cultura. Tambi&#233;n tiene un valor cultural y aumenta las probabilidades de que en su ciudad se genere un [COLOR_UNIT_TEXT]Gran artista[COLOR_REVERT].</Spanish>
++	</TEXT>
++
++	<!-- advc.650: (Text repeating the ability deleted) -->
++	<TEXT>
++		<Tag>TXT_KEY_PROJECT_SDI_STRATEGY</Tag>
++		<English>[BOLD]AdvCiv[\BOLD] has reduced the interception chance (was 75%% in BtS) and increased the [ICON_PRODUCTION] cost - in part, to make [LINK=UNIT_ICBM]ICBM[\LINK] more relevant.</English>
++		<French>+75%% de chance d'intercepter les [COLOR_UNIT_TEXT]missiles intercontinentaux[COLOR_REVERT].</French>
++		<German>[BOLD]AdvCiv[\BOLD] reduziert die Abfangchance (war 75%% in BtS) und erh�ht die [ICON_PRODUCTION]-Kosten - auch um [LINK=UNIT_ICBM]ICBM[\LINK] gr��ere Relevanz zu verleihen.</German>
++		<Italian>+75% di probabilit&#224; di intercettare gli [COLOR_UNIT_TEXT]ICBM[COLOR_REVERT].</Italian>
++		<Spanish>+75%% a la probabilidad de interceptar [COLOR_UNIT_TEXT]ICBM[COLOR_REVERT].</Spanish>
++	</TEXT>
++
++	<!-- advc: Point out the K-Mod change -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NATIONAL_SECURITY_STRATEGY</Tag>
++		<English>Build a [COLOR_BUILDING_TEXT]Security Bureau[COLOR_REVERT] to increase the cost of enemy espionage missions in your city. [BOLD]K-Mod[\BOLD] adds a [ICON_PRODUCTION] boost for [LINK=literal]Protective[\LINK] leaders.</English>
++		<French>Construisez une [COLOR_BUILDING_TEXT]agence de s&#233;curit&#233;[COLOR_REVERT] pour augmenter le co&#251;t des missions d'espionnage ennemies dans votre ville.</French>
++		<German>Der [COLOR_BUILDING_TEXT]Sicherheitsdienst[COLOR_REVERT] bewirkt eine Kostensteigerung f&#252;r die Durchf&#252;hrung feindlicher Spionagemissionen in einer Stadt. Die schnellere [ICON_PRODUCTION] f�r sch�tzende Staatsoberh�upter wurde von [BOLD]K-Mod[\BOLD] hinzugef�gt.</German>
++		<Italian>Costruisci un'[COLOR_BUILDING_TEXT]Agenzia di sicurezza[COLOR_REVERT] per aumentare il costo delle missioni nemiche di spionaggio nella tua citt&#224;.</Italian>
++		<Spanish>Construye un [COLOR_BUILDING_TEXT]Servicio de contraespionaje[COLOR_REVERT] para aumentar el coste de las misiones de espionaje enemigas en la ciudad.</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=46886

@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4234
+# Commit: d3f385b7dc356bb3a86344a7e553a91d2db1d5f7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dd9f0790baffd281c6b3dce5bd309abc9101cdc8
+# Title: Amend removal of MOVE_ROUTE_TO flag for save-compatibility
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvDefines.h
+17	1	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index b395a82bd..1beaf25a0 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -45,7 +45,9 @@ enum MovementFlags // advc.pf: Turned into an enum; exposed to Python (CyEnumsIn
+ 		even if they are not visible. (Note: AI units do this regardless of the flag.) */
+ 	MOVE_ASSUME_VISIBLE					= (1 << 13),
+ 	// </K-Mod>
+-	MOVE_AVOID_DANGER 					= (1 << 14), // advc.031d
++	// advc.pf: Don't need this after all, but will reserve the pattern for old saves
++	//MOVE_ROUTE_TO						= (1 << 14),
++	MOVE_AVOID_DANGER 					= (1 << 15), // advc.031d
+ };
+ OVERLOAD_BITWISE_OPERATORS(MovementFlags)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 6c7d05b21..e2bde5416 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4570,6 +4570,21 @@ void CvSelectionGroup::read(FDataStreamBase* pStream)
+ 	}
+ 	else // </advc.011b>
+ 		m_missionQueue.Read(pStream);
++	// <advc.pf>
++	if (uiFlag < 3)
++	{	// Replace removed movement flag with SAFE_TERRITORY
++		MovementFlags const MOVE_ROUTE_TO = static_cast<MovementFlags>(1 << 14);
++		for (CLLNode<MissionData>* pNode = headMissionQueueNode(); pNode != NULL;
++			pNode = nextMissionQueueNode(pNode))
++		{
++			MissionData& md = pNode->m_data;
++			if (md.eMissionType == MISSION_ROUTE_TO || (md.eFlags & MOVE_ROUTE_TO))
++			{
++				md.eFlags |= MOVE_SAFE_TERRITORY;
++				md.eFlags &= ~MOVE_ROUTE_TO;
++			}
++		}
++	} // </advc.pf>
+ }
+ 
+ 
+@@ -4577,7 +4592,8 @@ void CvSelectionGroup::write(FDataStreamBase* pStream)
+ {
+ 	uint uiFlag;
+ 	//uiFlag = 1; // advc.011b
+-	uiFlag = 2; // advc.004l
++	//uiFlag = 2; // advc.004l
++	uiFlag = 3; // advc.pf (MOVE_ROUTE_TO removed)
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE(CvString::format("SelGroup(%d,%d,%d)", getID(), getX(), getY()));
+ 	pStream->Write(m_iID);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1895

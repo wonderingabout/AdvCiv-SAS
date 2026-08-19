@@ -1,0 +1,1101 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4913
+# Commit: 54d110994c24761139cae0d9727e1ec2248b3e5d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9ac030d829b21dd2e0bbb128bb4ebf8bb6c4a144
+# Title: add future era music (see copyright section of the main readme for details), add natya_shastra movie (same anyways etc) and minor or not other changes or not...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/On_The_Cosmic_Wave_Inspiring_Synthwave_Cosmic_Background.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/epic-symphonic-metal-instrumental-263322.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/futuristic-robotic-cops-in-a-dystopian-city-234351.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/heavy-thrash-metal-instrumental-irate-377893.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/hope-and-despair-piano-duet-212413.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/intense-black-metal-instrumental-304729.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/into-the-darkness-symphonic-metal-instrumental-336411.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/lofi-295209.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/taco-truck-heist-flamenco-meets-underground-hip-hop-377352.mp3
+5	5	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+2	2	Assets/XML/Art/CIV4ArtDefines_Movie.xml
+345	0	Assets/XML/Audio/Audio2DScripts.xml
+105	0	Assets/XML/Audio/AudioDefines.xml
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+16	14	Assets/XML/GameInfo/CIV4EraInfos.xml
+19	8	Assets/XML/Technologies/CIV4TechInfos.xml
+51	3	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+2	2	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+21	2	README.md
+28	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/On_The_Cosmic_Wave_Inspiring_Synthwave_Cosmic_Background.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/epic-symphonic-metal-instrumental-263322.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/futuristic-robotic-cops-in-a-dystopian-city-234351.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/heavy-thrash-metal-instrumental-irate-377893.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/hope-and-despair-piano-duet-212413.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/intense-black-metal-instrumental-304729.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/into-the-darkness-symphonic-metal-instrumental-336411.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/lofi-295209.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/taco-truck-heist-flamenco-meets-underground-hip-hop-377352.mp3
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik
+new file mode 100644
+index 000000000..6ce602ad6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3
+new file mode 100644
+index 000000000..7bb391305
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3
+new file mode 100644
+index 000000000..d25169655
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3.mp3
+new file mode 100644
+index 000000000..d4b3ab6bd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/On_The_Cosmic_Wave_Inspiring_Synthwave_Cosmic_Background.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/On_The_Cosmic_Wave_Inspiring_Synthwave_Cosmic_Background.mp3
+new file mode 100644
+index 000000000..fef093a07
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/On_The_Cosmic_Wave_Inspiring_Synthwave_Cosmic_Background.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3
+new file mode 100644
+index 000000000..a1c5f065f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3
+new file mode 100644
+index 000000000..99bb768fc
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/epic-symphonic-metal-instrumental-263322.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/epic-symphonic-metal-instrumental-263322.mp3
+new file mode 100644
+index 000000000..3bc058ff5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/epic-symphonic-metal-instrumental-263322.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/futuristic-robotic-cops-in-a-dystopian-city-234351.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/futuristic-robotic-cops-in-a-dystopian-city-234351.mp3
+new file mode 100644
+index 000000000..fc5e1618d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/futuristic-robotic-cops-in-a-dystopian-city-234351.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/heavy-thrash-metal-instrumental-irate-377893.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/heavy-thrash-metal-instrumental-irate-377893.mp3
+new file mode 100644
+index 000000000..fa63b9d44
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/heavy-thrash-metal-instrumental-irate-377893.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/hope-and-despair-piano-duet-212413.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/hope-and-despair-piano-duet-212413.mp3
+new file mode 100644
+index 000000000..addc9377f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/hope-and-despair-piano-duet-212413.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/intense-black-metal-instrumental-304729.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/intense-black-metal-instrumental-304729.mp3
+new file mode 100644
+index 000000000..e0c77fcf4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/intense-black-metal-instrumental-304729.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/into-the-darkness-symphonic-metal-instrumental-336411.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/into-the-darkness-symphonic-metal-instrumental-336411.mp3
+new file mode 100644
+index 000000000..d42782b93
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/into-the-darkness-symphonic-metal-instrumental-336411.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/lofi-295209.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/lofi-295209.mp3
+new file mode 100644
+index 000000000..d89e559cd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/lofi-295209.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401.mp3
+new file mode 100644
+index 000000000..dd9686bb3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/taco-truck-heist-flamenco-meets-underground-hip-hop-377352.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/taco-truck-heist-flamenco-meets-underground-hip-hop-377352.mp3
+new file mode 100644
+index 000000000..842ed4bcf
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Eras/Future/music/taco-truck-heist-flamenco-meets-underground-hip-hop-377352.mp3 differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 7211312a2..0e3c18f67 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -19,6 +19,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaImprovement:
+ 
+ 	def __init__(self, main):
+@@ -51,11 +53,9 @@ class SevoPediaImprovement:
+ 		self.X_IMPROVEMENTS_PANE = self.X_UPPER_PANE
+ 		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
+ 		self.W_IMPROVEMENTS_PANE = 340
+-		self.H_IMPROVEMENTS_PANE = 180
+-		# <advc.004y>
+-		if self.top.bFullScreen:
+-			self.H_IMPROVEMENTS_PANE += 45
+-		# </advc.004y>
++		# <!-- custom: increase height so we display more effects especially related to future/robotic era changes anyways etc ; also the "effects" (placeSpecial) panel is very small so maybe fine to do so and use the room for the base tile yield change(s) panel anyways etc -->
++		self.H_IMPROVEMENTS_PANE = 300
++
+ 		self.X_REQUIRES = self.X_UPPER_PANE
+ 		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_IMPROVEMENTS_PANE
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Movie.xml b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+index 51d38f283..044401947 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Movie.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+@@ -103,7 +103,7 @@ and then modified for AdvCiv-SAS
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+ 			<Type>ART_DEF_MOVIE_NATYA_SHASTRA</Type>
+-			<Path>Art/Movies/Wonders/SistineChapel.bik</Path>
++			<Path>Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik</Path>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+ 			<Type>ART_DEF_MOVIE_SPIRAL_MINARET</Type>
+@@ -183,7 +183,7 @@ and then modified for AdvCiv-SAS
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+ 			<Type>ART_DEF_MOVIE_SHRINE_PAGAN</Type>
+-			<Path>Art/Movies/Religion/Confucianism/Shrine_Con_dwg_512.dds</Path>
++			<Path>Art/AdvCiv_SAS/Religions/Paganism/nif_found/Shaman_Shrine.dds</Path>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+ 			<Type>ART_DEF_MOVIE_SHRINE_DAOIST</Type>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index bcec05401..c4f3caa88 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -3030,6 +3030,351 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322</ScriptID>
++		<SoundID>SONG_FUTURE_EPIC_SYMPHONIC_METAL_263322</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>70</iMinVolume>
++		<iMaxVolume>70</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_FAMINE_IN_EUROPE</ScriptID>
++		<SoundID>SONG_FUTURE_FAMINE_IN_EUROPE</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>65</iMinVolume>
++		<iMaxVolume>65</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_FINAL_SUNSHINE</ScriptID>
++		<SoundID>SONG_FUTURE_FINAL_SUNSHINE</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</ScriptID>
++		<SoundID>SONG_FUTURE_FOOT_TAPPER_CLASSICAL</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>70</iMinVolume>
++		<iMaxVolume>70</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351</ScriptID>
++		<SoundID>SONG_FUTURE_FUTURISTIC_ROBOT_COPS_234351</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_HEAVY_THRASH_METAL_377893</ScriptID>
++		<SoundID>SONG_FUTURE_HEAVY_THRASH_METAL_377893</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_HOPE_AND_DESPAIR_212413</ScriptID>
++		<SoundID>SONG_FUTURE_HOPE_AND_DESPAIR_212413</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_INTENSE_BLACK_METAL_304729</ScriptID>
++		<SoundID>SONG_FUTURE_INTENSE_BLACK_METAL_304729</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>70</iMinVolume>
++		<iMaxVolume>70</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_INTO_THE_DARKNESS_336411</ScriptID>
++		<SoundID>SONG_FUTURE_INTO_THE_DARKNESS_336411</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>65</iMinVolume>
++		<iMaxVolume>65</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_LOFI_295209</ScriptID>
++		<SoundID>SONG_FUTURE_LOFI_295209</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>50</iMinVolume>
++		<iMaxVolume>50</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_ON_THE_COSMIC</ScriptID>
++		<SoundID>SONG_FUTURE_ON_THE_COSMIC</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>45</iMinVolume>
++		<iMaxVolume>45</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_POWER_IN_THEIR</ScriptID>
++		<SoundID>SONG_FUTURE_POWER_IN_THEIR</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</ScriptID>
++		<SoundID>SONG_FUTURE_RELAXING_PIANO_LOFI_251401</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_TACO_TRUCK_HEIST_377352</ScriptID>
++		<SoundID>SONG_FUTURE_TACO_TRUCK_HEIST_377352</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_FUTURE_WORLD_S_END</ScriptID>
++		<SoundID>SONG_FUTURE_WORLD_S_END</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>60</iMinVolume>
++		<iMaxVolume>60</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_FINAL_FRONTIER</ScriptID>
+ 		<SoundID>SONG_FINAL_FRONTIER</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 053065695..a70ca3d17 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -968,6 +968,111 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_EPIC_SYMPHONIC_METAL_263322</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/epic-symphonic-metal-instrumental-263322</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_FAMINE_IN_EUROPE</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_FINAL_SUNSHINE</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_FOOT_TAPPER_CLASSICAL</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_FUTURISTIC_ROBOT_COPS_234351</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/futuristic-robotic-cops-in-a-dystopian-city-234351</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_HEAVY_THRASH_METAL_377893</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/heavy-thrash-metal-instrumental-irate-377893</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_HOPE_AND_DESPAIR_212413</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/hope-and-despair-piano-duet-212413</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_INTENSE_BLACK_METAL_304729</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/intense-black-metal-instrumental-304729</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_INTO_THE_DARKNESS_336411</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/into-the-darkness-symphonic-metal-instrumental-336411</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_LOFI_295209</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/lofi-295209</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_ON_THE_COSMIC</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/On_The_Cosmic_Wave_Inspiring_Synthwave_Cosmic_Background</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_POWER_IN_THEIR</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_RELAXING_PIANO_LOFI_251401</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_TACO_TRUCK_HEIST_377352</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/taco-truck-heist-flamenco-meets-underground-hip-hop-377352</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SONG_FUTURE_WORLD_S_END</SoundID>
++			<Filename>Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_PELOPONNESIAN_SCENARIO</SoundID>
+ 			<Filename>Sounds/Soundtrack/Scenarios/Peloponnesian</Filename>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index b691881e3..7583f3cfd 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -16186,6 +16186,7 @@
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<ArtDefineTag>ART_DEF_BUILDING_PAGAN_SHRINE</ArtDefineTag>
++			<!-- custom: import from same mod where we imported the baalism nif_found from (forgot which) (the movie rather .dds file was in the files there as well if i am not mistaken anyways etc) anyways etc -->
+ 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_PAGAN</MovieDefineTag>
+ 			<HolyCity>RELIGION_PAGANISM</HolyCity>
+ 			<ReligionType>RELIGION_PAGANISM</ReligionType>
+@@ -24913,7 +24914,7 @@
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<ArtDefineTag>ART_DEF_BUILDING_NATYA_SHASTRA</ArtDefineTag>
+-			<!-- custom: todo to change ideally, or alternatively set to NONE maybe too if possible even though less ideal but anyways etc at least would function-work but anyways etc, for now uses the old sistine chapel's movie which functions-works too but anyways etc anyways etc anyways etc... -->
++			<!-- custom: import from c2c mod's movie Meenakshi.bik -->
+ 			<MovieDefineTag>ART_DEF_MOVIE_NATYA_SHASTRA</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+
+diff --git a/Assets/XML/GameInfo/CIV4EraInfos.xml b/Assets/XML/GameInfo/CIV4EraInfos.xml
+index f118741be..1c8e15f96 100644
+--- a/Assets/XML/GameInfo/CIV4EraInfos.xml
++++ b/Assets/XML/GameInfo/CIV4EraInfos.xml
+@@ -515,21 +515,23 @@
+ 			<iEventChancePerTurn>10</iEventChancePerTurn>
+ 			<iSoundtrackSpace>40</iSoundtrackSpace>
+ 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
++			<!-- custom: replace with original/specific if i may say anyways etc music instead of the modern era music copy pasted again here if i may say anyways etc ; see main readme's copyright section for copyright details if any are there or somewhere else relevant in our mod's docs if any are there as well alternatively as well anyways etc, anyways etc -->
+ 			<EraInfoSoundtracks>
+-				<EraInfoSoundtrack>AS2D_ANFORTAS_WOUND</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_CHAIRMAN_DANCES</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_CHCONNE</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_CHRISTIAN_ZEAL</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_COMMON_TONES</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_1</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_2</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_HARMONIELEHRE</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_HYMING_SLEWS</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_LOOPS_AND_VERSES</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_MEISTER_ECKHARDT</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_SHAKING_AND_TREMBLING</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_THE_PEOPLE_ARE_HEROES</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_TROMBA_LONTANA</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_FAMINE_IN_EUROPE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_FINAL_SUNSHINE</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_HEAVY_THRASH_METAL_377893</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_HOPE_AND_DESPAIR_212413</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_INTENSE_BLACK_METAL_304729</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_INTO_THE_DARKNESS_336411</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_LOFI_295209</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_ON_THE_COSMIC</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_POWER_IN_THEIR</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_TACO_TRUCK_HEIST_377352</EraInfoSoundtrack>
++				<EraInfoSoundtrack>AS2D_FUTURE_WORLD_S_END</EraInfoSoundtrack>
+ 			</EraInfoSoundtracks>
+ 			<CitySoundscapes>
+ 				<CitySoundscape>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index be2a38293..c27979466 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4192,7 +4192,7 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -4225,15 +4225,18 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: do not put flavor growth too high although the health bonus is nice, to not lead growth leaders astray, in case they need locally in this game i mean more military or culture perhaps anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -4420,7 +4423,7 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+-			<iFeatureProductionModifier>50</iFeatureProductionModifier>
++			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+@@ -4456,7 +4459,7 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -6615,14 +6618,14 @@
+ 			<Civilopedia>TXT_KEY_TECH_TERRAFORMING_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>16000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -6667,6 +6670,10 @@
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>8</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>10</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -6876,6 +6883,10 @@
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>12</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>6</iFlavor>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index a45c0fa1c..54944b0b5 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -609,6 +609,7 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
++			<!-- custom: also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+ 					<PrereqTech>TECH_GUILDS</PrereqTech>
+@@ -626,6 +627,14 @@
+ 						<iYield>0</iYield>
+ 					</TechYields>
+ 				</TechYieldChange>
++				<TechYieldChange>
++					<PrereqTech>TECH_FUSION</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
+ 			</TechYieldChanges>
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+@@ -938,7 +947,17 @@
+ 			</BonusTypeStructs>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<TechYieldChanges/>
++			<!-- custom: food can quickly become op, give it at most food related improvements except the farm ; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least anyways etc, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this case but anyways etc in a way that is hopefully not op anyways etc and that maybe thematically makes sense if i may say but anyways etc -->
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
++					<TechYields>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+@@ -1103,7 +1122,17 @@
+ 			</BonusTypeStructs>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<TechYieldChanges/>
++			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
++					<TechYields>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+@@ -1523,6 +1552,7 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage>IMPROVEMENT_VILLAGE</ImprovementPillage>
+ 			<ImprovementUpgrade/>
++			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+ 					<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+@@ -1532,6 +1562,14 @@
+ 						<iYield>1</iYield>
+ 					</TechYields>
+ 				</TechYieldChange>
++				<TechYieldChange>
++					<PrereqTech>TECH_TERRAFORMING</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>2</iYield>
++					</TechYields>
++				</TechYieldChange>
+ 			</TechYieldChanges>
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+@@ -1649,7 +1687,17 @@
+ 			</FeatureMakesValids>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<TechYieldChanges/>
++			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>2</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
+ 			<RouteYieldChanges/>
+ 			<bGraphicalOnly>0</bGraphicalOnly>
+ 		</ImprovementInfo>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 1ab0d1d5b..57387bc6a 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -136,13 +136,13 @@
+ 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>
+-		<English>Base Tile Yield Change(s)</English>
++		<English>Base Tile Yield Changes</English>
+ 	</TEXT>
+ 	<!-- custom: be careful, this is applied to improvements category not ressources category.
+ 	Also clarifying it to a more detailed/accurate name to hopefully help the player, was "Bonus Yields" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
+-		<English>On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)</English>
++		<English>On Bonus(es) Extra Tile Yield Changes</English>
+ 	</TEXT>
+ 	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details -->
+ 	<TEXT>
+
+diff --git a/README.md b/README.md
+index b593e3df5..8e1c20761 100644
+--- a/README.md
++++ b/README.md
+@@ -11,6 +11,7 @@ Before going more in depth about/in the changes and how to play and/or such docu
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG" alt="0.34_Techtree_ingame (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG" alt="0.34_Techtree_ingame (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG" alt="0.34_Techtree_ingame (4).JPG" width="250"></img>
+ 
+ For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or/and other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md)
+ 
+@@ -339,13 +340,31 @@ The bit annoying/painful section, but in short this is a fan project that i hope
+ - `LEADER_NAPOLEON`: info i have as of now is anyways etc: Symphony No. 25 In G Minor K. 183 Mozart - Uploaded by Netfocus Universal on October 11, 2013 [downloaded from archive.org (as mp3 too anyways etc) thanks to chatgpt's recommendation and link anyways etc](https://archive.org/details/SymphonyNo.25InGMinorK.183?utm_source=chatgpt.com), seems safe to use as well as it comes frm archive.org as/according to what i understand from chatgpt's explanation as well on top of hwat i intutively already knew or guessed maybe rather but anyways etc, as for the recording, no clear mention of it either, but providing most if not all info about it to chatgpt, it seems to be safe, but not 100% sure but almost, check to be sure, better phrased or/and alternatively by chatgpt as such anyways etc: "This recording (Netfocus Universal, 2013) was uploaded to archive.org’s Folksoundomy collection, a large open-access archive of volunteer-submitted audio. No explicit license is stated, but source context suggests it is non-commercial and likely safe for educational use.", i am not 100% sure but almost so should be maybe safe (but i may be mistaken check to be sure anyways etc). Note: this music was recommended to me after asking chatgpt after/since i couldn't find any suitable or fitting music or had too many ideas xd, and we analyzed napoleon's psychology and life quick if i may say but anyways etc and after many painstaking suggestions here it is, i really like it i mean, it's really a cool music :) This one seems if i am not mistaken copyright safe (but check to be sure anyways etc) and sounds quite well if not very well but in all cases anyways etc
+ - `LEADER_RAMESSES`: Ancient Egyptian Music – Pharaoh Ramses II, composer seems to be Derek Fiechter's Music (start at 00:02.425) [youtube link directly from Derek Fiechter's Music's channel anyways etc](https://www.youtube.com/watch?v=vslsS-Uu5x4), should also be safe as reviewed before for LEADER_JULIUS_CAESAR's music at least as of now who seems to also come/be from/by the same artist Derek Fiechter i mean if i am not mistaken anyways etc
+ - `LEADER_STALIN`: Music: Soviet March by Shane Ivers - [https://www.silvermansound.com](https://www.silvermansound.com), seems safe to use and under creative commons license by 4.0 if i am not mistaken too, personally i found it here thanks to chatgpt who gave me this link, thanks [silvermansound.com link provided by chatgpt directly to this music anyways etc](https://www.silvermansound.com/free-music/soviet-march?utm_source=chatgpt.com)
+-- `LEADER_VICTORIA`: Victorian Violin Waltz - Music by [Luis Humanoide](https://pixabay.com/users/luis_humanoide-12661853/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298), i also re found it here similarly than for LEADER_EWUARE's music link but anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/classical-string-quartet-victorian-violin-waltz-222298/) seems safe as coming from pixabay as well if i am not mistaken but anyways etc and froma sking chatgpt too to be sure seems safe indeed but maybe check too to be sure but should be safe but check to be sure in case i am mistaken but anyways etc
++- `LEADER_VICTORIA`: Victorian Violin Waltz - Music by [Luis Humanoide](https://pixabay.com/users/luis_humanoide-12661853/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298), i also re found it here similarly than for LEADER_EWUARE's music link but anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/classical-string-quartet-victorian-violin-waltz-222298/) seems safe as coming from pixabay as well if i am not mistaken but anyways etc and from asking chatgpt too to be sure seems safe indeed but maybe check too to be sure but should be safe but check to be sure in case i am mistaken but anyways etc
+ - `SONG_OPENING_MENU`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-lofi-song-330550/) anyways etc
++- `AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322`: Epic Symphonic Metal Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=263322) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=263322), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/metal-epic-symphonic-metal-instrumental-263322/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_FAMINE_IN_EUROPE`: Famine In Europe - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/famine-in-europe), seems as of now safe for copyright use as the website says as of now this `Famine In Europe By Nicholas Panek is licensed under a Creative Commons License.` with a link as of now to [CC BY-SA 3.0 - Attribution-ShareAlike 3.0 Unported - Deed](https://creativecommons.org/licenses/by-sa/3.0/) but check to be sure anyways etc
++- `AS2D_FUTURE_FINAL_SUNSHINE`: Final Sunshine - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/final-sunshine), seems as of now similarly safe for copyright use but check to be sure anyways etc
++- `AS2D_FUTURE_FOOT_TAPPER_CLASSICAL`: Foot Tapper Classical Music Dubstep Fusion - by Nicholas Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/foot-tapper-classical-music-dubstep-fusion), seems as of now similarly safe for copyright use but check to be sure anyways etc
++- `AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351`: Futuristic Robotic Cops in a Dystopian City - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=234351) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=234351), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/upbeat-futuristic-robotic-cops-in-a-dystopian-city-234351/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_HEAVY_THRASH_METAL_377893`: Heavy Thrash Metal Instrumental - Irate - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377893) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377893), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/metal-heavy-thrash-metal-instrumental-irate-377893/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_HOPE_AND_DESPAIR_212413`: Hope and Despair Piano Duet - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=212413) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=212413), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/modern-classical-hope-and-despair-piano-duet-212413/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_INTENSE_BLACK_METAL_304729`: Intense Black Metal Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=304729) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=304729), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/metal-intense-black-metal-instrumental-304729/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_INTO_THE_DARKNESS_336411`: Into the Darkness | Symphonic Metal Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=336411) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=336411), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/alternative-into-the-darkness-symphonic-metal-instrumental-336411/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_LOFI_295209`: lofi - Music by [Vivid Illustrate](https://pixabay.com/users/vividillustrate-31929813/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=295209) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=295209), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-lofi-295209/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_ON_THE_COSMIC`: Track: On The Cosmic Wave (Inspiring Synthwave Cosmic Background) - soundbay Link: [https://soundbaymusic.fanlink.tv/csmw](https://soundbaymusic.fanlink.tv/csmw) . Should also be safe based on the review of its youtube description if i may say but anyways etc if i am not mistaken but check to be sure anyways etc
++- `AS2D_FUTURE_POWER_IN_THEIR`: Power In Their Hands - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/power-in-their-hands?in=nicholas-panek-961795493/sets/a011001010110111001100100), seems as of now similarly safe for copyright use but check to be sure anyways etc
++- `AS2D_FUTURE_RELAXING_PIANO_LOFI_251401`: Relaxing Piano Lofi Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=251401) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=251401), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-relaxing-piano-lofi-instrumental-251401/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_TACO_TRUCK_HEIST_377352`: Taco Truck Heist — Flamenco Meets Underground Hip Hop - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377352) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377352), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-taco-truck-heist-flamenco-meets-underground-hip-hop-377352/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
++- `AS2D_FUTURE_WORLD_S_END`: World's End - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/worlds-end), seems as of now similarly safe for copyright use but check to be sure anyways etc
++- `ART_DEF_MOVIE_NATYA_SHASTRA`: The Natya Shastra wonder's movie, imported from c2c mod's Meenakshi.bik, i don't know if it's copyrighted but doesn't seem anything too drastic and is a quite short if i may say in this case but anyways etc video of 31 seconds approximately so maybe fine in all cases this the info i had when importing it to this advciv-sas mod so hopefully copyright-safe but check to be sure in case i am mistaken anyways etc
+ 
+ >Used for educational and entertainment purposes only.
+ 
+ Note: to know where media files (such as music or videos) might have come from or not, please visit modding_ressources in this git sections, not directly mentioning how due to copyright reasons, but providing examples of how i could have done so or may have not done so, after asking chatgpt this seems safer to state as so while trying to provide general information that may be helpful or not or yes but anyways etc, and i adjusted it bit too based on its feedback suggestion, hopefully helpful or not or yes or etc but anyways etc.
+ 
++Note 2: about why i used so much music from Nicholas Panek (/ Nicholas John Panek too is the same if i am not mistaken? But check to be sure anyways etc): is because i like this artist's music so much, although of course not all if i may sya but i found many nice ones in arious genres or/and such or whatever i simply enjoyed it :) If i had to pick a favourite, that would be really hard, but 2 (i said "a" but anyways etc) among all future era musics, i'd choose Famine In Europe, but maybe first most importantly before that Into the Darkness, the tune of famine of europe is so nice and the lyrics although i as of now don't understand too much of them but quite a bit seem suepr nice and eep even if i may say but anyways, as for the darkness music, i feel it explores undertones (whatever that means, i mean the type of melodies or simply notes or/and such from what little i know of it or/and feel of it but anyways etc anyways etc) i am not so used to hearing in music, and that i find super nice, although again it is super hard xd and many of these stand out, but these 2 especially more so to me if i may say or/and had to pick too hehe if i may say, but i like them all (or almost xd if not all) but anyways etc... Was super fun to find all this music although bit tedious hehe with some back and forth but anyways etc. But it is just my preference or ont just or yes just that may or not change and that i wantde to share here but anyways etc.
++
+ For mods we took from, i mention them in more detail, hopefully exhaustive but i may have forgotten one or 2 or more or not if i didn't notice but anyways etc, in [README.md#credits](/README.md#credits)
+ 
+ ## Note about the audio in main menu
+@@ -406,7 +425,7 @@ it too though unless i'm mistaken)
+ - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: [translation of "the people of benin" with Quillbot](https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin) (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
+ - [pixabay website](https://pixabay.com/) for example for royalty-free music as recommended/suggested/mentionned anyways etc to me by chatgpt for example to find leader ewuare's music if not on youtube anyways etc
+ - yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
+-- Audacity, to see where it is safe to cut audio without cutting too early or late, for example at 00:02.425 is a bit before audio starts in one of our music files as of now but anyways etc, but by ear it seemed to be around 00:03.000 and quite safe if not safe to be so, but checking to be sure it seems to actually start before, so being able to much more precisely tell where/when it is safe to start or end maybe too if one were to look at end of video i didn't use it as such i mean in our music files at least as of now as begining is most important part not to trim and end seemed clearcut through enough if that is a word in english but anyways etc, see for example screenshots in this [google drive folder link](https://drive.google.com/drive/folders/1ohqHNcsFzNEhIiTksIWYnwk-CB02fDST?usp=sharing) for example of how i use them, hopefully helpful or not or yes or anyways etc to use audacity as such help tool at least for me but anyways etc to know when to cut audio at download time for example but anyways etc
++- Audacity, to see where it is safe to cut audio without cutting too early or late, for example at 00:02.425 is a bit before audio starts in one of our music files as of now but anyways etc, but by ear it seemed to be around 00:03.000 and quite safe if not safe to be so such as in these [google drive folder link](https://drive.google.com/drive/folders/1ohqHNcsFzNEhIiTksIWYnwk-CB02fDST?usp=sharing) screenshots anways etc, or also to convert audio files such as from .wav to .mp3 for some of our future/robotic era music as of now anyways etc
+ - [Creator Nightcafe Studio](https://creator.nightcafe.studio/) to generate AI images, see [README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details) for details ; but check also the notifications and privacy setting as they can be or simply are to me if i may say at least as of now but anyways etc extremely noisy / permissive / distracing even, so consider disabling them or such before creating any image or alternatively after anyways etc
+ - [Pixelcut AI](https://www.pixelcut.ai/) to expand an image to higher res, for example from 1024 x 1024 to 1920 x 1080 with new details, see [README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details) for details
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index d5a15f18a..8a0cd6bdf 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -843,3 +843,31 @@ The result is the image appears no longer stretched at the top nor at the bottom
+ Note 4: i have noticed also we could create fake pixels on the sides too, although much less, as it seems approximately 1 or 2% (gross estimation) of our image is missing on the left and right side, but bit tedious, so for now i fixed the biggest issue if i may say, but ideally one may also try to add fake pixels (say 6-10 pixels on each side to try to see if a larger portion of the as of now 1920 x 1440 image is visible, so it would maybe be say 1926 x 1440 or 1930 x 1440 or more or less around although i didn't try it so this is just speculation on my end, but a tiny portion of the side of the image is not visible, maybe this would help as well or maybe not, ideally i'd try it someday too but not guaranteed may or may not do so, hopefully helpful or not or yes or etc anyways etc...)
+ 
+ Again, screenshots of intermediate steps are also shown in the google drive link in this known issue number's section as well, hopefully helpful or not or yes or etc anyways etc anyways etc anyways etc...
++
++## 29 - (as of now with a workaround) clicking on a specific spot in tech advisor at tech transhumanism's blue box causes a crash
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing)
++
++I don't know what the cause is, but clicking, in tech advisor (i.e. tech tree view if i am not mistaken anyways etc), on as of now tech_transhumanism's box (the blue rectalnge) specific position, we consistently get a crash and i have no idea why.
++
++I don't know if me playing in windowed as of now due to it being so much easier for developping/debugging and or such but anyways etc (didn't test full screen but anyways etc).
++
++Err logs and Dbg log don't seem to indicate anything related to this, so make sure you make enough saves regularly before browsing too much on tech advisor at least anyways etc.
++
++As of now, i have found a reliable/consistent workaround anyways etc, which is to click on the tech name itself, then the crash is avoided and we are successfulyl redirected to sevopedia tech anyways etc
++
++update: i have found the issue, and could reproduce it in particular with tech_agriculture, by adding an or prereq that is faulty or/and impossible to meet (i.e. xml asks tech_depopulation for example as of now here anyways etc to research tech_agriculture, even though tech_agriculture shouldn't require any tech as of now i mean anyways etc (and tech_depopulation also requires indirectly uch earlier tech_agriculture, so it is impossible to meet this tech prereq for tech_agriculture anyways etc, hence the crash when right clicking on the modified tech_agriculture's blue box as well anyways etc)).
++
++So it appears that the do research or whatever related or similar to it fails and crashes silently (would be nice to have an error message, ideally no crash anyways etc). I added the lines below at tech_agriculture and it caused same crash:
++
++```xml
++			<OrPreReqs>
++				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
++			</OrPreReqs>
++```
++
++So based on this, the crash is caused by impossible prereqs, but an actual error message such as impossible to process the doResearch command would be nicer, as well as ideally not crashing.
++
++Ideally i would fix it, but is tedious, and most importantly, the issue shoudl disappear when we have proper tech preresq not the fake ones that are not functionnal and just taken from any tech i could find to replace with our new techs. So this is only a temporary issue, although less idela, it is probably most efficient to leave as it is. It is also maybe more reliable to have a silent crash rather than adding a complicated way to handle that may react unpredictably and not necessarily always handle correctly the cause or other causes. So seems safer and most efficient to leave it as it is, and just keep in mind if tech advisor crashes happen again, that issue may be faulty tech prereqs.
++
++See also, although not directly related: [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 4574927f0..d15d17f3d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -139,6 +139,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc ; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
++
++### Eras
++
++- Reworked the future era to now be anyways etc a real/proper era with techs, and that as of now start with the mandatory malus tech as of now tech_depopulation for realism and also to rebalance the late game, as well as other new assets (i.e. techs, new units, buildings, etc., as well as entirely new music (see [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) for details on copyright anyways etc)). See sevopedia ingame or/and xml of the corresponding assets for details anyways etc.
+ - added era information in sevopedia tech as part of the sevopedia reworks. Currently eras do not do anything in advciv-sas as in base advciv +/- civ4 too if i am not mistaken but anyways etc, but i wanted to add this information as well as some other mods do as well, see for details also about the sevopedia reworks [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)
+ 
+ ### Civilizations (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 116d5c8d8..6a1bae917 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -47,7 +47,7 @@ One of the oldest sevopedia reworks, i added it in this readme much later so i h
+ 
+ The core changes is on the panel header naming i mean but anyways etc, to help clarify the maning of the modifiers displayed, as well as make text slightly more readable in terms of text size in some panels if i may say and remember it correctly (i could check but i think is how it was but anyways etc). Not much or too big in this case but anyways etc changes otherwise but anyways etc except some beautification and/or such but anyways etc, hopefully helpful still maybe but anyways etc anyways etc anyways etc, example of output below, anyways etc:
+ 
+-More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part building this build if i may say and if i am not mistaken, which is something different not displayed here but in sevopedia feature, see there or/and the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,))
++More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part building this build if i may say and if i am not mistaken, which is something different not displayed here but in sevopedia feature, see there or/and the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,)), and also added some quite minor beautification anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 76df71588..543340650 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+index e9b903263..71670428d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+index 6e3ee6952..aee5ae735 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+index b5923e41f..df6c5c2bd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=33 omittedFiles=0 embeddedPatchBytes=71276

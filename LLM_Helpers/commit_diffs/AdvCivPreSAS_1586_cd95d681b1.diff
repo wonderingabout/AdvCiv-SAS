@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1586
+# Commit: cd95d681b10385068fffd0a5d8c307dddb989b02
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 565b120535639a96fd3616fd9bb4f7b570331b1e
+# Title: Link to CvGameCoreDLL in links.txt; makefile attribution.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/Project/Makefile
+1	1	links.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 20a7604e9..cc8acaf69 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -1,5 +1,6 @@
+ #### Civilization 4 SDK Makefile 2.5 ####
+ ####  Copyright 2015 Nightinggale    ####
++# (advc: with some modifications; see below)
+ #########################################
+ #### Civilization 4 SDK Makefile 2.0 ####
+ ####  Copyright 2013 Nightinggale    ####
+@@ -419,4 +420,3 @@ $(TEMP_TARGET_FILES)\$(BLACKLIST).obj: $(BLACKLIST).cpp
+ 	@DEL "$*.obj.@"
+ 
+ !ENDIF
+-
+
+diff --git a/links.txt b/links.txt
+index deae3f848..8ecfd70dc 100644
+--- a/links.txt
++++ b/links.txt
+@@ -3,7 +3,7 @@ Download site and instructions for installation:
+ Manual on GitHub:
+ 	https://github.com/f1rpo/AdvCiv/raw/master/manual.pdf
+ Source code on GitHub:
+-	https://github.com/f1rpo/AdvCiv
++	https://github.com/f1rpo/AdvCiv/tree/master/CvGameCoreDLL
+ Discussion thread on CivFanatics:
+ 	https://forums.civfanatics.com/threads/advanced-civ.614217
+ A half-finished Earth scenario for AdvCiv:
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1065

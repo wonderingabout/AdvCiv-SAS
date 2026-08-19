@@ -1,0 +1,290 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 196
+# Commit: 2e074f4f5b0ca7b060be41f3a562bd2ab445efec
+# History segment: K-Mod history
+# Parent used for diff: 2924108432ab297ed73fb6000c93a20f1ed19531
+# Title: Copied, from Koshling's C2C code, a fix for an original BtS pathfinding bug and pathfinding optimization. Also, disabled a (hopefully) unnecessary part of AI...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvCityAI.cpp
+55	35	CvGameCoreDLL/CvGameCoreUtils.cpp
+65	0	CvGameCoreDLL/CvSelectionGroup.cpp
+15	0	CvGameCoreDLL/CvSelectionGroup.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b1ce848c7..fe7ea32cf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -247,13 +247,14 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	} */ // K-Mod. that option would break a bunch of stuff.
+ 
+ 	// remove all assigned plots if we automated
++	/* original bts code
+ 	if (!isHuman() || isCitizensAutomated())
+ 	{
+ 		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			setWorkingPlot(iI, false);
+ 		}
+-	}
++	} */ // Disabled by K-Mod (experimental change, for speed)
+ 	
+ 	//update the special yield multiplier to be current
+ 	AI_updateSpecialYieldMultiplier();
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index aefee090f..bde73c1e0 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1722,48 +1722,14 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	return iWorstCost;
+ }
+ 
+-
+-int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
++int pathValidInternal(FAStarNode* parent, CvPlot* pFromPlot, int data, CvSelectionGroup* pSelectionGroup, FAStar* finder)
+ {
+-	PROFILE_FUNC();
+-
+-	CvSelectionGroup* pSelectionGroup;
+-	CvPlot* pFromPlot;
+-	CvPlot* pToPlot;
+ 	bool bAIControl;
+-
+-	if (parent == NULL)
+-	{
+-		return TRUE;
+-	}
+-
+-	pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
+-	FAssert(pFromPlot != NULL);
+-	pToPlot = GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
+-	FAssert(pToPlot != NULL);
+-
+-	pSelectionGroup = ((CvSelectionGroup *)pointer);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      03/03/10                                jdog5000      */
+ /*                                                                                              */
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+-	if (pSelectionGroup->getDomainType() == DOMAIN_SEA)
+-	{
+-		PROFILE("pathValid domain sea");
+-
+-		if (pFromPlot->isWater() && pToPlot->isWater())
+-		{
+-			if (!(GC.getMapINLINE().plotINLINE(parent->m_iX, node->m_iY)->isWater()) && !(GC.getMapINLINE().plotINLINE(node->m_iX, parent->m_iY)->isWater()))
+-			{
+-				if( !(pSelectionGroup->canMoveAllTerrain()) )
+-				{
+-					return FALSE;
+-				}
+-			}
+-		}
+-	}
+-
+ 	if (pSelectionGroup->atPlot(pFromPlot))
+ 	{
+ 		return TRUE;
+@@ -1856,6 +1822,60 @@ int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointe
+ }
+ 
+ 
++int pathValid(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
++{
++	PROFILE_FUNC();
++
++	CvSelectionGroup* pSelectionGroup;
++	CvPlot* pFromPlot;
++	CvPlot* pToPlot;
++
++	if (parent == NULL)
++	{
++		return TRUE;
++	}
++
++	pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
++	FAssert(pFromPlot != NULL);
++	pToPlot = GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
++	FAssert(pToPlot != NULL);
++
++	pSelectionGroup = ((CvSelectionGroup *)pointer);
++
++	// XXX might want to take this out...
++	if (pSelectionGroup->getDomainType() == DOMAIN_SEA)
++	{
++		PROFILE("pathValid domain sea");
++
++		if (pFromPlot->isWater() && pToPlot->isWater())
++		{
++			if (!(GC.getMapINLINE().plotINLINE(pFromPlot->getX_INLINE(), pToPlot->getY_INLINE())->isWater()) && !(GC.getMapINLINE().plotINLINE(pToPlot->getX_INLINE(), pFromPlot->getY_INLINE())->isWater()))
++			{
++				if( !(pSelectionGroup->canMoveAllTerrain()) )
++				{
++					return FALSE;
++				}
++			}
++		}
++	}
++
++	//	KOSHLING MOD - none of the rest of the calculation depends on pToPlot, 
++	//	so we can cache the results from one request for each parent/pFromPlot.
++	//	The cache is reset prior to each path generation
++	bool bResult;
++	if ( pSelectionGroup->HaveCachedPathValidityResult( pFromPlot, &bResult ) )
++	{
++		return bResult;
++	}
++
++	bResult = pathValidInternal(parent, pFromPlot, data, pSelectionGroup, finder);
++
++	pSelectionGroup->CachePathValidityResult( pFromPlot, bResult );
++
++	return bResult;
++}
++
++
+ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer, FAStar* finder)
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 607ef26e4..c9c3a29c3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -32,6 +32,14 @@
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
++//	KOSHLING MOD - path validity cache, used only within a single
++//	call to GneratePath()
++int CvSelectionGroup::m_cachedPathValidityFromPlotX = -2;
++int CvSelectionGroup::m_cachedPathValidityFromPlotY;
++bool CvSelectionGroup::m_cachedPathValidityResult;
++int CvSelectionGroup::m_pathValidityCacheReads = 0;
++int CvSelectionGroup::m_pathValidityCacheHits = 0;
++
+ // Public Functions...
+ 
+ CvSelectionGroup::CvSelectionGroup()
+@@ -4408,15 +4416,44 @@ CvPlot* CvSelectionGroup::getPathEndTurnPlot() const
+ 
+ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns) const
+ {
++	//	Path generation reuse is only ok for a given stack, not between stacks
++	//	so we reset whether to allow path reuse globally for each stack
++	static const CvSelectionGroup* lastPathGeneratedFor = NULL;
++
+ 	PROFILE("CvSelectionGroup::generatePath()")
+ 
+ 	FAStarNode* pNode;
+ 	bool bSuccess;
++/************************************************************************************************/
++/* Afforess	                  Start		 04/09/10                                               */
++/*                                                                                              */
++/* CTD Fix                                                                                      */
++/************************************************************************************************/
++	if (pFromPlot == NULL || pToPlot == NULL) return false;
++/************************************************************************************************/
++/* Afforess	                     END                                                            */
++/************************************************************************************************/
+ 
+ 	gDLL->getFAStarIFace()->SetData(&GC.getPathFinder(), this);
+ 
++	//	KOSHLING MOD - the path finder in the core engine is somewhat inefficient and calls pathValid() multiple times for single
++	//	plots, so we can cache the results.  Reset the cache prior to each path generation
++	m_cachedPathValidityFromPlotX = -1;
++
++	//	Koshling - the path generator screws up if you allow it to reuse info previosuly
++	//	generated by a different stack (it gets the move counts wrong potentially)
++	if ( this != lastPathGeneratedFor )
++	{
++		bReuse = false;
++	}
++
+ 	bSuccess = gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX_INLINE(), pFromPlot->getY_INLINE(), pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), false, iFlags, bReuse);
+ 
++	//	Invalidate the cache again so that callers from outside the DLL to path generation don't
++	//	invoke a stale cache
++	m_cachedPathValidityFromPlotX = -2;	//	-2 blocks all attempts to use the cache
++	lastPathGeneratedFor = this;
++
+ 	if (piPathTurns != NULL)
+ 	{
+ 		*piPathTurns = MAX_INT;
+@@ -4435,6 +4472,34 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 	return bSuccess;
+ }
+ 
++//	KOSHLING Mod - add path validity results cache
++bool CvSelectionGroup::HaveCachedPathValidityResult(CvPlot* pFromPlot, bool* cachedResult)
++{
++	m_pathValidityCacheReads++;
++	if ( m_cachedPathValidityFromPlotX == pFromPlot->getX_INLINE() &&
++		 m_cachedPathValidityFromPlotY == pFromPlot->getY_INLINE() )
++	{
++		m_pathValidityCacheHits++;
++		*cachedResult = m_cachedPathValidityResult;
++		return true;
++	}
++	else
++	{
++		return false;
++	}
++}
++
++void CvSelectionGroup::CachePathValidityResult(CvPlot* pFromPlot, bool cachedResult)
++{
++	//	This is set to -2 outside the scope of calls from CvSelectionGroup::generatePath()
++	//	to prevent invlaid caching in other contexts
++	if ( m_cachedPathValidityFromPlotX != -2 )
++	{
++		m_cachedPathValidityFromPlotX = pFromPlot->getX_INLINE();
++		m_cachedPathValidityFromPlotY = pFromPlot->getY_INLINE();
++		m_cachedPathValidityResult = cachedResult;
++	}
++}
+ 
+ void CvSelectionGroup::resetPath()
+ {
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 9d7f7b1ee..aa45afd1d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -270,6 +270,21 @@ protected:
+ 	void deactivateHeadMission();
+ 	
+ 	bool sentryAlert() const;
++
++//	KOSHLING Mod - add path validity results cache
++public:
++	//	These have to be static due to some assumptions the game engine seems to make about
++	//	this class which prsumably relates to the comment earlier that adding to this class causes
++	//	a crash in the main engine.  This is a bit untidy, but essentially fine due to the
++	//	single threaded nature of the application and the fact that cache validity is only
++	//	required across a single path generation call, which cannot interleave
++	static int m_cachedPathValidityFromPlotX;
++	static int m_cachedPathValidityFromPlotY;
++	static bool m_cachedPathValidityResult;
++	static int m_pathValidityCacheReads;
++	static int m_pathValidityCacheHits;
++	bool HaveCachedPathValidityResult(CvPlot* pFromPlot, bool* cachedResult);
++	void CachePathValidityResult(CvPlot* pFromPlot, bool cachedResult);
+ };
+ 
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9826

@@ -1,0 +1,193 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1969
+# Commit: e2349f156bc20ed002f8f605da5dfd076fb65af4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b602f31c7d814907d783beab98976bda66f97c6e
+# Title: Comment changes; (re)move a few functions.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	CvGameCoreDLL/CvGame.h
+4	3	CvGameCoreDLL/CvGameCoreDLL.h
+28	37	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/PlotRadiusIterator.h
+1	1	CvGameCoreDLL/cpp.hint
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 7ab8f96c5..49d9dbe23 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -623,10 +623,14 @@ public:
+ 	{
+ 		return m_mapRand.get(iNum, pszLog);
+ 	}
+-	CvRandom& getSorenRand()																										// Exposed to Python
++	inline CvRandom& getSorenRand()																								// Exposed to Python
+ 	{
+ 		return m_sorenRand;
+-	}
++	}  // <advc> Shorter. "S" could also stand for "synchronized" (or "Soren"). (Tbd.: Move to CvGlobals.)
++	CvRandom& getSRand()																										// Exposed to Python
++	{
++		return getSorenRand();
++	} // </advc>
+ 	//  Returns a value from the half-closed interval [0,iNum)
+ 	int getSorenRandNum(int iNum, const char* pszLog,
+ 		int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.007
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 4d92ecc00..9a77cb02a 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -147,10 +147,11 @@ typedef wchar_t          wchar;
+ #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
+ #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
+ 
+-#define SQR(x)      ( (x) * (x) )
++//#define SQR(x) ( (x) * (x) ) // advc: Also defined in CvGameCoreUtils.h
+ #define DEGTORAD(x) ( (float)( (x) * (M_PI / 180) ))
+-#define LIMIT_RANGE(low, value, high) value = (value < low ? low : (value > high ? high : value));
+-#define M_PI       3.14159265358979323846
++// advc: There's range (CvGameCoreUtils), which is similar enough.
++//#define LIMIT_RANGE(low, value, high) value = (value < low ? low : (value > high ? high : value));
++#define M_PI		3.14159265358979323846
+ #define fM_PI		3.141592654f		//!< Pi (float)
+ 
+ __forceinline DWORD FtoDW( float f ) { return *(DWORD*)&f; }
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 67f039482..ed2f7d8be 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -16,10 +16,7 @@ class CvRandom;
+ class FAStarNode;
+ class FAStar;
+ 
+-// advc.003j: Unused here and elsewhere; still defined in CvGameCoreDLL.
+-//#ifndef SQR
+-//#define SQR(x) ( (x)*(x))
+-//#endif*
++#define SQR(x) ((x)*(x))
+ 
+ // K-Mod: Created the following function for rounded integer division
+ // advc: Moved from CvGlobals.h and static specifier removed
+@@ -32,39 +29,33 @@ inline int ROUND_DIVIDE(int a, int b)
+ 	// </advc.001>
+ }
+ 
+-// <advc.003g> floating point utility
+-inline int round(double d) { return (int)((d >= 0 ? 0.5 : -0.5) + d); }
+-int roundToMultiple(double d, int iMultiple);
+-bool bernoulliSuccess(double pr, // 0 <= pr <= 1
+-		char const* pszLog = "", bool bAsync = false,
+-		int iData1 = MIN_INT, int iData2 = MIN_INT);
+-double dMedian(std::vector<double>& distribution, bool bSorted = false);
+-double dMean(std::vector<double> const& distribution);
+-double dMax(std::vector<double> const& distribution);
+-double dMin(std::vector<double> const& distribution);
+-// see e.g. Wikipedia: "percentile rank"
+-double percentileRank(std::vector<double>& distribution, double score,
+-		bool bSorted = false, // Is the distribution sorted (ascending)?
+-		bool bScorePartOfDistribution = true); /* Is 'score' to be considered as
+-		an element of the distribution? If yes, the percentile rank is going to be
+-		positive. Either way, the caller shouldn't include 'score' in the distribution. */
+-// </advc.003g>
+-// <advc>
+-/*  Hash based on the components of x. Plot index of capital factored in for
+-	increased range if ePlayer given. (ePlayer is ignored if it has no capital.)
+-	Result between 0 and 1. Returns float b/c CvRandom uses float (not double).
+-	(Similar but more narrow: CvUnitAI::AI_unitBirthmarkHash, AI_unitPlotHash) */
+-float hash(std::vector<long> const& x, PlayerTypes ePlayer = NO_PLAYER);
+-// For hashing just a single input
+-float hash(long x, PlayerTypes ePlayer = NO_PLAYER);
+-/*  'r' is an empty vector in which the 21 CvPlot* in the city radius ("fat cross")
+-	around p will be placed. &p itself gets placed in r[0]; the others in
+-	no particular order. If the city cross has fewer than 21 plots (edge of the map),
+-	then NULL entries will be included.
+-	For iterating over tiles in the radius of a CvCity, CvCity::getCityIndexPlot
+-	is faster; but cityCross doesn't require a CvCity to exist in p. */
+-void cityCross(CvPlot const& p, std::vector<CvPlot*>& r);
+-// </advc>
++// <advc.003g>
++//namespace fmath // (For the time being, these functions are used too frequently for a namespace.)
++//{
++	inline int round(double d) { return (int)((d >= 0 ? 0.5 : -0.5) + d); }
++	int roundToMultiple(double d, int iMultiple);
++	bool bernoulliSuccess(double pr, // 0 <= pr <= 1
++			char const* pszLog = "", bool bAsync = false,
++			int iData1 = MIN_INT, int iData2 = MIN_INT);
++	double dMedian(std::vector<double>& distribution, bool bSorted = false);
++	double dMean(std::vector<double> const& distribution);
++	double dMax(std::vector<double> const& distribution);
++	double dMin(std::vector<double> const& distribution);
++	// see e.g. Wikipedia: "percentile rank"
++	double percentileRank(std::vector<double>& distribution, double score,
++			bool bSorted = false, // Is the distribution sorted (ascending)?
++			bool bScorePartOfDistribution = true); /* Is 'score' to be considered as
++			an element of the distribution? If yes, the percentile rank is going to be
++			positive. Either way, the caller shouldn't include 'score' in the distribution. */
++	/*  Hash based on the components of x. Plot index of capital factored in for
++		increased range if ePlayer given. (ePlayer is ignored if it has no capital.)
++		Result between 0 and 1. Returns float b/c CvRandom uses float (not double).
++		(Similar but more narrow: CvUnitAI::AI_unitBirthmarkHash, AI_unitPlotHash) */
++	float hash(std::vector<long> const& x, PlayerTypes ePlayer = NO_PLAYER);
++	// For hashing just a single input
++	float hash(long x, PlayerTypes ePlayer = NO_PLAYER);
++//} // </advc.003g>
++
+ void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2); // advc.035
+ // <advc.130h>
+ template<typename T> void removeDuplicates(std::vector<T>& v)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 5621830e9..a9d9bd895 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -483,7 +483,7 @@ void CvPlot::updateSymbols()
+ 			for (int iYieldType = 0; iYieldType < NUM_YIELD_TYPES; iYieldType++)
+ 			{
+ 				int iYield = yieldAmounts[iYieldType] - (maxYieldStack * i);
+-				LIMIT_RANGE(0,iYield, maxYieldStack);
++				iYield = range(iYield, 0, maxYieldStack);
+ 				if(yieldAmounts[iYieldType])
+ 					gDLL->getSymbolIFace()->setTypeYield(pSymbol,iYieldType,iYield);
+ 			}
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.h b/CvGameCoreDLL/PlotRadiusIterator.h
+index 2719927fe..39bff85d5 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.h
++++ b/CvGameCoreDLL/PlotRadiusIterator.h
+@@ -99,7 +99,7 @@ protected:
+ 		// Change direction?
+ 		if (m_iConsecMoves * (m_iConsecMoves + 1) >= m_iPos)
+ 		{
+-			// Slow modulo :(
++			// Modulo by a constant power of 2: should be fast
+ 			m_eDir = static_cast<CardinalDirectionTypes>(
+ 					(m_eDir + 1) % NUM_CARDINALDIRECTION_TYPES);
+ 			m_iConsecMoves = 1;
+
+diff --git a/CvGameCoreDLL/cpp.hint b/CvGameCoreDLL/cpp.hint
+index 518f2bb73..498c4836e 100644
+--- a/CvGameCoreDLL/cpp.hint
++++ b/CvGameCoreDLL/cpp.hint
+@@ -1,4 +1,4 @@
+-// advc.003s: At least in Visual Studio 2010, the FOR_EACH macros (defined in the Cv*List.h files) aren't parsed properly by the code editor unless this hint file is present. Placing the hint file in the project directory is, unfortunately, not working for me. Even with the hint file, statement completion (Ctrl+Space) ignores the variables declared through the first macro argument (but not the "anonymous" loop counter variables that the macros declare internally).
++// advc.003s: At least in Visual Studio 2010, the FOR_EACH macros aren't parsed properly by the code editor unless this hint file is present. Placing the hint file in the project directory is, unfortunately, not working for me. Even with the hint file, statement completion (Ctrl+Space) ignores the variables declared through the first macro argument.
+ 
+ #define FOR_EACH_DEAL(pDeal)
+ #define FOR_EACH_DEAL_VAR(pDeal)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=8275

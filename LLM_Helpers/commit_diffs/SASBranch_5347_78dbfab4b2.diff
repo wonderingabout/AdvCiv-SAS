@@ -1,0 +1,737 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5347
+# Commit: 78dbfab4b27d5b33f276a266a3c6a20b9a3c42d2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: efa7dbfb6c5184208b056b9c6036c60267052102
+# Title: add sortable trait tables in sevopedia traits, add statistics in leader panel's header - Sevopedia — Traits: New **Trait Tables**: 2 **sortable** tables show...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	6	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+14	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+240	27	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+50	7	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+46	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+21	46	Assets/XML/Text/AdvCiv-SAS_main.xml
+6	6	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+5	3	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 501446f19..c20dd2877 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -52,11 +52,8 @@ B_WARN = False
+ if IS_DEBUG_LEADER:
+ 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
+ 
+-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL so handle that edge case of LEADER_DEFAULTS specifically) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one but is to be exhaustive -->
+-EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
+-	"LEADER_BARBARIAN",
+-)
+-EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS, gc)
++# <!-- custom: Use shared exclusion list from _sevopedia_helpers. (Claude Opus 4.5) -->
++EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, gc)
+ 
+ # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
+ if IS_DEBUG_LEADER:
+@@ -1509,7 +1506,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 	# Wrapper that either loads pre-dumped cache or computes it
+ 	return get_leader_cache_predumped_or_compute(
+ 		compute_func = _compute_leader_cache_internal,
+-		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS,
++		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA,
+ 		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
+ 		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
+ 	)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index f3df3c669..4d7a36e92 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1808,8 +1808,21 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getTraitList()
+ 		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
+ 
++	# <!-- custom: Sort traits alphabetically by raw description (without icon), then display with icon.
++	# The icon character would cause incorrect sorting if included. (Claude Opus 4.5) -->
+ 	def getTraitList(self):
+-		return self.getSortedList(gc.getNumTraitInfos(), self.getTraitInfo, True, False) # advc.004y: bCheckGraphicalOnly = False
++		traitList = []
++		for iTrait in range(gc.getNumTraitInfos()):
++			info = gc.getTraitInfo(iTrait)
++			if info:
++				# Store (raw_description_for_sorting, display_description_with_icon, id)
++				rawDesc = info.getDescription()
++				displayDesc = u"%c %s" % (TraitUtil.getIcon(iTrait), rawDesc)
++				traitList.append((rawDesc, displayDesc, iTrait))
++		if self.isSortLists():
++			traitList.sort(key=lambda x: x[0])  # Sort by raw description
++		# Return list in expected format: (display_description, id)
++		return [(item[1], item[2]) for item in traitList]
+ 
+ 	def getTraitInfo(self, id):
+ 		info = gc.getTraitInfo(id)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 97eb3672f..d51716c83 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -14,6 +14,7 @@ import ScreenInput
+ import SevoScreenEnums
+ 
+ import TraitUtil
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -28,9 +29,9 @@ class SevoPediaTrait:
+ 		self.top = main
+ 
+ 		# <!-- custom: Enhanced layout - Leaders at top, Statistics in center, Effects bottom-left, History bottom-right.
+-		# Dynamically fills the page. Statistics panel is placeholder for future trait usage tables. (Claude Opus 4.5) -->
++		# Precompute all layout values once in __init__ for performance. (Claude code Opus 4.5) -->
+ 
+-		self.MARGIN = 10
++		MARGIN = 10
+ 
+ 		# Leaders panel - full width at top
+ 		self.X_LEADERS = self.top.X_PEDIA_PAGE
+@@ -38,31 +39,89 @@ class SevoPediaTrait:
+ 		self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
+ 		self.H_LEADERS = 110
+ 
+-		# Statistics panel - wide center panel (placeholder for future trait statistics tables)
++		# Statistics panel - wide center panel
+ 		self.X_STATISTICS = self.top.X_PEDIA_PAGE
+-		self.Y_STATISTICS = self.Y_LEADERS + self.H_LEADERS + self.MARGIN
++		self.Y_STATISTICS = self.Y_LEADERS + self.H_LEADERS + MARGIN
+ 		self.W_STATISTICS = self.top.R_PEDIA_PAGE - self.X_STATISTICS
+-		self.H_STATISTICS = 450
++		self.H_STATISTICS = 585
++
++		# Statistics sub-panels layout (precomputed)
++		STATS_MARGIN = 10
++		STATS_INNER = 8
++		self.STATS_ROW_H = 24
++		self.STATS_PANEL_Y = self.Y_STATISTICS + 30
++		self.STATS_PANEL_H = self.H_STATISTICS - 40
++		self.STATS_PANEL_X = self.X_STATISTICS + STATS_MARGIN
++		self.STATS_PANEL_W = self.W_STATISTICS - (2 * STATS_MARGIN)
++		self.STATS_INNER = STATS_INNER
++		self.STATS_MARGIN = STATS_MARGIN
++
++		# Left panel dimensions
++		self.STATS_LEFT_W = int(self.STATS_PANEL_W * 0.44)
++		self.STATS_LEFT_TABLE_X = self.STATS_PANEL_X + STATS_INNER
++		self.STATS_LEFT_TABLE_W = self.STATS_LEFT_W - (2 * STATS_INNER)
++		self.STATS_LEFT_TABLE_Y = self.STATS_PANEL_Y + STATS_INNER
++		self.STATS_LEFT_TABLE_H = self.STATS_PANEL_H - (2 * STATS_INNER)
++
++		# Left table column widths
++		leftTraitW = int(self.STATS_LEFT_TABLE_W * 0.36)
++		leftPairW = 50
++		leftTotalW = 50
++		leftLeadersW = self.STATS_LEFT_TABLE_W - leftTraitW - leftPairW - leftTotalW
++		if leftLeadersW < 100:
++			leftLeadersW = 100
++			leftTraitW = self.STATS_LEFT_TABLE_W - leftPairW - leftTotalW - leftLeadersW
++		if leftTraitW < 120:
++			leftTraitW = 120
++			leftLeadersW = self.STATS_LEFT_TABLE_W - leftPairW - leftTotalW - leftTraitW
++		self.STATS_LEFT_COL_TRAIT = leftTraitW
++		self.STATS_LEFT_COL_PAIR = leftPairW
++		self.STATS_LEFT_COL_TOTAL = leftTotalW
++		self.STATS_LEFT_COL_LEADERS = leftLeadersW
++
++		# Right panel dimensions
++		self.STATS_RIGHT_X = self.STATS_PANEL_X + self.STATS_LEFT_W + STATS_MARGIN
++		self.STATS_RIGHT_W = self.STATS_PANEL_X + self.STATS_PANEL_W - self.STATS_RIGHT_X
++		self.STATS_RIGHT_TABLE_X = self.STATS_RIGHT_X + STATS_INNER
++		self.STATS_RIGHT_TABLE_W = self.STATS_RIGHT_W - (2 * STATS_INNER)
++		self.STATS_RIGHT_TABLE_Y = self.STATS_PANEL_Y + STATS_INNER
++		self.STATS_RIGHT_TABLE_H = self.STATS_PANEL_H - (2 * STATS_INNER)
++
++		# Right table column widths
++		rightComboW = int(self.STATS_RIGHT_TABLE_W * 0.38)
++		rightCountW = 50
++		rightRankW = 80
++		rightLeadersW = self.STATS_RIGHT_TABLE_W - rightComboW - rightCountW - rightRankW
++		if rightLeadersW < 120:
++			rightLeadersW = 120
++			rightComboW = self.STATS_RIGHT_TABLE_W - rightCountW - rightRankW - rightLeadersW
++		if rightComboW < 180:
++			rightComboW = 180
++			rightLeadersW = self.STATS_RIGHT_TABLE_W - rightCountW - rightRankW - rightComboW
++		self.STATS_RIGHT_COL_COMBO = rightComboW
++		self.STATS_RIGHT_COL_COUNT = rightCountW
++		self.STATS_RIGHT_COL_RANK = rightRankW
++		self.STATS_RIGHT_COL_LEADERS = rightLeadersW
+ 
+ 		# Bottom row: Effects (left) and History (right)
+-		self.Y_BOTTOM_ROW = self.Y_STATISTICS + self.H_STATISTICS + self.MARGIN
+-		self.H_BOTTOM_ROW = self.top.B_PEDIA_PAGE - self.Y_BOTTOM_ROW
++		Y_BOTTOM_ROW = self.Y_STATISTICS + self.H_STATISTICS + MARGIN
++		H_BOTTOM_ROW = self.top.B_PEDIA_PAGE - Y_BOTTOM_ROW
+ 
+ 		# Effects panel - bottom left
+ 		self.X_SPECIAL = self.top.X_PEDIA_PAGE
+-		self.Y_SPECIAL = self.Y_BOTTOM_ROW
+-		self.W_SPECIAL = (self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.MARGIN) / 2
+-		self.H_SPECIAL = self.H_BOTTOM_ROW
++		self.Y_SPECIAL = Y_BOTTOM_ROW
++		self.W_SPECIAL = (self.top.R_PEDIA_PAGE - self.X_SPECIAL - MARGIN) / 2
++		self.H_SPECIAL = H_BOTTOM_ROW
+ 
+ 		# History panel - bottom right
+-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MARGIN
+-		self.Y_HISTORY = self.Y_BOTTOM_ROW
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MARGIN
++		self.Y_HISTORY = Y_BOTTOM_ROW
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+-		self.H_HISTORY = self.H_BOTTOM_ROW
++		self.H_HISTORY = H_BOTTOM_ROW
+ 
+ 
+ 
+-	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude Opus 4.5) -->
++	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
+ 	def interfaceScreen(self, iTrait):
+ 		self.iLeader = -1
+ 		self.iTrait = iTrait
+@@ -77,26 +136,180 @@ class SevoPediaTrait:
+ 	def placeLeaders(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50 )
++		leaderIds, leaderToCiv, totalRealLeaders = get_real_leader_maps_and_count(gc, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
++		leadersWithTrait = []
++		for iLeader in leaderIds:
++			if gc.getLeaderHeadInfo(iLeader).hasTrait(self.iTrait):
++				leadersWithTrait.append(iLeader)
++
++		percent = 0
++		if totalRealLeaders > 0:
++			percent = (100 * len(leadersWithTrait)) / totalRealLeaders
++		headerText = u"%s %d/%d (%d%%)" % (
++			localText.getText("TXT_KEY_CONCEPT_LEADERS", ()),
++			len(leadersWithTrait),
++			totalRealLeaders,
++			percent,
++		)
++		screen.addPanel( panelName, headerText, "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+-			leader = gc.getLeaderHeadInfo(iLeader)
+-			if leader.hasTrait(self.iTrait):
+-				self.iLeader = iLeader
+-				for iCiv in range(gc.getNumCivilizationInfos()):
+-					if gc.getCivilizationInfo(iCiv).isLeaders(iLeader):
+-						screen.attachImageButton(panelName, "", gc.getLeaderHeadInfo(iLeader).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
+-						break
++		for iLeader in leadersWithTrait:
++			self.iLeader = iLeader
++			iCiv = leaderToCiv.get(iLeader, -1)
++			if iCiv == -1:
++				continue
++			screen.attachImageButton(panelName, "", gc.getLeaderHeadInfo(iLeader).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, iCiv, False)
+ 
+ 
+ 
+-	# <!-- custom: Placeholder panel for future trait statistics/math tables showing trait usage,
+-	# combinations, rankings, etc. Will use simplified AI personality panel table style. (Claude Opus 4.5) -->
++	# <!-- custom: Statistics panel with two tables:
++	# Left: Trait pairings for current trait (trait, paired count, total, leaders)
++	# Right: All trait combinations globally with pair count, ranking bar, and leaders
++	# Inspired by README_Assets_Rebalancing.md tables. (Claude code Opus 4.5) -->
+ 	def placeStatistics(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_STATISTICS", ()), "", True, True, self.X_STATISTICS, self.Y_STATISTICS, self.W_STATISTICS, self.H_STATISTICS, PanelStyles.PANEL_STYLE_BLUE50)
+-		# Placeholder - statistics tables will be added here later
++
++		pairingData = self._buildTraitPairingData()
++
++		# === LEFT TABLE: Pairings for current trait ===
++		if pairingData:
++			leftPanelName = self.top.getNextWidgetName()
++			screen.addPanel(leftPanelName, "", "", True, True, self.STATS_PANEL_X, self.STATS_PANEL_Y, self.STATS_LEFT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
++
++			leftTableName = self.top.getNextWidgetName()
++			screen.addTableControlGFC(leftTableName, 4, self.STATS_LEFT_TABLE_X, self.STATS_LEFT_TABLE_Y, self.STATS_LEFT_TABLE_W, self.STATS_LEFT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++			screen.enableSort(leftTableName)
++
++			screen.setTableColumnHeader(leftTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ()), self.STATS_LEFT_COL_TRAIT)
++			screen.setTableColumnHeader(leftTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_LEFT_COL_PAIR)
++			screen.setTableColumnHeader(leftTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), self.STATS_LEFT_COL_TOTAL)
++			screen.setTableColumnHeader(leftTableName, 3, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), self.STATS_LEFT_COL_LEADERS)
++
++			for otherTrait, pairCount, totalCount, leaderIds in pairingData:
++				iRow = screen.appendTableRow(leftTableName)
++				otherTraitInfo = gc.getTraitInfo(otherTrait)
++
++				traitText = u"<font=2>%c %s</font>" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription())
++				screen.setTableText(leftTableName, 0, iRow, traitText, "", WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_TRAIT, otherTrait, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(leftTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.setTableText(leftTableName, 2, iRow, u"<font=2>%d</font>" % totalCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++				leaderNames = [gc.getLeaderHeadInfo(iL).getDescription() for iL in leaderIds]
++				screen.setTableText(leftTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		# === RIGHT TABLE: All trait combinations globally ===
++		allPairsData = self._buildAllTraitPairsData()
++		if allPairsData:
++			rightPanelName = self.top.getNextWidgetName()
++			screen.addPanel(rightPanelName, "", "", True, True, self.STATS_RIGHT_X, self.STATS_PANEL_Y, self.STATS_RIGHT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
++
++			rightTableName = self.top.getNextWidgetName()
++			screen.addTableControlGFC(rightTableName, 4, self.STATS_RIGHT_TABLE_X, self.STATS_RIGHT_TABLE_Y, self.STATS_RIGHT_TABLE_W, self.STATS_RIGHT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++			screen.enableSort(rightTableName)
++
++			screen.setTableColumnHeader(rightTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ()), self.STATS_RIGHT_COL_COMBO)
++			screen.setTableColumnHeader(rightTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_RIGHT_COL_COUNT)
++			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
++			screen.setTableColumnHeader(rightTableName, 3, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), self.STATS_RIGHT_COL_LEADERS)
++
++			# Min/max for normalization
++			counts = [d[2] for d in allPairsData]
++			minCount = min(counts)
++			maxCount = max(counts)
++
++			for trait1, trait2, pairCount, leaderIds in allPairsData:
++				iRow = screen.appendTableRow(rightTableName)
++
++				trait1Info = gc.getTraitInfo(trait1)
++				trait2Info = gc.getTraitInfo(trait2)
++				pairText = u"<font=2>%c %s + %c %s</font>" % (
++					TraitUtil.getIcon(trait1), trait1Info.getDescription(),
++					TraitUtil.getIcon(trait2), trait2Info.getDescription())
++				screen.setTableText(rightTableName, 0, iRow, pairText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(rightTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++				# Ranking bar
++				if maxCount > minCount:
++					normalized = (pairCount - minCount) * 100 / (maxCount - minCount)
++				else:
++					normalized = 50
++				numPlus = (normalized + 10) / 20
++				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % (u"+" * numPlus), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++				leaderNames = [gc.getLeaderHeadInfo(iL).getDescription() for iL in leaderIds]
++				screen.setTableText(rightTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++	def _buildTraitPairingData(self):
++		# Build trait pairing statistics for the current trait.
++		# Returns list of (otherTraitId, pairCount, totalWithOther, [leaderIds]) sorted alphabetically.
++		if self.iTrait < 0:
++			return []
++
++		numTraits = gc.getNumTraitInfos()
++		numLeaders = gc.getNumLeaderHeadInfos()
++
++		# Build traitId -> [leaderIds] mapping
++		traitLeaders = {}
++		for iTrait in range(numTraits):
++			traitLeaders[iTrait] = []
++		for iLeader in range(numLeaders):
++			leader = gc.getLeaderHeadInfo(iLeader)
++			for iTrait in range(numTraits):
++				if leader.hasTrait(iTrait):
++					traitLeaders[iTrait].append(iLeader)
++
++		leadersWithThisTrait = set(traitLeaders[self.iTrait])
++		if not leadersWithThisTrait:
++			return []
++
++		pairingData = []
++		for otherTrait in range(numTraits):
++			if otherTrait == self.iTrait:
++				continue
++			leadersWithOther = traitLeaders[otherTrait]
++			if not leadersWithOther:
++				continue
++			leadersWithBoth = leadersWithThisTrait.intersection(set(leadersWithOther))
++			if leadersWithBoth:
++				pairingData.append((otherTrait, len(leadersWithBoth), len(leadersWithOther), sorted(leadersWithBoth)))
++
++		pairingData.sort(key=lambda x: gc.getTraitInfo(x[0]).getDescription())
++		return pairingData
++
++	def _buildAllTraitPairsData(self):
++		# Build data for ALL trait combinations globally.
++		# Returns list of (trait1Id, trait2Id, pairCount, [leaderIds]) sorted alphabetically.
++		numTraits = gc.getNumTraitInfos()
++		numLeaders = gc.getNumLeaderHeadInfos()
++
++		# Build leader -> traits mapping (only leaders with 2+ traits)
++		leaderTraits = {}
++		for iLeader in range(numLeaders):
++			leader = gc.getLeaderHeadInfo(iLeader)
++			traits = set()
++			for iTrait in range(numTraits):
++				if leader.hasTrait(iTrait):
++					traits.add(iTrait)
++			if len(traits) >= 2:
++				leaderTraits[iLeader] = traits
++
++		# Count all trait pairs
++		pairCounts = {}
++		for iLeader, traits in leaderTraits.items():
++			traitList = sorted(traits)
++			for i in range(len(traitList)):
++				for j in range(i + 1, len(traitList)):
++					pair = (traitList[i], traitList[j])
++					if pair not in pairCounts:
++						pairCounts[pair] = []
++					pairCounts[pair].append(iLeader)
++
++		# Build and sort result
++		allPairsData = [(t1, t2, len(ids), sorted(ids)) for (t1, t2), ids in pairCounts.items()]
++		allPairsData.sort(key=lambda d: gc.getTraitInfo(d[0]).getDescription() + gc.getTraitInfo(d[1]).getDescription())
++		return allPairsData
+ 
+ 
+ 
+@@ -142,7 +355,7 @@ class SevoPediaTrait:
+ 
+ 
+ 
+-	# <!-- custom: History panel showing civilopedia text for the trait, similar to SevoPediaImprovement. (Claude Opus 4.5) -->
++	# <!-- custom: History panel showing civilopedia text for the trait, similar to SevoPediaImprovement. (Claude code Opus 4.5) -->
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 80cd84dbe..786974e2f 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -23,6 +23,14 @@ HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
+ HIDE_SECOND_ROW_MULTI_LIST = - 4
+ 
+ 
++# <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
++# LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
++# LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
++EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = (
++	"LEADER_BARBARIAN",
++)
++
++
+ def get_leaders_index_to_type_map(gc):
+ 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
+ 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
+@@ -49,18 +57,53 @@ def get_leader_index_from_leader_type(leader_type, gc):
+ 
+ 
+ 
+-def get_leader_indexes_from_leader_types(leader_types, gc):
+-	# Given a list/tuple of leader types (e.g. ('LEADER_BARBARIAN', <!-- custom:, but also 'LEADER_ASOKA', etc, any leader -->)), return a tuple of corresponding leader indexes (iLeader) (e.g. <!-- custom: (0, 2, etc.) -->).
++def get_leader_index_safe(leader_type, gc):
++	# Returns leader index for a leader_type string, or -1 if not found.
++	# Unlike get_leader_index_from_leader_type, this does not raise - useful for
++	# exclusion lists that may include non-indexed types like LEADER_DEFAULTS.
++	for iLeader in range(gc.getNumLeaderHeadInfos()):
++		if gc.getLeaderHeadInfo(iLeader).getType() == leader_type:
++			return iLeader
++	return -1
+ 
+-	leader_indexes_list = []
+ 
++def get_leader_indexes_from_leader_types(leader_types, gc):
++	# Given a list/tuple of leader types, return tuple of valid leader indexes.
++	# Silently skips types that don't exist (e.g. LEADER_DEFAULTS has no index).
++	result = []
+ 	for leader_type in leader_types:
+-		leader_index = get_leader_index_from_leader_type(leader_type, gc)
+-		leader_indexes_list.append(leader_index)
++		idx = get_leader_index_safe(leader_type, gc)
++		if idx != -1:
++			result.append(idx)
++	return tuple(result)
+ 
+-	leader_indexes_tuple = tuple(leader_indexes_list)
+ 
+-	return leader_indexes_tuple
++def get_excluded_leader_indexes(leader_types, gc):
++	return get_leader_indexes_from_leader_types(leader_types, gc)
++
++
++def get_real_leader_maps_and_count(gc, excluded_leader_types):
++	# Returns (leaderIds, leaderToCiv, numRealLeaders).
++	excluded_leader_indexes = set(get_leader_indexes_from_leader_types(excluded_leader_types, gc))
++	leader_ids = []
++	leader_to_civ = {}
++	num_real_leaders = 0
++
++	for iLeader in range(gc.getNumLeaderHeadInfos()):
++		if iLeader in excluded_leader_indexes:
++			continue
++		iCivForLeader = -1
++		for iCiv in range(gc.getNumCivilizationInfos()):
++			if gc.getCivilizationInfo(iCiv).isLeaders(iLeader):
++				iCivForLeader = iCiv
++				break
++		if iCivForLeader == -1:
++			continue
++		num_real_leaders += 1
++		leader_ids.append(iLeader)
++		leader_to_civ[iLeader] = iCivForLeader
++
++	return leader_ids, leader_to_civ, num_real_leaders
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 67d713824..e13c88324 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1218,4 +1218,50 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SHORTCUTS_MAP_PEDIA</Tag>
+ 		<English>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle resource display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle unit display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle tile grid[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle yield display (yield icons)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+S[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle on/off write some text ("Enter caption") on a tile[NEWLINE]</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: AdvCiv-SAS - Trait Civilopedia text
++	Purpose: Provide broad, mod-agnostic descriptions for the Sevopedia Traits page.
++	Notes: Avoids hard numbers and specific yield/movement claims so other mods can reuse safely. (Genreated with the help of ChatGPT 5.2 thanks) -->
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Tag>
++		<English>[TAB]Philosophical leaders are defined by curiosity, reflection, and a long view of history. They patronize learning, debate, and the kind of institutions that turn ideas into lasting influence. [PARAGRAPH:1]In play, this trait encourages investing in knowledge and people rather than only territory. It often rewards running specialists, planning for Great People, and using culture or science to shape the map without constant warfare. [PARAGRAPH:1]A philosophical empire tends to peak through timing: key discoveries, key individuals, and deliberate pivots in policy. The general theme is consistent: more value from thinking ahead than from reacting late.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Tag>
++		<English>[TAB]Aggressive leaders favor decisive action, military readiness, and the will to impose outcomes. Their states organize early for conflict: training, discipline, and a preference for initiative. [PARAGRAPH:1]In play, this trait supports building a credible army earlier, pressuring neighbors, and converting tactical advantages into strategic gains. It pairs well with plans that secure resources, deny rivals key positions, and keep production focused on units when needed. [PARAGRAPH:1]Aggressive does not have to mean reckless: the strongest use is often controlled violence at the right moment. The general theme is stronger combat readiness and more efficient early pressure.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Tag>
++		<English>[TAB]Spiritual leaders draw authority from belief, tradition, and the shared meaning of rituals and law. They are often able to realign society quickly when circumstances change, without losing cohesion. [PARAGRAPH:1]In play, this trait favors flexibility: adapting civics, managing religion or diplomacy, and reshaping priorities without long disruptions. It can support peaceful growth, cultural development, or war planning by making internal transitions cheaper and smoother. [PARAGRAPH:1]Spiritual empires often thrive on timing and stability: choosing the right institutions for the current era, then switching again when the world shifts. The general theme is internal control and low-friction change.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Tag>
++		<English>[TAB]Industrious leaders emphasize craftsmanship, organization of labor, and large projects that outlast a single generation. They treat infrastructure as power: roads, workshops, public works, and the technical skills behind them. [PARAGRAPH:1]In play, this trait supports turning production into long-term advantage. It often rewards building earlier, specializing cities, and completing important projects before rivals can contest them. [PARAGRAPH:1]An industrious empire is usually strongest when it chooses targets carefully: key buildings, key wonders, and key upgrades that compound over time. The general theme is better returns from building and improving.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_CREATIVE_PEDIA</Tag>
++		<English>[TAB]Creative leaders shape identity through art, language, and symbols that bind a society together. Their influence is not only military: it spreads through culture, prestige, and the ability to claim space without direct force. [PARAGRAPH:1]In play, this trait supports early border security, flexible city placement, and long-term cultural pressure on contested regions. It often pairs well with diplomacy and city planning, because cultural momentum can reduce the need for constant garrisons or repeated wars. [PARAGRAPH:1]Creative empires can win by framing the map: defining where the frontier is, and making it costly for rivals to dispute it. The general theme is faster cultural development and a wider cultural reach for cities.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Tag>
++		<English>[TAB]Financial leaders prioritize wealth, efficient administration of markets, and the steady growth of an economy. They understand that money is optionality: it buys time, technology, armies, and diplomacy. [PARAGRAPH:1]In play, this trait rewards building a strong economic base and working productive land. It often pairs well with expansion that can be sustained, investment in commerce infrastructure, and strategic trading. [PARAGRAPH:1]A financial empire tends to win through compounding advantages: steady income becomes steady research, which becomes steady power. The general theme is greater value from developed land and sustained economic growth.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Tag>
++		<English>[TAB]Organized leaders rely on institutions, logistics, and predictable systems rather than personal rule alone. They coordinate large territories through administration: laws, records, supply, and clear lines of responsibility. [PARAGRAPH:1]In play, this trait supports managing a wider empire with less friction. It often helps you sustain expansion, run complex policies, and keep long-term costs under control as the state grows. [PARAGRAPH:1]An organized empire is strong in endurance: it can maintain large armies, many cities, or expensive policies without collapsing into inefficiency. The general theme is lower ongoing costs and smoother large-scale management.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Tag>
++		<English>[TAB]Charismatic leaders rule through personal presence, morale, and the ability to unify people behind a direction. They inspire loyalty, reduce internal friction, and draw talent into service. [PARAGRAPH:1]In play, this trait often supports stronger stability in cities and faster development of experienced units. It pairs well with diplomacy and war alike: high morale helps sustain conflict, while social cohesion supports growth. [PARAGRAPH:1]A charismatic empire can turn small advantages into momentum because people keep working, fighting, and believing longer. The general theme is higher morale and more effective trained forces.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Tag>
++		<English>[TAB]Protective leaders prioritize security, preparedness, and the resilience of their cities. They build defenses early and treat survival as the foundation for everything else. [PARAGRAPH:1]In play, this trait supports holding key positions, defending borders, and absorbing initial attacks without collapsing. It pairs well with careful expansion and with strategies that grow safely behind secure lines. [PARAGRAPH:1]Protective does not forbid offense: it often enables it by ensuring that the home front stays safe while armies operate elsewhere. The general theme is stronger city security and more reliable defense.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Tag>
++		<English>[TAB]Imperialist leaders focus on expansion, influence beyond the core homeland, and the practical systems that keep far-flung holdings connected. They value reach: new cities, new routes, and new forms of control over territory. [PARAGRAPH:1]In play, this trait supports establishing a larger footprint earlier and benefiting from the networks that come with it. It can pair well with settlement planning, overseas ambitions, and trade-oriented growth, because expansion is only useful if it can be integrated. [PARAGRAPH:1]An imperial empire is strongest when it turns new land into real power: supply, administration, and economic ties that make distance manageable. The general theme is more effective expansion and integration of a large, connected realm.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 2e656b49b..53c5cd6cb 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -2447,6 +2447,27 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_STATISTICS</Tag>
+ 		<English>Statistics</English>
+ 	</TEXT>
++	<!-- custom: Trait pairing statistics headers and table titles. Credit: Claude Opus 4.5; GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_TRAIT_HEADER</Tag>
++		<English>Trait</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_PAIR_COUNT</Tag>
++		<English>Paired</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_TOTAL_COUNT</Tag>
++		<English>Total</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_PAIR_COMBO</Tag>
++		<English>Combination</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_RANKING</Tag>
++		<English>Rank</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -2837,50 +2858,4 @@ Created as part of AdvCiv-SAS improvements
+ 		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
+ 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
+ 	</TEXT>
+-
+-
+-
+-	<!-- custom: AdvCiv-SAS - Trait Civilopedia text
+-	Purpose: Provide broad, mod-agnostic descriptions for the Sevopedia Traits page.
+-	Notes: Avoids hard numbers and specific yield/movement claims so other mods can reuse safely. (Genreated with the help of ChatGPT 5.2 thanks) -->
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Tag>
+-		<English>[TAB]Philosophical leaders are defined by curiosity, reflection, and a long view of history.[PARAGRAPH:1]They patronize learning, debate, and the kind of institutions that turn ideas into lasting influence.[PARAGRAPH:2]In play, this trait encourages investing in knowledge and people rather than only territory.[PARAGRAPH:1]It often rewards running specialists, planning for Great People, and using culture or science to shape the map without constant warfare.[PARAGRAPH:2]A philosophical empire tends to peak through timing: key discoveries, key individuals, and deliberate pivots in policy.[PARAGRAPH:1]The general theme is consistent: more value from thinking ahead than from reacting late.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Tag>
+-		<English>[TAB]Aggressive leaders favor decisive action, military readiness, and the will to impose outcomes.[PARAGRAPH:1]Their states organize early for conflict: training, discipline, and a preference for initiative.[PARAGRAPH:2]In play, this trait supports building a credible army earlier, pressuring neighbors, and converting tactical advantages into strategic gains.[PARAGRAPH:1]It pairs well with plans that secure resources, deny rivals key positions, and keep production focused on units when needed.[PARAGRAPH:2]Aggressive does not have to mean reckless: the strongest use is often controlled violence at the right moment.[PARAGRAPH:1]The general theme is stronger combat readiness and more efficient early pressure.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Tag>
+-		<English>[TAB]Spiritual leaders draw authority from belief, tradition, and the shared meaning of rituals and law.[PARAGRAPH:1]They are often able to realign society quickly when circumstances change, without losing cohesion.[PARAGRAPH:2]In play, this trait favors flexibility: adapting civics, managing religion or diplomacy, and reshaping priorities without long disruptions.[PARAGRAPH:1]It can support peaceful growth, cultural development, or war planning by making internal transitions cheaper and smoother.[PARAGRAPH:2]Spiritual empires often thrive on timing and stability: choosing the right institutions for the current era, then switching again when the world shifts.[PARAGRAPH:1]The general theme is internal control and low-friction change.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Tag>
+-		<English>[TAB]Industrious leaders emphasize craftsmanship, organization of labor, and large projects that outlast a single generation.[PARAGRAPH:1]They treat infrastructure as power: roads, workshops, public works, and the technical skills behind them.[PARAGRAPH:2]In play, this trait supports turning production into long-term advantage.[PARAGRAPH:1]It often rewards building earlier, specializing cities, and completing important projects before rivals can contest them.[PARAGRAPH:2]An industrious empire is usually strongest when it chooses targets carefully: key buildings, key wonders, and key upgrades that compound over time.[PARAGRAPH:1]The general theme is better returns from building and improving.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_CREATIVE_PEDIA</Tag>
+-		<English>[TAB]Creative leaders shape identity through art, language, and symbols that bind a society together.[PARAGRAPH:1]Their influence is not only military: it spreads through culture, prestige, and the ability to claim space without direct force.[PARAGRAPH:2]In play, this trait supports early border security, flexible city placement, and long-term cultural pressure on contested regions.[PARAGRAPH:1]It often pairs well with diplomacy and city planning, because cultural momentum can reduce the need for constant garrisons or repeated wars.[PARAGRAPH:2]Creative empires can win by framing the map: defining where the frontier is, and making it costly for rivals to dispute it.[PARAGRAPH:1]The general theme is faster cultural development and a wider cultural reach for cities.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Tag>
+-		<English>[TAB]Financial leaders prioritize wealth, efficient administration of markets, and the steady growth of an economy.[PARAGRAPH:1]They understand that money is optionality: it buys time, technology, armies, and diplomacy.[PARAGRAPH:2]In play, this trait rewards building a strong economic base and working productive land.[PARAGRAPH:1]It often pairs well with expansion that can be sustained, investment in commerce infrastructure, and strategic trading.[PARAGRAPH:2]A financial empire tends to win through compounding advantages: steady income becomes steady research, which becomes steady power.[PARAGRAPH:1]The general theme is greater value from developed land and sustained economic growth.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Tag>
+-		<English>[TAB]Organized leaders rely on institutions, logistics, and predictable systems rather than personal rule alone.[PARAGRAPH:1]They coordinate large territories through administration: laws, records, supply, and clear lines of responsibility.[PARAGRAPH:2]In play, this trait supports managing a wider empire with less friction.[PARAGRAPH:1]It often helps you sustain expansion, run complex policies, and keep long-term costs under control as the state grows.[PARAGRAPH:2]An organized empire is strong in endurance: it can maintain large armies, many cities, or expensive policies without collapsing into inefficiency.[PARAGRAPH:1]The general theme is lower ongoing costs and smoother large-scale management.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Tag>
+-		<English>[TAB]Charismatic leaders rule through personal presence, morale, and the ability to unify people behind a direction.[PARAGRAPH:1]They inspire loyalty, reduce internal friction, and draw talent into service.[PARAGRAPH:2]In play, this trait often supports stronger stability in cities and faster development of experienced units.[PARAGRAPH:1]It pairs well with diplomacy and war alike: high morale helps sustain conflict, while social cohesion supports growth.[PARAGRAPH:2]A charismatic empire can turn small advantages into momentum because people keep working, fighting, and believing longer.[PARAGRAPH:1]The general theme is higher morale and more effective trained forces.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Tag>
+-		<English>[TAB]Protective leaders prioritize security, preparedness, and the resilience of their cities.[PARAGRAPH:1]They build defenses early and treat survival as the foundation for everything else.[PARAGRAPH:2]In play, this trait supports holding key positions, defending borders, and absorbing initial attacks without collapsing.[PARAGRAPH:1]It pairs well with careful expansion and with strategies that grow safely behind secure lines.[PARAGRAPH:2]Protective does not forbid offense: it often enables it by ensuring that the home front stays safe while armies operate elsewhere.[PARAGRAPH:1]The general theme is stronger city security and more reliable defense.</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Tag>
+-		<English>[TAB]Imperialist leaders focus on expansion, influence beyond the core homeland, and the practical systems that keep far-flung holdings connected.[PARAGRAPH:1]They value reach: new cities, new routes, and new forms of control over territory.[PARAGRAPH:2]In play, this trait supports establishing a larger footprint earlier and benefiting from the networks that come with it.[PARAGRAPH:1]It can pair well with settlement planning, overseas ambitions, and trade-oriented growth, because expansion is only useful if it can be integrated.[PARAGRAPH:2]An imperial empire is strongest when it turns new land into real power: supply, administration, and economic ties that make distance manageable.[PARAGRAPH:1]The general theme is more effective expansion and integration of a large, connected realm.</English>
+-	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index cf0e5b61c..22e3041fb 100644
+--- a/README.md
++++ b/README.md
+@@ -40,7 +40,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+ &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+-&emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
++&emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Tables)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-tables)  
+ &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+ [UI (Common)](/README.md#ui-common)  
+ &emsp;[Images as buttons](/README.md#images-as-buttons)  
+@@ -263,15 +263,15 @@ They notably feature additional fields that do not are not direct XML info field
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+ 
+-### Some higher level reworks (e.g. AI Personality Panel)
++### Some higher level reworks (e.g. AI Personality Panel, Traits Tables)
+ 
+-One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
+-
+-Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data). It is computationally lightweight, as all the values are already provided in the mod before the game is launched, the game just displays this data.
++One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature. Not a strictly new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data). It is computationally lightweight, as all the values are already provided in the mod before the game is launched, the game just displays this data.
+ 
+ As always, ChatGPT is a key co-author and main code contributor and with the help of other AIs (See [Authors](/README.md#authors) for details) thanks.
+ 
+-Here is below a sample of the example screenshots showing the AI Personality panel feature in sevopedialeader, as well as samples showing other sevopedia reworks that are part of AdvCiv-SAS.
++Another significant contribution from our AI helpers is the new Traits Tables, that are 2 sortable Traits Tables that show all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking, plus even the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)" to show how many leaders among all have this trait! Added with the very nice help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot! Also, the Traits have been enhanced with new txt keys that are fairly mod-agnostic, added with the help of ChatGPT 5.2 thanks a lot too!
++
++Here is below a sample of the example screenshots showing the AI Personality panel, Traits Tables, and the many other reworks we did in sevopedia in AdvCiv-SAS:
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 443137916..724d4007f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -297,7 +297,7 @@ Note: New panels added or modified mostly not mentionned here for concision. See
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Scrub Fallout"**, **"Build a Road"**, **"Build a Railroad"**, **"Create a Farm"**) distinct from the Sevopedia Improvements and a dedicated Builds page. Also added them to **Sevopedia Index** as **clickable entires with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry** : change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp).
+-- (Requires AdvCiv-SAS 5346+) Sevopedia — Traits: **Beautified**, and added a **new Background panel** with **mod-agnostic** blurbs. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category).
++- (Requires AdvCiv-SAS 5347+) Sevopedia — Traits: New **Trait Tables**: 2 **sortable** tables showing how widespread **pairs are in a trait**, and **ranking for each trait combination**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-tables-and-other-changes).
+ - (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - (Requires AdvCiv-SAS 5331+) Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 218dfc209..dfb669c60 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -25,7 +25,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;&emsp;[example 0.8: Eras Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category)  
+ [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
+-&emsp;[example 1.5: traits category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category)  
++&emsp;[example 1.5: traits category (Traits Tables and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-tables-and-other-changes)  
+ &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
+ &emsp;[example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)  
+ &emsp;[example 3.5: improvements category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-35-improvements-category)  
+@@ -110,7 +110,7 @@ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in
+ 
+ As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the Builds page corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)! Added with the big and nice help of GPT-5.2-Codex thanks a lot!
+ 
+-We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 1.5: traits category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category).
++We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 1.5: traits category (Traits Tables and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-tables-and-other-changes).
+ 
+ #### example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")
+ 
+@@ -191,12 +191,14 @@ More recently, we also added linking from the traits panel's textual description
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
+ 
+-### example 1.5: traits category
++### example 1.5: traits category (Traits Tables and other changes)
+ 
+ Initially rework was minimal there with only increasing the size of the special panel to see more effects, but more recently this page can also receive links from sevopedia leader: see [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits) and [example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes).
+ 
+ Also enhanced it with a new Background/History panel that shows fairly mod-agnostic trait descriptions, generated with the help of ChatGPT 5.2 thanks a lot, and integrated with the help of Claude code Opus 4.5 thanks a lot!
+ 
++Then added 2 Trait sortable tables showing all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking, plus even the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)" to show how many leaders among all have this trait! Added with the very nice help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!!
++
+ <img src="../Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.624_sevopedia_traits (3).JPG" alt="0.624_sevopedia_traits (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+index 9a4d3281f..33c77e271 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+index bea0eff86..7cbea5fae 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG
+index 4644289c3..a65d98a09 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=55036

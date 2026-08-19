@@ -1,0 +1,263 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5281
+# Commit: 3e072ae4096baea2eb9a2657ae47f3aae702f82e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b5809dd518fc29ad0e92406a5f3ed4155bc5ebd6
+# Title: performance optimization: cache redundant computation (store per turn and player top cities' values `CvCityAI::AI_buildingValue`), with the help of chatgpt 5...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+95	33	CvGameCoreDLL/CvCityAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f6bc1b231..2a6d35035 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4584,7 +4584,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	// <!-- custom: cache as eOwner as per chatgpt 5.2's recommendation to avoid reuse (not applied to things like ->getOwner() though as they look like method calls and not variables if i'm not mistaken (check if accurate as i don't know too much about these)). -->
++	PlayerTypes const eOwner = getOwner();
++	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+ 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+ 	CvGame const& kGame = GC.getGame();
+ 
+@@ -4702,6 +4704,27 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	// Only apply "hammer/turns/top-hammer-city" viability gates to normal, buildable buildings.
+ 	if ((iXMLCost > 0) && !bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
+ 	{
++		// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints i looked at) so looks good to merge if i'm not mistaken thanks. -->
++		// <!-- custom: note: as of now we only use it inside the bSAS_AI_BUILDING_VALUE_OPTIMIZE, so if this option is disabled, we don't need the cache so no reason to make it at highest scope of our function, but if you reuse this somewhere else for efficiency, remember to also move the scope of the cache. -->
++		// Is this “safe enough”?
++		// 	- For Civ4’s normal single-threaded AI: yes.
++		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode” should not mutate caches anyway, so the pattern above is aligned with that.
++		// --- SAS: per-player, per-turn cache for empire-wide "top city" scans used in some gates.
++		// Updated only when !bConstCache (async/const-eval stays side-effect free).
++		static bool s_abTopHptValid[MAX_PLAYERS];
++		static int  s_aiTopHptTurn[MAX_PLAYERS];
++		static int  s_aiTopHptNumCities[MAX_PLAYERS];
++		static int  s_aiBestHpt[MAX_PLAYERS];
++		static int  s_aiSecondBestHpt[MAX_PLAYERS];
++		static int  s_aiThirdBestHpt[MAX_PLAYERS];
++
++		static bool s_abTopM100Valid[MAX_PLAYERS];
++		static int  s_aiTopM100Turn[MAX_PLAYERS];
++		static int  s_aiTopM100NumCities[MAX_PLAYERS];
++		static int  s_aiBestM100[MAX_PLAYERS];
++		static int  s_aiSecondBestM100[MAX_PLAYERS];
++		static int  s_aiNumCitiesHighM100[MAX_PLAYERS];
++
+ 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
+ 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
+ 		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
+@@ -5786,25 +5809,43 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			const bool bTop2Hammer = (iProductionRank <= 2);
+ 			// const bool bTop3Hammer = (iProductionRank <= 3);
+ 
++			// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
++			const int iCurrentTurn = kGame.getGameTurn();
++
+ 			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
+-			FOR_EACH_CITY(pLoopCity, kOwner)
++
++			const bool bHammerCacheValid =
++				s_abTopHptValid[eOwner] &&
++				s_aiTopHptTurn[eOwner] == iCurrentTurn &&
++				s_aiTopHptNumCities[eOwner] == iNumCities;
++
++			if (bHammerCacheValid)
+ 			{
+-				// --- top-3 base hammers -----------------------------------------------
+-				const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
+-				if (h > iBestHpt)
+-				{
+-					iThirdBestHpt = iSecondBestHpt;
+-					iSecondBestHpt = iBestHpt;
+-					iBestHpt = h;
+-				}
+-				else if (h > iSecondBestHpt)
++				iBestHpt = s_aiBestHpt[eOwner];
++				iSecondBestHpt = s_aiSecondBestHpt[eOwner];
++				iThirdBestHpt = s_aiThirdBestHpt[eOwner];
++			}
++			else
++			{
++				int b1 = 0, b2 = 0, b3 = 0;
++				FOR_EACH_CITY(pLoopCity, kOwner)
+ 				{
+-					iThirdBestHpt = iSecondBestHpt;
+-					iSecondBestHpt = h;
++					const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
++					if (h > b1) { b3 = b2; b2 = b1; b1 = h; }
++					else if (h > b2) { b3 = b2; b2 = h; }
++					else if (h > b3) { b3 = h; }
+ 				}
+-				else if (h > iThirdBestHpt)
++
++				iBestHpt = b1; iSecondBestHpt = b2; iThirdBestHpt = b3;
++
++				if (!bConstCache)
+ 				{
+-					iThirdBestHpt = h;
++					s_abTopHptValid[eOwner] = true;
++					s_aiTopHptTurn[eOwner] = iCurrentTurn;
++					s_aiTopHptNumCities[eOwner] = iNumCities;
++					s_aiBestHpt[eOwner] = b1;
++					s_aiSecondBestHpt[eOwner] = b2;
++					s_aiThirdBestHpt[eOwner] = b3;
+ 				}
+ 			}
+ 			// const bool bTop2Hammer = (iBaseHammersPerTurn >= iSecondBestHpt);
+@@ -5948,27 +5989,47 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 							// <!-- custom: save computation by computing this only when/where we need it, as of now only in this block, anyways etc -->
+ 							// Yep—smartest path is to compute heavy stuff only when a candidate actually needs it, and only for the duration of the single AI_buildingValue call (no cross-call cache).
+ 							// Minimal patch sketch (lazy, per-call only)
++							// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
+ 							int iBestM100 = 0, iSecondBestM100 = 0;
+ 							int iNumCitiesHighM100 = 0;
+-							FOR_EACH_CITY(pLoopCity, kOwner)
++
++							const bool bM100CacheValid =
++								s_abTopM100Valid[eOwner] &&
++								s_aiTopM100Turn[eOwner] == iCurrentTurn &&
++								s_aiTopM100NumCities[eOwner] == iNumCities;
++
++							if (bM100CacheValid)
+ 							{
+-								// --- maintenance×100 (global + same landmass) --------------------------
+-								// global top-2
+-								const int m100 = pLoopCity->getMaintenanceTimes100();
+-								if (m100 > iBestM100)
+-								{
+-									iSecondBestM100 = iBestM100;
+-									iBestM100 = m100;
+-								}
+-								else if (m100 > iSecondBestM100)
++								iBestM100 = s_aiBestM100[eOwner];
++								iSecondBestM100 = s_aiSecondBestM100[eOwner];
++								iNumCitiesHighM100 = s_aiNumCitiesHighM100[eOwner];
++							}
++							else
++							{
++								int b1 = 0, b2 = 0, nHigh = 0;
++								FOR_EACH_CITY(pLoopCity, kOwner)
+ 								{
+-									iSecondBestM100 = m100;
++									const int m100 = pLoopCity->getMaintenanceTimes100();
++									if (m100 > b1) { b2 = b1; b1 = m100; }
++									else if (m100 > b2) { b2 = m100; }
++
++									if (m100 >= iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS)
++										++nHigh;
+ 								}
+-								if (m100 >= iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS)
++
++								iBestM100 = b1; iSecondBestM100 = b2; iNumCitiesHighM100 = nHigh;
++
++								if (!bConstCache)
+ 								{
+-									++iNumCitiesHighM100;
++									s_abTopM100Valid[eOwner] = true;
++									s_aiTopM100Turn[eOwner] = iCurrentTurn;
++									s_aiTopM100NumCities[eOwner] = iNumCities;
++									s_aiBestM100[eOwner] = b1;
++									s_aiSecondBestM100[eOwner] = b2;
++									s_aiNumCitiesHighM100[eOwner] = nHigh;
+ 								}
+ 							}
++
+ 							if (iNumCitiesHighM100 > iMinNumCitiesHighM100)
+ 							{
+ 								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city anyways etc -->
+@@ -6068,7 +6129,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			kBuilding.isAreaCleanPower());
+ 	int const iTotalPopulation = kOwner.getTotalPopulation();
+ 
+-	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
++	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(eOwner);
+ 	// <K-Mod>
+ 	int const iCitiesTarget = GC.getInfo(GC.getMap().getWorldSize()).
+ 			getTargetNumCities(); // </K-Mod>
+@@ -6138,7 +6199,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		return 0;
+ 	
+ 	// <advc.014>
+-	if(GET_TEAM(getOwner()).isCapitulated() && bWorldWonder &&
++	if(GET_TEAM(eOwner).isCapitulated() && bWorldWonder &&
+ 		kBuilding.getHolyCity() == NO_RELIGION)
+ 	{
+ 		return 0;
+@@ -7163,7 +7224,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					int iOtherPlayers = 0;
+ 					for(PlayerIter<MAJOR_CIV> itOther; itOther.hasNext(); ++itOther)
+ 					{
+-						if (itOther->getID() == getOwner())
++						if (itOther->getID() == eOwner)
+ 							continue;
+ 						iOtherPlayers++;
+ 						if (kOwner.getStateReligion() == itOther->getStateReligion())
+@@ -7801,7 +7862,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 						// increase priority if we need culture oppressed city
+ 						/*	K-Mod: moved this to outside of the current "if".
+ 							It should still apply even when going for a cultural victory! */
+-						//iCommerceMultiplierValue *= (100 - calculateCulturePercent(getOwner()));
++						//iCommerceMultiplierValue *= (100 - calculateCulturePercent(eOwner));
+ 					}
+ 				}
+ 				else
+@@ -7846,7 +7907,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					{
+ 						BuildingTypes eLoopBuilding = kCiv.buildingAt(i);
+ 						if (GC.getInfo(eLoopBuilding).getReligionType() == eStateReligion &&
+-							!GET_TEAM(kOwner.getTeam()).isObsoleteBuilding(eLoopBuilding))
++						// <!-- custom: cache as the existing kTeam if i am not mistaken (check if accurate as i don't know too much about these) -->
++							!kTeam.isObsoleteBuilding(eLoopBuilding))
+ 						{
+ 							iCount += kOwner.getBuildingClassCountPlusMaking(
+ 									kCiv.buildingClassAt(i));
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 0d788ea09..789432458 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -143,7 +143,7 @@ For sevopedia new content and most reworks, see above in this readme or in more
+ 
+ ## Code/Performance optimizations
+ 
+-- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), bonus-specific builds/improvements caching (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py))
++- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), bonus-specific builds/improvements caching (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), (Requires AdvCiv-SAS 5281+) cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - (Requires AdvCiv-SAS 5276+) **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - (Requires AdvCiv-SAS 5242+) Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 1ce5cda2b..e266dbe9e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -136,7 +136,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### Code/Performance optimizations
+ 
+-- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), etc.
++- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), (Requires AdvCiv-SAS 5281+) cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - (Requires AdvCiv-SAS 5276+) **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - (Requires AdvCiv-SAS 5242+) Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=22045

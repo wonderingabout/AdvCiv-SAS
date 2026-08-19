@@ -1,0 +1,949 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5301
+# Commit: 1f7c8fab22aa806a8ef821f7ad30901654d7cabc
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bebac73dcf2c2aed5d100d39a4b9684f7c3a0c2f
+# Title: remvoe base AdCiv's iBaseGrowthThresholdPercent human modifier (now always 100), fix gmae speed slow and and very slow being clanky/overly/needlessly precise...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	25	AGENTS.md
+35	33	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+103	78	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+20	19	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+20	9	_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+69	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+20	9	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 50912727b..7ee8dd826 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -20,11 +20,23 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+ - **Be more verbose when explaining rationales** - it's important to capture the intent behind the change while summarizing. The "why" is critical, so preserve problem descriptions, observed behavior, and intended fixes more fully than other commentary.
+ - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
+ - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
+-- Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` depending on which model is doing the summarization.
++- When adding new comments, use the format `<!-- custom: ... (GPT-5.2-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
++- Add this suffix to any comment I edit: `(GPT-5.2-Codex (summarized)) -->` or `(Claude code Sonnet 4.5 (summarized)) -->` or similar depending on which model is doing the summarization.
+ - **Do NOT commit changes without explicit user approval** - wait for review at the end.
+ - When committing, add a `Co-authored-by:` trailer with the model identifier unless the user requests otherwise.
+ - When user feedback adds a new rule, update this file proactively.
+ 
++## Comment Style Example
++
++```cpp
++// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
++// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
++// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
++// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
++// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
++// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
++```
++
+ ## Current Scope (2026-01-02)
+ 
+ - **Focus on:** Python (.py) files with lengthy verbose comments
+@@ -86,6 +98,17 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+ 
+ ## Coding Preferences
+ 
++These are general guidelines, not irrevocable requirements; adjust based on task needs.
++
++### General
++
++- No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
++- Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
++- Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
++- For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
++- When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
++- Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
++
+ ### Python (Civ4)
+ 
+ - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+@@ -97,33 +120,17 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+ - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ 
+-### Docs
++## XML
+ 
+-- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
++## C++
+ 
+-## Comment Style Example
+-
+-```cpp
+-// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
+-// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
+-// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+-// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
+-// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+-// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+-```
+-
+-- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++).
+-- Rationale: toggles allow quick testing without recompiles and give players more tuning options; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+-- Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
++- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles and give players more tuning options; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+ - Prefer minimalistic, simple AI changes that are easy to reason about and compile.
+-- Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
+ - Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
+-- Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+-- For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+-- When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
+-- These are general guidelines, not strict requirements; adjust based on task needs.
+-- Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions.
++- Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
++
++### Docs
++
++- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
+ - When adding doc entries in dev mode (most of the time), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers. Current rule of thumb: last stable is 5282, so 5283+ is beta/dev and should carry the prefix until the next stable release.
+-- When adding new comments, use the format `<!-- custom: ... (GPT-5.2-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
+-- Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index 66cf829e7..775633b56 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -141,7 +141,7 @@ class SevoPediaGameSpeedChart:
+ 			("iVoteIntervalPercent", "getVoteIntervalPercent"),
+ 		)
+ 
+-		field_order = [
++		field_order = (
+ 			"iGrowthPercent",
+ 			"iTrainPercent",
+ 			"iConstructPercent",
+@@ -176,7 +176,7 @@ class SevoPediaGameSpeedChart:
+ 			"iVoteIntervalPercent",
+ 			"NumTurnIncrements",
+ 			"TotalTurns",
+-		]
++		)
+ 
+ 		max_increments = 0
+ 		start_year = gc.getDefineINT("START_YEAR")
+@@ -224,8 +224,8 @@ class SevoPediaGameSpeedChart:
+ 				seg_start_year = start_year + (cum_months / 12)
+ 				cum_months = cum_months + (month_inc * turns)
+ 				seg_end_year = start_year + (cum_months / 12)
+-				years_per_turn = month_inc / 12
+-				speed_dict["Calendar_%02d" % (i + 1)] = self._format_calendar_segment(seg_start_year, seg_end_year, turns, years_per_turn)
++				# Use zero-padded indices (01, 02, ...) so the calendar rows align nicely and sort naturally.
++				speed_dict["Calendar_%d" % (i + 1)] = self._format_calendar_segment(seg_start_year, seg_end_year, turns, month_inc)
+ 
+ 			speed_dict["NumTurnIncrements"] = str(num_increments)
+ 			speed_dict["TotalTurns"] = str(total_turns)
+@@ -238,10 +238,8 @@ class SevoPediaGameSpeedChart:
+ 			insert_at = field_order.index("TotalTurns") + 1
+ 		except:
+ 			insert_at = len(field_order)
+-		calendar_fields = []
+-		for i in xrange(max_increments):
+-			calendar_fields.append("Calendar_%02d" % (i + 1))
+-		field_order[insert_at:insert_at] = calendar_fields
++		calendar_fields = tuple("Calendar_%d" % (i + 1) for i in xrange(max_increments))
++		field_order = field_order[:insert_at] + calendar_fields + field_order[insert_at:]
+ 
+ 		# --------------------------------------------------------------------
+ 		# One-time render prep (kept local; cache stores only final table cells)
+@@ -310,45 +308,49 @@ class SevoPediaGameSpeedChart:
+ 			return sz + "k"
+ 		return str(iYearsPerTurn)
+ 
+-
+-	def _format_calendar_segment(self, start_year, end_year, turns, years_per_turn):
+-		# Compact, cell-friendly timeline string.
+-		# Example: "50kBC+(2T*10k)=30kAD"
++	def _format_rate_per_turn(self, month_inc):
++		# Returns (op, rate_str):
++		# - Exact years: op='*', rate='5' or '10k'
++		# - Months < 12: op='*', rate='m6'  (so "2m6" means 2 turns of 6 months)
++		# - Year+month: op='*', rate='187m6' (so "2*187m6" means 2 turns of 187 years + 6 months)
++		if month_inc <= 0:
++			return ("*", "0")
++		if month_inc < 12:
++			return ("*", "m%d" % month_inc)
++		if (month_inc % 12) == 0:
++			years_per_turn = month_inc / 12
++			return ("*", self._format_years_per_turn(years_per_turn))
++		years_per_turn = month_inc / 12
++		rem_months = month_inc % 12
++		szYears = self._format_years_per_turn(years_per_turn)
++		return ("*", "%sm%d" % (szYears, rem_months))
++
++	def _format_calendar_segment(self, start_year, end_year, turns, month_inc):
++		# Examples:
++		# - "50kBC+2*10k=30kAD"
++		# - "1900AD+3*m6=1901AD" (months < 12)
++		# - "4000BC+2*187m6=3625BC" (year+month)
+ 		szStart = self._format_year_label(start_year)
+ 		szEnd = self._format_year_label(end_year)
+-		szRate = self._format_years_per_turn(years_per_turn)
+-		return "%s+%d*%s=%s" % (szStart, turns, szRate, szEnd)
+-
++		(szOp, szRate) = self._format_rate_per_turn(month_inc)
++		return "%s+%d%s%s=%s" % (szStart, turns, szOp, szRate, szEnd)
+ 
+ 
+ 	def _beautify_field_name(self, raw_name):
+-		# Make the Field column compact: remove spaces, replace "Percent" with "%", and shorten some long labels.
++		# Keep field labels readable; only shorten trailing "Percent" to "%".
+ 		name = raw_name
+ 
+-		# Calendar segment rows (Calendar_01 -> Cal01)
+-		if name.startswith("Calendar_"):
+-			try:
+-				return "Cal%s" % name.split("_", 1)[1]
+-			except:
+-				return "Cal"
+-
+-		# Shorten a few very long core labels
+-		if name == "NumTurnIncrements":
+-			return "NumInc"
+-		if name == "TotalTurns":
+-			return "TotalT"
+-
+ 		# Strip leading 'i' from iFooBar style fields
+ 		if name.startswith("i") and len(name) > 1 and name[1].isupper():
+ 			name = name[1:]
+ 
+-		# Pretty-split underscores / camelCase, then compact
++		# Pretty-split underscores / camelCase
+ 		name = re.sub(r"_", " ", name)
+ 		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+ 
+-		# Replace Percent -> % and remove all spaces to free width
+-		name = name.replace("Percent", "%")
+-		name = name.replace(" ", "")
++		# Replace trailing "Percent" with "%"
++		if name.endswith("Percent"):
++			name = name[:-len("Percent")] + "%"
+ 
+ 		return name
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index f3c13488e..929f5c986 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -6,6 +6,14 @@
+ <!-- Game Speed -->
+ <!-- NOTE: If you remove any of these you need to update GameInfo/CultureLevelInfos.xml. Also you will need to update the GlobalDefines.xml if you remove GAMESPEED_STANDARD -->
+ <!-- custom: reordered in reverse from fastest at top to slowest at bottom so they appear as such in the "Play Now" Game Speed section. -->
++<!-- custom: timeline readability rule
++	For early/midgame, prefer iMonthIncrement values that are whole years (divisible by 12),
++	ideally round 5/10-year steps (i.e., multiples of 60/120 months). This avoids awkward chart
++	entries like "62y6m" (example: 750 months = 62y6m). Prefer round alternatives like:
++	- 720 months = 60y
++	- 780 months = 65y
++	and adjust iTurnsPerIncrement to keep the same segment endpoints and total turns.
++	Sub-year steps (<12 months) are kept as separate rows (e.g., 6/3/2 months) for clarity. (ChatGPT 5.2) -->
+ <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameSpeedInfos>
+ 
+@@ -367,37 +375,61 @@
+ 			<!-- advc.910: Changed all of the turn counts -->
+ 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #19 -->
+ 			<GameTurnInfos>
++				<!-- -50,000 to -30,000 (20,000y) -> 4 turns @ 5,000 y/turn (60,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -30,000 to -20,000 (10,000y) -> 4 turns @ 2,500 y/turn (30,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -20,000 to -15,000 (5,000y) -> 5 turns @ 1,000 y/turn (12,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -15,000 to -12,000 (3,000y) -> 4 turns @ 750 y/turn (9,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -12,000 to -7,500 (4,500y) -> 9 turns @ 500 y/turn (6,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -4,500 (3,000y) -> 12 turns @ 250 y/turn (3,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -4,500 to -3,000 (1,500y) -> 12 turns @ 125 y/turn (1,500 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- -3,000 to -2,200 (800y) -> 16 turns @ 50 y/turn (600 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -2,200 to -1,480 (720y) -> 18 turns @ 40 y/turn (480 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to -1,000 (480y) -> 16 turns @ 30 y/turn (360 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- -1,000 to 500 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 500 to 1,300 (800y) -> 40 turns @ 20 y/turn (240 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 1,300 to 1,400 (100y) -> 10 turns @ 10 y/turn (120 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,400 to 1,600 (200y) -> 20 turns @ 10 y/turn (120 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 1,600 to 1,750 (150y) -> 30 turns @ 5 y/turn (60 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 1,750 to 1,790 (40y) -> 10 turns @ 4 y/turn (48 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,790 to 1,880 (90y) -> 30 turns @ 3 y/turn (36 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,880 to 1,900 (20y) -> 10 turns @ 2 y/turn (24 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 1,900 to 1,980 (80y) -> 40 turns @ 2 y/turn (24 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,980 to 1,990 (10y) -> 10 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 1,990 to 2,040 (50y) -> 50 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2,040 to 2,070 (30y) -> 30 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 2,070 to 2,080 (10y) -> 20 turns @ 0.5 y/turn (6 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2,080 to 2,105 (25y) -> 50 turns @ 0.5 y/turn (6 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- custom: old code from base advciv timeline kept for info -->
+ 				<!--<GameTurnInfo>-->
+@@ -711,12 +743,6 @@
+ 			<iEventRollSidesPercent>300</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>300</iVoteIntervalPercent>
+ 
+-			<!-- Design goal followed: “same as Normal but slower, gradual pacing, no weird gaps” by deriving the turn timeline from GAMESPEED_NORMAL with an exact transform:
+-				- iTurnsPerIncrement *= 3
+-				- iMonthIncrement /= 3 (works cleanly because all Normal increments are divisible by 3)
+-				- Result: exactly 1500 turns, and the overall timeline length stays identical to the other speeds.
+-			Tiny note for later: this introduces a 2-month minimum step (since Normal had 6 and we divide by 3). If you decide you hate anything finer than 6 months, we can re-balance the tail while keeping 1500 turns and the same overall calendar span. -->
+-			<!-- Turn timeline: exact 1500 turns, derived from GAMESPEED_NORMAL by: iMonthIncrement /= 3, iTurnsPerIncrement *= 3. -->
+ 			<GameTurnInfos>
+ 				<!-- -50,000 to -30,000 (20,000y) -> 16 turns @ 1,250 y/turn (15,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+@@ -724,56 +750,57 @@
+ 				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -20,000 to -15,000 (5,000y) -> 20 turns @ 250 y/turn (3,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) -> 16 turns @ 187.5 y/turn (2,250 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2250</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -12,000 to -7,500 (4,500y) -> 36 turns @ 125 y/turn (1,500 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) -> 48 turns @ 62.5 y/turn (750 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>750</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) -> 48 turns @ 31.25 y/turn (375 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>375</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -3,000 to -2,200 (800y) -> 64 turns @ 12.5 y/turn (150 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>150</iMonthIncrement><iTurnsPerIncrement>64</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -2,200 to -1,480 (720y) -> 72 turns @ 10 y/turn (120 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) -> 64 turns @ 7.5 y/turn (90 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>90</iMonthIncrement><iTurnsPerIncrement>64</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,000 to 500 (1,500y) -> 200 turns @ 7.5 y/turn (90 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>90</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -15,000 to -12,000 (3,000y) -> 12 turns @ 250 y/turn (3,000 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -12,000 to -7,500 (4,500y) -> 25 turns @ 180 y/turn (2,160 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -4,500 (3,000y) -> 40 turns @ 75 y/turn (900 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -4,500 to -3,000 (1,500y) -> 30 turns @ 50 y/turn (600 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -3,000 to -2,200 (800y) -> 40 turns @ 20 y/turn (240 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -2,200 to -1,480 (720y) -> 48 turns @ 15 y/turn (180 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to -1,000 (480y) -> 48 turns @ 10 y/turn (120 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- -1,000 to 500 (1,500y) -> 150 turns @ 10 y/turn (120 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 500 to 1,300 (800y) -> 160 turns @ 5 y/turn (60 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,300 to 1,400 (100y) -> 40 turns @ 2.5 y/turn (30 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,400 to 1,600 (200y) -> 80 turns @ 2.5 y/turn (30 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,600 to 1,750 (150y) -> 120 turns @ 1.25 y/turn (15 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>15</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,750 to 1,790 (40y) -> 40 turns @ 1 y/turn (12 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,790 to 1,880 (90y) -> 120 turns @ 0.75 y/turn (9 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>9</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,880 to 1,900 (20y) -> 40 turns @ 0.5 y/turn (6 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,900 to 1,980 (80y) -> 160 turns @ 0.5 y/turn (6 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,980 to 1,990 (10y) -> 40 turns @ 0.25 y/turn (3 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,300 to 1,400 (100y) -> 20 turns @ 5 y/turn (60 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,400 to 1,600 (200y) -> 40 turns @ 5 y/turn (60 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1,600 to 1,750 (150y) -> 75 turns @ 2 y/turn (24 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>75</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,750 to 1,790 (40y) -> 20 turns @ 2 y/turn (24 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1,790 to 1,880 (90y) -> 90 turns @ 1 y/turn (12 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,880 to 1,900 (20y) -> 20 turns @ 1 y/turn (12 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,900 to 1,980 (80y) -> 80 turns @ 1 y/turn (12 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
++
++				<!-- 1,980 to 1,990 (10y) -> 20 turns @ 0.5 y/turn (6 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
++
+ 				<!-- 1,990 to 2,040 (50y) -> 200 turns @ 0.25 y/turn (3 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 2,040 to 2,070 (30y) -> 120 turns @ 0.25 y/turn (3 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- Corrected tail (integer months, total 280 turns, total 35 years): -->
+ 				<!-- 2,070 to 2,080 (10y) -> 60 turns @ 0.167 y/turn (2 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,080 to 2,093.3333 (13.33y) -> 80 turns @ 0.167 y/turn (2 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,093.3333 to 2,100 (6.67y) -> 80 turns @ 0.083 y/turn (1 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,100 to 2,105 (5y) -> 60 turns @ 0.083 y/turn (1 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 2,080 to 2,105 (25y) -> 150 turns @ 0.167 y/turn (2 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+-
+ 		</GameSpeedInfo>
+ 
+ 
+@@ -830,71 +857,69 @@
+ 			<iEventRollSidesPercent>400</iEventRollSidesPercent>
+ 			<iVoteIntervalPercent>400</iVoteIntervalPercent>
+ 
+-			<!-- Turn timeline: exactly 2000 turns, derived from GAMESPEED_NORMAL by:
+-			     - iTurnsPerIncrement *= 4
+-			     - iMonthIncrement /= 4
+-			     Exception: Normal uses 6-month steps at the very end; 6/4 is non-integer, so we use 2-month steps instead. -->
+ 			<GameTurnInfos>
++				<!-- custom: prefer round whole-year increments (multiple of 12 months) in early/mid game; months are used mainly late-game for fine granularity. -->
++
+ 				<!-- -50,000 to -30,000 (20,000y) -> 16 turns @ 1,250 y/turn (15,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -30,000 to -20,000 (10,000y) -> 16 turns @ 625 y/turn (7,500 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -20,000 to -15,000 (5,000y) -> 20 turns @ 250 y/turn (3,000 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -15,000 to -12,000 (3,000y) -> 16 turns @ 187.5 y/turn (2,250 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>2250</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -15,000 to -12,000 (3,000y) -> 20 turns @ 150 y/turn (1,800 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -12,000 to -7,500 (4,500y) -> 36 turns @ 125 y/turn (1,500 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -7,500 to -4,500 (3,000y) -> 48 turns @ 62.5 y/turn (750 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>750</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -4,500 to -3,000 (1,500y) -> 48 turns @ 31.25 y/turn (375 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>375</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -7,500 to -4,500 (3,000y) -> 50 turns @ 60 y/turn (720 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -4,500 to -3,000 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- -3,000 to -2,200 (800y) -> 64 turns @ 12.5 y/turn (150 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>150</iMonthIncrement><iTurnsPerIncrement>64</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -3,000 to -2,200 (800y) -> 80 turns @ 10 y/turn (120 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- -2,200 to -1,480 (720y) -> 72 turns @ 10 y/turn (120 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- -1,480 to -1,000 (480y) -> 64 turns @ 7.5 y/turn (90 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>90</iMonthIncrement><iTurnsPerIncrement>64</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,480 to -1,000 (480y) -> 60 turns @ 8 y/turn (96 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- -1,000 to 500 (1,500y) -> 200 turns @ 7.5 y/turn (90 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>90</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
++				<!-- -1,000 to 500 (1,500y) -> 150 turns @ 10 y/turn (120 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 500 to 1,300 (800y) -> 160 turns @ 5 y/turn (60 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- 1,300 to 1,400 (100y) -> 40 turns @ 2.5 y/turn (30 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,400 to 1,600 (200y) -> 80 turns @ 2.5 y/turn (30 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>30</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+-
+-				<!-- 1,600 to 1,750 (150y) -> 120 turns @ 1.25 y/turn (15 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>15</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,300 to 1,400 (100y) -> 50 turns @ 2 y/turn (24 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,400 to 1,600 (200y) -> 100 turns @ 2 y/turn (24 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+ 
++				<!-- 1,600 to 1,750 (150y) -> 150 turns @ 1 y/turn (12 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 1,750 to 1,790 (40y) -> 40 turns @ 1 y/turn (12 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 1,790 to 1,880 (90y) -> 120 turns @ 0.75 y/turn (9 mo/turn) -->
+-				<GameTurnInfo><iMonthIncrement>9</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
++				<!-- 1,790 to 1,880 (90y) -> 90 turns @ 1 y/turn (12 mo/turn) -->
++				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
++
+ 				<!-- 1,880 to 1,900 (20y) -> 40 turns @ 0.5 y/turn (6 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,900 to 1,980 (80y) -> 160 turns @ 0.5 y/turn (6 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
++
+ 				<!-- 1,980 to 1,990 (10y) -> 40 turns @ 0.25 y/turn (3 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-
+ 				<!-- 1,990 to 2,040 (50y) -> 200 turns @ 0.25 y/turn (3 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
+ 				<!-- 2,040 to 2,070 (30y) -> 120 turns @ 0.25 y/turn (3 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
+ 
+-				<!-- Normal has 6-month steps here; 6/4 would be 1.5 months, so we use 2 months instead. -->
+-				<!-- 2,070 to 2,076.667 (6.667y) -> 40 turns @ 0.167 y/turn (2 mo/turn) -->
++				<!-- custom: normal would imply 1.5 mo/turn here; we split into 2 mo + 1 mo rows to keep integer month increments. -->
++				<!-- 2,070 to 2,076 (+6y8m) -> 40 turns @ 0.167 y/turn (2 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,076.667 to 2,080 (3.333y) -> 40 turns @ 0.083 y/turn (1 mo/turn) -->
++				<!-- 2,076 (+8m) to 2,080 -> 40 turns @ 0.083 y/turn (1 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,080 to 2,096.667 (16.667y) -> 100 turns @ 0.167 y/turn (2 mo/turn) -->
++
++				<!-- 2,080 to 2,096 (+16y8m) -> 100 turns @ 0.167 y/turn (2 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+-				<!-- 2,096.667 to 2,105 (8.333y) -> 100 turns @ 0.083 y/turn (1 mo/turn) -->
++				<!-- 2,096 (+8m) to 2,105 -> 100 turns @ 0.083 y/turn (1 mo/turn) -->
+ 				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+ 			</GameTurnInfos>
+ 		</GameSpeedInfo>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index a0986940f..81cc8c41c 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -27,11 +27,11 @@
+ 			<!-- was 20 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<!-- custom: see code comment at iAIGPThresholdPercent -->
+-			<iBaseGrowthThresholdPercent>85</iBaseGrowthThresholdPercent>
++			<!-- custom: see code comment at iAIGPThresholdPercent. Additionally a grep of "BaseGrowthThresholdPercent" with VS Code's global search lead to the base advciv's manual.txt explanation of this field. I gave it to ChatGPT 5.2 who said it's better for our goals of fair but hard to make it 100 at all handicaps. See for details known issue as of now 91. -->
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<!-- custom: see code comment at iAIGPThresholdPercent -->
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+-			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find -->
++			<!-- custom: make culture levels the same at all handicaps for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment, plus tedious to manage count points for players who do, not an interesting mechanic i find -->
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 60 -->
+ 			<iResearchPercent>100</iResearchPercent>
+@@ -93,6 +93,7 @@
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 160 -->
++			<!-- custom: see code comment at iBaseGrowthThresholdPercent. Additionally, I also thought we can adjust `iAIGrowthPercent` to 100 at all handicaps, since the human player now has no advantage or disadvantage, and it could have helped the issue of AI runaway at higher handicaps (or vice versa) and allow finer tuning instead through other knobs, but maybe the base growth change is enough for now. Possibly to keep in mind if AI is much smarter as a way to nerf it further perhaps. -->
+ 			<iAIGrowthPercent>115</iAIGrowthPercent>
+ 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from \_0_Common_Docs\AdvCiv_Base_Doc\manual.txt -->
+ 			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2) -->
+@@ -142,7 +143,7 @@
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 			</Goodies>
+-			<!-- custom: remove Free Techs and AI Free Techs at all difficulties, hopefully this gives extra versatility in the game and AI tech path choices, reduce AI tech costs or whatever it is called to compensate anyways etc -->
++			<!-- custom: remove Free Techs and AI Free Techs at all handicaps, hopefully this gives extra versatility in the game and AI tech path choices, reduce AI tech costs or whatever it is called to compensate anyways etc -->
+ 			<FreeTechs/>
+ 			<AIFreeTechs/>
+ 			<!-- advc.250a -->
+@@ -165,7 +166,7 @@
+ 			<!-- was 30 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>90</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 75 -->
+@@ -295,7 +296,7 @@
+ 			<!-- was 40 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<iResearchPercent>100</iResearchPercent>
+@@ -553,7 +554,7 @@
+ 			<!-- was 60 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>105</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 110 -->
+@@ -689,7 +690,7 @@
+ 			<!-- was 70 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 120 -->
+@@ -829,9 +830,9 @@
+ 			<!-- advc.251 (start) -->
+ 			<!-- was 80 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+-			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding, was 110 -->
++			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i understand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my understanding, was 110 -->
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>115</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<iResearchPercent>100</iResearchPercent>
+@@ -973,7 +974,7 @@
+ 			<!-- was 90 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>120</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 125 -->
+@@ -1029,7 +1030,7 @@
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 3 -->
+ 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+-			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
++			<!-- custom: with our changes and improvements to AI efficiency, we can afford giving AIs the same worker start at all handicaps, was 1 -->
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+@@ -1117,10 +1118,10 @@
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<iBaseGrowthThresholdPercent>125</iBaseGrowthThresholdPercent>
++			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+-			<!-- custom: now research percent is 100 at all difficulties/handicap settings for human players, only AI percent varies for conveninence/clarity and consistency anyways etc -->
++			<!-- custom: now research percent is 100 at all handicaps for human players, only AI percent varies for conveninence/clarity and consistency anyways etc -->
+ 			<!-- advc.251: was 130 -->
+ 			<iResearchPercent>100</iResearchPercent>
+ 			<iTrainPercent>100</iTrainPercent>
+@@ -1171,7 +1172,7 @@
+ 			<iAIAnimalBonus>0</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
+-			<!-- custom: now the same at all difficulties for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
++			<!-- custom: now the same at all handicaps for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such although not directly related, no reason anymore to give freebies there if AIs are comeptent enough -->
+ 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+@@ -1179,13 +1180,13 @@
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 4 -->
+ 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+-			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
++			<!-- custom: with our changes and improvements to AI efficiency, we can afford giving AIs the same worker start at all handicaps, was 1 -->
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<!-- custom: make these 0 to test early as barbarians are a bit too strong as of now anyways etc -->
+ 			<iBarbarianDefenders>1</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>160</iAIDeclareWarProb>
+-			<!-- custom: let's try to give 0 at all difficulties, our workers are so efficient now thanks to AI changes in bestcitybuild and such, i think we can afford it, and if needed may as well rather just increase worker count rather, for an enjoyable fairer experience for human players too anyways etc -->
++			<!-- custom: let's try to give 0 at all handicaps, our workers are so efficient now thanks to AI changes in bestcitybuild and such, i think we can afford it, and if needed may as well rather just increase worker count rather, for an enjoyable fairer experience for human players too anyways etc -->
+ 			<!-- advc.251: was 100 -->
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>75</iAIGrowthPercent>
+@@ -1195,7 +1196,7 @@
+ 			<iAIResearchPercent>70</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>75</iAITrainPercent>
+-			<!-- custom: i want more reliable handicap settings and after asking chatgpt "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent -->
++			<!-- custom: i want more reliable handicap settings and after asking chatgpt "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across handicap levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all handicaps; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent -->
+ 			<!-- was 100-->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 60 -->
+@@ -1217,7 +1218,7 @@
+ 			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>75</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
+-			<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
++			<!-- custom: now disabled at all handicaps, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
+ 			<!-- advc.251: Renamed; was 5 per era. -->
+ 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess, hopefully accurate enough if i may say and more in line with the spirit of our changes if i may say but anyways etc -->
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5cd913a20..88572c235 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -131,7 +131,7 @@
+ 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: set the game speed chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
++	<!-- custom: set the game speed chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex). -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+index b5431dd8a..d08b853d2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+@@ -35,7 +35,9 @@ The aim is to make more and more options player-tunable via XML in SAS defines,
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details)  
+-&emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive)  
++&emsp;[Game Speeds (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#game-speeds-non-exhaustive)  
++&emsp;[Game Scaling (Other) (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#game-scaling-other-non-exhaustive)  
++&emsp;[Handicaps (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicaps-non-exhaustive)  
+ &emsp;[Terrains / Features (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Bonuses (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#bonuses-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Improvements and worker builds (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#improvements-and-worker-builds-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+@@ -101,7 +103,6 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+ - (Requires AdvCiv-SAS 5295+) Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
+-- (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields. Also **reordered** them in XML from fastest to slowest so they appear in this order in the **"Play Now"** Game Speed section.
+ 
+ ### UI (Common)
+ 
+@@ -140,7 +141,7 @@ For sevopedia new content and most reworks, see above the main README.md's [UI (
+ 
+ ## Code/Performance optimizations
+ 
+-- (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories.
++- (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [commit/aca192481508a3cac3e8812dc970aebc8675b874](https://github.com/wonderingabout/AdvCiv-SAS/commit/aca192481508a3cac3e8812dc970aebc8675b874).
+ - various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), bonus-specific builds/improvements caching (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+@@ -292,24 +293,34 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+-- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments quite fast early on (5 000 per turn at normal speed) then gradually less, so after a few dozen turns approximately at normal speed more or less you should be around the bronze age (view docs or ingame or or [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages), and ends at 2105 AD (turn 500 at normal gamespeed). Note: i did the `GAMESPEED_NORMAL` timeline myself; as for, the other other game speeds they are done by chatgpt 5 based on my timeline, check if accurate and see info about them in the xml file as well (in code comments for details, it even commented them nicely as a timeline in years without me asking, thanks a lot chatgpt 5! Check if accurate anyways etc) anyways etc.
+-- reduced `GAMESPEED_MARATHON` from 1250 in base advciv if i'm not mistaken to now 1000 turns so it is more affordable and less of a grind / too long. Adjusted modifiers so they match closer to this new setting anyways etc.
+ - in global defines or/and related xml files, also changed start map behaviour. There is now not so much terrain polishing (map script removing bad tiles such as jungle or snow or peak, they are now kept, but instead you have more starting vision to choose your spot, which should be realistic too because at 50 000 BCE (approximately) humans may have enough vision of their surroundings to know where to live or adjust to it maybe (even though first city settling is not as realistic, but is for convenience, and could maybe be imagined as a nomadic settlment in the region maybe, still convenient so allowing it))
+ - slavery iProductionPerPopulation increased (currently as of now set to 27, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in `HURRY_POPULATION` of [CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) for details anyways etc), the granary building is also nerfed or/and reworked a bit rather to compensate for this change if i may say, see Buildings changes for details anyways etc. This was first increased from 24 to 26, then increased again from 26 to 27 after the recent military changes that would favour mostly AIs due to many new unit upgrades and sooner ones now being available anyways etc, so there would need to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increased a bit more to 27 i mean anyways etc
+ - reduced PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT from 20 to 0, meaning each civ has an equal roll chance when leader selection is random (read/see [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for extra details and conditions anyways etc), so a civ with say 3 leaders will not or not as often be more likely to be picked randomly vs civs with only one leader. This means for example rome or france (examples of civs with multiple/many leaders as of now anyways etc) will not get a higher overall chance of being randomly chosen than say mali or carthage (examples of civs with 1 leader as of now anyways etc) anyways etc.
+ - otherwise mostly simple gameplay, and overall not too much clutter, i don't want too many things, but i want the things i have/add, to go (very) in depth in them rather maybe anyways etc, so quite lightweight and hopefully easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
+ - we love the king chance is restored unlike in AdvCiv, i think it's a cool mechanic and also pleasant for the player, maybe realistic too, so if it can happen all good (feels good in civ3 for example at least from/in my experience playing it)
+-- set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical. But anyways etc.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say anyways etc. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this, but anyways etc.
+-- rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/105/110, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
+ - remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) at noble (no handicap as of now if i'm not mistaken anyways etc) while the human player would pay 40 (or 43 vs 45), it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 too that helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+-### Handicap i.e. difficulty settings (non-exhaustive)
++### Game Speeds (non-exhaustive)
++
++- (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
++- (Requires AdvCiv-SAS 5296+) **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
++- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments quite fast early on (5 000 per turn at normal speed) then gradually less, so after a few dozen turns approximately at normal speed more or less you should be around the bronze age (see full game speed details in the **new Sevopedia Speeds category**.), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages), and ends at 2105 AD (turn 500 at normal gamespeed). Note: i did the `GAMESPEED_NORMAL` timeline myself; as for, the other other game speeds they are done by chatgpt 5 based on my timeline, check if accurate and see info about them in the xml file as well (in code comments for details, it even commented them nicely as a timeline in years without me asking, thanks a lot chatgpt 5! Check if accurate anyways etc) anyways etc.
++- reduced `GAMESPEED_MARATHON` from 1250 in base advciv if i'm not mistaken to now 1000 turns so it is more affordable and less of a grind / too long. Adjusted modifiers so they match closer to this new setting anyways etc.
++- (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
++
++### Game Scaling (Other) (non-exhaustive)
++
++- set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical. But anyways etc.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say anyways etc. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this, but anyways etc.
++- rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/105/110, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc.
++
++### Handicaps (non-exhaustive)
+ 
+ - handicap settings are now gradually harder, lower/lowest handicap being harder (i don't want them to be placeholders anymore), and highest difficulties being less of a grind and hard in their own ways at least in theory and ideally i mean anyways etc, see docs for details and status update on these or/and xml for details.
+ - AIs get no free techs now, they should perform well enough, and receive other types of bonuses, that they don't need techs for free, it won't feel anymore like they are playing a different kind of game hopefully, also less of a grind at higher difficulties. I also hope games will be more versatile this way with AIs not going on always same narrow tech paths even if a bit more if not lot but anyways etc
+ - free techs also disabled for human players.
+ - costs of tech and units (`iResearchPercent` and `iTrainPercent`) are always the same for the human player at all handicap/difficulties settings unlike in base AdvCiv, now only AI costs (`iAIResearchPercent` and `iAITrainPercent`) vary across difficulties anyways etc, maybe it helps for example for calculations and such to have a fixed unit or tech price at all handicaps, a unit or tech is always same price for the human player, so you can reuse some strategies more easily maybe or quicker adjust. Tech costs have been adjusted to match this change if i am not mistaken anyways etc.
+-- there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all handicaps, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now.
++- there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all handicaps, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now. (Requires AdvCiv-SAS 5300+) `iGPThresholdPercent` (great person) stay constant for the human. AI equivalents scale with handicap.
++- (Requires AdvCiv-SAS 5301+) `iBaseGrowthThresholdPercent` (base food required to grow a city): **Fixed at 100 on all handicaps.** Rationale: In base AdvCiv this value varies by difficulty to add a **human growth/expansion penalty** (and it can also shift early expansion pacing via settler cost logic tied to the initial growth threshold). Consequence: Removing this scaling makes **high handicaps** (e.g. Deity) **easier for the human player** (faster early growth/expansion than base AdvCiv), and makes **low handicaps** (e.g. Chieftain) **harder for the human player** (less of an early growth/expansion boost).
+ - increased `iAIUnitSupplyPercent` from 50 to 100 so human and AI players' unit supply outside of borders costs are no longer different (was half-cost for AI players in base advciv)
+ - Upgrade costs rework: AIs no longer have cheaper upgrade costs than human players (increased `iAIUnitUpgradePercent` from 50 to 100 (see xml for updated values anyways etc.)). Additionally, reduced upgrade costs for both human and AI players, in `CvUnit::upgradePrice`, to as of now 75% (tunable). So unlike in base advciv where AI paid half cost (too easily upgrade / too cheap but anyways etc.) and humans payed full cost (which btw felt too expensive ingame to me at least but anyways etc.), now both human and AI players pay the same upgrade cost, which is as of now 75% of what humans used to pay for unit upgrades.
+ - disabled `INCREASE_START_TURN`, so for immortal and deity and advanced starts if i am not mistaken too anyways etc, now game starts at turn 0 for everyone and all handicap/difficulty settings anyways. This is because i would want handicap/difficulty settings to be reliable and reliably harder at each difficulty, plus we don't have free techs nor ai free techs anymore now in advciv-sas, and the handicap/difficulty increase is gradual at all difficulties, so i would like all other matetrs to be equal as well anyways etc, reduce handicap/difficulty chosen if too hard or/and i or (other or same anyways etc) players/modders may have to adjust handicap settings directly rather if they are really out of reach anyways etc, see [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details anyways etc. Handicap help texts (descriptions anyways etc) have also been rewritten in AdvCiv-SAS to accomodate this change as well as better reflect the new gradual settings and overall difficulty, as well as not commit to a specific number if i may say too in advciv-sas unlike in base advciv description if i am not mistaken.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index d6c9940af..aa75cb6da 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -124,6 +124,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [88 - (Tremendously Improved) AI always upgrading way too much units and not teching at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns)  
+ [89 - (Improved) In an attack stack, attack with lower value (effective strength, XP, health) units first](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first)  
+ [90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
++[91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -3950,3 +3951,71 @@ now fixed with the help of GPT-5.2-Codex thanks a lot to:
+ Exists even in [Base AdvCiv 1.12's Sevopedia Index](https://github.com/f1rpo/AdvCiv/blob/1.12/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py#L232-L235)
+ 
+ And now fixed in AdvCiv-SAS! Thanks GPT-5.2-Codex :)
++
++## 91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said
++
++Below explanation by ChatGPT 5.2 when i gave it the relevant base advciv's [manual.txt](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt) blurb.
++
++Based on it, i set all `iBaseGrowthThresholdPercent` to 100.
++
++I also thought we can adjust `iAIGrowthPercent` to 100 at all handicaps, since the human player now has no advantage or disadvantage, it could help the issue of AI runawayat higher handicaps (or vice versa) and allow finer tuning instead through other knobs.
++
++Check if accurate.
++
++### Explanation
++
++That manual excerpt is basically f1rpo explaining a **coupled difficulty model**:
++
++- If difficulty makes **research** more expensive (for the human), then **growth** and **Great People** should also get costlier “to match” (otherwise the balance drifts toward warfare / unit spam in Marathon-like ways).
++- And he added *two* different knobs for growth because he wanted:
++
++  - **Human**: adjust only the **base** part of growth (keep the “2 food per pop” part simple/unchanged).
++  - **AI**: allow a broader growth bonus that also affects the per-pop part (because “simplicity” doesn’t matter for AI).
++
++### The crucial thing you noticed
++
++In your SAS chart, **human research is already normalized to 100** (and a bunch of other human penalties look reduced/removed compared to base AdvCiv).
++
++So: keeping **human** `iBaseGrowthThresholdPercent` and `iGPThresholdPercent` varying (85..125) is no longer doing what f1rpo’s rationale describes (matching human research penalties), because **you removed the thing they were meant to match**.
++
++That means in SAS those two fields become “silent player penalties” that:
++
++- don’t correspond to your current “human = 100 baseline” philosophy, and
++- (for growth) also interact with **expansion**, because of this line in the manual:
++
++> “For each 1 food that the initial city growth threshold differs from 20, the cost for a Settler is adjusted by 5%.”
++
++With your current values:
++
++- Deity human: 125% of 20 → 25, difference +5 → **+25% settler cost** (if that code is still present in your DLL).
++- Settler human: 85% of 20 → 17, difference -3 → **-15% settler cost**.
++
++So `iBaseGrowthThresholdPercent` is not “just growth pacing”; it’s also (in AdvCiv’s design) an **early landgrab throttle**.
++
++### What I’d do in AdvCiv-SAS (hard, but fair)
++
++If your goal is “difficulty comes from the AI, not hidden human penalties”, then the consistent move is:
++
++1: **Normalize human**
++
++- `iBaseGrowthThresholdPercent = 100` on all handicaps
++- `iGPThresholdPercent = 100` on all handicaps
++
++2: Put the curve where you already put it elsewhere: **AI-only**
++
++- Keep / tune `iAIGrowthPercent` and `iAIGPThresholdPercent` to hit the difficulty you want.
++
++### Two practical options
++
++**Option A (minimal change, safest):**
++
++- Set human to 100 for both.
++- Leave AI as-is for now (`iAIGrowthPercent`: 115..75, `iAIGPThresholdPercent`: 115..75).
++  This preserves your current AI advantage *shape* while removing the human penalty layer.
++
++**Option B (more “internally consistent” with your new normalization):**
++
++- Human 100.
++- Rebuild AI curves deliberately (like we did for GP), *but be careful with growth* because `iAIGrowthPercent` is a stronger lever than GP threshold (it can inflate AI cities across the whole game, not just GP timing).
++
++If you want, paste your current **AI** growth-related rows (or just confirm you still have that “settler cost adjusts from growth threshold” code enabled), and I’ll recommend a specific `iAIGrowthPercent` curve that fits your current AIResearchPercent curve and your worker/production tuning.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3245a3efa..231689719 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -36,7 +36,9 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes-non-exhaustive-see-globaldefinesxml)  
+-&emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive)  
++&emsp;[Game Speeds (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds-non-exhaustive)  
++&emsp;[Game Scaling (Other) (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-scaling-other-non-exhaustive)  
++&emsp;[Handicaps (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicaps-non-exhaustive)  
+ &emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features-non-exhaustive)  
+ &emsp;[Bonuses (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses-non-exhaustive)  
+ &emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#improvements--worker-builds-non-exhaustive)  
+@@ -103,7 +105,6 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ - Beautified Main Menu's home page: removed the **background blue panel**, added **dark and bold text**. See &emsp;[README.md (Home page)](/README.md#home-page).
+ - (Requires AdvCiv-SAS 5295+) Beautified the Main Menu's **Play Now screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced. Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Play Now rework)](/README.md#play-now-rework).
+-- (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields. Also **reordered** them in XML from fastest to slowest so they appear in this order in the **"Play Now"** Game Speed section.
+ 
+ ### UI (Common)
+ 
+@@ -139,7 +140,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ ### Code/Performance optimizations
+ 
+-- (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories.
++- (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [commit/aca192481508a3cac3e8812dc970aebc8675b874](https://github.com/wonderingabout/AdvCiv-SAS/commit/aca192481508a3cac3e8812dc970aebc8675b874).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+@@ -288,21 +289,31 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+ 
+-- **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; on **Normal**, early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) and [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md) for current values. **Note:** the **GAMESPEED_NORMAL** timeline was authored here; other game speeds were derived by **ChatGPT 5** from that timeline (with an annotated year progression in the XML comments).
+-- **Game speed — Marathon shortened**: `GAMESPEED_MARATHON` total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
+ - **Start map behavior**: less “terrain polishing”; more starting **vision** so you can choose a spot rather than forcing ideal tiles.
+ - **Slavery**: `HURRY_POPULATION` production increased (**24 → 27**). See [CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) (`HURRY_POPULATION`).
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **We Love the King Day**: restored (present in AdvCiv-SAS).
+-- **Research scaling — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+-- **Research scaling — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
+ - **Cost rounding to 5 removed (human-side)**: Eliminated the base AdvCiv “round to 5” rule from `CvPlayer::getProductionNeeded` (units, buildings, projects) that applied only to human players, so **costs are no longer altered for the human player** — e.g., a Swordsman at 42 hammers costs 42 (not 40), at 43 costs 43 (not 45), and an Ancient Maceman at 18 costs 18 (not 20). Also removed analogous rounding in `CvPlayer::greatPeopleThreshold`, `CvPlayer::getNewCityProductionValue`, and `CvTeam::getResearchCost`. This fixes the Sevopedia vs. in-game mismatch, and the issue of human players having a different cost than AI players even if cost would have otherwise been the same (e.g., at Noble, the AI paid 42 while the human paid 40; 43 vs. 45). Fine-grained costs now also enable true **per-hammer** tuning—e.g., you can set 40, 41, 42, 43, 44, or 45 instead of being forced to choose 40 or 45. See [KI#67](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ - **Mod scope:** keep overall gameplay relatively lightweight (no clutter), but go deeper on the systems that are changed.
+ 
+-### Handicap i.e. difficulty settings (non-exhaustive)
++### Game Speeds (non-exhaustive)
++
++- (Requires AdvCiv-SAS 5296+) **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
++- (Requires AdvCiv-SAS 5296+) **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **"Play Now"** Game Speed section.
++- **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; on **Normal**, early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See full game speed details in the **new Sevopedia Speeds category**.
++- `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
++- (Requires AdvCiv-SAS 5296+) **New** Game Speeds: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences. See full game speed details in the **new Sevopedia Speeds category**.
++
++### Game Scaling (Other) (non-exhaustive)
++
++- **Research — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
++- **Research — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
++
++### Handicaps (non-exhaustive)
+ 
+ - **No free techs** for AI or human.
+-- **Human costs fixed** across handicaps for tech/unit (`iResearchPercent`, `iTrainPercent`, (Requires AdvCiv-SAS 5300+) `iGPThresholdPercent` stay constant for the human). AI equivalents scale with handicap.
++- **Human costs fixed at 100 on all handicaps** for tech/unit (`iResearchPercent`, `iTrainPercent`, (Requires AdvCiv-SAS 5300+) `iGPThresholdPercent` (great person) stay constant for the human). AI equivalents scale with handicap.
++- (Requires AdvCiv-SAS 5301+) `iBaseGrowthThresholdPercent` (base food required to grow a city): **Fixed at 100 on all handicaps.** Rationale: In base AdvCiv this value varies by difficulty to add a **human growth/expansion penalty** (and it can also shift early expansion pacing via settler cost logic tied to the initial growth threshold). Consequence: Removing this scaling makes **high handicaps** (e.g. Deity) **easier for the human player** (faster early growth/expansion than base AdvCiv), and makes **low handicaps** (e.g. Chieftain) **harder for the human player** (less of an early growth/expansion boost).
+ - **Unit maintenance** (`iUnitCostPercent`, `iAIUnitCostPercent`) aligned across handicaps for fairness; difficulty tuned through other params.
+ - **Unit supply parity:** Raised `iAIUnitSupplyPercent` from 50 to 100, so AIs no longer get half-price unit supply outside their borders; human and AI players now pay the same supply costs (unlike base AdvCiv).
+ - **Unit upgrade costs — aligned and reduced.** Increased `iAIUnitUpgradePercent` from **50 → 100**, so AIs now use the **same unit upgrade multiplier** as humans (no more half-cost AI upgrades). In parallel, `CvUnit::upgradePrice` now applies a global **modifier** (current value: **75%**, tunable), because the old human rate felt too expensive in play. Net effect: in base AdvCiv the AI paid **50%** and the human **100%** of the base upgrade cost; in AdvCiv-SAS, **both now pay 75%** of that cost.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG
+index 033b6a5f9..72ed1bf80 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG
+index 768877414..4dc6be650 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.626_sevopedia_game_speed_chart (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=96950

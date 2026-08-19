@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 400
+# Commit: 2f32eb8910a2783efa361d649667dc5d6f389a2e
+# History segment: K-Mod history
+# Parent used for diff: d11a46fec369fb34dc6dffc07db1e2b13939699f
+# Title: Fixed a bug which caused the AI (and automated cities) to rush-buy buildings when the city is working poor tiles. Total upgrade cost is now calculated for hu...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	5	CvGameCoreDLL/CvCityAI.cpp
+4	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 967fa8963..a10353574 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8766,12 +8766,8 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 			if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
+ 			{
+ */
+-/***
+-**** K-Mod, 9/sep/10, Karadoc
+-**** The following check is redundant, so I'm commenting it out.
+-***/
+ 				// Only consider population hurry if that's actually what the city can do!!!
+-				//if( (iHurryPopulation > 0) && (getPopulation() > iHurryPopulation) )
++				if( (iHurryPopulation > 0) && (getPopulation() > iHurryPopulation) )
+ 				{
+ 					//BBAI TODO: could be (bEssential ? 100 : 80) instead
+ 					if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index dec14f375..88c6b5746 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -384,8 +384,11 @@ void CvPlayerAI::updateCacheData()
+ 		if (!isHuman())
+ 		{
+ 			AI_updateStrategyHash();
+-			AI_updateGoldToUpgradeAllUnits();
++			//AI_updateGoldToUpgradeAllUnits();
+ 		}
++		// note. total upgrade gold is currently used in AI_hurry, which is used by production-automated.
++		// Therefore, we need to get total upgrade gold for human players as well as AI players.
++		AI_updateGoldToUpgradeAllUnits();
+ 	}
+ }
+ // K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1471

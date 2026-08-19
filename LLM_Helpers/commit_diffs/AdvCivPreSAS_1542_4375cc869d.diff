@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1542
+# Commit: 4375cc869d40128c69318726acb1df30a5e139e2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d8f0c4159494637f3f5859fb9e91161d6a4abd03
+# Title: Merged BULL MapFinder code needed for AutoSave options
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	1	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+2	0	CvGameCoreDLL/CyGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index be615694b..14e2c28b4 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -12,7 +12,7 @@
+ #include "CyCity.h"
+ #include "CyDeal.h"
+ #include "CyReplayInfo.h"
+-#include "CvReplayInfo.h"
++#include "CvDLLEngineIFaceBase.h" // BULL - AutoSave
+ #include "CyPlot.h"
+ 
+ CyGame::CyGame() : m_pGame(NULL)
+@@ -1227,6 +1227,15 @@ void CyGame::doControl(int iControl)
+ 		m_pGame->doControl((ControlTypes) iControl);
+ 	}
+ }
++// BULL - AutoSave - start
++void CyGame::saveGame(std::string szFileName) const
++{
++	// <advc> The BULL code had instead cast szFileName to a CvString&
++	static CvString szTmp;
++	szTmp = szFileName; // </advc>
++	gDLL->getEngineIFace()->SaveGame(szTmp, SAVEGAME_NORMAL);
++} // BULL - AutoSave - end
++
+ // <advc.104>
+ bool CyGame::useKModAI() {
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index c288d9e0f..04429e3bb 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -283,6 +283,7 @@ public:
+ 	bool isEventActive(int /*EventTriggerTypes*/ eTrigger);
+ 	void doControl(int iControl);
+ 
++	void saveGame(std::string szFileName) const; // BULL - AutoSave
+ 	bool useKModAI(); // advc.104
+ 	int getBarbarianStartTurn(); // advc.300
+ 	std::wstring SPaHPointsForSettingsScreen(); // advc.250b
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index a2eb742c7..c1c3403e4 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -274,6 +274,8 @@ void CyGamePythonInterface()
+ 
+ 		.def("isEventActive", &CyGame::isEventActive, "bool (int /*EventTriggerTypes*/ eTrigger)")
+ 		.def("doControl", &CyGame::doControl, "void (int /*ControlTypes*/ iControl)")
++		// BULL - AutoSave:
++		.def("saveGame", &CyGame::saveGame, "void saveGame(string fullyQualifiedFileName)")
+ 		// advc.104:
+ 		.def("useKModAI", &CyGame::useKModAI, "bool ()")
+ 		// advc.300:
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1932

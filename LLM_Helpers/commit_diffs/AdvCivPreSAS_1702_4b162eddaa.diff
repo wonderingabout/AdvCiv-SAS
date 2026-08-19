@@ -1,0 +1,315 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1702
+# Commit: 4b162eddaad94d20febd93cf16ea5d9f1b168751
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8c90b6fa7fafe4584b03d73d92a3808e8d1b2aa8
+# Title: Log terrain statistics after map generation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	1	Assets/XML/GlobalDefines_devel.xml
+155	1	CvGameCoreDLL/CvDLLLogger.cpp
+1	0	CvGameCoreDLL/CvDLLLogger.h
+13	11	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_devel.xml b/Assets/XML/GlobalDefines_devel.xml
+index 8ec571a16..4129bdf84 100644
+--- a/Assets/XML/GlobalDefines_devel.xml
++++ b/Assets/XML/GlobalDefines_devel.xml
+@@ -81,7 +81,7 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
+-<!-- [advc.007] If set to 1, the RandLog is named MPLogX.log,
++	<!-- [advc.007] If set to 1, the RandLog is named MPLogX.log,
+ 		 where X is the ID of the active player. That is, multiple log files
+ 		 are created when playing a Direct IP test game on a single PC.
+ 		 These logs will have to be deleted manually in between tests.
+@@ -93,4 +93,13 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.mapstat: If set to 1 and MessageLog=1 in My Games\
++		 Beyond the Sword\CivilizationIV.ini, then statistics about the terrain
++		 are written to the MPLog each time that a map is generated. If set to 0,
++		 no such log output is created. -->
++	<Define>
++		<DefineName>LOG_MAP_STATS</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 4ea191a70..c0bf52f57 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -5,7 +5,13 @@
+ #include "CvPlayer.h"
+ #include "CvCity.h"
+ #include "CvUnit.h"
+-
++// <advc.mapstat>
++#include "CvMap.h"
++#include "CvPlot.h"
++#include "CvAreaList.h"
++#include "CvInfo_Terrain.h"
++#include <sstream>
++// </advc.mapstat>
+ 
+ CvDLLLogger::CvDLLLogger(bool bEnabled, bool bRandEnabled)
+ 	: m_bEnabled(bEnabled), m_bRandEnabled(bRandEnabled) {}
+@@ -94,3 +100,151 @@ void CvDLLLogger::logUnitStuck(CvUnit const& kUnit)
+ 			kUnit.getX(), kUnit.getY(), szTempString.GetCString());
+ 	gDLL->messageControlLog(szOut);
+ }
++
++// <advc.mapstat>
++// Don't really want to include sstream in the header. Hence free functions.
++void appendPercentage(std::ostringstream& os, char const* szLabel, int iAbsolute, int iTotal)
++{
++	FAssert(iAbsolute <= iTotal);
++	if (iAbsolute <= 0)
++		return;
++	os.precision(1);
++	os << szLabel << ": " << std::fixed << (100 * iAbsolute / (float)iTotal) <<
++			"%% (" << iAbsolute << ")\n";
++}
++
++void appendPercentage(std::ostringstream& os, wchar const* szLabel, int iAbsolute, int iTotal)
++{
++	CvWString szWide(szLabel);
++	CvString szNarrow;
++	::narrowUnsafe(szWide, szNarrow);
++	appendPercentage(os, szNarrow.c_str(), iAbsolute, iTotal);
++}
++
++void CvDLLLogger::logMapStats()
++{
++	if (!isEnabled() || !GC.getDefineBOOL("LOG_MAP_STATS"))
++		return;
++	std::ostringstream out;
++	out << "\nMap stats:\n\n";
++	/*  As for map settings - will have to go to the Victory screen
++		and maybe take a screenshot. */
++	std::vector<int> plotTypeCounts;
++	plotTypeCounts.resize(NUM_PLOT_TYPES);
++	std::vector<int> landTerrainCounts;
++	landTerrainCounts.resize(GC.getNumTerrainInfos());
++	std::vector<int> waterTerrainCounts;
++	waterTerrainCounts.resize(GC.getNumTerrainInfos());
++	std::vector<int> landFeatureCounts;
++	landFeatureCounts.resize(GC.getNumFeatureInfos());
++	std::vector<int> waterFeatureCounts;
++	waterFeatureCounts.resize(GC.getNumFeatureInfos());
++	std::vector<int> landResourceCounts;
++	landResourceCounts.resize(GC.getNumBonusInfos());
++	std::vector<int> waterResourceCounts;
++	waterResourceCounts.resize(GC.getNumBonusInfos());
++	int iResourceTotal = 0;
++	CvMap const& kMap = GC.getMap();
++	for (int i = 0; i < kMap.numPlots(); i++)
++	{
++		CvPlot const& kPlot = *kMap.plotByIndex(i);
++		plotTypeCounts[kPlot.getPlotType()]++;
++		BonusTypes eBonus = kPlot.getBonusType();
++		if (eBonus != NO_BONUS)
++			iResourceTotal++;
++		if (kPlot.isWater())
++		{
++			waterTerrainCounts[kPlot.getTerrainType()]++;
++			waterFeatureCounts[kPlot.getFeatureType()]++;
++			if (eBonus != NO_BONUS)
++				waterResourceCounts[eBonus]++;
++		}
++		else
++		{
++			landTerrainCounts[kPlot.getTerrainType()]++;
++			landFeatureCounts[kPlot.getFeatureType()]++;
++			if (eBonus != NO_BONUS)
++				landResourceCounts[eBonus]++;
++		}
++	}
++	int iTotal = kMap.numPlots();
++	out << "Total tile count: " << iTotal << " (" << kMap.getGridWidth()
++			<< "x" << kMap.getGridHeight() << ")\n";
++	int iWater = plotTypeCounts[PLOT_OCEAN];
++	int iLand = iTotal - iWater;
++	FAssert(iLand > 0);
++	appendPercentage(out, "Land", iLand, iTotal);
++	float fResourcesPerPlayer = iResourceTotal / (float)GC.getGame().getCivPlayersEverAlive();
++	out.precision(2);
++	out << "Resource total: " << iResourceTotal << " (" << std::fixed << fResourcesPerPlayer <<
++			" per player)\n";
++	for (int iPass = 0; iPass < 2; iPass++)
++	{
++		bool const bWater = (iPass == 1);
++		out << (bWater ? "Water" : "Land") << " breakdown:\n";
++		if (!bWater)
++		{
++			appendPercentage(out, "Hills", plotTypeCounts[PLOT_HILLS], iLand);
++			appendPercentage(out, "Peak", plotTypeCounts[PLOT_PEAK], iLand);
++		}
++		int iTiles = (bWater ? iWater : iLand);
++		std::vector<int>& terrainCounts = (bWater ? waterTerrainCounts : landTerrainCounts);
++		std::vector<int>& featureCounts = (bWater ? waterFeatureCounts : landFeatureCounts);
++		std::vector<int>& resourceCounts = (bWater ? waterResourceCounts : landResourceCounts);
++		for (size_t i = 0; i < terrainCounts.size(); i++)
++		{
++			CvTerrainInfo const& kTerrain = GC.getTerrainInfo((TerrainTypes)i);
++			appendPercentage(out, kTerrain.getDescription(), terrainCounts[i], iTiles);
++		}
++		for (size_t i = 0; i < featureCounts.size(); i++)
++		{
++			CvFeatureInfo const& kFeature = GC.getFeatureInfo((FeatureTypes)i);
++			appendPercentage(out, kFeature.getDescription(), featureCounts[i], iTiles);
++		}
++		int iResources = 0;
++		for (size_t i = 0; i < resourceCounts.size(); i++)
++			iResources += resourceCounts[i];
++		out << "Resources: " << iResources << "\n";
++		for (size_t i = 0; i < resourceCounts.size(); i++)
++		{
++			if (resourceCounts[i] <= 0)
++				continue;
++			CvBonusInfo const& kBonus = GC.getBonusInfo((BonusTypes)i);
++			CvWString szWide(kBonus.getDescription());
++			CvString szNarrow;
++			::narrowUnsafe(szWide, szNarrow);
++			out << szNarrow.c_str() << ": " << resourceCounts[i] << "\n";
++		}
++	}
++	std::vector<int> majorLandmassSizes;
++	int iIslands = 0;
++	int iLargeIslands = 0;
++	int iContinents = 0;
++	FOR_EACH_AREA(pArea)
++	{
++		if (pArea->isWater())
++			continue;
++		int iSize = pArea->getNumTiles();
++		if (iSize >= NUM_CITY_PLOTS)
++		{
++			majorLandmassSizes.push_back(iSize);
++			if (iSize >= 3 * NUM_CITY_PLOTS)
++				iContinents++;
++			else iLargeIslands++;
++		}
++		else iIslands++;
++	}
++	out << "Continents: " << iContinents << ", large islands: " << iLargeIslands <<
++			", islands: " << iIslands << "\n";
++	std::sort(majorLandmassSizes.rbegin(), majorLandmassSizes.rend());
++	if (!majorLandmassSizes.empty())
++		out << "Major landmass sizes:\n";
++	for (size_t i = 0; i < majorLandmassSizes.size(); i++)
++	{
++		out << majorLandmassSizes[i];
++		if (i + 1 < majorLandmassSizes.size())
++			out << ", ";
++	}
++	out << std::endl;
++	gDLL->messageControlLog(const_cast<char*>(out.str().c_str()));
++} // </advc.mapstat>
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.h b/CvGameCoreDLL/CvDLLLogger.h
+index da91a7a58..fc8b128c7 100644
+--- a/CvGameCoreDLL/CvDLLLogger.h
++++ b/CvGameCoreDLL/CvDLLLogger.h
+@@ -18,6 +18,7 @@ public:
+ 	void logCityBuilt(CvCity const& kCity);
+ 	void logCombat(CvUnit const& kAttacker, CvUnit const& kDefender);
+ 	void logUnitStuck(CvUnit const& kUnit);
++	void logMapStats(); // advc.mapstat
+ 
+ private:
+ 	bool m_bEnabled;
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 91b59867e..6b031928d 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -518,7 +518,7 @@ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ 
+ void CvMapGenerator::addFeatures()
+ {
+-	PROFILE("CvMapGenerator::addFeatures");
++	PROFILE_FUNC();
+ 
+ 	if (GC.getPythonCaller()->addFeatures())
+ 		return;
+@@ -540,7 +540,7 @@ void CvMapGenerator::addFeatures()
+ 
+ void CvMapGenerator::addBonuses()
+ {
+-	PROFILE("CvMapGenerator::addBonuses");
++	PROFILE_FUNC();
+ 	gDLL->NiTextOut("Adding Bonuses...");
+ 
+ 	CvPythonCaller const& py = *GC.getPythonCaller();
+@@ -805,7 +805,7 @@ int CvMapGenerator::placeGroup(BonusTypes eBonusType, CvPlot const& kCenter,
+ 
+ void CvMapGenerator::addGoodies()  // advc: some style changes
+ {
+-	PROFILE("CvMapGenerator::addGoodies");
++	PROFILE_FUNC();
+ 
+ 	if (GC.getPythonCaller()->addGoodies())
+ 		return;
+@@ -888,7 +888,7 @@ void CvMapGenerator::eraseGoodies()
+ 
+ void CvMapGenerator::generateRandomMap()
+ {
+-	PROFILE("generateRandomMap()");
++	PROFILE_FUNC();
+ 
+ 	GC.getPythonCaller()->callMapFunction("beforeGeneration");
+ 	if (GC.getPythonCaller()->generateRandomMap()) // will call applyMapData when done
+@@ -921,25 +921,27 @@ void CvMapGenerator::generatePlotTypes()
+ 
+ void CvMapGenerator::generateTerrain()
+ {
+-	PROFILE("generateTerrain()");
++	PROFILE_FUNC();
+ 
+-	int iNumPlots = GC.getMap().numPlots();
+ 	std::vector<int> pyTerrain;
+-	if (GC.getPythonCaller()->generateTerrainTypes(pyTerrain, iNumPlots))
++	CvMap const& kMap = GC.getMap();
++	if (GC.getPythonCaller()->generateTerrainTypes(pyTerrain, kMap.numPlots()))
+ 	{
+-		for (int i = 0; i < iNumPlots; i++)
++		for (int i = 0; i < kMap.numPlots(); i++)
+ 		{
+ 			//gDLL->callUpdater(); // addvc.003b
+-			GC.getMap().plotByIndex(i)->setTerrainType((TerrainTypes)pyTerrain[i], false, false);
++			kMap.plotByIndex(i)->setTerrainType((TerrainTypes)pyTerrain[i], false, false);
+ 		}
+ 	}
+ }
+ 
+-// Allows for user-defined Python Actions for map generation after it's already been created
++
+ void CvMapGenerator::afterGeneration()
+ {
+-	PROFILE("CvMapGenerator::afterGeneration");
++	PROFILE_FUNC();
++	// Allows for user-defined Python Actions for map generation after it's already been created
+ 	GC.getPythonCaller()->callMapFunction("afterGeneration");
++	GC.getLogger().logMapStats(); // advc.mapstat
+ }
+ 
+ void CvMapGenerator::setPlotTypes(const int* paiPlotTypes)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9852

@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 366
+# Commit: f6aac75c78516e2ef7ddc8b933238567b4c0cf51
+# History segment: K-Mod history
+# Parent used for diff: 5dc0ad28676fbf3aeb3e52d551fb20a28a275dbb
+# Title: Default heuristic weights are now calculated based on the xml data. Tweaked the AREA_OFFENSE condition.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvMap.cpp
+2	2	CvGameCoreDLL/CvTeamAI.cpp
+38	17	CvGameCoreDLL/KmodPathFinder.cpp
+5	0	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 3938c2003..6e0c240be 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -244,6 +244,7 @@ void CvMap::setup()
+ {
+ 	PROFILE("CvMap::setup");
+ 
++	KmodPathFinder::InitHeuristicWeights(); // K-Mod
+ 	gDLL->getFAStarIFace()->Initialize(&GC.getPathFinder(), getGridWidthINLINE(), getGridHeightINLINE(), isWrapXINLINE(), isWrapYINLINE(), pathDestValid, pathHeuristic, pathCost, pathValid, pathAdd, NULL, NULL);
+ 	gDLL->getFAStarIFace()->Initialize(&GC.getInterfacePathFinder(), getGridWidthINLINE(), getGridHeightINLINE(), isWrapXINLINE(), isWrapYINLINE(), pathDestValid, pathHeuristic, pathCost, pathValid, pathAdd, NULL, NULL);
+ 	gDLL->getFAStarIFace()->Initialize(&GC.getStepFinder(), getGridWidthINLINE(), getGridHeightINLINE(), isWrapXINLINE(), isWrapYINLINE(), stepDestValid, stepHeuristic, stepCost, stepValid, stepAdd, NULL, NULL);
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2276ee8d1..678aa3c87 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -519,7 +519,7 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 		*/
+ 		// K-Mod. I'm not sure how best to do this yet. Let me just try a rough idea for now.
+ 		// I'm using AI_countMilitaryWeight; but what I really want is "border terriory which needs defending"
+-		int iOurRelativeStrength = 100 * countPowerByArea(pArea) / (AI_countMilitaryWeight(pArea) + 10);
++		int iOurRelativeStrength = 100 * countPowerByArea(pArea) / (AI_countMilitaryWeight(pArea) + 20);
+ 		iOurRelativeStrength *= 100 + (bDeclaredTargets ? 30 : 0) + (bPreparingTotal ? -20 : 0) + iWarSuccessRatio/2;
+ 		iOurRelativeStrength /= 100;
+ 		int iEnemyRelativeStrength = 0;
+@@ -531,7 +531,7 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 			if (iJ != getID() && kLoopTeam.isAlive() && AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN)
+ 			{
+ 				int iPower = 100 * kLoopTeam.countPowerByArea(pArea);
+-				int iCommitment = 10 + kLoopTeam.AI_countMilitaryWeight(pArea) * ((isAtWar((TeamTypes)iJ) ? 1 : 2) + kLoopTeam.getAtWarCount(true, true)) / 2;
++				int iCommitment = (bPreparingTotal ? 30 : 20) + kLoopTeam.AI_countMilitaryWeight(pArea) * ((isAtWar((TeamTypes)iJ) ? 1 : 2) + kLoopTeam.getAtWarCount(true, true)) / 2;
+ 				iPower /= iCommitment;
+ 				iEnemyRelativeStrength += iPower;
+ 				if (kLoopTeam.countNumCitiesByArea(pArea) > 0)
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index ca37abdc5..a6c043d20 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -7,31 +7,32 @@
+ #include <boost/bind.hpp>
+ #include <boost/lambda/lambda.hpp>
+ 
++int KmodPathFinder::admissible_scaled_weight = 1;
++int KmodPathFinder::admissible_base_weight = 1;
++
+ CvPathSettings::CvPathSettings(const CvSelectionGroup* pGroup, int iFlags, int iMaxPath, int iHW)
+ 	: pGroup(const_cast<CvSelectionGroup*>(pGroup)), iFlags(iFlags), iMaxPath(iMaxPath)
+ // I'm really sorry about the const_cast. I can't fix the const-correctness of all the relevant functions,
+ // because some of them are dllexports. The original code essentially does the same thing anyway, with void* casts.
+ {
+-	if (iHW >= 0)
+-		iHeuristicWeight = iHW;
+-	else
++	// empty. (there use to be something here, but we don't need it anymore.)
++}
++
++void KmodPathFinder::InitHeuristicWeights()
++{
++	admissible_base_weight = GC.getMOVE_DENOMINATOR()/2;
++	admissible_scaled_weight = GC.getMOVE_DENOMINATOR()/2;
++	for (int r = 0; r < GC.getNumRouteInfos(); r++)
+ 	{
+-		// calculate the minimum step cost. TODO. (the values here are correct only for the current xml settings.)
+-		if (!pGroup)
++		const CvRouteInfo& kInfo = GC.getRouteInfo((RouteTypes)r);
++		int iCost = kInfo.getMovementCost();
++		for (int t = 0; t < GC.getNumTechInfos(); t++)
+ 		{
+-			iHeuristicWeight = 1;
+-		}
+-		else
+-		{
+-			if (pGroup->getDomainType() == DOMAIN_SEA)
+-			{
+-				iHeuristicWeight = GC.getMOVE_DENOMINATOR(); // maybe divide by 2, just in case someone adds a double-moves promotion?
+-			}
+-			else
+-			{
+-				iHeuristicWeight = std::min(20, pGroup->baseMoves() * 6); // railroad. (should get the 20 and 6 from the xml)
+-			}
++			if (kInfo.getTechMovementChange(t) < 0)
++				iCost += kInfo.getTechMovementChange(t);
+ 		}
++		admissible_base_weight = std::min(admissible_base_weight, iCost);
++		admissible_scaled_weight = std::min(admissible_scaled_weight, kInfo.getFlatMovementCost());
+ 	}
+ }
+ 
+@@ -146,6 +147,26 @@ void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
+ 		}
+ 	}
+ 	settings = new_settings;
++
++	if (settings.iHeuristicWeight < 0)
++	{
++		if (!settings.pGroup)
++		{
++			settings.iHeuristicWeight = 1;
++		}
++		else
++		{
++			if (settings.pGroup->getDomainType() == DOMAIN_SEA)
++			{
++				// this assume there are no sea-roads, or promotions to reduce sea movement cost.
++				settings.iHeuristicWeight = GC.getMOVE_DENOMINATOR();
++			}
++			else
++			{
++				settings.iHeuristicWeight = std::min(admissible_base_weight, settings.pGroup->baseMoves() * admissible_scaled_weight);
++			}
++		}
++	}
+ }
+ 
+ void KmodPathFinder::Reset()
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index e61fb5a3e..4b98a145e 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -19,6 +19,8 @@ class FAStarNode;
+ class KmodPathFinder
+ {
+ public:
++	static void InitHeuristicWeights();
++
+ 	bool GeneratePath(int x1, int y1, int x2, int y2);
+ 	bool GeneratePath(const CvPlot* pToPlot); // just a wrapper for convenience
+ 	FAStarNode* GetEndNode() { FAssert(end_node); return end_node.get(); }
+@@ -46,4 +48,7 @@ protected:
+ 	int start_x, start_y;
+ 	boost::shared_ptr<FAStarNode> end_node;
+ 	CvPathSettings settings;
++
++	static int admissible_scaled_weight;
++	static int admissible_base_weight;
+ };
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5872

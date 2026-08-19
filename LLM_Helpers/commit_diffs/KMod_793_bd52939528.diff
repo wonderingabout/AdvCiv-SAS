@@ -1,0 +1,248 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 793
+# Commit: bd52939528a602444fc2f569e257def61dd84fad
+# History segment: K-Mod history
+# Parent used for diff: 67ad94aa6b6c344f30cf053e72d96694178db695
+# Title: Changed the close-border attitude cache system.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	CvGameCoreDLL/CvGame.cpp
+51	35	CvGameCoreDLL/CvPlayerAI.cpp
+5	2	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3dabe2a3e..5e27cd8c6 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9159,9 +9159,13 @@ void CvGame::doUpdateCacheOnTurn()
+ 	CvSelectionGroup::path_finder.Reset(); // (one of the few manual resets we need)
+ 	m_ActivePlayerCycledGroups.clear();
+ 	// Attitude cache. (Note: CvTeamAI::AI_doCounter has some things which affect attitude, so this update should be done after that function is called.)
+-	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
++	if (GC.getGameINLINE().isFinalInitialized())
+ 	{
+-		GET_PLAYER(i).AI_updateAttitudeCache();
++		for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
++		{
++			GET_PLAYER(i).AI_updateCloseBorderAttitudeCache();
++			GET_PLAYER(i).AI_updateAttitudeCache();
++		}
+ 	}
+ 	// K-Mod end
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c04ca2bf2..05c8f8f34 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -100,7 +100,8 @@ CvPlayerAI::CvPlayerAI()
+ 	m_aiBonusValue = NULL;
+ 	m_aiUnitClassWeights = NULL;
+ 	m_aiUnitCombatWeights = NULL;
+-	m_aiCloseBordersAttitudeCache = new int[MAX_PLAYERS];
++	//m_aiCloseBordersAttitudeCache = new int[MAX_PLAYERS];
++	m_aiCloseBordersAttitudeCache.resize(MAX_PLAYERS); // K-Mod
+ 
+ 	m_aiAttitudeCache.resize(MAX_PLAYERS); // K-Mod
+ 
+@@ -138,7 +139,7 @@ CvPlayerAI::~CvPlayerAI()
+ 	SAFE_DELETE_ARRAY(m_aiAverageYieldMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiAverageCommerceMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiAverageCommerceExchange);
+-	SAFE_DELETE_ARRAY(m_aiCloseBordersAttitudeCache);
++	//SAFE_DELETE_ARRAY(m_aiCloseBordersAttitudeCache); // disabled by K-Mod
+ }
+ 
+ 
+@@ -296,6 +297,7 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 		m_aiUnitCombatWeights[iI] = 0;		
+ 	}
+ 
++	/* original bts code
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		m_aiCloseBordersAttitudeCache[iI] = 0;
+@@ -304,8 +306,9 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 		{
+ 			GET_PLAYER((PlayerTypes) iI).m_aiCloseBordersAttitudeCache[getID()] = 0;
+ 		}
+-	}
++	} */
+ 	// K-Mod
++	m_aiCloseBordersAttitudeCache.assign(MAX_PLAYERS, 0);
+ 	m_aiAttitudeCache.assign(MAX_PLAYERS, 0);
+ 	// K-Mod end
+ }
+@@ -345,7 +348,7 @@ void CvPlayerAI::AI_doTurnPre()
+ 	FAssertMsg(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
+ 	FAssertMsg(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
+ 
+-	AI_invalidateCloseBordersAttitudeCache();
++	//AI_invalidateCloseBordersAttitudeCache();
+ 
+ 	AI_doCounter();
+ 
+@@ -7536,42 +7539,53 @@ int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer) const
+ 	return iCount;
+ }
+ 
+-
+-int CvPlayerAI::AI_getCloseBordersAttitude(PlayerTypes ePlayer) const
++// K-Mod
++void CvPlayerAI::AI_updateCloseBorderAttitudeCache()
+ {
+-	const CvTeamAI& kOurTeam = GET_TEAM(getTeam()); // K-Mod
+-	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam(); // K-Mod
+-
+-	if (m_aiCloseBordersAttitudeCache[ePlayer] == MAX_INT)
++	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
+ 	{
+-		PROFILE_FUNC();
+-		int iPercent;
++		AI_updateCloseBorderAttitudeCache(i);
++	}
++}
+ 
+-		if (getTeam() == eTheirTeam || kOurTeam.isVassal(eTheirTeam) || GET_TEAM(eTheirTeam).isVassal(getTeam()))
+-		{
+-			return 0;
+-		}
++// Most of this function has been moved directly from AI_getCloseBorderAttitude
++void CvPlayerAI::AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer)
++{
++	PROFILE_FUNC();
+ 
+-		iPercent = std::min(60, (AI_calculateStolenCityRadiusPlots(ePlayer) * 3));
++	const CvTeamAI& kOurTeam = GET_TEAM(getTeam());
++	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
+ 
+-		//if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam()))
+-		// K-Mod. I've rewritten AI_isLandTarget. The condition I'm using here is equivalent to the original function.
+-		if (kOurTeam.AI_hasCitiesInPrimaryArea(eTheirTeam) && kOurTeam.AI_calculateAdjacentLandPlots(eTheirTeam) >= 8)
+-		// K-Mod end
+-		{
+-			iPercent += 40;
+-		}
++	if (getTeam() == eTheirTeam || kOurTeam.isVassal(eTheirTeam) || GET_TEAM(eTheirTeam).isVassal(getTeam()))
++	{
++		m_aiCloseBordersAttitudeCache[ePlayer] = 0;
++		return;
++	}
+ 
+-		// bbai
+-		if( AI_isDoStrategy(AI_VICTORY_CONQUEST3) )
+-		{
+-			iPercent = std::min( 120, (3 * iPercent)/2 );
+-		}
+-		// bbai end
++	int iPercent = std::min(60, (AI_calculateStolenCityRadiusPlots(ePlayer) * 3));
++
++	//if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam()))
++	// K-Mod. I've rewritten AI_isLandTarget. The condition I'm using here is equivalent to the original function.
++	if (kOurTeam.AI_hasCitiesInPrimaryArea(eTheirTeam) && kOurTeam.AI_calculateAdjacentLandPlots(eTheirTeam) >= 8)
++	// K-Mod end
++	{
++		iPercent += 40;
++	}
+ 
+-		m_aiCloseBordersAttitudeCache[ePlayer] = ((GC.getLeaderHeadInfo(getPersonalityType()).getCloseBordersAttitudeChange() * iPercent) / 100);
++	// bbai
++	if( AI_isDoStrategy(AI_VICTORY_CONQUEST3) )
++	{
++		iPercent = std::min( 120, (3 * iPercent)/2 );
+ 	}
++	// bbai end
+ 
++	m_aiCloseBordersAttitudeCache[ePlayer] = ((GC.getLeaderHeadInfo(getPersonalityType()).getCloseBordersAttitudeChange() * iPercent) / 100);
++}
++// K-Mod end
++
++// K-Mod note: the bulk of this function has been moved to AI_updateCloseBorderAttitudeCache
++int CvPlayerAI::AI_getCloseBordersAttitude(PlayerTypes ePlayer) const
++{
+ 	return m_aiCloseBordersAttitudeCache[ePlayer];
+ }
+ 
+@@ -17675,7 +17689,8 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 		}
+ 	}
+ 	// K-Mod end
+-	pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
++	//pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
++	pStream->Read(MAX_PLAYERS, &m_aiCloseBordersAttitudeCache[0]); // K-Mod
+ }
+ 
+ 
+@@ -17771,7 +17786,8 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 		}
+ 	}
+ 	// K-Mod end
+-	pStream->Write(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
++	//pStream->Write(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
++	pStream->Write(MAX_PLAYERS, &m_aiCloseBordersAttitudeCache[0]); // K-Mod
+ }
+ 
+ 
+@@ -23613,13 +23629,13 @@ int CvPlayerAI::AI_getHealthWeight(int iHealth, int iExtraPop, bool bPercent) co
+ /************************************************************************************************/
+ }
+ 	
+-void CvPlayerAI::AI_invalidateCloseBordersAttitudeCache()
++/* void CvPlayerAI::AI_invalidateCloseBordersAttitudeCache()
+ {
+ 	for (int i = 0; i < MAX_PLAYERS; ++i)
+ 	{
+ 		m_aiCloseBordersAttitudeCache[i] = MAX_INT;
+ 	}
+-}
++} */ // disabled by K-Mod
+ 
+ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 9d4e3bc2e..09c43293c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -154,6 +154,8 @@ public:
+ 	static AttitudeTypes AI_getAttitudeFromValue(int iAttitudeVal);
+ 
+ 	int AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer) const;
++	void AI_updateCloseBorderAttitudeCache(); // K-Mod
++	void AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer); // K-Mod
+ 	int AI_getCloseBordersAttitude(PlayerTypes ePlayer) const;
+ 
+ 	int AI_getWarAttitude(PlayerTypes ePlayer) const;
+@@ -500,7 +502,8 @@ protected:
+ 	int* m_aiUnitCombatWeights;
+ 	std::map<UnitClassTypes, int> m_GreatPersonWeights; // K-Mod
+ 
+-	mutable int* m_aiCloseBordersAttitudeCache;
++	//mutable int* m_aiCloseBordersAttitudeCache;
++	std::vector<int> m_aiCloseBordersAttitudeCache; // K-Mod. (the original system was prone to mistakes.)
+ 
+ 	std::vector<int> m_aiAttitudeCache; // K-Mod
+ 
+@@ -532,7 +535,7 @@ protected:
+ 	int AI_eventValue(EventTypes eEvent, const EventTriggeredData& kTriggeredData) const;
+ 
+ 	void AI_doEnemyUnitData();
+-	void AI_invalidateCloseBordersAttitudeCache();
++	//void AI_invalidateCloseBordersAttitudeCache(); // disabled by K-Mod
+ 
+ 	friend class CvGameTextMgr;
+ };
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7918

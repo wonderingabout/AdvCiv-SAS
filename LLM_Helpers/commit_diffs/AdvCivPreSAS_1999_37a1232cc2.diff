@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1999
+# Commit: 37a1232cc2853c041719775af554194c32a08a92
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4b4b875fb981e03a25647221096bd1ab1d063874
+# Title: Fix two failing asserts (AI_mayAttack, AI_currEffectiveStr)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 526d634d8..6d20c88d3 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4355,7 +4355,8 @@ bool CvTeamAI::AI_mayAttack(TeamTypes eDefender) const
+ 	// advc.opt: Avoid isAtWar and NO_TEAM check
+ 	if (!AI_isImminentWarPlan(AI_getWarPlan(/* advc.104j: */ eDefenderMaster)))
+ 		return false;
+-	FAssertMsg(!isAVassal(), "Vassal shouldn't have imminent undeclared war plan");
++	// (War w/ eDefenderMaster and peace w/ eDefender can happen while resolving DoW)
++	FAssertMsg(!isAVassal() || isAtWar(eDefenderMaster), "Vassal shouldn't have imminent undeclared war plan");
+ 	/*	UNOFFICIAL_PATCH, Bugfix, General AI, 05/05/09, jdog5000: START
+ 		Fixes bug where AI would launch invasion while unable to declare war
+ 		which caused units to be bumped once forced peace expired */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9b1a790a4..ee44c7368 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15084,7 +15084,7 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 			depending on whether there is another group on this plot and things like that,
+ 			and we can't use AI_sumStrength because that currently only works for groups.
+ 			What we have here is a list of cargo units rather than a group. */
+-		if (!kLoopUnit.canAttack())
++		if (!kLoopUnit.canAttack() || /* advc: */ kLoopUnit.isDead())
+ 			continue; // advc
+ 		//int iUnitStr = pLoopUnit->currEffectiveStr(NULL, NULL);
+ 		// advc.159: Also handles first strikes and coll. damage (code here deleted)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1625

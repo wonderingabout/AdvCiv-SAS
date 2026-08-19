@@ -1,0 +1,222 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 543
+# Commit: 32c946ee47efa457de6d4cb2f23f3f759dafaec4
+# History segment: K-Mod history
+# Parent used for diff: 7682addbc999208ac6c41aa8cb00bfc41988f33e
+# Title: Changed the value adjustment from production in AI_bestUnitAI so that it depends on the production cost itself rather than on the number of turns to build it...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	1	CvGameCoreDLL/CvCityAI.cpp
+10	9	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+2	1	CvGameCoreDLL/CvUnit.cpp
+14	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e1cf66d91..673a46250 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3252,7 +3252,16 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 
+ 								if (0 == iBestHappy)
+ 								{
+-									iValue /= std::max(1, (getProductionTurnsLeft(eLoopUnit, 0) + (GC.getUnitInfo(eLoopUnit).isSuicide() ? 1 : 4)));
++									//iValue /= std::max(1, (getProductionTurnsLeft(eLoopUnit, 0) + (GC.getUnitInfo(eLoopUnit).isSuicide() ? 1 : 4)));
++									// K-Mod. The number of turns is usually not so important. What's important is how much it is going to cost us to build this unit.
++									int iProductionNeeded = getProductionNeeded(eLoopUnit);
++									int iProductionModifier = getBaseYieldRateModifier(YIELD_PRODUCTION, getProductionModifier(eLoopUnit));
++									FAssert(iProductionNeeded > 0 && iProductionModifier > 0);
++
++									iValue *= iProductionModifier;
++									iValue /= iProductionNeeded + getBaseYieldRate(YIELD_PRODUCTION)*iProductionModifier/100; // a bit of dilution.
++									// maybe we should have a special bonus for building it in 1 turn?  ... maybe not.
++									// K-Mod end
+ 								}
+ 								else
+ 								{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 76ec2e654..7e804a7ec 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14045,8 +14045,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 			//int iTempValue = GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam());
+ 			// K-Mod
+ 			int iTempValue = GET_TEAM(getTeam()).AI_techTradeVal((TechTypes)iData, GET_PLAYER(eTargetPlayer).getTeam());
+-			iTempValue *= 3;
+-			iTempValue /= 2;
++			iTempValue *= AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) ? 6 : 5;
++			iTempValue /= 3;
+ 			// K-Mod end
+ 
+ 			iValue += iTempValue;
+@@ -15069,9 +15069,6 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 				if (eWarPlan != NO_WARPLAN)
+ 				{
+-					iTheirEspPoints *= 3;
+-					iTheirEspPoints /= 2;
+-
+ 					int iMissionCost = std::max(getEspionageMissionCost(eSeeResearchMission, kLoopTeam.getLeaderID()), getEspionageMissionCost(eSeeDemographicsMission, kLoopTeam.getLeaderID()));
+ 					if (eWarPlan != WARPLAN_DOGPILE && AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && getCapitalCity())
+ 					{
+@@ -15099,8 +15096,6 @@ void CvPlayerAI::AI_doCommerce()
+ 				}
+ 				else
+ 				{
+-					iTheirEspPoints -= (iTheirEspPoints*iAttitude)/(2*12);
+-
+ 					if (iAttitude <= -3)
+ 					{
+ 						int iMissionCost = std::max(getEspionageMissionCost(eSeeResearchMission, kLoopTeam.getLeaderID()), getEspionageMissionCost(eSeeDemographicsMission, kLoopTeam.getLeaderID()));
+@@ -15117,15 +15112,17 @@ void CvPlayerAI::AI_doCommerce()
+ 					}
+ 				}
+ 
+-				iRateDivisor += 4*std::max(-4, iAttitude)/(5*iTargetTurns);
++				iRateDivisor += 4*range(iAttitude, -8, 8)/(5*iTargetTurns); // + or - 1 point, with the standard target turns.
+ 				iRateDivisor += AI_totalUnitAIs(UNITAI_SPY) == 0 ? 4 : 0;
+ 				aiWeight[iTeam] -= (iAttitude/3);
+ 				if (GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
+ 				{
+ 					aiWeight[iTeam] *= 2;
+ 					aiWeight[iTeam] = std::max(0, aiWeight[iTeam]);
+-					iRateDivisor -= iTargetTurns;
++					iRateDivisor -= iTargetTurns/2;
+ 				}
++				else
++					iRateDivisor += iTargetTurns/2;
+ 
+ 				// Individual player targeting
+ 				if (bFocusEspionage)
+@@ -15187,6 +15184,10 @@ void CvPlayerAI::AI_doCommerce()
+ 					&& GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_CAUTIOUS)
+ 				{
+ 					iRateDivisor += 1;
++					// adjust their points based on our current relationship
++					iTheirEspPoints *= 34 + (eWarPlan == NO_WARPLAN ? -iAttitude : 12);
++					iTheirEspPoints /= 36; // note. the scale here set by the range of iAttitude. [-12, 12]
++
+ 					// scale by esp points ever, so that we don't fall over ourselves trying to catch up with
+ 					// a civ that happens to be running an espionage economy.
+ 					int iOurTotal = std::max(4, GET_TEAM(getTeam()).getEspionagePointsEver());
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 71dc99cbc..a2b924caf 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -569,7 +569,7 @@ int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 	int	strSum = 0;
+-	bool bDefenders = pAttackedPlot ? pAttackedPlot->isVisibleEnemyUnit(getOwnerINLINE()) : false; // K-Mod
++	bool bDefenders = pAttackedPlot ? pAttackedPlot->isVisibleEnemyUnit(getHeadOwner()) : false; // K-Mod
+ 	bool bCountCollateral = pAttackedPlot && pAttackedPlot != plot(); // K-Mod
+ 
+ 	pUnitNode = headUnitNode();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 69c6431cc..86eb43281 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -10786,7 +10786,8 @@ int CvUnit::getExtraWithdrawal() const
+ void CvUnit::changeExtraWithdrawal(int iChange)															
+ {
+ 	m_iExtraWithdrawal += iChange;
+-	FAssert(getExtraWithdrawal() >= 0);
++	//FAssert(getExtraWithdrawal() >= 0);
++	FAssert(withdrawalProbability() >= 0); // K-Mod. (the 'extra' can be negative during sea-patrol battles.)
+ }
+ 
+ int CvUnit::getExtraCollateralDamage() const
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5308803fc..241305b11 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -16090,7 +16090,7 @@ bool CvUnitAI::AI_defendTeritory(int iThreshold, int iFlags, int iMaxPathTurns,
+ 		iPlots = GC.getMapINLINE().numPlotsINLINE();
+ 		// otherwise it's just silly.
+ 	}
+-	FAssert(!bLocal || (iRange > 0 && iRange < 30)); // nothing wrong with being above 30. I just don't expect it...
++	FAssert(!bLocal || iRange > 0);
+ 	while (i < iPlots)
+ 	{
+ 		CvPlot* pLoopPlot = bLocal
+@@ -23482,8 +23482,11 @@ bool CvUnitAI::AI_espionageSpy()
+ // K-Mod edition. (This use to be a CvPlayerAI:: function.)
+ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer, CvPlot*& pPlot, int& iData) const
+ {
++	PROFILE_FUNC();
++
+ 	CvPlot* pSpyPlot = plot();
+ 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	bool bBigEspionage = kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE);
+ 
+ 	FAssert(pSpyPlot != NULL);
+ 
+@@ -23544,24 +23547,27 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 
+ 				for (iTestData-- ; iTestData >= 0; iTestData--)
+ 				{
+-					//if (kPlayer.canDoEspionageMission((EspionageMissionTypes)iMission, pSpyPlot->getOwnerINLINE(), pSpyPlot, iTestData, this))
+-					int iValue = kPlayer.AI_espionageVal(pSpyPlot->getOwner(), (EspionageMissionTypes)iMission, pSpyPlot, iTestData);
+ 					int iCost = kPlayer.getEspionageMissionCost((EspionageMissionTypes)iMission, pSpyPlot->getOwner(), pSpyPlot, iTestData, this);
++					if (iCost < 0 || (iCost <= iEspPoints && !kPlayer.canDoEspionageMission((EspionageMissionTypes)iMission, pSpyPlot->getOwnerINLINE(), pSpyPlot, iTestData, this)))
++						continue; // we can't do the mission, and cost is not the limiting factor.
++
++					int iValue = kPlayer.AI_espionageVal(pSpyPlot->getOwner(), (EspionageMissionTypes)iMission, pSpyPlot, iTestData);
+ 					iValue *= 80 + GC.getGameINLINE().getSorenRandNum(60, "AI best espionage mission");
+ 					iValue /= 100;
+ 					iValue -= iOverhead;
+-					iValue -= iCost * iCost / std::max(1, iCost + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam));
++					iValue -= iCost * (bBigEspionage ? 2 : 1) * iCost / std::max(1, iCost + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam));
+ 
+ 					// If we can't do the mission yet, don't completely give up. It might be worth saving points for.
+ 					if (!kPlayer.canDoEspionageMission((EspionageMissionTypes)iMission, pSpyPlot->getOwner(), pSpyPlot, iTestData, this))
+ 					{
+ 						// Is cost is the reason we can't do the mission?
+-						if (GET_TEAM(getTeam()).isHasTech((TechTypes)kMissionInfo.getTechPrereq()) && iCost > iEspPoints)
++						if (GET_TEAM(getTeam()).isHasTech((TechTypes)kMissionInfo.getTechPrereq()))
+ 						{
++							FAssert(iCost > iEspPoints); // (see condition at the top of the loop)
+ 							// Scale the mission value based on how long we think it will take to get the points.
+ 
+ 							int iTurns = (iCost - iEspPoints) / std::max(1, iEspionageRate);
+-							iTurns *= kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)? 1 : 2;
++							iTurns *= bBigEspionage? 1 : 2;
+ 							// The number of turns is approximated (poorly) by assuming our entire esp rate is targeting eTargetTeam.
+ 							iValue *= 3;
+ 							iValue /= iTurns + 3;
+@@ -23575,7 +23581,7 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 					}
+ 
+ 					// Block small missions when using "big espionage", unless the mission is really good value.
+-					if (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)
++					if (bBigEspionage
+ 						&& iValue < 50*kPlayer.getCurrentEra()*(kPlayer.getCurrentEra()+1) // 100, 300, 600, 1000, 1500, ...
+ 						&& iValue < 2*iCost)
+ 					{
+@@ -23597,7 +23603,7 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 	}
+ 	if (gUnitLogLevel > 2 && eBestMission != NO_ESPIONAGEMISSION)
+ 	{
+-		logBBAI("      %S chooses %S as their best%s espionage mission (value: %d, cost: %d).", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), GC.getEspionageMissionInfo(eBestMission).getText(), kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)?" (big)":"", iBestValue, kPlayer.getEspionageMissionCost(eBestMission, eTargetPlayer, pPlot, iData, this));
++		logBBAI("      %S chooses %S as their best%s espionage mission (value: %d, cost: %d).", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), GC.getEspionageMissionInfo(eBestMission).getText(), bBigEspionage?" (big)":"", iBestValue, kPlayer.getEspionageMissionCost(eBestMission, eTargetPlayer, pPlot, iData, this));
+ 	}
+ 
+ 	return eBestMission;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=10098

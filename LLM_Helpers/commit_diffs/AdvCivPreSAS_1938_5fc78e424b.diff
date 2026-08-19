@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1938
+# Commit: 5fc78e424ba41c84832db8c19fbbd2afeb4baa28
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 34cf7da58ca6002120e90797b9538a539c856ed6
+# Title: Fix attitude update when AI civs meet through a vassal
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	10	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 44e7b2c52..70d07ee18 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1528,9 +1528,22 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo,
+ {
+ 	if (isHasMet(eTeam))
+ 		return; // advc
++	CvTeam& kTeam = GET_TEAM(eTeam);
+ 	makeHasMet(eTeam, bNewDiplo, pData);
+-	GET_TEAM(eTeam).makeHasMet(getID(), bNewDiplo, pData);
++	kTeam.makeHasMet(getID(), bNewDiplo, pData);
++
+ 	if (gTeamLogLevel >= 2 && GC.getGame().isFinalInitialized() && eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive()) logBBAI("    Team %d (%S) meets team %d (%S)", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTeam, GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 02/20/10, jdog5000
++	// <advc.001> Moved from makeHasMet in order to get the attitude update right
++	for (TeamIter<ALIVE,VASSAL_OF> it(getID()); it.hasNext(); ++it)
++		it->meet(eTeam, bNewDiplo, /* advc.071: */ pData);
++	for (TeamIter<ALIVE,VASSAL_OF> it(eTeam); it.hasNext(); ++it)
++		it->meet(getID(), bNewDiplo, /* advc.071: */ pData);
++	if (isAVassal())
++		GET_TEAM(getMasterTeam()).meet(eTeam, bNewDiplo, /* advc.071: */ pData);
++	if (kTeam.isAVassal())
++		GET_TEAM(kTeam.getMasterTeam()).meet(getID(), bNewDiplo, /* advc.071: */ pData);
++	AI().AI_updateAttitude(eTeam);
++	kTeam.AI().AI_updateAttitude(getID()); // </advc.001>
+ }
+ 
+ // K-Mod
+@@ -2751,7 +2764,7 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
+ 
+ 
+ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+-		FirstContactData* pData) // advc.071
++	FirstContactData* pData) // advc.071
+ {
+ 	if(isHasMet(eIndex))
+ 		return;
+@@ -2771,18 +2784,16 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 					}}}}}*/ // BtS
+ 	// disabled by K-Mod (wtf did they hope to achieve with this?)
+ 
+-	for (TeamIter<ALIVE,VASSAL_OF> it(getID()); it.hasNext(); ++it)
+-		it->meet(eIndex, bNewDiplo, /* advc.071: */ pData);
+-	if (isAVassal())
+-		GET_TEAM(getMasterTeam()).meet(eIndex, bNewDiplo, /* advc.071: */ pData);
++	//if (isAVassal()) ...  // advc.001: Vassal/ master meetings moved to CvTeam::meet
+ 
+ 	// report event to Python, along with some other key state
+ 	CvEventReporter::getInstance().firstContact(getID(), eIndex);
+ 	// <advc.071> ^Moved EventReporter call up // advc.001n:
+ 	if(eIndex == getID() || isBarbarian() || GET_TEAM(eIndex).isBarbarian())
+ 		return; // </advc.071>
++
+ 	// K-Mod: Initialize attitude cache for players on our team towards player's on their team.
+-	AI().AI_updateAttitude(eIndex); // advc: Loop replaced
++	// advc.001: Too early for that. Moved to caller (CvTeam::meet).
+ 
+ 	if (getID() == GC.getGame().getActiveTeam() || eIndex == GC.getGame().getActiveTeam())
+ 		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+@@ -2802,9 +2813,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+ 	{
+ 		if (isHuman() && getID() != eIndex)
+-		{
+ 			declareWar(eIndex, false, NO_WARPLAN);
+-		}
+ 	}  // advc: reduce indentation in else branch
+ 	else if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode() &&
+ 		bNewDiplo && !isHuman() && !isAtWar(eIndex))
+@@ -2815,7 +2824,8 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 			if (GET_PLAYER(getLeaderID()).canContact(kMember.getID()))
+ 			{
+ 				CvDiploParameters* pDiplo = new CvDiploParameters(getLeaderID());
+-				pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_FIRST_CONTACT"));
++				pDiplo->setDiploComment((DiploCommentTypes)
++						GC.getInfoTypeForString("AI_DIPLOCOMMENT_FIRST_CONTACT"));
+ 				pDiplo->setAIContact(true);
+ 				gDLL->beginDiplomacy(pDiplo, kMember.getID());
+ 			}
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 3a520dd14..31c54edf6 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -253,7 +253,7 @@ public:
+ 	int getExtraMoves(DomainTypes eIndex) const;																				// Exposed to Python
+ 	void changeExtraMoves(DomainTypes eIndex, int iChange);								// Exposed to Python
+ 
+-	inline bool isHasMet(TeamTypes eIndex) const /* advc.inl */												// Exposed to Python
++	inline bool isHasMet(TeamTypes eIndex) const // advc.inl													// Exposed to Python
+ 	{
+ 		return m_abHasMet.get(eIndex);
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4376

@@ -1,0 +1,959 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1232
+# Commit: a89741571f13732613fa1c8c69e572949f76ec4a
+# History segment: K-Mod history
+# Parent used for diff: 48fd4c01102e13acbcfe3091bdb86d97e213702e
+# Title: Many fixes (mostly merged from alberts2 / DarkLunaPhantom)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/BetterBTSAI.cpp
+1	1	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+3	11	CvGameCoreDLL/CvDLLWidgetData.cpp
+3	6	CvGameCoreDLL/CvDeal.cpp
+10	8	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameCoreDLL.cpp
+7	7	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGlobals.cpp
+19	3	CvGameCoreDLL/CvInfoWater.cpp
+37	1	CvGameCoreDLL/CvInfos.cpp
+25	25	CvGameCoreDLL/CvPlayer.cpp
+8	10	CvGameCoreDLL/CvPlayerAI.cpp
+1	3	CvGameCoreDLL/CvReplayInfo.cpp
+2	2	CvGameCoreDLL/CvString.h
+2	2	CvGameCoreDLL/CvTeam.cpp
+2	2	CvGameCoreDLL/CvTeamAI.cpp
+8	8	CvGameCoreDLL/CvUnit.cpp
+1	3	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/CvXMLLoadUtility.cpp
+1	1	CvGameCoreDLL/FAssert.cpp
+3	3	CvGameCoreDLL/FVariableSystem.inl
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BetterBTSAI.cpp b/CvGameCoreDLL/BetterBTSAI.cpp
+index 0827142ba..ea60fddee 100644
+--- a/CvGameCoreDLL/BetterBTSAI.cpp
++++ b/CvGameCoreDLL/BetterBTSAI.cpp
+@@ -11,6 +11,7 @@ void logBBAI(TCHAR* format, ... )
+ 	va_list args;
+ 	va_start(args, format);
+ 	_vsnprintf(buf, 2048-4, format, args);
++	va_end(args);
+ 	gDLL->logMsg("BBAI.log", buf);
+ #endif
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 816cfd5e5..2200a5b54 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -14861,7 +14861,7 @@ void CvCity::invalidateYieldRankCache(YieldTypes eYield)
+ 
+ void CvCity::invalidateCommerceRankCache(CommerceTypes eCommerce)
+ {
+-	FAssertMsg(eCommerce >= NO_YIELD && eCommerce < NUM_YIELD_TYPES, "invalidateCommerceRankCache passed bogus commerce index");
++	FAssertMsg(eCommerce >= NO_COMMERCE && eCommerce < NUM_COMMERCE_TYPES, "invalidateCommerceRankCache passed bogus commerce index");
+ 
+ 	if (eCommerce == NO_COMMERCE)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 57208b8eb..e8b97ba0c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8121,7 +8121,7 @@ bool CvCityAI::AI_chooseLeastRepresentedUnit(UnitTypeWeightArray &allowedTypes,
+  	std::multimap<int, UnitAITypes, std::greater<int> >::iterator best_it; */
+ 	std::vector<std::pair<int, UnitAITypes> > bestTypes; // K-Mod
+  
+-	for (it = allowedTypes.begin(); it != allowedTypes.end(); it++)
++	for (it = allowedTypes.begin(); it != allowedTypes.end(); ++it)
+ 	{
+ 		iValue = it->second;
+ 		iValue *= 750 + GC.getGameINLINE().getSorenRandNum(250, "AI choose least represented unit");
+@@ -8134,7 +8134,7 @@ bool CvCityAI::AI_chooseLeastRepresentedUnit(UnitTypeWeightArray &allowedTypes,
+ 	std::sort(bestTypes.begin(), bestTypes.end(), std::greater<std::pair<int, UnitAITypes> >());
+ 	std::vector<std::pair<int, UnitAITypes> >::iterator best_it;
+ 	// K-Mod end
+- 	for (best_it = bestTypes.begin(); best_it != bestTypes.end(); best_it++)
++	for (best_it = bestTypes.begin(); best_it != bestTypes.end(); ++best_it)
+  	{
+ 		if (AI_chooseUnit(best_it->second, iOdds))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 872970fb9..96effc810 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1675,7 +1675,7 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
+ 		gDLL->getInterfaceIFace()->popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED);
+ 	}
+ 
+-	SAFE_DELETE(paeNewCivics);
++	SAFE_DELETE_ARRAY(paeNewCivics);
+ 
+ 	return (bValid);
+ }
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 14020ea65..9647f3ded 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3443,21 +3443,13 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ 			if( !szWorstEnemyString.isEmpty() )
+ 			{
+-				CvWString szTempBuffer;
+-
+-				szTempBuffer.assign(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString));
+-
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(szTempBuffer);
++				szBuffer.append(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString.getCString()));
+ 			}
+ 			if( !szWarWithString.isEmpty() )
+ 			{
+-				CvWString szTempBuffer;
+-
+-				szTempBuffer.assign(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString));
+-
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(szTempBuffer);
++				szBuffer.append(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
+ 			}
+ 
+ 			if( !(kActiveTeam.isAtWar(eTeam)))
+@@ -5633,7 +5625,7 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	case CIVILOPEDIA_PAGE_CONCEPT_NEW:
+ 		{
+ 			NewConceptTypes eConcept = (NewConceptTypes)widgetDataStruct.m_iData2;
+-			if (NO_CONCEPT != eConcept)
++			if (NO_NEW_CONCEPT != eConcept)
+ 			{
+ 				szBuffer.assign(GC.getNewConceptInfo(eConcept).getDescription());
+ 			}
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 600d86474..a61b65d37 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -508,12 +508,9 @@ bool CvDeal::isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReaso
+ 			{
+ 				if (pszReason)
+ 				{
+-					if (pszReason)
+-					{
+-						szBuffer.clear();
+-						GAMETEXT.setVassalRevoltHelp(szBuffer, eMaster, GET_PLAYER(getFirstPlayer()).getTeam());
+-						*pszReason = szBuffer.getCString();
+-					}
++					szBuffer.clear();
++					GAMETEXT.setVassalRevoltHelp(szBuffer, eMaster, GET_PLAYER(getFirstPlayer()).getTeam());
++					*pszReason = szBuffer.getCString();
+ 				}
+ 
+ 				return true;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 39dc805e9..d38f90598 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1359,7 +1359,7 @@ void CvGame::normalizeRemoveBadFeatures()
+ 										}
+ 										else
+ 										{
+-											if (!(iDistance == iMaxRange) && (getSorenRandNum((2 + (pLoopPlot->getBonusType() == NO_BONUS) ? 0 : 2), "Remove Bad Feature") == 0))
++											if (!(iDistance == iMaxRange) && (getSorenRandNum(2 + (pLoopPlot->getBonusType() == NO_BONUS ? 0 : 2), "Remove Bad Feature") == 0))
+ 											{
+ 												pLoopPlot->setFeatureType(NO_FEATURE);                                            
+ 											}
+@@ -3078,10 +3078,11 @@ void CvGame::clearSecretaryGeneral(VoteSourceTypes eVoteSource)
+ 			if (kVote.isSecretaryGeneral())
+ 			{
+ 				VoteTriggeredData kData;
++				kData.iId = FFreeList::INVALID_INDEX;
+ 				kData.eVoteSource = eVoteSource;
+ 				kData.kVoteOption.eVote = (VoteTypes)j;
+ 				kData.kVoteOption.iCityId = -1;
+-				kData.kVoteOption.szText.empty();
++				kData.kVoteOption.szText.clear();
+ 				kData.kVoteOption.ePlayer = NO_PLAYER;
+ 				setVoteOutcome(kData, NO_PLAYER_VOTE);
+ 				setSecretaryGeneralTimer(eVoteSource, 0);
+@@ -5973,7 +5974,7 @@ bool CvGame::isDestroyedCityName(CvWString& szName) const
+ {
+ 	std::vector<CvWString>::const_iterator it;
+ 
+-	for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); it++)
++	for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); ++it)
+ 	{
+ 		if (*it == szName)
+ 		{
+@@ -5993,7 +5994,7 @@ bool CvGame::isGreatPersonBorn(CvWString& szName) const
+ {
+ 	std::vector<CvWString>::const_iterator it;
+ 
+-	for (it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); it++)
++	for (it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); ++it)
+ 	{
+ 		if (*it == szName)
+ 		{
+@@ -8274,7 +8275,7 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvW
+ 
+ void CvGame::clearReplayMessageMap()
+ {
+-	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); itList++)
++	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); ++itList)
+ 	{
+ 		const CvReplayMessage* pMessage = *itList;
+ 		if (NULL != pMessage)
+@@ -8711,13 +8712,13 @@ void CvGame::write(FDataStreamBase* pStream)
+ 		std::vector<CvWString>::iterator it;
+ 
+ 		pStream->Write(m_aszDestroyedCities.size());
+-		for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); it++)
++		for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); ++it)
+ 		{
+ 			pStream->WriteString(*it);
+ 		}
+ 
+ 		pStream->Write(m_aszGreatPeopleBorn.size());
+-		for (it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); it++)
++		for (it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); ++it)
+ 		{
+ 			pStream->WriteString(*it);
+ 		}
+@@ -8733,7 +8734,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	ReplayMessageList::_Alloc::size_type iSize = m_listReplayMessages.size();
+ 	pStream->Write(iSize);
+ 	ReplayMessageList::const_iterator it;
+-	for (it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); it++)
++	for (it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+ 	{
+ 		const CvReplayMessage* pMessage = *it;
+ 		if (NULL != pMessage)
+@@ -9865,6 +9866,7 @@ void CvGame::doVoteSelection()
+ 								VoteSelectionSubData kOptionData;
+ 								kOptionData.iCityId = -1;
+ 								kOptionData.ePlayer = NO_PLAYER;
++								kOptionData.eOtherPlayer = NO_PLAYER;
+ 								kOptionData.eVote = (VoteTypes)iJ;
+ 								kOptionData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_OPTION", GC.getVoteInfo((VoteTypes)iJ).getTextKeyWide(), getVoteRequired((VoteTypes)iJ, eVoteSource), countPossibleVote((VoteTypes)iJ, eVoteSource));
+ 								addVoteTriggered(eVoteSource, kOptionData);
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 2cc2c89cc..79b540b11 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -363,7 +363,7 @@ void IFPEnd(void)
+ 		if ( sampleList[i]->ProfileInstances != 0 )
+ 		{
+ 			sprintf(buffer,
+-					"%s\t%d\t%d\t%d\t%d\t%s\n",
++					"%s\t%d\t%d\t%u\t%d\t%s\n",
+ 					sampleList[i]->Name,
+ 					(int)((1000*sampleList[i]->Accumulator.QuadPart)/freq.QuadPart),
+ 					(int)((1000*sampleList[i]->Accumulator.QuadPart)/(freq.QuadPart*sampleList[i]->ProfileInstances)),
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 2aa7ac267..50a90a35c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6539,7 +6539,7 @@ void CvGameTextMgr::parseFreeSpecialistHelp(CvWStringBuffer &szHelpString, const
+ 
+ 			if (GC.getSpecialistInfo(eSpecialist).getExperience() > 0)
+ 			{
+-				if (!szYield.isEmpty() || !szYield.isEmpty())
++				if (!szYield.isEmpty() || !szCommerceString.isEmpty())
+ 				{
+ 					szHelpString.append(L", ");
+ 				}
+@@ -9101,7 +9101,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 			}
+ 			else
+ 			{
+-				szTempBuffer.Format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR), szTempBuffer);
++				szTempBuffer.Format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR), szTempBuffer.GetCString());
+ 				szBuffer.append(szTempBuffer);
+ 			}
+ 			if (GC.getUnitInfo(eUnit).getBonusProductionModifier(iI) == 100)
+@@ -10553,7 +10553,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 				}
+ 				else
+ 				{
+-					szTempBuffer.Format(L"\n%c", gDLL->getSymbolID(BULLET_CHAR), szTempBuffer);
++					szTempBuffer.Format(L"\n%c", gDLL->getSymbolID(BULLET_CHAR), szTempBuffer.GetCString());
+ 					szBuffer.append(szTempBuffer);
+ 				}
+ 				if (kBuilding.getBonusProductionModifier(iI) == 100)
+@@ -11213,7 +11213,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 			}
+ 			else
+ 			{
+-				szTempBuffer.Format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR), szTempBuffer);
++				szTempBuffer.Format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR), szTempBuffer.GetCString());
+ 				szBuffer.append(szTempBuffer);
+ 			}
+ 			if (kProject.getBonusProductionModifier(iI) == 100)
+@@ -15322,7 +15322,7 @@ void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString, PlayerTyp
+ 	{
+ 		CvWString szTempBuffer;
+ 
+-		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString));
++		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString.getCString()));
+ 
+ 		szString.append(NEWLINE);
+ 		szString.append(szTempBuffer);
+@@ -15331,7 +15331,7 @@ void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString, PlayerTyp
+ 	{
+ 		CvWString szTempBuffer;
+ 
+-		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString));
++		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString.getCString()));
+ 
+ 		szString.append(NEWLINE);
+ 		szString.append(szTempBuffer);
+@@ -17427,7 +17427,7 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 		if (NO_PLAYER != eTargetPlayer)
+ 		{
+ 			//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+-			int iNumTotalGold;
++			int iNumTotalGold = 0;
+ 
+ 			if (NULL != pPlot)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index d621ca470..906377ef9 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -113,6 +113,8 @@ m_messageCodes(NULL),
+ m_dropMgr(NULL),
+ m_portal(NULL),
+ m_setupData(NULL),
++m_iniInitCore(NULL),
++m_loadedInitCore(NULL),
+ m_initCore(NULL),
+ m_statsReporter(NULL),
+ m_map(NULL),
+@@ -200,6 +202,7 @@ m_iUSE_CAN_CONSTRUCT_CALLBACK(0),
+ m_iUSE_CAN_DECLARE_WAR_CALLBACK(0),
+ m_iUSE_CANNOT_RESEARCH_CALLBACK(0),
+ m_iUSE_GET_UNIT_COST_MOD_CALLBACK(0),
++m_iUSE_GET_BUILDING_COST_MOD_CALLBACK(0),
+ m_iUSE_GET_CITY_FOUND_VALUE_CALLBACK(0),
+ m_iUSE_CANNOT_HANDLE_ACTION_CALLBACK(0),
+ m_iUSE_CAN_BUILD_CALLBACK(0),
+
+diff --git a/CvGameCoreDLL/CvInfoWater.cpp b/CvGameCoreDLL/CvInfoWater.cpp
+index bb5e9a16d..cb7094304 100644
+--- a/CvGameCoreDLL/CvInfoWater.cpp
++++ b/CvGameCoreDLL/CvInfoWater.cpp
+@@ -29,7 +29,11 @@
+ //  PURPOSE :   Default constructor
+ //
+ //------------------------------------------------------------------------------------------------------
+-CvWaterPlaneInfo::CvWaterPlaneInfo()
++CvWaterPlaneInfo::CvWaterPlaneInfo() :
++	m_fMaterialAlpha(0.0f),
++	m_BaseTextureScale(0.0f),
++	m_fURate(0.0f),
++	m_fVRate(0.0f)
+ {
+ 
+ }
+@@ -179,7 +183,17 @@ bool CvWaterPlaneInfo::read(CvXMLLoadUtility* pXML)
+ //  PURPOSE :   Default constructor
+ //
+ //------------------------------------------------------------------------------------------------------
+-CvTerrainPlaneInfo::CvTerrainPlaneInfo()
++CvTerrainPlaneInfo::CvTerrainPlaneInfo() :
++	m_bVisible(false),
++	m_bGroundPlane(false),
++	m_fMaterialAlpha(0.0f),
++	m_fCloseAlpha(0.0f),
++	m_BaseTextureScaleU(0.0f),
++	m_BaseTextureScaleV(0.0f),
++	m_fURate(0.0f),
++	m_fVRate(0.0f),
++	m_fZHeight(0.0f),
++	m_eFogType(FOG_TYPE_NONE)
+ {
+ 
+ }
+@@ -303,7 +317,9 @@ bool CvTerrainPlaneInfo::read(CvXMLLoadUtility* pXML)
+ //  PURPOSE :   Default constructor
+ //
+ //------------------------------------------------------------------------------------------------------
+-CvCameraOverlayInfo::CvCameraOverlayInfo()
++CvCameraOverlayInfo::CvCameraOverlayInfo() :
++	m_bVisible(false),
++	m_eCameraOverlayType(CAMERA_OVERLAY_DECAL)
+ {
+ 
+ }
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index aabbd7d2b..480ee46f3 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -3142,6 +3142,7 @@ m_iUnitMeleeWaveSize(0),
+ m_iUnitRangedWaveSize(0),
+ m_iNumUnitNames(0),
+ m_iCommandType(NO_COMMAND),
++m_iLeaderExperience(0),
+ m_bAnimal(false),
+ m_bFoodProduction(false),
+ m_bNoBadGoodies(false),
+@@ -3180,6 +3181,7 @@ m_bLineOfSight(false),
+ m_bHiddenNationality(false),
+ m_bAlwaysHostile(false),
+ m_bNoRevealMap(false),
++m_iLeaderPromotion(NO_PROMOTION),
+ m_fUnitMaxSpeed(0.0f),
+ m_fUnitPadTime(0.0f),
+ m_pbUpgradeUnitClass(NULL),
+@@ -17685,6 +17687,7 @@ m_fTrailLength(0.0f),
+ m_fTrailTaper(0.0f),
+ m_fTrailFadeStartTime(0.0f),
+ m_fTrailFadeFalloff(0.0f),
++m_fBattleDistance(0.0f),
+ m_fRangedDeathTime(0.0f),
+ m_fExchangeAngle(0.0f),
+ m_bSmoothMove(false),
+@@ -19010,6 +19013,8 @@ m_iWaterHeight(0),
+ m_fTextureScaleX(0.0f),
+ m_fTextureScaleY(0.0f),
+ m_fZScale(0.0f),
++m_fPeakScale(0.0f),
++m_fHillScale(0.0f),
+ m_bUseTerrainShader(false),
+ m_bUseLightmap(false),
+ m_bRandomMap(false)
+@@ -22671,7 +22676,38 @@ bool CvEventInfo::readPass2(CvXMLLoadUtility* pXML)
+ //  PURPOSE :   Default constructor
+ //
+ //------------------------------------------------------------------------------------------------------
+-CvEspionageMissionInfo::CvEspionageMissionInfo()
++CvEspionageMissionInfo::CvEspionageMissionInfo() :
++	m_iCost(0),
++	m_bIsPassive(false),
++	m_bIsTwoPhases(false),
++	m_bTargetsCity(false),
++	m_bSelectPlot(false),
++	m_iTechPrereq(NO_TECH),
++	m_iVisibilityLevel(0),
++	m_bInvestigateCity(false),
++	m_bSeeDemographics(false),
++	m_bNoActiveMissions(false),
++	m_bSeeResearch(false),
++	m_bDestroyImprovement(false),
++	m_iDestroyBuildingCostFactor(0),
++	m_iDestroyUnitCostFactor(0),
++	m_iDestroyProjectCostFactor(0),
++	m_iDestroyProductionCostFactor(0),
++	m_iBuyUnitCostFactor(0),
++	m_iBuyCityCostFactor(0),
++	m_iStealTreasuryTypes(0),
++	m_iCityInsertCultureAmountFactor(0),
++	m_iCityInsertCultureCostFactor(0),
++	m_iCityPoisonWaterCounter(0),
++	m_iCityUnhappinessCounter(0),
++	m_iCityRevoltCounter(0),
++	m_iBuyTechCostFactor(0),
++	m_iSwitchCivicCostFactor(0),
++	m_iSwitchReligionCostFactor(0),
++	m_iPlayerAnarchyCounter(0),
++	m_iCounterespionageNumTurns(0),
++	m_iCounterespionageMod(0),
++	m_iDifficultyMod(0)
+ {
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 186e995d0..8327b1329 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14006,12 +14006,12 @@ void CvPlayer::clearSpaceShipPopups()
+ 			}
+ 			else
+ 			{
+-				it++;
++				++it;
+ 			}
+ 		}
+ 		else
+ 		{
+-			it++;
++			++it;
+ 		}
+ 	}
+ }
+@@ -14526,7 +14526,7 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 	{
+ 		// Steal Treasury
+ 		//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+-		int iNumTotalGold;
++		int iNumTotalGold = 0;
+ 
+ 		if (NULL != pCity)
+ 		{
+@@ -15348,7 +15348,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 		if (NO_PLAYER != eTargetPlayer)
+ 		{
+ 			//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
+-			int iNumTotalGold;
++			int iNumTotalGold = 0;
+ 
+ 			if (NULL != pPlot)
+ 			{
+@@ -18157,6 +18157,13 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 
+ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience, int iX, int iY)
+ {
++	CvPlot* pPlot = GC.getMapINLINE().plot(iX, iY);
++	if (pPlot == NULL)
++	{
++		FAssertMsg(false, "Invalid plot in createGreatPeople()");
++		return;
++	}
++
+ 	CvUnit* pGreatPeopleUnit = initUnit(eGreatPersonUnit, iX, iY);
+ 	if (NULL == pGreatPeopleUnit)
+ 	{
+@@ -18164,6 +18171,8 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 		return;
+ 	}
+ 
++	CvCity* pCity = pPlot->getPlotCity();
++
+ 	if (bIncrementThreshold)
+ 	{
+ 		incrementGreatPeopleCreated();
+@@ -18194,25 +18203,18 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 		}
+ 	}
+ 
+-
+-	CvPlot* pPlot = GC.getMapINLINE().plot(iX, iY);
+-	CvCity* pCity = pPlot->getPlotCity();
+ 	CvWString szReplayMessage;
+-
+-	if (pPlot)
++	if (pCity)
+ 	{
+-		if (pCity)
+-		{
+-			CvWString szCity;
+-			szCity.Format(L"%s (%s)", pCity->getName().GetCString(), GET_PLAYER(pCity->getOwnerINLINE()).getReplayName());
+-			szReplayMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN", pGreatPeopleUnit->getName().GetCString(), szCity.GetCString());
+-		}
+-		else
+-		{
+-			szReplayMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_FIELD", pGreatPeopleUnit->getName().GetCString());
+-		}
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szReplayMessage, iX, iY, (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"));
++		CvWString szCity;
++		szCity.Format(L"%s (%s)", pCity->getName().GetCString(), GET_PLAYER(pCity->getOwnerINLINE()).getReplayName());
++		szReplayMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN", pGreatPeopleUnit->getName().GetCString(), szCity.GetCString());
+ 	}
++	else
++	{
++		szReplayMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_FIELD", pGreatPeopleUnit->getName().GetCString());
++	}
++	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szReplayMessage, iX, iY, (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"));
+ 
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+@@ -18235,7 +18237,6 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 	{
+ 		CvEventReporter::getInstance().greatPersonBorn(pGreatPeopleUnit, getID(), pCity);
+ 	}
+-
+ }
+ 
+ 
+@@ -19370,7 +19371,7 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
+ 				{
+ 					if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 					{
+-						if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++						if (GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam())
+ 						{
+ 							CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PROGRESS_TOWARDS_TECH", iBeakers, GC.getTechInfo(eBestTech).getTextKeyWide());
+ 
+@@ -19777,7 +19778,6 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
+ 		{
+ 			if (NO_PLAYER != pTriggeredData->m_eOtherPlayer)
+ 			{
+-				std::vector<CvCity*> apCities;
+ 				int iLoop;
+ 				for (CvCity* pLoopCity = GET_PLAYER(pTriggeredData->m_eOtherPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pTriggeredData->m_eOtherPlayer).nextCity(&iLoop))
+ 				{
+@@ -21786,7 +21786,7 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+ 			CvTeam& kTeam = GET_TEAM((TeamTypes)iTeam);
+-			if ((PlayerTypes)iTeam != getTeam())
++			if ((TeamTypes)iTeam != getTeam())
+ 			{
+ 				if (kTeam.isVotingMember(eVoteSource))
+ 				{
+@@ -21803,7 +21803,7 @@ bool CvPlayer::canDefyResolution(VoteSourceTypes eVoteSource, const VoteSelectio
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+ 			CvTeam& kTeam = GET_TEAM((TeamTypes)iTeam);
+-			if ((PlayerTypes)iTeam != getTeam())
++			if ((TeamTypes)iTeam != getTeam())
+ 			{
+ 				if (kTeam.isVotingMember(eVoteSource))
+ 				{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 485497801..16a4fe819 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2706,7 +2706,7 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ 			{
+ 				BuildingTypes eCivBuilding = (BuildingTypes)GC.getCivilizationInfo(kPlayer.getCivilizationType()).getCivilizationBuildings(iI);
+ 				BuildingTypes eDefaultBuilding = (BuildingTypes)GC.getBuildingClassInfo((BuildingClassTypes)iI).getDefaultBuildingIndex();
+-				if (eCivBuilding != NO_UNIT && eCivBuilding != eDefaultBuilding)
++				if (eCivBuilding != NO_BUILDING && eCivBuilding != eDefaultBuilding)
+ 				{
+ 					if (GC.getBuildingInfo(eCivBuilding).isWater())
+ 					{
+@@ -9097,7 +9097,6 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	int iGoldWeight;
+ 	int iWeight;
+ 	int iBestWeight;
+-	int iValue;
+ 	int iBestValue;
+ 
+ 	bool bTheirGoldDeal = AI_goldDeal(pTheirList);
+@@ -9210,7 +9209,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 								if (iWeight > 0)
+ 								{
+-									iValue = AI_targetCityValue(pCity, false);
++									int iValue = AI_targetCityValue(pCity, false);
+ 
+ 									if (iValue > iBestValue)
+ 									{
+@@ -9505,7 +9504,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 								if (iWeight > 0)
+ 								{
+-									iValue = GET_PLAYER(ePlayer).AI_targetCityValue(pCity, false);
++									int iValue = GET_PLAYER(ePlayer).AI_targetCityValue(pCity, false);
+ 
+ 									if (iValue > iBestValue)
+ 									{
+@@ -14873,7 +14872,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 					}*/
+ 					// K-Mod. AI_unitValue is a relative rating value. It shouldn't be used for this.
+ 					// (The espionage mission is not enabled anyway, so I'm not going to put a lot of effort into it.)
+-					iValue += GC.getUnitInfo(eUnit).getProductionCost() * canTrain(eUnit) ? 4 : 8;
++					iValue += GC.getUnitInfo(eUnit).getProductionCost() * (canTrain(eUnit) ? 4 : 8);
+ 					//
+ 				}
+ 			}
+@@ -22974,7 +22973,6 @@ int CvPlayerAI::AI_getMinFoundValue() const
+ 	
+ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ {
+-	std::vector<int>::iterator it;
+ 	int iValue;
+ 	int iI;
+ 
+@@ -23058,7 +23056,7 @@ bool CvPlayerAI::AI_isPlotCitySite(CvPlot* pPlot) const
+ 	std::vector<int>::const_iterator it;
+ 	int iPlotIndex = GC.getMapINLINE().plotNumINLINE(pPlot->getX_INLINE(), pPlot->getY_INLINE());
+ 	
+-	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); it++)
++	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); ++it)
+ 	{
+ 		if ((*it) == iPlotIndex)
+ 		{
+@@ -23074,7 +23072,7 @@ int CvPlayerAI::AI_getNumAreaCitySites(int iAreaID, int& iBestValue) const
+ 	int iCount = 0;
+ 	iBestValue = 0;
+ 	
+-	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); it++)
++	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); ++it)
+ 	{
+ 		CvPlot* pCitySitePlot = GC.getMapINLINE().plotByIndex((*it));
+ 		if (pCitySitePlot->getArea() == iAreaID)
+@@ -23092,7 +23090,7 @@ int CvPlayerAI::AI_getNumAdjacentAreaCitySites(int iWaterAreaID, int iExcludeAre
+ 	int iCount = 0;
+ 	iBestValue = 0;
+ 
+-	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); it++)
++	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); ++it)
+ 	{
+ 		CvPlot* pCitySitePlot = GC.getMapINLINE().plotByIndex((*it));
+ 		if (pCitySitePlot->getArea() != iExcludeArea)
+@@ -23113,7 +23111,7 @@ int CvPlayerAI::AI_getNumPrimaryAreaCitySites(int iMinimumValue) const
+ 	int iCount = 0;
+ 
+ 	std::vector<int>::const_iterator it;
+-	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); it++)
++	for (it = m_aiAICitySites.begin(); it != m_aiAICitySites.end(); ++it)
+ 	{
+ 		CvPlot* pCitySitePlot = GC.getMapINLINE().plotByIndex((*it));
+ 		if (AI_isPrimaryArea(pCitySitePlot->area()) && pCitySitePlot->getFoundValue(getID()) >= iMinimumValue)
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index a0af1fa93..51677092b 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -35,7 +35,6 @@ CvReplayInfo::CvReplayInfo() :
+ 
+ CvReplayInfo::~CvReplayInfo()
+ {
+-	ReplayMessageList::const_iterator it;
+ 	for (uint i = 0; i < m_listReplayMessages.size(); i++)
+ 	{
+ 		SAFE_DELETE(m_listReplayMessages[i]);
+@@ -328,7 +327,7 @@ void CvReplayInfo::addReplayMessage(CvReplayMessage* pMessage)
+ 
+ void CvReplayInfo::clearReplayMessageMap()
+ {
+-	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); itList++)
++	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); ++itList)
+ 	{
+ 		const CvReplayMessage* pMessage = *itList;
+ 		if (NULL != pMessage)
+@@ -690,7 +689,6 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	}
+ 	stream.Write((int)m_eVictoryType);
+ 	stream.Write((int)m_listReplayMessages.size());
+-	ReplayMessageList::const_iterator it;
+ 	for (uint i = 0; i < m_listReplayMessages.size(); i++)
+ 	{
+ 		if (NULL != m_listReplayMessages[i])
+
+diff --git a/CvGameCoreDLL/CvString.h b/CvGameCoreDLL/CvString.h
+index f00666fb1..21380644f 100644
+--- a/CvGameCoreDLL/CvString.h
++++ b/CvGameCoreDLL/CvString.h
+@@ -333,7 +333,7 @@ inline bool CvString::formatv(std::string & out, const char * fmt, va_list args)
+ 	if (success)
+ 		out = pbuf;
+ 	else
+-		out = "";
++		out.clear();
+ 
+ 	if (pbuf!=buf)
+ 		delete [] pbuf;
+@@ -376,7 +376,7 @@ inline bool CvWString::formatv(std::wstring & out, const wchar * fmt, va_list ar
+ 	if (success)
+ 		out = pbuf;
+ 	else
+-		out = L"";
++		out.clear();
+ 
+ 	if (pbuf!=buf)
+ 		delete [] pbuf;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a7d452be7..06a86fb2c 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6504,9 +6504,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
+ 		{
+ 			if (GC.getBuildInfo((BuildTypes) iI).getRoute() != NO_ROUTE)
+ 			{
+-				for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++				for (iJ = 0; iJ < GC.getMapINLINE().numPlotsINLINE(); iJ++)
+ 				{
+-					pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++					pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iJ);
+ 
+ 					pCity = pLoopPlot->getPlotCity();
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 342097baf..d472a173b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2483,7 +2483,7 @@ DenialTypes CvTeamAI::AI_vassalTrade(TeamTypes eTeam) const
+ 	{
+ 		const CvTeam& kLoopTeam = GET_TEAM(i);
+ 
+-		if (!kLoopTeam.isAlive() || i == getID() && i == kMasterTeam.getID())
++		if (!kLoopTeam.isAlive() || (i == getID() && i == kMasterTeam.getID()))
+ 			continue;
+ 
+ 		if (kMasterTeam.isAtWar(i) && !isAtWar(i))
+@@ -2575,7 +2575,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 		for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
+ 		{
+ 			const CvTeam& kLoopTeam = GET_TEAM(i);
+-			if (!kLoopTeam.isAlive() || i == getID() && i == kMasterTeam.getID())
++			if (!kLoopTeam.isAlive() || (i == getID() && i == kMasterTeam.getID()))
+ 				continue;
+ 
+ 			if (isAtWar(i) && !kMasterTeam.isAtWar(i))
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index fec2b3a99..fd37aa926 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7445,7 +7445,7 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ {
+ 	if (eUnit == NO_UNIT)
+ 	{
+-		return false;
++		return NULL;
+ 	}
+ 	
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+@@ -7453,17 +7453,17 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 
+ 	if (GC.getCivilizationInfo(kPlayer.getCivilizationType()).getCivilizationUnits(kUnitInfo.getUnitClassType()) != eUnit)
+ 	{
+-		return false;
++		return NULL;
+ 	}
+ 
+ 	if (!upgradeAvailable(getUnitType(), ((UnitClassTypes)(kUnitInfo.getUnitClassType()))))
+ 	{
+-		return false;
++		return NULL;
+ 	}
+ 
+ 	if (kUnitInfo.getCargoSpace() < getCargo())
+ 	{
+-		return false;
++		return NULL;
+ 	}
+ 
+ 	if (getCargo() > 0) // K-Mod. (no point looping through everything if there is no cargo anyway.)
+@@ -7480,7 +7480,7 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 				{
+ 					if (kUnitInfo.getSpecialCargo() != pLoopUnit->getSpecialUnitType())
+ 					{
+-						return false;
++						return NULL;
+ 					}
+ 				}
+ 
+@@ -7488,7 +7488,7 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 				{
+ 					if (kUnitInfo.getDomainCargo() != pLoopUnit->getDomainType())
+ 					{
+-						return false;
++						return NULL;
+ 					}
+ 				}
+ 			}
+@@ -12858,8 +12858,8 @@ int CvUnit::planBattle(CvBattleDefinition& kBattle, const std::vector<int>& comb
+ 			if (!bNextRound && (iDefenderUnitsKilled > 0 || iAttackerUnitsKilled > 0))
+ 			{
+ 				if (i+1 == combat_log.size() ||
+-					iDefenderUnitsKilled >= iAttackerUnits - iAttackerUnitsKilled && combat_log[i] > 0 ||
+-					iAttackerUnitsKilled >= iDefenderUnits - iDefenderUnitsKilled && combat_log[i] < 0)
++					(iDefenderUnitsKilled >= iAttackerUnits - iAttackerUnitsKilled && combat_log[i] > 0) ||
++					(iAttackerUnitsKilled >= iDefenderUnits - iDefenderUnitsKilled && combat_log[i] < 0))
+ 				{
+ 					bNextRound = true;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index cd3e92174..8050da812 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10301,8 +10301,6 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		(AI_getUnitAIType() == UNITAI_COUNTER) ||
+ 		(AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+ 		  (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+-		  (AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+-			(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+ 			(AI_getUnitAIType() == UNITAI_PARADROP) ||
+ 			(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+ 			(AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+@@ -10994,7 +10992,7 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, int iFlags, int iMaxPath
+ 
+ 	// K-Mod
+ 	if (eUnitAI != NO_UNITAI && GET_PLAYER(getOwnerINLINE()).AI_getNumAIUnits(eUnitAI) == 0)
+-		return false;
++		return NULL;
+ 	// K-Mod end
+ 
+ 	int iBestValue = MAX_INT;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 43e2210fc..11d3df579 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -129,10 +129,10 @@ void CvXMLLoadUtility::ResetGlobalEffectInfo()
+ //------------------------------------------------------------------------------------------------------
+ void CvXMLLoadUtility::MakeMaskFromString(unsigned int *puiMask, char* szMask)
+ {
+-	int i;	// loop counter
++	int iLength = (int)strlen(szMask);
+ 
+ 	// loop through each character in the szMask parameter
+-	for (i=0;i<(int)strlen(szMask);i++)
++	for (int i=0;i<iLength;i++)
+ 	{
+ 		// if the current character in the string is a zero
+ 		if (szMask[i] == '0')
+
+diff --git a/CvGameCoreDLL/FAssert.cpp b/CvGameCoreDLL/FAssert.cpp
+index f37bd9de6..2e8105292 100644
+--- a/CvGameCoreDLL/FAssert.cpp
++++ b/CvGameCoreDLL/FAssert.cpp
+@@ -63,7 +63,7 @@ namespace
+ 
+ 				sprintf( g_AssertText, "Assert Failed\r\n\r\n"
+ 					"File:  %s\r\n"
+-					"Line:  %d\r\n"
++					"Line:  %u\r\n"
+ 					"Expression:  %s\r\n" 
+ 					"Message:  %s\r\n"
+ 					"\r\n"
+
+diff --git a/CvGameCoreDLL/FVariableSystem.inl b/CvGameCoreDLL/FVariableSystem.inl
+index e310f3081..bf047bb6f 100644
+--- a/CvGameCoreDLL/FVariableSystem.inl
++++ b/CvGameCoreDLL/FVariableSystem.inl
+@@ -112,7 +112,7 @@ inline void FVariableSystem::UnInit()
+ 	{
+ 		pkVariable = (FVariable*)iIterator->second;
+ 		if ( pkVariable != NULL ) delete pkVariable;
+-		iIterator++;
++		++iIterator;
+ 	}
+ 	m_mapVariableMap.clear ();
+ }
+@@ -183,7 +183,7 @@ inline void FVariableSystem::Write(FDataStreamBase *pStream) const
+ 		pkVariable->Write(pStream);
+ 		
+ 		iNumWritten++;
+-		iIterator++;
++		++iIterator;
+ 	}
+ 
+ 	assert(iNumWritten==iSize);
+@@ -803,7 +803,7 @@ inline std::string FVariableSystem::GetFirstVariableName( )
+ inline std::string FVariableSystem::GetNextVariableName( )
+ {
+ 	if ( m_iVariableIterator != m_mapVariableMap.end())
+-		m_iVariableIterator++;
++		++m_iVariableIterator;
+ 
+ 	if ( m_iVariableIterator != m_mapVariableMap.end())
+ 		return (*m_iVariableIterator).first;
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=33829

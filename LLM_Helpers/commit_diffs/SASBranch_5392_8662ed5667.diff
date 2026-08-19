@@ -1,0 +1,208 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5392
+# Commit: 8662ed56678c0bf16b7ef23040845df22901167b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d2309b10188454e8f05d4e65e6902990f21526e2
+# Title: add timer in sevopedia media player
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+61	0	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+7	0	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+8	0	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d2d6cbe4e..d3ddd0378 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -2138,6 +2138,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
++	def update(self, fDelta):
++		if self.pediaMovies.isMoviePlayerOpen():
++			self.pediaMovies.updateTimer(fDelta)
++		if self.pediaMusic.isMusicPlayerOpen():
++			self.pediaMusic.updateTimer(fDelta)
++
++
++
+ 	def deleteAllWidgets(self):
+ 		screen = self.getScreen()
+ 		iNumWidgets = self.nWidgetCount
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index 092fe8203..2945461a1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -25,6 +25,7 @@ class SevoPediaMediaPlayer:
+ 		self.flipId = clickPrefix + "Flip"
+ 		self.prevGroupId = clickPrefix + "PrevGroup"
+ 		self.nextGroupId = clickPrefix + "NextGroup"
++		self.timerLabelId = clickPrefix + "Timer"
+ 		self.queuePanelId = clickPrefix + "QueuePanel"
+ 		self.queueListId = clickPrefix + "QueueList"
+ 		self.clickPrefix = clickPrefix
+@@ -45,6 +46,11 @@ class SevoPediaMediaPlayer:
+ 		self.flipButtonPath = None
+ 		self.flipCallback = None
+ 		self.screen = None
++		self.timerSeconds = 0
++		self.timerRemainder = 0.0
++		self.timerRunning = False
++		self.timerLabelX = 0
++		self.timerLabelY = 0
+ 
+ 
+ 
+@@ -303,6 +309,7 @@ class SevoPediaMediaPlayer:
+ 		screen.hideScreen()
+ 		self.isOpen = False
+ 		self.screen = None
++		self.timerRunning = False
+ 
+ 
+ 
+@@ -311,6 +318,60 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 
++	def placeTimerLabel(self, screen, iScreenW, iScreenH):
++		self.timerLabelX = iScreenW - 20
++		self.timerLabelY = 12
++		self._updateTimerLabel()
++
++
++
++	def startTimer(self):
++		self.timerSeconds = 0
++		self.timerRemainder = 0.0
++		self.timerRunning = True
++		self._updateTimerLabel()
++
++
++
++	def resetTimer(self):
++		self.timerSeconds = 0
++		self.timerRemainder = 0.0
++		self.timerRunning = True
++		self._updateTimerLabel()
++
++
++
++	def updateTimer(self, fDelta):
++		if (not self.timerRunning) or (self.screen is None):
++			return
++		self.timerRemainder += fDelta
++		if self.timerRemainder < 1.0:
++			return
++		iTicks = int(self.timerRemainder)
++		self.timerRemainder = self.timerRemainder - iTicks
++		self.timerSeconds += iTicks
++		self._updateTimerLabel()
++
++
++
++	def _updateTimerLabel(self):
++		if self.screen is None:
++			return
++		szText = self._formatElapsed(self.timerSeconds)
++		self.screen.setLabel(self.timerLabelId, "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.timerLabelX, self.timerLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++
++
++	def _formatElapsed(self, iSeconds):
++		iSec = iSeconds % 60
++		iMin = (iSeconds / 60) % 60
++		iHour = iSeconds / 3600
++		if iHour > 0:
++			return u"%d:%02d:%02d" % (iHour, iMin, iSec)
++		return u"%02d:%02d" % (iMin, iSec)
++
++
++
+ 	def handleInput(self, inputClass, closeCallback, bCloseOnMovieDone):
+ 		if not self.isOpen:
+ 			return False
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index fa4c7a4d6..6468594bf 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -145,6 +145,8 @@ class SevoPediaMovie:
+ 		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
+ 		screen = self.mediaPlayer.openScreen()
+ 		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, szTitleText)
++		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
++		self.mediaPlayer.startTimer()
+ 
+ 		if szMovieKind == "nif":
+ 			screen.addReligionMovieWidgetGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -206,6 +208,11 @@ class SevoPediaMovie:
+ 
+ 
+ 
++	def updateTimer(self, fDelta):
++		self.mediaPlayer.updateTimer(fDelta)
++
++
++
+ 	def replayMovie(self):
+ 		if self.SAS_lastMoviePayload is None:
+ 			return
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index b5b6c077f..24ab80403 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -232,6 +232,8 @@ class SevoPediaMusic:
+ 		szTitleText = self.top.SAS_getMusicTitle(iMusic)
+ 		screen = self.mediaPlayer.openScreen()
+ 		iScreenW, iScreenH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.setupLayout(screen, szTitleText)
++		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
++		self.mediaPlayer.startTimer()
+ 
+ 		iEra = self.top.SAS_getMusicEra(iMusic)
+ 		szImagePath = ""
+@@ -286,11 +288,17 @@ class SevoPediaMusic:
+ 		if self.SAS_lastMusicSound is None:
+ 			return
+ 		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
++		self.mediaPlayer.resetTimer()
+ 		self.mediaPlayer.stopSound()
+ 		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
+ 
+ 
+ 
++	def updateTimer(self, fDelta):
++		self.mediaPlayer.updateTimer(fDelta)
++
++
++
+ 	def playPrevMusic(self):
+ 		if (self.SAS_playableMusic is None) or (self.SAS_playableMusicIndex <= 0):
+ 			return
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+index d87fb6243..3c1df73d7 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+index 424a05b3c..49ba55681 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5979

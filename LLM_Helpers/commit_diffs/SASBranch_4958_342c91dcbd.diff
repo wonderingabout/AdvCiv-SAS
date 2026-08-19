@@ -1,0 +1,630 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4958
+# Commit: 342c91dcbddec9b460723e2c4ec0051f2a50a219
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fe58e134631681ba9e79e481dd29a761b8820696
+# Title: better handle roading bonuses asap if they are not connected already (e.g. river or road) for AI workers anyways etc, nerf/rebalance water buildings a bit an...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+9	25	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+183	54	CvGameCoreDLL/CvUnitAI.cpp
+2	1	README.md
+8	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+13	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d0ccf5f8a..8929464ec 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -5499,7 +5499,7 @@
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+ 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<!-- custom: was 0 -->
+-			<iTradeRouteModifier>50</iTradeRouteModifier>
++			<iTradeRouteModifier>25</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+@@ -5686,7 +5686,7 @@
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+ 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<!-- custom: was 0 -->
+-			<iTradeRouteModifier>50</iTradeRouteModifier>
++			<iTradeRouteModifier>25</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+@@ -6253,7 +6253,8 @@
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+ 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>25</iTradeRouteModifier>
++			<!-- custom: was 25 -->
++			<iTradeRouteModifier>50</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+@@ -6264,11 +6265,10 @@
+ 			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<!-- custom: also give water tiles production per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc ; as for the viking trading post add gold per tile as the vikings were traders too if i am not mistaken anyways etc, should be balanced since tiles need to be allocated else no bonus to gold and such but anyways etc hopefully balanced anyways etc anyways etc anyways etc -->
+ 			<SeaPlotYieldChanges>
+ 				<iYield>0</iYield>
+ 				<iYield>1</iYield>
+-				<iYield>1</iYield>
++				<iYield>0</iYield>
+ 			</SeaPlotYieldChanges>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+@@ -6449,12 +6449,7 @@
+ 			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
+-			<SeaPlotYieldChanges>
+-				<iYield>0</iYield>
+-				<iYield>0</iYield>
+-				<iYield>1</iYield>
+-			</SeaPlotYieldChanges>
++			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+@@ -6625,8 +6620,7 @@
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+ 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<!-- custom: was 100 -->
+-			<iForeignTradeRouteModifier>50</iForeignTradeRouteModifier>
++			<iForeignTradeRouteModifier>100</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+ 			<iDefense>0</iDefense>
+@@ -6636,24 +6630,14 @@
+ 			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
+-			<SeaPlotYieldChanges>
+-				<iYield>0</iYield>
+-				<iYield>0</iYield>
+-				<iYield>1</iYield>
+-			</SeaPlotYieldChanges>
++			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<!-- custom: was empty -->
+-			<CommerceModifiers>
+-				<iCommerce>10</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index fa1f9f380..6d9ab5d0d 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -72,7 +72,7 @@ void CvGame::updateColoredPlots()
+ 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 				}
+ 			}
+-			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use bestcitybuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality at least i want to do so in this case but anyways etc -->
++			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality at least i want to do so in this case but anyways etc -->
+ 			// // Plot improvement replacement circles for debugging
+ 			// FOR_EACH_ENUM(PlotNum)
+ 			// {
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b0dce67b4..8a710fd64 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -977,7 +977,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
+ 	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thnaks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but chek to be sure anyways etc.
+ 	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
+-	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of memaybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
++	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of me maybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+ 
+ 	std::vector<CandidatePlot> candidatePlots;
+ 
+@@ -1038,6 +1038,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 		if (eBonus != NO_BONUS)
+ 		{
++			// <!-- custom: also handle here choosing to road the tile so it is done and we get the early effects like as of now +1 health with rice or wheat, or +1 happy with gold or silver anyways etc, as well as connecting it to our capital if needed (e.g. no river that connects it already or such anyways etc) (note: this does not handle regular roading for all tiles (i.e. it does not include non-bonus ones, as of now not handled here anyways etc)). This is efficient since we already through all plots here and check bonuses and such, so that we don't need to do it later when/where we enforce this rule in the related functions that call us i.e. that call this function, is done as advised by chatgpt 5 and me asking about this idea to do it rather than the solution it provided but thanks too but anyways etc -->
++			// prefer ROAD, never rails <!-- custom: i.e. i mean / what i want is but anyways etc: don't bother with railroads, hopefully handled elsewhere, we only want to connect the bonuses, regular road is fine for that anyways etc -->
++			// <!-- custom: note: one of the advantages of choosing road here rather than at caller level or such of CvUnitAI::AI_bestCityBuild function but anyways etc, is that for example if we can improve with bestbuild already (e.g. gemstones with a mine) but we can't road yet (e.g. the wheel not unlocked as of now should mostly be only condition if i'm not mistaken but check to be sure anyways etc) then we'd improve it now, do other tasks, then when we unlock roads, we'd have to check all bonus plots, check if they have a road and if not if best improvement then if not river or not connected to a city or capital or such whatever, then only then road; that's a lot of checks, when we can just reuse all these checks already here, and add a "you should build road alternatively here" case that handles bonus having best improvement be it at turn 1 or turn 99 or wherever we unlock the wheel or and whichever tech allos us to, so it seems to me like a better solution to handle the road decision here (with all edge cases like camp on forest/jungle not requiring a chop or such (e.g. we can't chop yet if we don't have as of now tech_masonry, but we have tech_hunting so as of now we can build the camp don't wait, or don't waste turns chopping and get yields first is a bit better or such other cases if any, so nicer and easier to handle here i think but anyways etc)), while we handle the road order outside this function at caller level or such but check if accurate anyways etc; another advantage is we already check pathfinding here or such (else we would skip candidate plot and not return it, so seems very fine as such, and chatgpt 5 agrees with me hehe despite goign back and forth a few times on whether to do or not but it helped me big lot and is quite sharp if i may say thanks but anyways etc, so going with this approach i think indeed if i may say in this case i mean but anyways etc) -->
++			static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
++
+ 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units if i am not mistaken anyways etc -->
+ 			// <!-- custom: note 2: even if chopping is important, do not change plot value at all, so that highest value bonus is chopped first, then at next step it is still highest value so it is improved, then it has now an improvement that is correct so it is moved out of our plots in all cases, then 2nd best bonus is chopped if needed, else improved, then 3rd bonus choped if needed then improved etc, then the rest of the plots :) Hehe a very elegant solution as gemini ai said from idea i nicely got but it helped me lot, so making chopping more important by not making it more important (else with a multiplier AI would rush in theory at least but anyways etc from chopping one bonus to directly chopping bonus 2 without imrpvoing bonus 1 before that which would defeat the purpose and be very inefficient, only goal was to chop before actual improve for flexibility of AI workers and such anyways etc) if i may say but anyways etc... -->
+ 			if (eFeature == eFeatureForest)
+@@ -1048,23 +1053,34 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (canBuild(kPlot, eBuildCamp))
+ 					{
+ 						eBestSupposedBuild = eBuildCamp;
++
++						iValue += 19000;
+ 					}
+-					else
++					else if (canBuild(kPlot, eBuildRemoveForest))
+ 					{
+-						if (canBuild(kPlot, eBuildRemoveForest))
+-						{
+-							eBestSupposedBuild = eBuildRemoveForest;
++						eBestSupposedBuild = eBuildRemoveForest;
+ 
+-							iValue += 19000;
+-						}
+-						else
++						iValue += 19000;
++					}
++					// <-- custom: even if we can't chop yet, we can still build a road to get the effects (e.g. 1 happy with bonus_furs if has a camp on forest or jungle for example anyways etc), so try a road as well here. If we can chop though, do so first so it's done, then the roading will be handled by bonus specific branch of the bonus code, as tile would not have a feature forest nor feature jungle anymore (i.e. no feature to remove), and camp will be as of now detected as the idea bonus improvement (bonus specific anyways etc) and so roading choice will be handled there rather, as for here in case we can't chop but can build e.g. a camp, then road as well if we can (else continue i guess if i may say but anyways etc) -->
++					else if (!kPlot.isConnectedToCapital(getOwner()))
++					{
++						if (eBuildRoad != NO_BUILD && canBuild(kPlot, eBuildRoad))
+ 						{
+-							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+-							continue;
++							eBestSupposedBuild = eBuildRoad;
++
++							// high, but still less than an *unimproved* bonus (+20000 in your code)
++							iValue += 16000;
+ 						}
+ 					}
++					else
++					{
++						// <!-- custom: already improved, and if necessary and possible already connected (else may simply unneeded so continue anyway if i'm not mistaken anyways etc) -->
++						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
++						continue;
++					}
+ 				}
+-				// <!-- custom: also handle silver and/or other bonuses on forest as well anyways etc -->
++				// <!-- custom: also handle silver and/or other bonuses on forest as well anyways etc; we need to remove the forest else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not but anyways etc -->
+ 				else
+ 				{
+ 					if (canBuild(kPlot, eBuildRemoveForest))
+@@ -1091,22 +1107,31 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 						iValue += 19000;
+ 					}
+-					else
++					else if (canBuild(kPlot, eBuildRemoveJungle))
+ 					{
+-						if (canBuild(kPlot, eBuildRemoveJungle))
+-						{
+-							eBestSupposedBuild = eBuildRemoveJungle;
++						eBestSupposedBuild = eBuildRemoveJungle;
+ 
+-							iValue += 19000;
+-						}
+-						else
++						iValue += 19000;
++					}
++					// <-- custom: even if we can't chop yet, we can still build a road to get the effects (e.g. 1 happy with bonus_furs if has a camp on forest or jungle for example anyways etc), so try a road as well here. If we can chop though, do so first so it's done, then the roading will be handled by bonus specific branch of the bonus code, as tile would not have a feature forest nor feature jungle anymore (i.e. no feature to remove), and camp will be as of now detected as the idea bonus improvement (bonus specific anyways etc) and so roading choice will be handled there rather, as for here in case we can't chop but can build e.g. a camp, then road as well if we can (else continue i guess if i may say but anyways etc) -->
++					else if (!kPlot.isConnectedToCapital(getOwner()))
++					{
++						if (eBuildRoad != NO_BUILD && canBuild(kPlot, eBuildRoad))
+ 						{
+-							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+-							continue;
++							eBestSupposedBuild = eBuildRoad;
++
++							// high, but still less than an *unimproved* bonus (+20000 in your code)
++							iValue += 16000;
+ 						}
+ 					}
++					else
++					{
++						// <!-- custom: already improved, and if necessary and possible already connected (else may simply unneeded so continue anyway if i'm not mistaken anyways etc) -->
++						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
++						continue;
++					}
+ 				}
+-				// <!-- custom: also handle gemstones and/or other bonuses on jungle as well anyways etc -->
++				// <!-- custom: also handle gemstones and/or other bonuses on jungle as well anyways etc; we need to remove the jungle else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not but anyways etc -->
+ 				else
+ 				{
+ 					if (canBuild(kPlot, eBuildRemoveJungle))
+@@ -1162,7 +1187,22 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					//  is already improved correctly ===
+ 					if (kPlot.getImprovementType() == eBonusSpecificImprovement)
+ 					{
+-						continue;
++						if (!kPlot.isConnectedToCapital(getOwner()))
++						{
++							// <!-- custom: disabled as seems redundant despite chatgpt 5's original suggestion, when feeding it the code it says that this is not required actually: `&& canBuildRoute()`; since we hardcode the road itself, maybe no need to complicate this and simply check corresponding build directly but i don't know too much about these, check if accurate anyways etc -->
++							if (eBuildRoad != NO_BUILD && canBuild(kPlot, eBuildRoad))
++							{
++								eBestSupposedBuild = eBuildRoad;
++
++								// high, but still less than an *unimproved* bonus (+20000 in your code)
++								iValue += 16000;
++							}
++						}
++						else
++						{
++							// <!-- custom: already improved, and if necessary and possible already connected (else may simply unneeded so continue anyway if i'm not mistaken anyways etc) -->
++							continue;
++						}
+ 					}
+ 				}
+ 
+@@ -1810,7 +1850,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+ 								eBestSupposedBuild = eBuildMine;
+ 
+-								// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
++								// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting non-bonus roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
+ 								iValue += 200;
+ 							}
+ 							else
+@@ -18769,24 +18809,72 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
+ 
+ 	CvPlot* pBestPlot=NULL;
+ 	BuildTypes eBestBuild=NO_BUILD;
++
++	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
+ 	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
+ 		return false; // advc
++
+ 	FAssert(pBestPlot != NULL);
+ 	FAssertEnumBounds(eBestBuild);
+-	MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
+-	// <advc> Moved into helper function
+-	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity) ?
+-			MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
+-	getGroup()->pushMission(eMission,
+-			pBestPlot->getX(), pBestPlot->getY(),
+-			eFlags, false, false,
+-			MISSIONAI_BUILD, pBestPlot);
+-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+-	getGroup()->pushMission(MISSION_BUILD,
+-			eBestBuild, -1,
+-			eFlags, /*(getGroup()->getLengthMissionQueue() > 0)*/ true, // K-Mod
+-			false, MISSIONAI_BUILD, pBestPlot);
+-	return true;
++
++	// Patch 1 — AI_improveCity
++	// <!-- custom: update: now we actually choose best build to be eBuildRoad in CvUnitAI::AI_bestCityBuild function as it is efficient to do so as i got the idea to and as chatgpt 5 recommended as well when asking it hehe about this idea i got but anyways etc. So just make sure this eBuildRoad in CvUnitAI::AI_bestCityBuild is successfully handled as a road (we check there plot being pathable, as well as if connected to capital already (e.g. river or such, so simply connect here anyways etc)) -->
++	static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
++	
++    // Sentinel: road an already-improved, unconnected bonus (Wheel known)
++	// Return from the sentinel branch to avoid falling through to the generic path:
++    const BonusTypes eBonusHere = pBestPlot->getNonObsoleteBonusType(getTeam());
++    const bool bSentinelRoad = (eBestBuild == eBuildRoad && eBonusHere != NO_BONUS);
++
++    if (bSentinelRoad)
++    {
++        // 1) move to the tile (don’t auto-road the whole path)
++        getGroup()->pushMission(MISSION_MOVE_TO,
++            pBestPlot->getX(), pBestPlot->getY(),
++            NO_MOVEMENT_FLAGS, false, false,
++            MISSIONAI_BUILD, pBestPlot);
++
++        // 2) road the tile itself
++        if (canBuild(*pBestPlot, eBuildRoad))
++        {
++            getGroup()->pushMission(MISSION_BUILD,
++                eBuildRoad, -1, NO_MOVEMENT_FLAGS,
++                /*append*/true, /*manual*/false, MISSIONAI_BUILD, pBestPlot);
++        }
++
++        // 3) build the *shortest* missing connector to the trade network
++        if (!AI_connectPlot(*pBestPlot))
++        {
++            if (CvCity* pCap = GET_PLAYER(getOwner()).getCapitalCity())
++            {
++                getGroup()->pushMission(MISSION_ROUTE_TO,
++                    pCap->getX(), pCap->getY(),
++                    MOVE_SAFE_TERRITORY, /*append*/true,
++                    /*manual*/false, MISSIONAI_BUILD, pBestPlot);
++            }
++        }
++        return true;
++    }
++	// --- normal (non-sentinel) path, unchanged ---
++	// <!-- custom: the else i added here is redundant i think since we return true but just for clarity and in case code changes somehow someday or such but anyways etc -->
++	else
++	{
++		// <!-- custom: old code resumes below anyways etc -->
++		MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
++		// <advc> Moved into helper function
++		MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity) ?
++				MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
++		getGroup()->pushMission(eMission,
++				pBestPlot->getX(), pBestPlot->getY(),
++				eFlags, false, false,
++				MISSIONAI_BUILD, pBestPlot);
++		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
++		getGroup()->pushMission(MISSION_BUILD,
++				eBestBuild, -1,
++				eFlags, /*(getGroup()->getLengthMissionQueue() > 0)*/ true, // K-Mod
++				false, MISSIONAI_BUILD, pBestPlot);
++		return true;
++	}
+ }
+ 
+ 
+@@ -19019,6 +19107,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         // Ask the per-city logic for its single best target plot + build
+         CvPlot* pPlot = NULL;
+         BuildTypes eBuild = NO_BUILD;
++		// <!-- custom: note: for some reason we crash when only try to check AI_bestCityBuild function call and not AI_getBestBuild function call if i'm not mistaken anyways etc. I don't know if it's related to my heavy changes in the function or not or if it wa already here before or not. My idea is since we handle all (land) improvements as we want now directly in AI_bestCityBuild, we maybe don't need anymore the old AI_getBestBuild that we disabled in our rewritten AI_bestCityBuild to compute value of each plot ourselves, but maybe this interferes or removes or doesn't handle some logic like workboats, roads, water tiles? I don't know enough nor did i check, so these are just guesses of me anyways, but since it seems to work as is, i'm adding this info just for reference or if useful to debug or for myself xd if i may say but anyways etc, hopefully helpful or not or yes or etc anyways etc -->
+         if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
+             !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+         {
+@@ -19043,7 +19132,6 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+         pBestPlot = pPlot;
+         break;
+     }
+-
+ 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
+ 
+ 	if (pBestPlot == NULL)
+@@ -19056,24 +19144,64 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	if (NULL != pBestPlot->getWorkingCity())
+ 		pBestPlot->getWorkingCity()->AI_changeWorkersHave(+1);*/
+ 
+-	// <advc.121>
+-	MissionTypes eMission = MISSION_MOVE_TO;
+-	if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
+-		SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
++	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
++	// Patch 2 — AI_nextCityToImprove
++	// <!-- custom: then after i asked a bit to know more or/and for clarity or where to put the code xd it added these details, check if accurate anyways etc -->
++	// Is Patch 2 needed?
++	// Strictly speaking, Patch 1 will catch cases where the worker improves tiles in its current city. But you’ve made AI_nextCityToImprove much more active (good!), so plenty of improvements will be initiated from there. To guarantee “improve → then connect” everywhere, apply both patches.
++	// ... after we have pBestPlot and eBestBuild chosen ...
++	static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
++	const BonusTypes eBonusHere = pBestPlot->getNonObsoleteBonusType(getTeam());
++	const bool bSentinelRoad = (eBestBuild == eBuildRoad && eBonusHere != NO_BONUS);
++
++	if (bSentinelRoad)
+ 	{
+-		if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
+-			eMission = MISSION_ROUTE_TO;
+-	}
+-	getGroup()->pushMission(eMission, /* </advc.121> */
++		getGroup()->pushMission(MISSION_MOVE_TO,
+ 			pBestPlot->getX(), pBestPlot->getY(),
+-			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
+-			false, false, MISSIONAI_BUILD, pBestPlot);
+-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+-	getGroup()->pushMission(MISSION_BUILD,
+-			eBestBuild, -1, NO_MOVEMENT_FLAGS,
+-			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+-			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
+-	return true;
++			NO_MOVEMENT_FLAGS, false, false, MISSIONAI_BUILD, pBestPlot);
++
++		if (canBuild(*pBestPlot, eBuildRoad))
++		{
++			getGroup()->pushMission(MISSION_BUILD,
++				eBuildRoad, -1, NO_MOVEMENT_FLAGS,
++				/*append*/true, /*manual*/false, MISSIONAI_BUILD, pBestPlot);
++		}
++
++		if (!AI_connectPlot(*pBestPlot))
++		{
++			if (CvCity* pCap = GET_PLAYER(getOwner()).getCapitalCity())
++			{
++				getGroup()->pushMission(MISSION_ROUTE_TO,
++					pCap->getX(), pCap->getY(),
++					MOVE_SAFE_TERRITORY, /*append*/true,
++					/*manual*/false, MISSIONAI_BUILD, pBestPlot);
++			}
++		}
++		return true;
++	}
++	// <!-- custom: then code resumes below anyways etc-->
++	// <!-- custom: note: the else i added here is redundant i think since we return true but just for clarity and in case code changes somehow someday or such but anyways etc -->
++	else
++	{
++		// <advc.121>
++		MissionTypes eMission = MISSION_MOVE_TO;
++		if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
++			SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
++		{
++			if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
++				eMission = MISSION_ROUTE_TO;
++		}
++		getGroup()->pushMission(eMission, /* </advc.121> */
++				pBestPlot->getX(), pBestPlot->getY(),
++				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
++				false, false, MISSIONAI_BUILD, pBestPlot);
++		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
++		getGroup()->pushMission(MISSION_BUILD,
++				eBestBuild, -1, NO_MOVEMENT_FLAGS,
++				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
++				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
++		return true;
++	}
+ }
+ 
+ 
+@@ -19720,6 +19848,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)
+ 		return eBuild;
+ 	}
+ 
++	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume if i'm not mistaken but anyways etc). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and if i am not mistaken; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these if i'm not mistaken anyways etc -->
+ 	// IMPROVED LOGIC: Road improved bonuses that aren't connected yet
+ 	BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+ 	if (eBonus != NO_BONUS &&
+
+diff --git a/README.md b/README.md
+index d3db80a49..cd03e8eee 100644
+--- a/README.md
++++ b/README.md
+@@ -12,13 +12,14 @@ All in all, this simplifies gameplay to some extent, but greatly increases depth
+ 
+ ## Menu
+ 
+-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
++Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
+ 
+ [Tech Tree](/README.md#tech-tree)  
+ [Military Tree and changes](/README.md#military-tree-and-changes)  
+ [Docs](/README.md#docs)  
+ [How to play?](/README.md#how-to-play)  
+ [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
++[Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)](/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc)  
+ [Quick Start Guide](/README.md#quick-start-guide)  
+ [Important Sevopedia reworks (click on the images below to view them full size)](/README.md#important-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)  
+ &emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 48ec2d3b5..9a20de117 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -138,6 +138,14 @@ To add music to a leader in advciv-sas for example (i assume would be the same o
+ 
+ Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remove the `.mp3` in filename else file is unreadable anyways etc!!!
+ 
++### trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video
++
++If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast whiel the behaviour you want to capture in screenshot happens.
++
++I noticed this accidentally or rather unconsciously xd, and it helped me identify an issue that we can only for like 0.2 seconds or such, but that can be captured in a screenshot this way.
++
++See an example of this in the update note in [51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction) anyways etc.
++
+ ### write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc
+ 
+ I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance but anyways etc) as bullet points or such as you prefer anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 6be9d6e0d..cc2b00849 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1027,7 +1027,7 @@ This is an issue i had in base advciv, and this solution may not necessarily in
+ 
+ I have written most details there, so only adding here as less tedious to do so anyways etc, but hopefully helpful or not or yes or etc but anyways etc a few or quite a few screenshots in the google drive link folder mentionned at the top of this known issue section (as of now number 30 anyways etc)
+ 
+-These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not improved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
++These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soon after which was the main purpose/goal of these changes (in base advciv i would have a bonus not improved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
+ 
+ Ideally i would track other places where changes may be necessary, not sure i would do but maybe, or maybe not ; in this case i mean, anyways etc.
+ 
+@@ -1057,6 +1057,10 @@ Areas of improvement not related to our code change:
+ 
+ Hopefully i'd continue improving these ideally but may or may not do anyways etc
+ 
++update: these are fixed by now long ago hehe, but kept for context anyways etc
++
++update 2: since then, i added road choosing with chatgpt 5's help and thanks to my prompts and adjustments and such too if i may say but anyways etc handling in `CvUnitAI::AI_bestCityBuild` since we loop through all city plots, 2 patches in `CvUnitAI::AI_improveCity` and `CvUnitAI::AI_nextCityToImprove` so that we make sure to road these bonuses as soon as we can if needed (e.g. no river connection nor is bonus connected to our trade network anyways etc), for example but not only when we discover the wheel later, but have improved our bonuses many or a few turns before that, so our workers would forget or maybe rather not pay enough attention to the importance to road/connect right away any connectable and not connected bonus in BFC, and autoplay results show in a few maps that they see and handle that much better now, but check if accurate especially as testing sample is small in this case i mean but anyways etc but it does seem a bit if not a lot betetr but check to be sure if is not a coincidence but reliable difference which i think it is (a reliable difference) but check to be sure i mean anyways etc.
++
+ ## 32 - (now seemingly fixed) Prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot")
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing).
+@@ -1107,6 +1111,8 @@ Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4,
+ 
+ update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc
+ 
++update 2: now also handles roading choice of build on not connected but connectable bonuses in BFC with other patches, see update 2 at [31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
++
+ ## 34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1yqmOZ1hSXPtgeVY69eFlj6R6OAM9mdze?usp=sharing).
+@@ -1702,6 +1708,8 @@ So trying to find and fix and possibly enhance the excessive scrapping issue, go
+ 
+ As for this issue of no production, not totally improved but significantly better now if i'm not mistaken, so trying to move to the much more urgent issue now and see what we can or can not (or cannot? Or not can? Xd but anyways etc) do but anyways etc
+ 
++update: the scrapping issue is now fixed and addressed and enhanced; as for the no production issue, i have seen it more clearly in a savefile numbered 344 and screenshots 2920 to 2925 almost all if not all in same turn, by pressing print screen super fast while in autoplay, i could see the city being in no produciton, the order for a much needed camel cuirassier being issued (especially since we are much weaker militarily here than other AI players but anyways etc), and then the order getting seemingly popped or whatever the word is for cancelling this order all in the same turn it seems from screenshots as well but anyways etc. Hopefully this is a good start point to implement a better fix, as we are in this map weaker and would have much needed the extra camel cuirassier but anyways etc, and at turn 201 as a result still no produciton as well so we can hopefully fix all that maybe anyways etc. (Note: about this fast screenshot trick i just discovered xd and somehow got the idea to do/try, i added it in [Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video) for future reference as well if needed anyways etc)) (Note 2: the deer not being improved is before i fixed the bug of forest not being chopped on camp bonuses like deer elephants and such anyways etc, now properly chops and improves there anyways etc)
++
+ ## 52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
+@@ -1910,15 +1918,15 @@ Caps compare empire-wide counts using AI_totalUnitAIs(...), which includes units
+ 
+ | Group                 | AIs                                   |            Base cap | Map tweak                  | Threat tweak                                                       | Notes                                                        |              |   |                                                            |                                                 |            |                                      |
+ | --------------------- | ------------------------------------- | ------------------: | -------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------------ | - | ---------------------------------------------------------- | ----------------------------------------------- | ---------- | ------------------------------------ |
+-| **Frontline**         | `ATTACK_SEA, RESERVE_SEA, PIRATE_SEA` |                 `N` | `2N` on NavalHeavy         | Halve (min 1) if \`bAtWar                                          |                                                              | bEnemyStrong |   | bDanger                                                    |                                                 | bWarPlan\` | Prevents late naval bloat on Pangaea |
++| **Frontline**         | `ATTACK_SEA, RESERVE_SEA, PIRATE_SEA` |                 `N` | `2N` on NavalHeavy         | Halve (min 1) if bAtWar                                          |                                                              | bEnemyStrong |   | bDanger                                                    |                                                 | bWarPlan | Prevents late naval bloat on Pangaea |
+ | **Explore**           | `EXPLORE_SEA`                         |        `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | Halve (min 1) if any threat                                        | Keep a small scout fleet only                                |              |   |                                                            |                                                 |            |                                      |
+-| **Assault (offense)** | `ASSAULT_SEA`                         |                 `N` | `2N` on NavalHeavy         | **Block** if \`bEnemyStrong                                        |                                                              | bDanger      |   | bWarPlan\`                                                 | Don’t plan invasions under pressure             |            |                                      |
++| **Assault (offense)** | `ASSAULT_SEA`                         |                 `N` | `2N` on NavalHeavy         | **Block** if bEnemyStrong                                        |                                                              | bDanger      |   | bWarPlan                                                 | Don’t plan invasions under pressure             |            |                                      |
+ | **Escort (defense)**  | `ESCORT_SEA`                          |                 `N` | `2N` on NavalHeavy         | Reduce to **60%** (min 1) if any threat                            | Keeps some cover, but trims excess                           |              |   |                                                            |                                                 |            |                                      |
+ | **Air platforms**     | `CARRIER_SEA, MISSILE_CARRIER_SEA`    |                 `N` | `2N` on NavalHeavy         | Reduce to **60%** (min 1) if any threat                            |                                                              |              |   |                                                            |                                                 |            |                                      |
+ | **Settler ships**     | `SETTLER_SEA`                         |        `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | If threat: **block** on land-heavy maps; allow **1** on NavalHeavy | Avoid risky expansion during danger                          |              |   |                                                            |                                                 |            |                                      |
+ | **Workboats**         | `WORKER_SEA`                          | `N` (≤ Renaissance) | `2N` on NavalHeavy         | —                                                                  | After Renaissance: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋` NavalHeavy) |              |   |                                                            |                                                 |            |                                      |
+ | **Missionary ships**  | `MISSIONARY_SEA`                      | `N` (≤ Renaissance) | `2N` on NavalHeavy         | **Block** if any threat                                            | After Ren: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋`)                    |              |   |                                                            |                                                 |            |                                      |
+-| **Spy ships**         | `SPY_SEA`                             |                 `N` | `⌊1.5N⌋` on NavalHeavy     | **Block** if \`bAtWar                                              |                                                              | bEnemyStrong |   | bDanger`. If `bWarPlan\` and **not** NavalHeavy: **block** | Naval recon is only for naval maps / calm times |            |                                      |
++| **Spy ships**         | `SPY_SEA`                             |                 `N` | `⌊1.5N⌋` on NavalHeavy     | **Block** if bAtWar                                              |                                                              | bEnemyStrong |   | bDanger. If `bWarPlan` and **not** NavalHeavy: **block** | Naval recon is only for naval maps / calm times |            |                                      |
+ 
+ >Build is refused if AI_totalUnitAIs(...) ≥ cap for that group.
+ 
+@@ -1930,7 +1938,7 @@ Caps compare empire-wide counts using AI_totalUnitAIs(...), which includes units
+ | **Settlers**     | `SETTLE`     |                             `1` | **Block** if any threat                                        | “One at a time” rule        |              |   |                                                     |                                     |
+ | **Workers**      | `WORKER`     |                       see below | Slightly lenient: **block only** when `bAtWar && bEnemyStrong` | Era-scaled cap (next table) |              |   |                                                     |                                     |
+ | **Missionaries** | `MISSIONARY` |   `N` (≤ Renaissance), else `2` | **Block** if any threat                                        |                             |              |   |                                                     |                                     |
+-| **Spies**        | `SPY`        | `N` (or `⌊1.5N⌋` on NavalHeavy) | **Block** if \`bAtWar                                          |                             | bEnemyStrong |   | bDanger`; if `bWarPlan && !NavalHeavy\` → **block** | Don’t stall land wars with spy spam |
++| **Spies**        | `SPY`        | `N` (or `⌊1.5N⌋` on NavalHeavy) | **Block** if bAtWar                                          |                             | bEnemyStrong |   | bDanger; if `bWarPlan && !NavalHeavy` → **block** | Don’t stall land wars with spy spam |
+ 
+ Worker production cap (matches scrapping doc):
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 14e1747fd..0ec1ec1d8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -113,7 +113,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### Units in general (AI)
+ 
+-- generalized and beyond tremedously improved scrapping logic, now generalized to almost all if not all unitAIs (see known issue 52 in military (AI) section for details anyways etc). What this means is we now don't destroy our units and then rebuild them because we now think we don't have enough, causing us to be stuck in endless very inefficient loops. This is adjusted by unitAI types and now also has a matching logic that handles which unit overproduction quotas, base on conditions such as war and such, for example we don't want explore units or settlers at war or danger, but we definitely want land units then. As for naval units, if map is naval heavy (e.g. archipelago, etc), we want quite a bit more of these, less if not (e.g. pangea, continents, etc.), and still regardless of map type, we don't want these at war or danger so max is lower if not 0 then at production stage, but as for scrapping, don't scrap existing ones. Workers having a decaying logic for max units so we scrap excess as they are less relevant later if helps (i don't know if they cost maintenance xd but hopefully maybe helps (check if accurate) anyways etc) quite conservatively. This fixes issue of AI in some cases dying in pangea in particular while overproducing despite our previous changes, in some cases still (most likely due to code that short circuited our previous changes or/and our changes not being effective or relevant enough maybe but anyways etc). AI is much more competitive/stronger now, and in same save file quickly shifted/adjuted but anyways etc its production to land units and survival mode when in excess naval units artifically from this desperate already too late save file, so hopefully starting from an earlier time mistake would not have been made in this case i mean but anyways etc. See for details [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc). Hopefully we also handle with this possible other silent issues that may have happened like for the workboats infinite loop (see known issue as of now 23 for details) or such other unknown issues possibly preemptively fixed but anyways etc, which hopefully help AI a lot not proceed with nonsensical or/and poorly coordinated logic it is fed/told but anyways etc.
++- generalized and beyond tremedously improved scrapping logic, now generalized to almost all if not all unitAIs (see known issue 52 in military (AI) section for details anyways etc), in `CvUnit::canScrap()`. What this means is we now don't destroy our units and then rebuild them because we now think we don't have enough, causing us to be stuck in endless very inefficient loops. This is adjusted by unitAI types and now also has a matching logic that handles which unit to allow the production order of, with overproduction quotas in `CvCityAI::AI_chooseUnit`, based on conditions such as war and such, for example we don't want explore units or settlers at war or danger, but we definitely want land units then. As for naval units, if map is naval heavy (e.g. archipelago, etc), we want quite a bit more of these, less if not (e.g. pangea, continents, etc.), and still regardless of map type, we don't want these at war or danger so max is lower if not 0 then at production stage, but as for scrapping, don't scrap existing ones. Workers having a decaying logic for max units so we scrap excess as they are less relevant later if helps (i don't know if they cost maintenance xd but hopefully maybe helps (check if accurate) anyways etc) quite conservatively. This fixes issue of AI in some cases dying in pangea in particular while overproducing despite our previous changes, in some cases still (most likely due to code that short circuited our previous changes or/and our changes not being effective or relevant enough maybe but anyways etc). AI is much more competitive/stronger now, and in same save file quickly shifted/adjuted but anyways etc its production to land units and survival mode when in excess naval units artifically from this desperate already too late save file, so hopefully starting from an earlier time mistake would not have been made in this case i mean but anyways etc. See for details [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc). Hopefully we also handle with this possible other silent issues that may have happened like for the workboats infinite loop (see known issue as of now 23 for details) or such other unknown issues possibly preemptively fixed but anyways etc, which hopefully help AI a lot not proceed with nonsensical or/and poorly coordinated logic it is fed/told but anyways etc.
+ 
+ #### Settlers (AI)
+ 
+@@ -139,7 +139,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting `CvUnitAI::AI_bestCityBuild`, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+ - Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc.
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and overwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc. Since then updated to now also handle roading choice on not connected but connectable bonuses in BFC with other patches, see update 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc.
+ - (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it). Since then tremendously improved and tweaked in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) which seemingly Beyond Tremendously Improves AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast but anyways etc, as well as being braver in our own cultural borders or/and moving to other cities needing improvements rather than being parked in current city if i am not mistaken but anyways etc and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too if i may say but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details as well anyways etc. Note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. Note 2: AI handicap may have to be reduced as they are so much more efficient now, but i hope at least they are a good and worthwhile and/or fine challenge now and if already then even more, anyways etc, looking forward to other improvements (no pun but anyways etc) i find as well and (/or ?) want to do but anyways etc.
+ - Tremendously improved and fixed AI worker excessive retreating, causing it in rare cases to have AI workers parked in the city instead of improving other cities badly needing it if i may say but anyways etc, that would stay unimproved still but anyways etc. This is thanks to chatgpt 5's help and the changes include a wake from retreat, don't retreat excessively, and other such changes on top of previous AI worker improvements we had done already, it seems in some cases such as the oen i now solved if i'm not mistaken but anyways etc, excessive retreatign would still happen. See for details, with screenshots and such other explanations and/or such but anyways etc [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index e75f52320..0710b6c0e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -1,8 +1,8 @@
+-# Quick Get Started Guide (AdvCiv-SAS)
++# Very Quick Get Started Guide
+ 
+ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It’s intentionally practical and a bit verbose so newer players can follow the “what changed” and “why it matters.” For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+ 
+-## Sevopedia AdvCiv-SAS Entries
++## Sevopedia
+ 
+ Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=88230

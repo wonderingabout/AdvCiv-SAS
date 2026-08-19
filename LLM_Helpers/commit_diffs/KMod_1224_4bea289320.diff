@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1224
+# Commit: 4bea289320c45aaea5fc72a4db0798623e9b7be1
+# History segment: K-Mod history
+# Parent used for diff: 908c1e227233832848b3965640efe102bc6db431
+# Title: Restored lumbermills to their original bonuses (but unlocked with Guilds)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	12	Assets/xml/Terrain/CIV4ImprovementInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Terrain/CIV4ImprovementInfos.xml b/Assets/xml/Terrain/CIV4ImprovementInfos.xml
+index 02029db6b..de510f5bb 100644
+--- a/Assets/xml/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/xml/Terrain/CIV4ImprovementInfos.xml
+@@ -628,14 +628,14 @@
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_LUMBERMILL_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_IMPROVEMENT_LUMBERMILL</ArtDefineTag>
+ 			<YieldChanges>
+-				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>1</iYieldChange>
++				<iYieldChange>0</iYieldChange>
+ 			</YieldChanges>
+ 			<RiverSideYieldChange>
+ 				<iYield>0</iYield>
+ 				<iYield>0</iYield>
+-				<iYield>0</iYield>
++				<iYield>1</iYield>
+ 			</RiverSideYieldChange>
+ 			<bActsAsCity>0</bActsAsCity>
+ 			<bHillsMakesValid>0</bHillsMakesValid>
+@@ -670,16 +670,7 @@
+ 			</FeatureMakesValids>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<TechYieldChanges>
+-				<TechYieldChange>
+-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+-					<TechYields>
+-						<iYield>0</iYield>
+-						<iYield>1</iYield>
+-						<iYield>0</iYield>
+-					</TechYields>
+-				</TechYieldChange>
+-			</TechYieldChanges>
++			<TechYieldChanges/>
+ 			<RouteYieldChanges>
+ 				<RouteYieldChange>
+ 					<RouteType>ROUTE_RAILROAD</RouteType>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1280

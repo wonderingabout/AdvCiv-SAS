@@ -1,0 +1,418 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 28
+# Commit: 42c9c510179fec24f891f6060583c282eb169bd0
+# History segment: K-Mod history
+# Parent used for diff: cbc8dd3dc427a7f3900c6fc1f66677a50279f08d
+# Title: Drafted units are now counted as built units in the stats screen. Disabled rising sea levels (global warming). The volcano event now has a chance of adding e...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	2	Assets/Python/EntryPoints/CvRandomEventInterface.py
+9	0	Assets/readme.txt
+25	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+3	0	CvGameCoreDLL/CvCity.cpp
+3	141	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+6	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+1	0	CvGameCoreDLL/CyGameInterface.cpp
+3	2	CvGameCoreDLL/CyPlot.cpp
+1	1	CvGameCoreDLL/CyPlot.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 0e5bc5310..3d37dae4b 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -790,8 +790,9 @@ def applyVolcano1(argsList):
+ 						listPlots.append(loopPlot)
+ 					
+ 	listRuins = []
+-	listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_COTTAGE'))
+-	listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_HAMLET'))
++	## K-Mod: I don't think cttages and hamlets are big enough to leave "city ruins"
++	#listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_COTTAGE'))
++	#listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_HAMLET'))
+ 	listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_VILLAGE'))
+ 	listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_TOWN'))
+ 	
+@@ -811,6 +812,29 @@ def applyVolcano1(argsList):
+ 			
+ 			if i == 1 and gc.getGame().getSorenRandNum(100, "Volcano event num improvements destroyed") < 50:
+ 				break
++##
++# K-Mod, karadoc, 26/Jun/2011
++# Volcanic ash improves some tiles
++##
++	listPlots = []
++	for iDX in range(-1, 2):
++		for iDY in range(-1, 2):
++			loopPlot = plotXY(kTriggeredData.iPlotX, kTriggeredData.iPlotY, iDX, iDY)
++			if not loopPlot.isNone():
++				if (iDX != 0 or iDY != 0):
++					if gc.getGame().getPlotExtraYield(loopPlot.getX(), loopPlot.getY(), YieldTypes.YIELD_FOOD) == 0:
++						listPlots.append(loopPlot)
++
++	# zero - 50%, one - 25%, two - 25%
++	iCount = gc.getGame().getSorenRandNum(4, "Volcanic ash fertility bonus") - 1
++							
++	for i in range(iCount):
++		if len(listPlots) <= 0:
++			break
++		plot = listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Volcano event increased yield")]
++		gc.getGame().setPlotExtraYield(plot.getX(), plot.getY(), YieldTypes.YIELD_FOOD, 1)
++		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), localText.getText("TXT_KEY_EVENT_VOLCANO_FERTILITY", ()), "", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, gc.getInfoTypeForString("COLOR_WHITE"), plot.getX(), plot.getY(), true, true)
++# K-Mod end
+ 
+ ######## DUSTBOWL ###########
+
+diff --git a/Assets/readme.txt b/Assets/readme.txt
+index e1883a73e..82f6a229b 100644
+--- a/Assets/readme.txt
++++ b/Assets/readme.txt
+@@ -3,6 +3,15 @@ If you have any questions, comments, suggetsions, bug reports, etc. Post here: h
+ 
+ --
+ 
++v0.94* changelist
++
++ + drafted units are now included in the stats screen's units-built tally.
++ + global warming can no longer turn desert (or anything else) into coast. [I don't think this feature made the game more fun, and there were a few minor problems with it.]
++ + Cottages and hamlets destroyed by the volcano will no longer leave city ruins.
++ + The volcano event now has a chance of increasing the food yield of adjacent tiles (in addition to the original effects); as part of this change, I also fixed the Pythong API so that calculateNatureYield() actually works. I see that the same bug exists in serveral other python functions, but I'll only fix it when I need the functions; also, getPlotExtraYield() is now available in python.
++
++--
++
+ v0.93 changelist
+ 
+  + Changed Odeon culture from 3 to 2.
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index a4de90e28..2bb215d01 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -220,6 +220,31 @@
+ 		<Italian>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] tra la popolazione</Italian>
+ 		<Spanish>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] por poblaci&#243;n</Spanish>		
+ 	</TEXT>
++
++	<!-- new volcano text-->
++	<TEXT>
++		<Tag>TXT_KEY_EVENT_VOLCANO_FERTILITY</Tag>
++		<English>Volcanic ash has improved the soil fertility.</English>
++		<French>Les cendres volcaniques am&#233;lior&#233; la fertilit&#233; du sol.</French>
++		<German>Vulkanische Asche verbessert die Bodenfruchtbarkeit.</German>
++		<Italian>Ceneri vulcaniche migliorato la fertilit� del suolo.</Italian>
++		<Spanish>La ceniza volc�nica mejorar la fertilidad del suelo.</Spanish>
++	</TEXT>	
++	<!-- replacement volcano text (unfinished)-->
++	<TEXT>
++		<Tag>TXT_KEY_EVENT_VOLCANO_1_HELP</Tag>
++		<English>[ICON_BULLET]Suffer loss of plot improvements near the eruption[NEWLINE][ICON_BULLET]Chance of +1[ICON_FOOD] on plots near the eruption</English>
++		<French>[ICON_BULLET]Subir des pertes d'am&#233;nagements sur les cases proches de l'&#233;ruption</French>
++		<German>[ICON_BULLET]Verlust der Gel&#228;ndefeld-Modernisierungen in der N&#228;he der Eruption</German>
++		<Italian>[ICON_BULLET]Perdita dei miglioramenti delle caselle vicino all'eruzione</Italian>
++		<Spanish>[ICON_BULLET]P&#233;rdida de mejoras de casillas cerca de la erupci&#243;n.</Spanish>
++	</TEXT>
++		<English>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 additional [NUM1:plot:plots]</English>
++		<French>[ICON_BULLET]+1[ICON_COMMERCE] sur %d1 [NUM1:case suppl&#233;mentaire:cases suppl&#233;mentaires]</French>
++		<German>[ICON_BULLET]+1[ICON_COMMERCE] auf %d1 [NUM1:zus&#228;tzlichem Gel&#228;ndefeld:zus&#228;tzlichen Gel&#228;ndefeldern]</German>
++		<Italian>[ICON_BULLET]+1[ICON_COMMERCE] in %d1 [NUM1:casella aggiuntiva:caselle aggiuntive]</Italian>
++		<Spanish>[ICON_BULLET]+1 [ICON_COMMERCE] en %d1 [NUM1:%casilla:casillas] m&#225;s.</Spanish>
++
+ 	<!-- Example text
+ 		<English>Clearing a %s1_FeatName has created %d2_Num [ICON_PRODUCTION] for %s3_CityName.</English>
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a5b342353..c410fd61c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3574,6 +3574,9 @@ CvUnit* CvCity::initConscriptedUnit()
+ 		addProductionExperience(pUnit, true);
+ 
+ 		pUnit->setMoves(0);
++// K-Mod, karadoc, 26/Jun/2011: Conscription counts as building the unit
++		CvEventReporter::getInstance().unitBuilt(this, pUnit);
++// K-Mod end
+ 	}
+ 
+ 	return pUnit;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 850f1d8d6..9548ebbbc 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6193,80 +6193,6 @@ void CvGame::doGlobalWarming()
+ 			if (pPlot != NULL)
+ 			{
+ 				bool bChanged = false;
+-				/* (I've rewritten the following section to correct a few problems)
+-				if (pPlot->getFeatureType() != NO_FEATURE && pPlot->getFeatureType() != eFalloutFeature)
+-				{// don't remove features if underlaying terrain can melt
+-					
+-					if (pPlot->getFeatureType() != eColdFeature)
+-					{
+-						if ((pPlot->calculateBestNatureYield(YIELD_FOOD, NO_TEAM) > 1) && (pPlot->getFeatureType() == eTemperateFeature))
+-						{
+-							pPlot->setFeatureType(eWarmFeature);
+-							bChanged = true;
+-						}
+-						else if (pPlot->getTerrainType() == eColdTerrain)
+-						{
+-							pPlot->setTerrainType(eTemperateTerrain);
+-							bChanged = true;
+-						}
+-						else if (pPlot->getTerrainType() == eFrozenTerrain)
+-						{
+-							pPlot->setTerrainType(eColdTerrain);
+-							bChanged = true;
+-						}
+-						else
+-						{
+-							pPlot->setFeatureType(NO_FEATURE);
+-							bChanged = true;
+-						}
+-					}
+-					else
+-					{
+-						pPlot->setFeatureType(NO_FEATURE);
+-						bChanged = true;
+-					}
+-					
+-				}
+-
+-				{// GWMod stepped terrain changes M.A.
+-					// Rising seas
+-					if (pPlot->getTerrainType() == eBarrenTerrain)
+-					{
+-						// if (isOption(GAMEOPTION_RISING_SEAS)) (always enabled)
+-						{
+-							if (pPlot->isCoastalLand())
+-							{
+-								if (!pPlot->isHills() && !pPlot->isPeak())
+-								{
+-									pPlot->forceBumpUnits();
+-									pPlot->setPlotType(PLOT_OCEAN);
+-									bChanged = true;
+-								}
+-							}
+-						}
+-					}					
+-					else if (pPlot->getTerrainType() == eDryTerrain)
+-					{
+-						pPlot->setTerrainType(eBarrenTerrain);
+-						bChanged = true;
+-					}
+-					else if (pPlot->getTerrainType() == eTemperateTerrain)
+-					{
+-						pPlot->setTerrainType(eDryTerrain);
+-						bChanged = true;
+-					}
+-					else if (pPlot->getTerrainType() == eColdTerrain)
+-					{
+-						pPlot->setTerrainType(eTemperateTerrain);
+-						bChanged = true;
+-					}
+-					else if (pPlot->getTerrainType() == eFrozenTerrain)
+-					{
+-						pPlot->setTerrainType(eColdTerrain);
+-						bChanged = true;
+-					}
+-				}
+-				*/
+ 				/*
+ 				** rewritten terrain changing code:
+ 				*/
+@@ -6310,10 +6236,10 @@ void CvGame::doGlobalWarming()
+ 					pPlot->setTerrainType(eBarrenTerrain);
+ 					bChanged = true;
+ 				}
+-				// 5) Sink coastal desert
++				/* 5) Sink coastal desert (disabled)
+ 				else if (pPlot->getTerrainType() == eBarrenTerrain)
+ 				{
+-					// if (isOption(GAMEOPTION_RISING_SEAS)) (always enabled)
++					if (isOption(GAMEOPTION_RISING_SEAS))
+ 					{
+ 						if (pPlot->isCoastalLand())
+ 						{
+@@ -6325,7 +6251,7 @@ void CvGame::doGlobalWarming()
+ 							}
+ 						}
+ 					}
+-				}					
++				}*/
+ 
+ 				if (bChanged)
+ 				{
+@@ -6347,70 +6273,6 @@ void CvGame::doGlobalWarming()
+ 			}
+ 		}
+ 	}
+-	//Nuclear Winter
+-	/*
+-	int iNuclearWinterValue = 0;
+-	iNuclearWinterValue += getNukesExploded() * GC.getDefineINT("GLOBAL_WARMING_NUKE_WEIGHT") / 100;
+-
+-	for (int iI = 0; iI < iNuclearWinterValue; iI++)
+-	{
+-		if (getSorenRandNum(100, "Nuclear Fallout") < GC.getDefineINT("NUCLEAR_WINTER_PROB"))
+-		{
+-			CvPlot* pPlot = GC.getMapINLINE().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+-			FeatureTypes eFeature = pPlot->getFeatureType();
+-
+-			if (pPlot != NULL)
+-			{
+-				bool bChanged = false;
+-
+-				if (pPlot->getFeatureType() != NO_FEATURE)
+-				{
+-					if (pPlot->getFeatureType() != GC.getDefineINT("NUKE_FEATURE"))
+-					{
+-						if (pPlot->getFeatureType() != eColdFeature)
+-						{
+-						pPlot->setFeatureType(NO_FEATURE);
+-						bChanged = true;
+-					}
+-				}
+-				}
+-				else
+-				{
+-					pPlot->setFeatureType(eFalloutFeature);
+-					bChanged = true;
+-				}
+-				if (getSorenRandNum(100, "Nuclear Winter") < GC.getDefineINT("NUCLEAR_WINTER_PROB"))
+-				{
+-					if (pPlot->getTerrainType() == eColdTerrain)
+-				{
+-						pPlot->setTerrainType(eFrozenTerrain);
+-						bChanged = true;
+-					}
+-					if (pPlot->calculateTotalBestNatureYield(NO_TEAM) > 1)
+-					{
+-						pPlot->setTerrainType(eColdTerrain);
+-						bChanged = true;
+-					}
+-				}
+-
+-				if (bChanged)
+-				{
+-					pPlot->setImprovementType(NO_IMPROVEMENT);
+-
+-					CvCity* pCity = GC.getMapINLINE().findCity(pPlot->getX_INLINE(), pPlot->getY_INLINE());
+-					if (pCity != NULL)
+-					{
+-						if (pPlot->isVisible(pCity->getTeam(), false))
+-						{
+-							CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_NUCLEAR_WINTER_NEAR_CITY", pCity->getNameKey());
+-							gDLL->getInterfaceIFace()->addMessage(pCity->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_GLOBALWARMING", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE(), true, true);
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-	*/ // end nuclear winter code
+ }
+ 
+ // Choose the best plot for global warming to strike from a set of iPool random plots
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 723205acb..c6793466e 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -504,7 +504,7 @@ public:
+ 	CultureLevelTypes culturalVictoryCultureLevel();
+ 	int getCultureThreshold(CultureLevelTypes eLevel) const;
+ 
+-	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;
++	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;   // exposed to Python (K-Mod)
+ 	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iCost);   // exposed to Python
+ 	void removePlotExtraYield(int iX, int iY);
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index c459a783e..8e7e90366 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1163,6 +1163,12 @@ int CyGame::getCultureThreshold(int eLevel)
+ 	return (m_pGame ? m_pGame->getCultureThreshold((CultureLevelTypes) eLevel) : -1);
+ }
+ 
++// K-Mod
++int CyGame::getPlotExtraYield(int iX, int iY, int /*YieldTypes*/ eYield)
++{
++	return (m_pGame ? m_pGame->getPlotExtraYield(iX, iY, (YieldTypes)eYield) : 0);
++}
++
+ void CyGame::setPlotExtraYield(int iX, int iY, int /*YieldTypes*/ eYield, int iExtraYield)
+ {
+ 	if (m_pGame)
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index f53c4eb94..c761e70ef 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -278,6 +278,7 @@ public:
+ /********************************************************************************/
+ 	int getCultureThreshold(int /*CultureLevelTypes*/ eLevel);
+ 
++	int getPlotExtraYield(int iX, int iY, int /*YieldTypes*/ eYield); // K-Mod
+ 	void setPlotExtraYield(int iX, int iY, int /*YieldTypes*/ eYield, int iExtraYield);
+ 	void changePlotExtraCost(int iX, int iY, int iExtraCost);
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 148ac8cc7..81107f6c9 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -268,6 +268,7 @@ void CyGamePythonInterface()
+ /********************************************************************************/
+ 		.def("getCultureThreshold", &CyGame::getCultureThreshold, "int getCultureThreshold(CultureLevelTypes eLevel)")
+ 
++		.def("getPlotExtraYield", &CyGame::getPlotExtraYield, "int (int iX, int iY, int /*YieldTypes*/ eYield)") // K-Mod
+ 		.def("setPlotExtraYield", &CyGame::setPlotExtraYield, "void (int iX, int iY, int /*YieldTypes*/ eYield, int iExtraYield)")
+ 		.def("changePlotExtraCost", &CyGame::changePlotExtraCost, "void (int iX, int iY, int iCost)")
+
+diff --git a/CvGameCoreDLL/CyPlot.cpp b/CvGameCoreDLL/CyPlot.cpp
+index 6952f69bc..ca01c39f2 100644
+--- a/CvGameCoreDLL/CyPlot.cpp
++++ b/CvGameCoreDLL/CyPlot.cpp
+@@ -835,9 +835,10 @@ int CyPlot::getYield(YieldTypes eIndex)
+ 	return m_pPlot ? m_pPlot->getYield(eIndex) : -1;
+ }
+ 
+-int CyPlot::calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature)
++// K-Mod, 26/Jun/2011, karadoc: changed enum types to ints, so that it actually works...
++int CyPlot::calculateNatureYield(int /*YieldTypes*/ eIndex, int /*TeamTypes*/ eTeam, bool bIgnoreFeature)
+ {
+-	return m_pPlot ? m_pPlot->calculateNatureYield(eIndex, eTeam, bIgnoreFeature) : -1;
++	return m_pPlot ? m_pPlot->calculateNatureYield((YieldTypes)eIndex, (TeamTypes)eTeam, bIgnoreFeature) : -1;
+ }
+ 
+ int CyPlot::calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam)
+
+diff --git a/CvGameCoreDLL/CyPlot.h b/CvGameCoreDLL/CyPlot.h
+index 8bbdf2663..ee1a2c406 100644
+--- a/CvGameCoreDLL/CyPlot.h
++++ b/CvGameCoreDLL/CyPlot.h
+@@ -205,7 +205,7 @@ public:
+ 	int getReconCount();
+ 	int getRiverCrossingCount();
+ 	int getYield(YieldTypes eIndex);
+-	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false);
++	int calculateNatureYield(int /*YieldTypes*/ eIndex, int /*TeamTypes*/ eTeam, bool bIgnoreFeature = false);
+ 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam);
+ 	int calculateTotalBestNatureYield(TeamTypes eTeam);
+ 	int calculateImprovementYieldChange(int /*ImprovementTypes*/ eImprovement, YieldTypes eYield, int /*PlayerTypes*/ ePlayer, bool bOptimal);
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=15391

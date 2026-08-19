@@ -1,0 +1,199 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2685
+# Commit: 82281e74742acee4fc2422ee40d43fa5f5b8fcfd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 64e3335495dcd86aebf5068bf8903c0a1f83c508
+# Title: Adjustments to AI found-city value at the start of scenarios
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	9	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	0	CvGameCoreDLL/CitySiteEvaluator.h
+4	3	CvGameCoreDLL/StartingPositionIteration.cpp
+1	0	CvGameCoreDLL/StartingPositionIteration.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index cd5d86441..39685069c 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -19,13 +19,16 @@ static int const iDEFAULT_BARB_DISCOURAGED_RANGE = 8; // advc.303
+ 
+ // Body cut from K-Mod's CvPlayerAI::CvFoundSettings::CvFoundSettings
+ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange,
+-	bool bStartingLoc, /* advc.031e: */ bool bNormalize) :
+-	m_kPlayer(kPlayer), m_iMinRivalRange(iMinRivalRange), m_bStartingLoc(bStartingLoc),
+-	m_bNormalize(bNormalize), m_bAmbitious(false), m_bFinancial(false), m_bDefensive(false),
++	bool bStartingLoc, /* advc.031e: */ bool bNormalize)
++:	m_kPlayer(kPlayer), m_iMinRivalRange(iMinRivalRange), m_bStartingLoc(bStartingLoc),
++	m_bNormalize(bNormalize),
++	m_bScenario(false), m_bAmbitious(false), m_bFinancial(false), m_bDefensive(false),
+ 	m_bSeafaring(false), m_bExpansive(false), /* advc.007: */ m_bDebug(false),
+ 	m_bAdvancedStart(false), /* advc.027: */ m_bIgnoreStartingSurroundings(false),
+ 	m_iBarbDiscouragedRange(iDEFAULT_BARB_DISCOURAGED_RANGE) // advc.303
+ {
++	m_bScenario = (bStartingLoc ? GC.getInitCore().getWBMapScript() : // advc.031f
++			GC.getGame().isScenario()); // advc
+ 	m_bAdvancedStart = (kPlayer.getAdvancedStartPoints() > 0);
+ 	m_bEasyCulture = (kPlayer.getNumCities() <= 0 || // advc.108: from MNAI (was =bStartingLoc)
+ 			m_bAdvancedStart); // advc.031
+@@ -685,7 +688,7 @@ short AIFoundValue::evaluate()
+ 	iValue += evaluateDefense();
+ 	IFLOG logBBAI("=%d in total before modifiers", iValue);
+ 
+-	if (!kSet.isStartingLoc())
++	if (!kSet.isStartingLoc() /* advc.031f: */ || kSet.isScenario())
+ 	{
+ 		/*  <advc.031> Moved down to the other modifiers. But don't adjust the
+ 			non-yield resource value -- don't need food for a trade connection. */
+@@ -747,7 +750,7 @@ short AIFoundValue::evaluate()
+ 
+ 	iValue = adjustToBadTiles(iValue, iBadTiles /* advc.031: */ + (4 * iTakenTiles) / 10
+ 			-(bBarbarian ? 2 : (4 + iGreenTiles + iSpecialFoodPlus)) // advc.303
+-			/ (kSet.isStartingLoc() ? 2 : 1)); // advc.108
++			/ (kSet.isStartingLoc() && !kSet.isScenario() ? 2 : 1)); // advc.108, advc.031f
+ 	iValue = adjustToBadHealth(iValue, iHealth);
+ 	// <advc.031>
+ 	if (kSet.isNormalizing())
+@@ -788,7 +791,7 @@ bool AIFoundValue::isSiteValid() const
+ 	}
+ 	if (kSet.isStartingLoc())
+ 	{
+-		if (kPlot.isGoody() /* advc.027: */ && kGame.isScenario())
++		if (kPlot.isGoody() /* advc.027: */ && kSet.isScenario())
+ 		{
+ 			IFLOG logBBAI("Can't start on goody hut");
+ 			return false;
+@@ -997,7 +1000,7 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius,
+ 			{
+ 				iBadLoop++;
+ 				// <advc.108> Ocean can't be "normalized" away later on
+-				if (kSet.isStartingLoc())
++				if (kSet.isStartingLoc() /* adv.031f: */ && !kSet.isScenario())
+ 					iBadLoop++; // </advc.108>
+ 			}
+ 			if(!bCoastal)
+@@ -2097,6 +2100,13 @@ int AIFoundValue::evaluateSpecialYields(int const* aiSpecialYield,
+ 			/*  advc.108: For moving the starting Settler. Though a commercial
+ 				resource at the second city is also valuable, so: */
+ 			iCities <= 1 && eEra <= 0 ? fixp(0.48) : fixp(0.32)};
++	// <advc.031f> When there will be no normalization
++	if (kSet.isStartingLoc() && kSet.isScenario())
++	{
++		arWeight[YIELD_FOOD] *= 2;
++		arWeight[YIELD_PRODUCTION] *= fixp(1.7);
++		arWeight[YIELD_COMMERCE] *= fixp(1.4);
++	} // </advc.031f>
+ 	scaled const rDiv = iSpecialYieldTiles;
+ 	scaled rFromSpecial;
+ 	FOR_EACH_ENUM(Yield)
+@@ -2892,7 +2902,8 @@ int AIFoundValue::adjustToBadTiles(int iValue, int iBadTiles) const
+ 	{
+ 		/*	A scenario is more likely to mix some very good tiles with a lot of
+ 			bad ones. Better to be more conservative on regular maps. */
+-		scaled const rExponent = (kGame.isScenario() ? fixp(1.385) : fixp(1.5));
++		scaled const rExponent = (kSet.isScenario() && !kSet.isStartingLoc() ?
++				fixp(1.385) : fixp(1.5));
+ 		r -= scaled(iBadTiles).pow(rExponent) * 100 *  // <advc.108>
+ 				(fixp(1/3.) + (kSet.isStartingLoc() ?
+ 				fixp(1/3.) : 0) + (iCities <= 0 ? fixp(1/3.) : 0)); // </advc.108>
+@@ -2920,7 +2931,7 @@ int AIFoundValue::adjustToBadHealth(int iValue, int iGoodHealth) const
+ 		{
+ 			iMult = 2;
+ 			iDiv = 3;
+-			if (kSet.isStartingLoc())
++			if (kSet.isStartingLoc() && !kSet.isScenario())
+ 			{
+ 				iMult = 3;
+ 				iDiv = 4;
+@@ -3006,6 +3017,8 @@ void CitySiteEvaluator::logSettings() const
+ 	// </advc.300>
+ 	if (isStartingLoc())
+ 		logBBAI("StartingLoc");
++	if (isScenario())
++		logBBAI("WBScenario");
+ 	// <advc.031e>
+ 	if (isNormalizing())
+ 		logBBAI("Normalizing"); // </advc.031e>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index 02df2607c..e53d16a44 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -24,6 +24,7 @@ public:
+ 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
+ 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
+ 	bool isStartingLoc() const { return m_bStartingLoc; }
++	bool isScenario() const { return m_bScenario; }
+ 	bool isNormalizing() const { return m_bNormalize; } // advc.031e
+ 	int getMinRivalRange() const { return m_iMinRivalRange; }
+ 	// <advc.300>
+@@ -65,6 +66,7 @@ public:
+ private:
+ 	CvPlayerAI const& m_kPlayer;
+ 	bool m_bStartingLoc;
++	bool m_bScenario; // advc
+ 	bool m_bNormalize;
+ 	int m_iMinRivalRange;
+ 	int m_iBarbDiscouragedRange; // advc.300
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index c55f466a4..b712057aa 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -28,10 +28,11 @@ bool StartingPositionIteration::isDebug()
+ 
+ 
+ StartingPositionIteration::StartingPositionIteration() :
+-	m_bRestrictedAreas(false), m_bNormalizationTargetReady(false),
++	m_bRestrictedAreas(false), m_bScenario(false), m_bNormalizationTargetReady(false),
+ 	m_pEval(NULL), m_pYieldValues(NULL), m_pYieldsPerArea(NULL),
+ 	m_pPathDists(NULL), m_pPotentialSites(NULL)
+ {
++	m_bScenario = GC.getInitCore().getWBMapScript();
+ 	if (!GC.getDefineBOOL("ENABLE_STARTING_POSITION_ITERATION"))
+ 		return;
+ 	CvMap const& kMap = GC.getMap();
+@@ -1095,7 +1096,7 @@ void StartingPositionIteration::computeStartValues(
+ 	{
+ 		scaled rFoundValue = kFoundValues.get(itPlayer->getID());
+ 		// Anticipate normalization
+-		if (rFoundValue < rMedianFoundValue)
++		if (!m_bScenario && rFoundValue < rMedianFoundValue)
+ 		{
+ 			rFoundValue = std::min((rMedianFoundValue + rFoundValue) / 2,
+ 					rFoundValue + rMedianFoundValue / 10);
+@@ -1726,7 +1727,7 @@ void StartingPositionIteration::logStep(Step const& kStep,
+ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ {
+ 	evaluateCurrPosition(m_currSolutionAttribs, true);
+-	m_bNormalizationTargetReady = true;
++	m_bNormalizationTargetReady = !m_bScenario;
+ 
+ 	if (m_currSolutionAttribs.m_eWorstOutlier == NO_PLAYER)
+ 		return;
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+index 0823ce260..eae6def53 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.h
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -40,6 +40,7 @@ public:
+ 
+ private:
+ 	bool m_bRestrictedAreas;
++	bool m_bScenario;
+ 	CitySiteEvaluator* m_pEval;
+ 	EnumMap<PlotNumTypes,scaled> const* m_pYieldValues;
+ 	std::map<CvArea const*,scaled> const* m_pYieldsPerArea;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7432

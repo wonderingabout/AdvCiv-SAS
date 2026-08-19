@@ -1,0 +1,343 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6037
+# Commit: 60a21259371db272f9cbaba00ae76f2fbbeac4f8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8295909da126b2721d8d9dd09095a73396716e7a
+# Title: Add UWAI victory-threat BBAI war-target diagnostics
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+21	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+8	0	CvGameCoreDLL/CvGameCoreUtils.h
+18	32	CvGameCoreDLL/CvPlayerAI.cpp
+74	13	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index f5058ddbe..1b7919249 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -379,6 +379,27 @@ char const* getSASWarPlanType(WarPlanTypes eWarPlan)
+ 	default: return "UNKNOWN_WARPLAN";
+ 	}
+ }
++
++// <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-summary diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
++int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
++{
++	if ((eVictoryStageHash & eStage4) != 0)
++		return 4;
++	if ((eVictoryStageHash & eStage3) != 0)
++		return 3;
++	if ((eVictoryStageHash & eStage2) != 0)
++		return 2;
++	if ((eVictoryStageHash & eStage1) != 0)
++		return 1;
++	return 0;
++}
++
++int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4); }
++int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4); }
++int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4); }
++int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4); }
++int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4); }
++
+ // advc: No longer needed
+ /*bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index e6b54a797..c6748f2a1 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -3,6 +3,8 @@
+ #ifndef CIV4_GAMECORE_UTILS_H
+ #define CIV4_GAMECORE_UTILS_H
+ 
++#include "AIStrategies.h" // <!-- custom: getSAS*VictoryStageLevel helpers use AIVictoryStage bitfields. (GPT-5.5) -->
++
+ class CvPlot;
+ class CvCity;
+ class CvCityAI; // advc.003u
+@@ -115,6 +117,12 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
+ char const* getSASDiploEventType(DiploEventTypes eDiploEvent); // <!-- custom: Shared raw enum-token text for DiploEventTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+ char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+ char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
++int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
++int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->
++int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash);
++int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
++int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
++int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+ 
+ int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c2bb633ae..22fb297a5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20,6 +20,7 @@
+ #include "CvInfo_Civics.h"
+ #include "BBAILog.h"
+ #include "CvPopupInfo.h"
++#include "CvGameCoreUtils.h" // <!-- custom: Shared victory-stage helpers used by AI victory diagnostics and strategy logs. (GPT-5.5) -->
+ 
+ //#define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY				(20) // was 25
+@@ -31,21 +32,6 @@ static std::map<int,int> g_sasWorkerSeaFirstSeenBuildableTurn;
+ static std::map<int,int> g_sasWorkerSeaFirstSeenReachableTurn;
+ static int g_iSASWorkerSeaAuditLastTurn = -1;
+ 
+-
+-// <!-- custom: Local helper for compact victory-stage comparisons and logging summaries. The victory-stage state is already a bitfield, so this avoids repeated AI_atVictoryStage checks without adding header/API churn. (ChatGPT-5.5 + GPT-5.5 review) -->
+-static int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
+-{
+-	if ((eVictoryStageHash & eStage4) != 0)
+-		return 4;
+-	if ((eVictoryStageHash & eStage3) != 0)
+-		return 3;
+-	if ((eVictoryStageHash & eStage2) != 0)
+-		return 2;
+-	if ((eVictoryStageHash & eStage1) != 0)
+-		return 1;
+-	return 0;
+-}
+-
+ // <!-- custom: Return the actual culture of a player's Nth-best city for early cultural-race qualification/ranking. Unlike late projected countdowns, this remains meaningful before cities reach the culture level immediately below Legendary. Reserve the known city count because culture-stage ranking calls this repeatedly across rivals. (GPT-5.5) -->
+ static int getSASCultureVictoryNthCityCulture(CvPlayerAI const& kPlayer, int iCityRank)
+ {
+@@ -2713,10 +2699,10 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 		int const iCurrentDeadlineMargin = (iCurrentBottleneckCountdown < 0 ? -1 : iTurnsRemaining - iCurrentBottleneckCountdown);
+ 		int const iProjectedDeadlineMargin = (iProjectedBottleneckCountdown < 0 ? -1 : iTurnsRemaining - iProjectedBottleneckCountdown);
+ 		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+-		int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+-		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+-		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+-		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
++		int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
++		int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
++		int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
++		int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+ 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
+ 		bool const bAtWar = (kTeam.getNumWars() > 0);
+ 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+@@ -26236,10 +26222,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
+ 	if (!isHuman() && iMinCompetingVictoryStage > 0 && iHighCultureCount < iVictoryCities)
+ 	{
+ 		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+-		int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+-		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+-		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+-		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
++		int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
++		int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
++		int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
++		int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+ 		int const iMostAdvancedCompetingStage = std::max(std::max(iSpaceStage, iConquestStage), std::max(iDominationStage, iDiplomacyStage));
+ 		if (iMostAdvancedCompetingStage >= iMinCompetingVictoryStage)
+ 		{
+@@ -26427,10 +26413,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
+ 					int const iProjectedDeadlinePercent = (iWinningCountdown < MAX_INT && iTurnsRemaining > 0 ? (int)((long long)100 * iWinningCountdown / iTurnsRemaining) : -1);
+ 					bool const bEligibleRankOK = (iMaxCultureRaceRank <= 0 || iEligibleCultureRaceRank <= 0 || iEligibleCultureRaceRank <= iMaxCultureRaceRank);
+ 					AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+-					int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+-					int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+-					int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+-					int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
++					int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
++					int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
++					int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
++					int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+ 					bool const bCompetingVictoryPressure = (iSpaceStage >= 3 || iConquestStage >= 3 || iDominationStage >= 3 || iDiplomacyStage >= 3);
+ 					std::vector<std::pair<int,int> > candidateCountdownList;
+ 					candidateCountdownList.reserve(getNumCities());
+@@ -28381,11 +28367,11 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 	if (bLogCultureGreatPersonWeights)
+ 	{
+ 		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+-		iCultureStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4);
+-		iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+-		iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+-		iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+-		iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
++		iCultureStage = getSASCultureVictoryStageLevel(eVictoryStageHash);
++		iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
++		iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
++		iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
++		iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+ 	}
+ 	// (smaller iMin means more focus on high-value specialists)
+ 	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 6da00aa63..fb888ddc6 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -9,7 +9,7 @@
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "CvDiploParameters.h"
+-#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
++#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text and victory-stage helpers for structured war diagnostics. (GPT-5.5) -->
+ #include "TeamPathFinder.h"
+ #include "CvArea.h"
+ #include "RiseFall.h" // advc.705
+@@ -52,6 +52,50 @@ namespace
+ 		return (100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
+ 	}
+ 
++	void getSASBBAITeamVictoryStages(TeamTypes eTeam, int& iCultureStage, int& iSpaceStage, int& iConquestStage, int& iDominationStage, int& iDiplomacyStage)
++	{
++		iCultureStage = 0;
++		iSpaceStage = 0;
++		iConquestStage = 0;
++		iDominationStage = 0;
++		iDiplomacyStage = 0;
++		for (MemberAIIter it(eTeam); it.hasNext(); ++it)
++		{
++			AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
++			iCultureStage = std::max(iCultureStage, getSASCultureVictoryStageLevel(eVictoryStageHash));
++			iSpaceStage = std::max(iSpaceStage, getSASSpaceVictoryStageLevel(eVictoryStageHash));
++			iConquestStage = std::max(iConquestStage, getSASConquestVictoryStageLevel(eVictoryStageHash));
++			iDominationStage = std::max(iDominationStage, getSASDominationVictoryStageLevel(eVictoryStageHash));
++			iDiplomacyStage = std::max(iDiplomacyStage, getSASDiplomacyVictoryStageLevel(eVictoryStageHash));
++		}
++	}
++
++	int getSASBBAISpaceshipPartsBuilt(TeamTypes eTeam)
++	{
++		int iPartsBuilt = 0;
++		CvTeamAI const& kTeam = GET_TEAM(eTeam);
++		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
++		{
++			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
++			if (kProject.isSpaceship())
++				iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
++		}
++		return iPartsBuilt;
++	}
++
++	void logSASBBAIWarTargetVictoryContext(CvTeamAI const& kAgent, TeamTypes eTarget, char const* szRow, WarPlanTypes eWarPlan, int iUtility, int iDrivePercent, int iTargetRank, int iCandidateCount, bool bBackground)
++	{
++		int iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage;
++		int iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage;
++		getSASBBAITeamVictoryStages(eTarget, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage);
++		getSASBBAITeamVictoryStages(kAgent.getID(), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage);
++		if (std::max(std::max(iTargetCultureStage, iTargetSpaceStage), std::max(std::max(iTargetConquestStage, iTargetDominationStage), iTargetDiplomacyStage)) < 3 && GET_TEAM(eTarget).AI_getLowestVictoryCountdown() < 0)
++			return;
++		// <!-- custom: Map 450 showed Lincoln winning Space Race despite stronger teams evaluating him as weak and reachable only a few turns earlier. Log near-victory target context directly beside UWAI target rows so future runs show whether the AI noticed a rival victory threat, whether the target was weak/near enough, and whether normal war selection acted too late. (GPT-5.5) -->
++		logBBAI("WAR_TARGET_VICTORY_PRESSURE turn=%d row=%s background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d targetCultureStage=%d targetSpaceStage=%d targetConquestStage=%d targetDominationStage=%d targetDiplomacyStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d agentCultureStage=%d agentSpaceStage=%d agentConquestStage=%d agentDominationStage=%d agentDiplomacyStage=%d agentVictoryCountdown=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
++				GC.getGame().getGameTurn(), szRow, bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, iDrivePercent, iTargetRank, iCandidateCount, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAISpaceshipPartsBuilt(eTarget), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage, kAgent.AI_getLowestVictoryCountdown(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), kAgent.getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
++	}
++
+ 	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
+ 	{
+ 		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE");
+@@ -100,7 +144,7 @@ namespace
+ 		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
+ 	}
+ 
+-	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork)
++	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork, bool bBackground)
+ 	{
+ 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+ 		const PlayerTypes eAgentLeader = kAgent.getLeaderID();
+@@ -110,15 +154,17 @@ namespace
+ 		const int iOurPower = std::max(1, kAgent.getPower(true));
+ 		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
+ 		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
+-		logBBAI("WAR_TARGET_EVAL turn=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+-				GC.getGame().getGameTurn(), kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
++				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "EVAL", eWarPlan, iUtility, -1, -1, -1, bBackground);
+ 	}
+ 
+-	void logSASBBAIWarTargetDrive(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, scaled rDrive, bool bShortWork)
++	void logSASBBAIWarTargetDrive(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, scaled rDrive, bool bShortWork, bool bBackground)
+ 	{
+ 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+-		logBBAI("WAR_TARGET_DRIVE turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+-				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, rDrive.getPercent(), bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++		logBBAI("WAR_TARGET_DRIVE turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
++				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, rDrive.getPercent(), bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DRIVE", eWarPlan, iUtility, rDrive.getPercent(), -1, -1, bBackground);
+ 	}
+ }
+ 
+@@ -1326,13 +1372,20 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
+ 	{
+ 		if (gWarLogLevel >= 1)
+ 		{
+-			logBBAI("WAR_PLAN_DIRECT_ADOPTED turn=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d",
+-					GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
++			logBBAI("WAR_PLAN_DIRECT_ADOPTED turn=%d background=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
++			logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DIRECT_ADOPTED", eDirectWP, iU, -1, -1, -1, isInBackground());
+ 		}
+ 		if (!isInBackground())
+ 		{
+ 			// Don't AI_setWarPlanStateCounter, i.e. let CvTeamAI reset it to 0.
+ 			kAgent.AI_setWarPlan(eTarget, eDirectWP);
++			if (gWarLogLevel >= 1)
++			{
++				logBBAI("WAR_PLAN_DIRECT_SET turn=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d stateCounter=%d",
++						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.AI_getWarPlanStateCounter(eTarget));
++				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DIRECT_SET", eDirectWP, iU, -1, -1, -1, false);
++			}
+ 		}
+ 		return false;
+ 	}
+@@ -1640,7 +1693,7 @@ void UWAI::Team::scheme()
+ 		}
+ 		if (gWarLogLevel >= 2)
+ 		{
+-			logSASBBAIWarTargetEval(kAgent, eTarget, bTotal ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED, iU, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork);
++			logSASBBAIWarTargetEval(kAgent, eTarget, bTotal ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED, iU, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, isInBackground());
+ 		}
+ 		bool const bCanHireOld = kCache.canBeHiredAgainst(eTarget);
+ 		kCache.updateCanBeHiredAgainst(eTarget, iU, iWarTradeUtilityThresh);
+@@ -1733,17 +1786,25 @@ void UWAI::Team::scheme()
+ 		m_pReport->log("Drive for war preparations against %s: %d percent",
+ 				m_pReport->teamName(eTarget), rDrive.getPercent());
+ 		if (gWarLogLevel >= 2)
+-			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork);
++			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork, isInBackground());
+ 		if (SyncRandSuccess(rDrive))
+ 		{
+ 			if (gWarLogLevel >= 1)
+ 			{
+-				logBBAI("WAR_TARGET_CHOSEN turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+-						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
++				// <!-- custom: CHOSEN can be emitted during UWAI background evaluation, where no real war plan is assigned. Keep it for probabilistic target-choice context, but log PLAN_SET below only after the non-background AI_setWarPlan call so victory-pressure audits can distinguish simulated choice from actual action. (GPT-5.5) -->
++				logBBAI("WAR_TARGET_CHOSEN turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
++						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
++				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "CHOSEN", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), isInBackground());
+ 			}
+ 			if (!isInBackground())
+ 			{
+ 				kAgent.AI_setWarPlan(eTarget, eWP);
++				if (gWarLogLevel >= 1)
++				{
++					logBBAI("WAR_TARGET_PLAN_SET turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d stateCounter=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
++							GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), kAgent.AI_getWarPlanStateCounter(eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
++					logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "PLAN_SET", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), false);
++				}
+ 				showWarPrepStartedMsg(eTarget);
+ 			}
+ 			m_pReport->log("War plan initiated (%s)", m_pReport->warPlanName(eWP));
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=28905
