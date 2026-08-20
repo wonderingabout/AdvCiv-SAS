@@ -5591,7 +5591,8 @@ class CvMainInterface:
 			iRate = pHeadSelectedCity.getGreatPeopleRate()
 			if CityScreenOpt.isShowCityGreatPersonInfo():
 				iGPTurns = GPUtil.getCityTurns(pHeadSelectedCity)
-				szBuffer = GPUtil.getGreatPeopleText(pHeadSelectedCity, iGPTurns, 230, MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), False)
+				# <!-- custom: Base AdvCiv's scalable HUD made the city GP bar runtime-sized but retained K-Mod/BUG's fixed 230px text budget, prematurely hiding a fitting GP type at wider resolutions. Pass the actual bar width like the map GP bar. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				szBuffer = GPUtil.getGreatPeopleText(pHeadSelectedCity, iGPTurns, gRect("GreatPeopleBar").width(), MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), False)
 			else:
 				szBuffer = localText.getText("INTERFACE_CITY_GREATPEOPLE_RATE", (self.iGreatPeopleIcon, pHeadSelectedCity.getGreatPeopleRate()))
 				if CityScreenOpt.isShowGreatPersonTurns() and iRate > 0:
