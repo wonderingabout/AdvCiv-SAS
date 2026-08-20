@@ -1208,14 +1208,14 @@ class CvPolicyAdvisorScreen:
 		return szText
 
 	def getScaledCorporationGeneratedValue(self, iStoredValue, iWorldPercent):
-		# <!-- custom: Corporation XML yield/commerce values are stored in hundredths. Match native CvGameTextMgr truncation after world-size scaling, including C++ truncation toward zero for negative values. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: Corporation XML yield/commerce values are stored in hundredths. Match native CvGameTextMgr truncation after world-size scaling, including C++ truncation toward zero for negative values. See KI#231. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iScaledValueX100 = iStoredValue * iWorldPercent
 		if iScaledValueX100 >= 0:
 			return iScaledValueX100 / 100
 		return -((-iScaledValueX100) / 100)
 
 	def getCorporationGeneratedValueText(self, iValueX100):
-		# <!-- custom: Display scaled corporation rates as exact signed units (+1, +0.50, +1.50) instead of exposing the raw hundredths (100, 50, 150). Use integer text assembly to avoid floating-point approximation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: Display scaled corporation rates as exact signed units (+1, +0.50, +1.50) instead of exposing the raw hundredths (100, 50, 150). Use integer text assembly to avoid floating-point approximation. See KI#231. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iAbsoluteValue = abs(iValueX100)
 		szSign = u"+"
 		if iValueX100 < 0:
@@ -1230,7 +1230,7 @@ class CvPolicyAdvisorScreen:
 		return szText
 
 	def getMapObserverTeam(self):
-		# <!-- custom: A selected vassal remains the Policy Advisor's subject, but outside debug its Holy City and Corporation Headquarters rows must use the real active player's map knowledge so the perspective selector cannot reveal hidden locations. Debug mode deliberately retains the selected player's map knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: A selected vassal remains the Policy Advisor's subject, but outside debug its Holy City and Corporation Headquarters rows must use the real active player's map knowledge so the perspective selector cannot reveal hidden locations. Debug mode deliberately retains the selected player's map knowledge. See KI#232. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if CyGame().isDebugMode():
 			return gc.getPlayer(self.iActivePlayer).getTeam()
 		return gc.getPlayer(CyGame().getActivePlayer()).getTeam()

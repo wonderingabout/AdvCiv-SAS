@@ -2548,7 +2548,7 @@ class CvForeignAdvisor:
 						self.ESP_iNumEntries = self.ESP_iNumEntries + 1
 
 		# <!-- custom: The old standalone Espionage Advisor reset target/city/mission state on every open, but integrating it into the persistent Foreign Advisor object made those selections survive indefinitely.
-		# Preserve a still-valid target, but when the retained rival is no longer alive/met/eligible, clear all dependent state before selecting the first current target; this prevents stale city and mission data from following an invalid rival. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# Preserve a still-valid target, but when the retained rival is no longer alive/met/eligible, clear all dependent state before selecting the first current target; this prevents stale city and mission data from following an invalid rival. See KI#234. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if self.ESP_iTargetPlayer not in self.ESP_aiKnownPlayers:
 			self.ESP_iTargetPlayer = -1
 			self.ESP_iActiveCityID = -1

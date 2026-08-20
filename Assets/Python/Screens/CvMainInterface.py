@@ -5591,7 +5591,7 @@ class CvMainInterface:
 			iRate = pHeadSelectedCity.getGreatPeopleRate()
 			if CityScreenOpt.isShowCityGreatPersonInfo():
 				iGPTurns = GPUtil.getCityTurns(pHeadSelectedCity)
-				# <!-- custom: Base AdvCiv's scalable HUD made the city GP bar runtime-sized but retained K-Mod/BUG's fixed 230px text budget, prematurely hiding a fitting GP type at wider resolutions. Pass the actual bar width like the map GP bar. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				# <!-- custom: Base AdvCiv's scalable HUD made the city GP bar runtime-sized but retained K-Mod/BUG's fixed 230px text budget, prematurely hiding a fitting GP type at wider resolutions. Pass the actual bar width like the map GP bar. See KI#237.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				szBuffer = GPUtil.getGreatPeopleText(pHeadSelectedCity, iGPTurns, gRect("GreatPeopleBar").width(), MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), False)
 			else:
 				szBuffer = localText.getText("INTERFACE_CITY_GREATPEOPLE_RATE", (self.iGreatPeopleIcon, pHeadSelectedCity.getGreatPeopleRate()))
@@ -6249,7 +6249,7 @@ class CvMainInterface:
 		# (BUG - Power Rating)  advc: Moved into the loop
 		# <!-- custom: use one ranked visible-player traversal for scroll slicing, aligned BUG drawing, and active-player centering so those behaviors cannot drift apart. (GPT-5.3-Codex + ChatGPT-5.5) -->
 		aeVisiblePlayers = self._scoreboardVisiblePlayers(scores)
-		# <!-- custom: The aligned BUG scoreboard may sort vassals and apply its positive Max Players cap. Use that exact effective population for scrolling and centering; using the uncapped traversal made the buttons change while the same capped rows remained visible. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: The aligned BUG scoreboard may sort vassals and apply its positive Max Players cap. Use that exact effective population for scrolling and centering; using the uncapped traversal made the buttons change while the same capped rows remained visible. See KI#228. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if bAlignIcons:
 			aeVisiblePlayers = scores.prepare()
 		iTotalCount = len(aeVisiblePlayers)

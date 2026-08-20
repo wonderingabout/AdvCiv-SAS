@@ -4379,7 +4379,7 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory)
 			if (iOldGrantVal == 0 && iOldTradeVal == 0)
 				continue;
 			// Relations with tentative new worst enemy may improve here
-			// <!-- custom: Keep this sticky across later teams; see KI#208. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: Keep this sticky across later teams. See KI#208. (ChatGPT-5.6-Sol) -->
 			if (eOther == eBestTeam)
 				bUpdateWorstEnemyAgain = true;
 			AI_setEnemyPeacetimeGrantValue(eOther, (2 * iOldGrantVal) / 3);

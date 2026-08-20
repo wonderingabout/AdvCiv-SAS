@@ -494,7 +494,7 @@ class CvHallOfFameScreen:
 				SASTextScale.setTableIntLabel(screen, self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			iColumn += 1
 			# <!-- custom: The Hall-of-Fame font-upscaling pass changed this date-typed cell to generic text, so clicking the Date header sorted formatted dates lexically.
-			# Keep the shared font through setTableDateLabel without losing Civ4's dedicated date sorting. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			# Keep the shared font through setTableDateLabel without losing Civ4's dedicated date sorting. See KI#229. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			SASTextScale.setTableDateLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][3], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
 			if self.infoList[i][4] >= 0:

@@ -125,10 +125,11 @@ def minStartingDistanceModifier():
 def _world_profile(eWorldSize):
 	# <!-- custom: world-size-only scaling: island footprint stays identical; only island count increases with world size. (GPT-5.3-Codex) -->
 	profiles = {
-		WorldSizeTypes.WORLDSIZE_ARENA: (1, 1),
+		# <!-- custom: One player starts per island; Arena and Small previously provided only 1/4 islands for their 2/5 default players. See KI#242. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		WorldSizeTypes.WORLDSIZE_ARENA: (1, 2),
 		WorldSizeTypes.WORLDSIZE_DUEL: (1, 2),
 		WorldSizeTypes.WORLDSIZE_TINY: (1, 3),
-		WorldSizeTypes.WORLDSIZE_SMALL: (1, 4),
+		WorldSizeTypes.WORLDSIZE_SMALL: (1, 5),
 		WorldSizeTypes.WORLDSIZE_STANDARD: (2, 4),
 		WorldSizeTypes.WORLDSIZE_LARGE: (2, 6),
 		WorldSizeTypes.WORLDSIZE_HUGE: (2, 8),

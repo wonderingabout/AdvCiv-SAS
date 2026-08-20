@@ -30548,8 +30548,8 @@ bool CvPlayerAI::AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const
 	return false;
 }
 
-// <!-- custom: Base AdvCiv AI_isAwfulSite disabled and retained for reference. Its cruder absolute terrain veto was removed from active conquest and city-trade logic as part of replacing it with AI_isSASCityLikelyToBenefitUsLongTerm; see KI#186.
-// It said whether kCity was in a spot where probably no city belonged; this player was the AI civ considering obtaining the city. It overlapped with AI_foundValue because that function is difficult to use on a plot with an existing city, and included a TODO to replace this with AI_cityTradeVal. (GPT-5.6-Sol) -->
+// <!-- custom: Base AdvCiv AI_isAwfulSite disabled and retained for reference. Its cruder absolute terrain veto was removed from active conquest and city-trade logic as part of replacing it with AI_isSASCityLikelyToBenefitUsLongTerm.
+// It said whether kCity was in a spot where probably no city belonged; this player was the AI civ considering obtaining the city. It overlapped with AI_foundValue because that function is difficult to use on a plot with an existing city, and included a TODO to replace this with AI_cityTradeVal. See KI#186. (GPT-5.6-Sol) -->
 // advc.ctr: Says whether kCity is in a spot where probably no city belongs. This player is the AI civ considering to obtain the city.
 // Some overlap with CvPlayerAI::AI_foundValue, but it's difficult to make that function work for plots with an actual city.
 // Tbd.: See if this can be replaced with a comparison betweenAI_cityTradeVal and a threshold.

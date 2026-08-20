@@ -78,7 +78,7 @@ class CvWorldAdvisorScreen:
 		self.pActiveTeam = gc.getTeam(self.iActiveTeam)
 
 	def getMapObserverTeam(self):
-		# <!-- custom: Vassal perspective changes the World Advisor's subject, but the active human remains the map observer. Using the vassal team for fog and resource knowledge exposed plots and bonuses the human had not discovered; debug player selection retains its reveal bypass and selected-team resource behavior. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: Vassal perspective changes the World Advisor's subject, but the active human remains the map observer. Using the vassal team for fog and resource knowledge exposed plots and bonuses the human had not discovered; debug player selection retains its reveal bypass and selected-team resource behavior. See KI#224. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if CyGame().isDebugMode():
 			return self.iActiveTeam
 		return gc.getPlayer(CyGame().getActivePlayer()).getTeam()

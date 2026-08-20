@@ -298,6 +298,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [236 - (Fixed inherited Base AdvCiv bug) Executive Sevopedia pages omitted their required corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#236---fixed-inherited-base-advciv-bug-executive-sevopedia-pages-omitted-their-required-corporation)\
 [237 - (Fixed inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepted one candidate beyond its width limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#237---fixed-inherited-k-modbug-era-bug-maximum-types-great-person-progress-text-accepted-one-candidate-beyond-its-width-limit)\
 [237.2 - (Fixed inherited Base AdvCiv bug) Runtime-sized city Great Person bar retained a fixed 230px text budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2372---fixed-inherited-base-advciv-bug-runtime-sized-city-great-person-bar-retained-a-fixed-230px-text-budget)\
+[238 - (Fixed AdvCiv-SAS bug) Parallel Lines reused its final custom starting slot for excess players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#238---fixed-advciv-sas-bug-parallel-lines-reused-its-final-custom-starting-slot-for-excess-players)\
+[242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#242---fixed-advciv-sas-bug-large-facing-islands-underprovided-islands-for-default-arena-and-small-games)\
+[245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8312,3 +8315,35 @@ K-Mod/BUG passed a fixed 230px width to the city-screen `getGreatPeopleText()` c
 Save file 478 screenshots 0060 and 0061 show the mismatch in Poverty Point: the wider map GP bar displayed all 53% / 42% / 5% types, while the city GP bar prematurely omitted the fitting 5% Scientist. The fix passes `gRect("GreatPeopleBar").width()` to the city caller, matching the map caller and the actual runtime geometry. Great Person probabilities, ordering, bar geometry and the width-fitting policy remain unchanged. Post-fix screenshots 0062 and 0063 confirm that the map and city bars now both display 53% / 42% / 5%; the refreshed `PythonErr.log` remained empty.
 
 Found through runtime testing with the help of wonderingabout thanks; investigated, fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 238 - (Fixed AdvCiv-SAS bug) Parallel Lines reused its final custom starting slot for excess players
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1O-GJ8ICxML361GpxVH9uw8e__dUhBnER?usp=sharing).
+
+`SAS_Parallel_Lines` derives its custom starting-slot capacity from the selected world size's default player count, while Custom Game can contain more alive players. When an actual player index exceeded the sum of `line_slots`, the slot-selection loop exhausted without a match but retained the final line's final position. Every excess player therefore received the same Python plot as the last in-capacity player; for example, Standard with 3 Players Per Line builds `[3, 3, 2]`, so the ninth player reused the eighth player's slot.
+
+The fix detects an out-of-capacity player before mapping the index and calls `allowDefaultImpl()`, matching the defensive contract already used by Large Facing Islands and Spiky Avenues. Designed custom starts remain unchanged for all in-capacity players, while the DLL's existing taken-start search chooses a fallback for extras instead of accepting a duplicate Python result. Map dimensions, line geometry, ordinary slot spacing and default-player games remain unchanged.
+
+Screenshot 0065 confirms a Standard Custom Game with nine players and 3 Players Per Line generated three populated lines with distinct player positions instead of duplicating the final custom slot. This test and the KI#242/KI#245 tests below all ran successively in the same Civ4 process; the refreshed `PythonErr.log` remained empty.
+
+This is an AdvCiv-SAS bug introduced with `SAS_Parallel_Lines` in practical 5486 (`0870e0adc8`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1kqYgfybg2J3dUlGmMr8dKoV0Erak_WE0?usp=sharing).
+
+`SAS_Large_Facing_Islands` assigns one player to each generated island and scales island count through its world-size profile. Arena generated only 1 island for 2 default players, and Small generated only 4 islands for 5 default players. The existing overflow guard safely delegated the unmatched player to the DLL, but no missing distinct designed island existed, so the map could not fulfill its one-player-per-island layout in ordinary default-player games.
+
+The fix increases Arena from 1 to 2 islands and Small from 4 to 5 islands, exactly matching their default-player counts and the already-correct Duel/Tiny/Standard-and-larger profile contract. Island footprint, coast lanes, connectors, custom player-count overflow behavior and all other world sizes remain unchanged. Screenshot 0066 confirms two distinct islands for Arena's two default players; screenshot 0067 confirms five distinct islands for Small's five default players. Both generated successfully in the same Civ4 process as the other batch tests, with an empty refreshed `PythonErr.log`.
+
+This is an AdvCiv-SAS bug introduced with `SAS_Large_Facing_Islands` in practical 5460 (`d185fc9208`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1XJ-QtSfykJte-DoTSzTWXglkRDm3HtTm?usp=sharing).
+
+`SAS_Spiky_Avenues` defines each house as one player's starting area and generates two facing houses per spike. Its Tiny profile generated 2 houses for 3 default players, while Small generated 4 houses for 5 default players. The start-placement overflow guard prevented direct slot reuse, but the map had no third or fifth designed house for the excess default player, contradicting its stated one-player-per-house layout.
+
+The fix uses the next symmetric capacities supported by the spike primitive: Tiny increases from 1 to 2 spikes, producing 4 houses, and Small increases from 2 to 3 spikes, producing 6 houses. The single-street layout is retained, and the spare house is analogous to the existing Large profile's 12 houses for 11 default players. House size and separation, avenue/bridge construction, start assignment and all other world-size profiles remain unchanged. Screenshot 0068 confirms Tiny's four-house layout for three default players; screenshot 0069 confirms Small's six-house layout for five default players. Both generated successfully in the same Civ4 process as the other batch tests, with an empty refreshed `PythonErr.log`.
+
+This is an AdvCiv-SAS bug introduced with `SAS_Spiky_Avenues` in practical 5456 (`15aa086e93`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
