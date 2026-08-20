@@ -257,6 +257,7 @@ class CvMilitaryAdvisor:
 		self.TEXT_SUMMARY_UNIT_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_COST", ())
 		self.TEXT_SUMMARY_UNIT_SUPPLY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_SUPPLY", ())
 		self.TEXT_SUMMARY_TOTAL_GOLD = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD", ())
+		self.TEXT_SUMMARY_ANARCHY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ANARCHY", ())
 		self.TEXT_SUMMARY_MIL_BUILDINGS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIL_BUILDINGS", ())
 		self.TEXT_SUMMARY_BLDG_BARRACKS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_BARRACKS", ())
 		self.TEXT_SUMMARY_BLDG_STABLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_STABLES", ())
@@ -1198,9 +1199,10 @@ class CvMilitaryAdvisor:
 				iCheapest = -1
 				for iToUnit in aTargets:
 					iPrice = pUnit.upgradePrice(iToUnit)
-					if iPrice > 0 and (iCheapest < 0 or iPrice < iCheapest):
+					# <!-- custom: Zero is a valid upgrade price for a Great-General-led unit with a 100% discount. Keep -1 only as the no-candidate sentinel so free upgrades contribute to min/average statistics. See KI#220. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if iPrice >= 0 and (iCheapest < 0 or iPrice < iCheapest):
 						iCheapest = iPrice
-				if iCheapest > 0:
+				if iCheapest >= 0:
 					aUpgradeCosts.append(iCheapest)
 
 			(pUnit, iter) = pPlayer.nextUnit(iter, False)
@@ -1366,8 +1368,24 @@ class CvMilitaryAdvisor:
 
 		iInflationFactor = 100 + pPlayer.calculateInflationRate()
 		# <!-- custom: Use exact DLL support-cost breakdown tuples exposed for this Summary tab. Reconstructing the math in Python hid K-Mod/AdvCiv multipliers and produced misleading rows like "1 x 100% = 0"; these tuples let the UI show the same intermediate values as CvPlayer::calculateUnitCost/calculateUnitSupply. (GPT-5.5) -->
-		iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iUnitCostMultiplier, iRegularUnitCost, iMilitaryUnitCost, iExtraUnitCost, iRawUnitCost = pPlayer.calculateUnitCostBreakdown()
-		iPaidOutside, iBaseSupplyCost, iRawUnitSupply = pPlayer.calculateUnitSupplyBreakdown()
+		iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iUnitCostMultiplier, iCalculatedRegularUnitCost, iCalculatedMilitaryUnitCost, iCalculatedExtraUnitCost, iCalculatedRawUnitCost = pPlayer.calculateUnitCostBreakdown()
+		iPaidOutside, iCalculatedBaseSupplyCost, iCalculatedRawUnitSupply = pPlayer.calculateUnitSupplyBreakdown()
+		bAnarchy = pPlayer.isAnarchy()
+		# <!-- custom: The breakdown bindings expose internal formula subtotals, which intentionally ignore the public CvPlayer wrappers' anarchy exemption. Preserve their useful free/paid counters, but show every charged support component as zero while anarchy waives Unit Cost and Unit Supply. See KI#219. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if bAnarchy:
+			iRegularUnitCost = 0
+			iMilitaryUnitCost = 0
+			iExtraUnitCost = 0
+			iRawUnitCost = 0
+			iBaseSupplyCost = 0
+			iRawUnitSupply = 0
+		else:
+			iRegularUnitCost = iCalculatedRegularUnitCost
+			iMilitaryUnitCost = iCalculatedMilitaryUnitCost
+			iExtraUnitCost = iCalculatedExtraUnitCost
+			iRawUnitCost = iCalculatedRawUnitCost
+			iBaseSupplyCost = iCalculatedBaseSupplyCost
+			iRawUnitSupply = iCalculatedRawUnitSupply
 		iUnitCost = (iRawUnitCost * iInflationFactor + 50) / 100
 		iUnitSupply = (iRawUnitSupply * iInflationFactor + 50) / 100
 		iTotalGold = iUnitCost + iUnitSupply
@@ -1484,6 +1502,7 @@ class CvMilitaryAdvisor:
 			"extra_unit_cost": iExtraUnitCost,
 			"gold_per_outside_unit": iGoldPerOutsideUnit,
 			"inflation_percent": iInflationFactor - 100,
+			"anarchy": bAnarchy,
 		}
 
 	def drawSummaryColumn(self, screen, iColX, iColY, iColW, iColH, szTitle, aRows):
@@ -1702,6 +1721,12 @@ class CvMilitaryAdvisor:
 		iTotalGoldColor = _supportColor(iTotalGold)
 		szUnitCostLabel = self.TEXT_SUMMARY_UNIT_COST
 		szUnitSupplyLabel = self.TEXT_SUMMARY_UNIT_SUPPLY
+		szTotalGoldLabel = self.TEXT_SUMMARY_TOTAL_GOLD
+		if dStats["anarchy"]:
+			# <!-- custom: Label each waived total so the zero result remains clear beside the preserved paid-unit/rate operands above it. See KI#219. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			szUnitCostLabel = u"%s (%s)" % (szUnitCostLabel, self.TEXT_SUMMARY_ANARCHY)
+			szUnitSupplyLabel = u"%s (%s)" % (szUnitSupplyLabel, self.TEXT_SUMMARY_ANARCHY)
+			szTotalGoldLabel = u"%s (%s)" % (szTotalGoldLabel, self.TEXT_SUMMARY_ANARCHY)
 		szUnitCostText = self.getSummaryCostResultText(u"%d + %d + %d" % (dStats["regular_unit_cost"], dStats["military_unit_cost"], dStats["extra_unit_cost"]), dStats["raw_unit_cost"], iUnitCostColor)
 		szUnitSupplyText = unicode(dStats["raw_unit_supply"]) + self.GOLD_CHAR
 		szFreeUsedCapText = u"%d/%d" % (dStats["free_used_units"], dStats["free_units"])
@@ -1756,7 +1781,7 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_GOLD_PER_OUTSIDE, szOutsideRateText, eHelpAwaySupply, self.iActivePlayer, 1, 2, -1),
 			(szUnitSupplyLabel, szUnitSupplyText, eHelpAwaySupply, self.iActivePlayer, 1, 1, -1),
 			(None, None, eNone, -1, -1, 0, -1),
-			(self.TEXT_SUMMARY_TOTAL_GOLD, szTotalGoldText, eHelpInflated, self.iActivePlayer, 1, 0, -1),
+			(szTotalGoldLabel, szTotalGoldText, eHelpInflated, self.iActivePlayer, 1, 0, -1),
 		]
 		# <!-- custom: Support appends city-level military infrastructure: building coverage, military-production modifier/new all-unit XP, and allied combat-unit hammers. Drydocks use coastal cities as denominator; national wonders show owning city or "-". (Claude code Opus 4.7 + GPT-5.5) -->
 		# <!-- custom: national-wonder cell: "-" until teched, then the owning city when built, else "0 / 1" (cap is 1 regardless of city count). (Claude code Opus 4.7) -->

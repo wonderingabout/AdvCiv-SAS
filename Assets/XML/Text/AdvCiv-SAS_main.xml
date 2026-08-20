@@ -86,6 +86,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD</Tag>
 		<English>Total Cost + Supply</English>
 	</TEXT>
+	<!-- custom: Military Summary annotation when anarchy waives the support costs calculated by the underlying formula breakdown. See KI#219. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ANARCHY</Tag>
+		<English>Anarchy</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIL_BUILDINGS</Tag>
 		<English>Military Buildings</English>

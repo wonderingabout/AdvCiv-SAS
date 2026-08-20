@@ -3902,7 +3902,8 @@ class PangaeaBreaker:
 			em.data[i] *= min(0.88, 0.37 + math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)) / 7.0)
 
 	def getCirclePoints(self, xCenter, yCenter, radius):
-		circlePoints = set() # advc.oxi: was list
+		# <!-- custom: castMeteorUponTheEarth consumes same-y boundary points as insertion-ordered left/right pairs. CirclePoint has identity equality, so the set neither removed coordinate duplicates nor preserved those pairs; restore the ordered list to keep crater rows complete. See KI#218. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		circlePoints = []
 		x = 0
 		y = radius
 		p = 1 - radius
@@ -3915,18 +3916,18 @@ class PangaeaBreaker:
 				y -= 1
 				p += 2 * (x - y) + 1
 			self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
-		return list(circlePoints) # advc.oxi
+		return circlePoints
 
-	# advc.oxi: Had been circlePointsList.append, leading to duplicates.
+	# <!-- custom: The duplicate boundary objects are intentional for the paired meteor rasterizer; getFilledCirclePoints separately supplies unique filled-disk geometry to its averaging callers. See KI#218. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	def addCirclePoints(self, xCenter, yCenter, x, y, circlePoints):
-		circlePoints.add(CirclePoint(xCenter + x, yCenter + y))
-		circlePoints.add(CirclePoint(xCenter - x, yCenter + y))
-		circlePoints.add(CirclePoint(xCenter + x, yCenter - y))
-		circlePoints.add(CirclePoint(xCenter - x, yCenter - y))
-		circlePoints.add(CirclePoint(xCenter + y, yCenter + x))
-		circlePoints.add(CirclePoint(xCenter - y, yCenter + x))
-		circlePoints.add(CirclePoint(xCenter + y, yCenter - x))
-		circlePoints.add(CirclePoint(xCenter - y, yCenter - x))
+		circlePoints.append(CirclePoint(xCenter + x, yCenter + y))
+		circlePoints.append(CirclePoint(xCenter - x, yCenter + y))
+		circlePoints.append(CirclePoint(xCenter + x, yCenter - y))
+		circlePoints.append(CirclePoint(xCenter - x, yCenter - y))
+		circlePoints.append(CirclePoint(xCenter + y, yCenter + x))
+		circlePoints.append(CirclePoint(xCenter - y, yCenter + x))
+		circlePoints.append(CirclePoint(xCenter + y, yCenter - x))
+		circlePoints.append(CirclePoint(xCenter - y, yCenter - x))
 
 	# advc.oxi: New method to replace some erroneous uses of getCirclePoints
 	def getFilledCirclePoints(self, xCenter, yCenter, radius):
