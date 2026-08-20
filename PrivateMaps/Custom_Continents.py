@@ -785,7 +785,8 @@ def beforeGeneration():
                              [0.45, 0.55, 0.63, 0.84, 0, 0, False, False, 60, 1, 1, 5, 5, 3]],
                          4: [2,
                              [0.65, 0.98, 0.06, 0.62, -0.63, 0, False, False, 55, 23, 3, 6, 6, 5],
-                             [0.73, 0.9, 0.2, 0.5, 0, -0.63, False, False, 60, 1, 1, 5, 5, 3]],
+                             # <!-- custom: Stock template (6,3) shifted this inner layer vertically while its outer layer and mirrored pair shift horizontally, separating the nested pair in three of four binary-shift states. Match the outer layer's horizontal -0.63 shift. See KI#266. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+                             [0.73, 0.9, 0.2, 0.5, -0.63, 0, False, False, 60, 1, 1, 5, 5, 3]],
                          5: [2,
                              [0.65, 0.98, 0.66, 0.94, -0.63, 0, False, False, 55, 23, 3, 6, 6, 5],
                              [0.73, 0.9, 0.73, 0.87, -0.63, 0, False, False, 60, 1, 1, 5, 5, 3]]},
@@ -852,7 +853,8 @@ class CCMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWestLon = 0.01 * self.dice.get(85, "Tiny Longitude - Custom Continents PYTHON")
 				tinyWestX = int(self.iW * tinyWestLon)
 				tinySouthLat = 0.01 * self.dice.get(85, "Tiny Latitude - Custom Continents PYTHON")
-				tinySouthY = int(self.iH * tinyWestLon)
+				# <!-- custom: The stock script rolled an independent latitude but derived Y from longitude, diagonally correlating supposedly random tiny-island patches. Use the latitude roll while preserving RNG order. See KI#262. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				tinySouthY = int(self.iH * tinySouthLat)
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 

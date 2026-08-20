@@ -48,9 +48,19 @@
 # <!-- custom: Keep the AdvCiv/K-Mod archaeology progress tracked so future clones and LLM/AI helpers can resume the systematic history audit, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
 /_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt  export-ignore
 
-# <!-- custom: Keep the greppable historical commit-diff mirror in Git for clones/Codex/LLM archaeology, but never ship it in player archives. Historical *.diff payloads are generated reference data, so suppress ordinary Git textual diff/whitespace treatment for those files. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Keep the greppable historical commit-diff mirror in Git for clones/Codex/LLM archaeology, but never ship it in player archives or count its generated contents as AdvCiv-SAS source on GitHub.
+# Historical *.diff payloads are generated reference data, so suppress ordinary Git textual diff/whitespace treatment for those files. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 /LLM_Helpers/commit_diffs/        export-ignore
+/LLM_Helpers/commit_diffs/**      export-ignore linguist-vendored
 /LLM_Helpers/commit_diffs/*.diff -diff
+
+# <!-- custom: Keep greppable downloaded map-script originals in Git and the dedicated light-source ZIP for inherited-bug archaeology, but exclude this non-runtime third-party corpus from player/GitHub Download ZIP archives.
+# Suppress ordinary diffs/language statistics for the verbatim upstream files while leaving the local README reviewable. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+/LLM_Helpers/map_refs/                export-ignore
+/LLM_Helpers/map_refs/**              export-ignore
+/LLM_Helpers/map_refs/**/*.py         -diff linguist-vendored
+/LLM_Helpers/map_refs/**/*.txt        -diff linguist-vendored
+/LLM_Helpers/map_refs/**/*.properties -diff linguist-vendored
 
 # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
 /.github/             export-ignore

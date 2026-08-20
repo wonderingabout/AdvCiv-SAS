@@ -50,8 +50,18 @@ Always review diffs before committing generated source changes.
 - [Source packaging and tracked-history helpers](#source-packaging-and-tracked-history-helpers)
   - [`make_light_source_zip.py`](#make_light_source_zippy)
   - [`sync_tracked_commit_diffs.py`](#sync_tracked_commit_diffspy)
+- [Inherited map-script reference sources](#inherited-map-script-reference-sources)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
+
+## Inherited map-script reference sources
+
+[`map_refs/`](/LLM_Helpers/map_refs/) contains downloaded, greppable, non-runtime originals used to distinguish inherited third-party map-script bugs from AdvCiv-SAS regressions. Its own README records the original package names and SHA-256 hashes, portable directory-name mappings, the source-only selection policy, and comparison guidance.
+
+- Compare references with current `PrivateMaps` and tracked commit history; current source/Git remains authoritative.
+- Do not run formatting, lint autofixes or line-ending normalization over the corpus.
+- Ordinary player/GitHub Download ZIP archives and generated historical patches exclude it, while `make_light_source_zip.py` includes the current files for ChatGPT/code-agent archaeology.
+- Preserve upstream credits/readmes and treat hosting/authorship/licensing metadata as upstream provenance rather than AdvCiv-SAS ownership.
 
 ## Python source cleanup helpers
 
@@ -274,7 +284,7 @@ External cleanup helper for line-ending hygiene.
 
 - Reports or fixes mixed CRLF/LF line endings and missing final newlines.
 - Does not run automatically in GitHub Actions; the workflow check only reports/fails.
-- Defaults to active repo text-like files and excludes generated/reference helper folders such as `LLM_Helpers/outputs` and `LLM_Helpers/examples`.
+- Defaults to active repo text-like files and excludes generated/reference helper folders such as `LLM_Helpers/outputs`, `LLM_Helpers/examples` and the verbatim `LLM_Helpers/map_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
 - Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
