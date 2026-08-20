@@ -751,6 +751,7 @@ class CvPolicyAdvisorScreen:
 	def drawHelpInfo(self):
 		screen = self.getScreen()
 		szArea = self.RELIGION_SCROLL_PANEL_ID
+		iMapObserverTeam = self.getMapObserverTeam()
 
 		screen.setLabelAt(self.RELIGION_HEADER_FOUNDED_ID, szArea, self.LABEL_RELIGION_DATE_FOUNDED, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -771,7 +772,7 @@ class CvPolicyAdvisorScreen:
 				if pHolyCity.isNone():
 					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, self.LABEL_NONE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, self.LABEL_NONE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				elif not pHolyCity.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), True): # advc.001d
+				elif not pHolyCity.isRevealed(iMapObserverTeam, True): # advc.001d
 					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				else:
@@ -1117,6 +1118,7 @@ class CvPolicyAdvisorScreen:
 
 	def drawCorporationInfo(self):
 		screen = self.getScreen()
+		iMapObserverTeam = self.getMapObserverTeam()
 		screen.addPanel(self.CORPORATION_PANEL_ID, "", "", False, True, self.X_CORPORATION_AREA, self.Y_CORPORATION_AREA, self.W_CORPORATION_AREA, self.H_CORPORATION_AREA, PanelStyles.PANEL_STYLE_MAIN)
 
 		xLoop = self.X_CORPORATION_START
@@ -1178,7 +1180,7 @@ class CvPolicyAdvisorScreen:
 			pHeadquarters = gc.getGame().getHeadquarters(iCorp)
 			if pHeadquarters.isNone():
 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, sasFontTagLabel + u"-" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			elif not pHeadquarters.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), False):
+			elif not pHeadquarters.isRevealed(iMapObserverTeam, False):
 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
 				iOwner = pHeadquarters.getOwner()
@@ -1188,21 +1190,50 @@ class CvPolicyAdvisorScreen:
 
 	def getCorporationGeneratedText(self, kCorpInfo):
 		szText = u""
+		iWorldPercent = gc.getWorldInfo(gc.getMap().getWorldSize()).getCorporationMaintenancePercent()
 		for iYield in range(YieldTypes.NUM_YIELD_TYPES):
-			iValue = kCorpInfo.getYieldProduced(iYield)
+			iValue = self.getScaledCorporationGeneratedValue(kCorpInfo.getYieldProduced(iYield), iWorldPercent)
 			if iValue != 0:
 				if len(szText) > 0:
 					szText += u", "
-				szText += u"%d%c" % (iValue, gc.getYieldInfo(iYield).getChar())
+				szText += self.getCorporationGeneratedValueText(iValue) + u"%c" % gc.getYieldInfo(iYield).getChar()
 		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-			iValue = kCorpInfo.getCommerceProduced(iCommerce)
+			iValue = self.getScaledCorporationGeneratedValue(kCorpInfo.getCommerceProduced(iCommerce), iWorldPercent)
 			if iValue != 0:
 				if len(szText) > 0:
 					szText += u", "
-				szText += u"%d%c" % (iValue, gc.getCommerceInfo(iCommerce).getChar())
+				szText += self.getCorporationGeneratedValueText(iValue) + u"%c" % gc.getCommerceInfo(iCommerce).getChar()
 		if len(szText) <= 0:
 			return u"-"
 		return szText
+
+	def getScaledCorporationGeneratedValue(self, iStoredValue, iWorldPercent):
+		# <!-- custom: Corporation XML yield/commerce values are stored in hundredths. Match native CvGameTextMgr truncation after world-size scaling, including C++ truncation toward zero for negative values. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iScaledValueX100 = iStoredValue * iWorldPercent
+		if iScaledValueX100 >= 0:
+			return iScaledValueX100 / 100
+		return -((-iScaledValueX100) / 100)
+
+	def getCorporationGeneratedValueText(self, iValueX100):
+		# <!-- custom: Display scaled corporation rates as exact signed units (+1, +0.50, +1.50) instead of exposing the raw hundredths (100, 50, 150). Use integer text assembly to avoid floating-point approximation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iAbsoluteValue = abs(iValueX100)
+		szSign = u"+"
+		if iValueX100 < 0:
+			szSign = u"-"
+		szText = szSign + unicode(iAbsoluteValue / 100)
+		iFraction = iAbsoluteValue % 100
+		if iFraction != 0:
+			szFraction = unicode(iFraction)
+			if iFraction < 10:
+				szFraction = u"0" + szFraction
+			szText += u"." + szFraction
+		return szText
+
+	def getMapObserverTeam(self):
+		# <!-- custom: A selected vassal remains the Policy Advisor's subject, but outside debug its Holy City and Corporation Headquarters rows must use the real active player's map knowledge so the perspective selector cannot reveal hidden locations. Debug mode deliberately retains the selected player's map knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if CyGame().isDebugMode():
+			return gc.getPlayer(self.iActivePlayer).getTeam()
+		return gc.getPlayer(CyGame().getActivePlayer()).getTeam()
 
 	def getCorporationConsumedText(self, kCorpInfo):
 		# <!-- custom: keep consumed prerequisites as a single natural comma-separated bonus-char list; no row splitting needed at current panel width. (GPT-5.3-Codex) -->
