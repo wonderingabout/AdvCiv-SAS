@@ -277,6 +277,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [215 - (Fixed inherited K-Mod/Base AdvCiv bug) No-site Settler cleanup could unload unrelated transport cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---fixed-inherited-k-modbase-advciv-bug-no-site-settler-cleanup-could-unload-unrelated-transport-cargo)\
 [216 - (Fixed inherited Better BTS AI/K-Mod bug) Work Boat demand could count the same accessible water area twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#216---fixed-inherited-better-bts-aik-mod-bug-work-boat-demand-could-count-the-same-accessible-water-area-twice)\
 [217 - (Fixed AdvCiv-SAS bug) Ready-attack upgrade counting used the stack head's UnitAI for every group member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#217---fixed-advciv-sas-bug-ready-attack-upgrade-counting-used-the-stack-heads-unitai-for-every-group-member)\
+[218 - (Fixed inherited Base AdvCiv bug) PerfectMongoose meteor boundary points lost the pairing order required to rasterize complete crater rows](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#218---fixed-inherited-base-advciv-bug-perfectmongoose-meteor-boundary-points-lost-the-pairing-order-required-to-rasterize-complete-crater-rows)\
+[219 - (Fixed AdvCiv-SAS bug) Military Summary displayed support costs during anarchy even though the engine waived them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#219---fixed-advciv-sas-bug-military-summary-displayed-support-costs-during-anarchy-even-though-the-engine-waived-them)\
+[220 - (Fixed AdvCiv-SAS bug) Military Summary excluded free Great-General upgrades from minimum and average upgrade costs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#220---fixed-advciv-sas-bug-military-summary-excluded-free-great-general-upgrades-from-minimum-and-average-upgrade-costs)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8067,3 +8070,31 @@ Mixed-role stacks can value different upgrade types for different members. A gro
 The fix removes the externally supplied UnitAI parameter from `SAS_getBestUpgradeForLog` and derives the iterated unit's own role through `kUnit.AI().AI_getUnitAIType()`. Both the behavioral count and its matching diagnostic cost estimate now use the same per-member evaluation. The deterministic 90% upgrade estimate, affordability check, synchronized RNG behavior and all other wait/bypass gates remain unchanged.
 
 Found through the systematic AdvCiv-SAS archaeology and investigated with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 218 - (Fixed inherited Base AdvCiv bug) PerfectMongoose meteor boundary points lost the pairing order required to rasterize complete crater rows
+
+Base AdvCiv 1.12 changed `PerfectMongoose.py::PangaeaBreaker.getCirclePoints` from an ordered list to a `set`, intending to remove duplicate circle points. `CirclePoint` defines no coordinate equality or hash, so separately allocated objects with the same `(x,y)` remain distinct set elements. The intended deduplication therefore did not occur, while the conversion discarded the insertion order required by the active meteor rasterizer. The same regression survived in updated Base AdvCiv 1.14 and AdvCiv-SAS.
+
+`castMeteorUponTheEarth` sorts the returned points only by y and then consumes them two at a time as horizontal crater-line endpoints. The original insertion sequence placed opposite-side endpoints beside each other within a y row. For example, radius 4 emits the y=0 sequence `+4,-4,+4,-4`; the ordered list draws the full `-4..+4` row twice, whereas an allowed set order such as `-4,-4,+4,+4` draws only two degenerate edge points. Meteor crater shape could consequently depend on unordered identity-set iteration.
+
+The fix restores the ordered list and `append` calls for this boundary helper. Its duplicate objects remain intentional for the paired rasterizer, while the separate `getFilledCirclePoints` helper continues to provide filled-disk geometry to the newer averaging callers. No meteor size, target selection, RNG draw or unrelated map-generation policy changes.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 219 - (Fixed AdvCiv-SAS bug) Military Summary displayed support costs during anarchy even though the engine waived them
+
+The Military Advisor Summary obtains exact Unit Cost and Unit Supply formula components from custom Python breakdown bindings. Those bindings deliberately call internal `CvPlayer` overloads that calculate the underlying free/paid counts and support subtotals without the public wrappers' `isAnarchy()` exemption. The Summary treated those internal subtotals as currently charged gold, so during anarchy it could display positive Unit Cost, Unit Supply and Total Cost + Supply even though the engine-facing functions return zero and charge the player nothing.
+
+The fix preserves the informative total/free/paid/outside-unit counters returned by the breakdowns, but explicitly sets every displayed charged-cost component and subtotal to zero while the selected player is in anarchy. Unit Cost, Unit Supply and Total Cost + Supply labels receive a localized `Anarchy` annotation so formulas with real paid-unit operands and waived zero-gold results remain understandable. Outside anarchy, the exact existing DLL breakdown and inflation display are unchanged.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 220 - (Fixed AdvCiv-SAS bug) Military Summary excluded free Great-General upgrades from minimum and average upgrade costs
+
+The Military Summary gathers each unit's cheapest available upgrade price to display minimum, average, maximum and total upgrade costs. It previously accepted and appended only prices greater than zero. A combat unit carrying `PROMOTION_LEADER` has a 100% upgrade discount and can validly upgrade for zero gold, so free Great-General-led upgrades disappeared from the statistical sample.
+
+With one free upgrade and one 75-gold upgrade, the old sample was `[75]` and displayed minimum/average `75/75`; the correct Python-2 integer statistics from `[0,75]` are `0/37`. The total happened to remain 75 because adding zero changes nothing, and all-free samples happened to display zero through the empty-list defaults, masking the defect.
+
+The fix retains `-1` solely as the no-candidate sentinel and accepts/appends every nonnegative price. Free upgrades now contribute a real zero observation, while ordinary positive upgrade prices and units with no upgrade target retain their previous behavior.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
