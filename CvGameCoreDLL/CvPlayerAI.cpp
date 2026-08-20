@@ -13212,9 +13212,10 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 	} // </advc.036>
 	// advc.133:
 	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus);
-	// <!-- custom: exclude dominated strategic buys from trade tables entirely (DENIAL_JOKING is filtered there), so they don't appear as meaningless 0-value purchases. (GPT-5.3-Codex) -->
+	// <!-- custom: Exclude dominated strategic buys from AI trade tables entirely (`DENIAL_JOKING` is filtered there), so they don't appear as meaningless 0-value purchases.
+	// Applying this AI-buyer rule to a human recipient hid first-copy imports and could cancel existing AI-to-human exports. Keep the hard gate AI-only. See KI#239. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	static const bool bZeroDominatedStrategicBuys = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS");
-	if (iChange >= 0 && bZeroDominatedStrategicBuys)
+	if (!bPlayerHuman && iChange >= 0 && bZeroDominatedStrategicBuys)
 	{
 		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
 		static const BonusTypes B_IRON = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"));
@@ -13261,8 +13262,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 		// <!-- custom: Industrial (pre-Modern): Horse line is stronger (Cavalry), so deny Camel buy when Horse exists. (GPT-5.3-Codex) -->
 		else if (eBonus == B_CAMEL && bIndustrialPlus && !bModernPlus && bHaveHorse)
 			bDominated = true;
-		// <!-- custom: Medieval+: Copper is not worth buying in this heuristic; before that, Iron already dominates Copper when both exist. (GPT-5.3-Codex) -->
-		else if (eBonus == B_COPPER && (bHaveIron || bMedievalPlus))
+		// <!-- custom: Iron dominates Copper when both exist, but era alone does not: the Medieval generic Privateer accepts Copper OR Iron. See KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		else if (eBonus == B_COPPER && bHaveIron)
 			bDominated = true;
 		// <!-- custom: Medieval+: War Elephants are too weak for this buy heuristic, so deny Elephant buy. (GPT-5.3-Codex) -->
 		else if (eBonus == B_ELEPHANTS && bMedievalPlus)
@@ -13270,7 +13271,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 		// <!-- custom: Modern+: Horse/Camel are obsolete in this heuristic, so deny buying either. (GPT-5.3-Codex) -->
 		else if ((eBonus == B_HORSE || eBonus == B_CAMEL) && bModernPlus)
 			bDominated = true;
-		if (bDominated)
+		// <!-- custom: A strategically substitutable resource can still have positive corporation value; let ordinary recipient valuation handle it instead of hard-denying the trade. See KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bDominated && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
 			return DENIAL_JOKING;
 	}
 	// advc.036: Moved this clause up

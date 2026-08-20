@@ -299,6 +299,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [237 - (Fixed inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepted one candidate beyond its width limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#237---fixed-inherited-k-modbug-era-bug-maximum-types-great-person-progress-text-accepted-one-candidate-beyond-its-width-limit)\
 [237.2 - (Fixed inherited Base AdvCiv bug) Runtime-sized city Great Person bar retained a fixed 230px text budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2372---fixed-inherited-base-advciv-bug-runtime-sized-city-great-person-bar-retained-a-fixed-230px-text-budget)\
 [238 - (Fixed AdvCiv-SAS bug) Parallel Lines reused its final custom starting slot for excess players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#238---fixed-advciv-sas-bug-parallel-lines-reused-its-final-custom-starting-slot-for-excess-players)\
+[239 - (Fixed AdvCiv-SAS bug) AI-buy strategic-resource denial leaked onto human recipients](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#239---fixed-advciv-sas-bug-ai-buy-strategic-resource-denial-leaked-onto-human-recipients)\
+[240 - (Fixed AdvCiv-SAS bug) Medieval Copper denial overrode live strategic and corporation value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#240---fixed-advciv-sas-bug-medieval-copper-denial-overrode-live-strategic-and-corporation-value)\
 [242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#242---fixed-advciv-sas-bug-large-facing-islands-underprovided-islands-for-default-arena-and-small-games)\
 [245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
 
@@ -4432,7 +4434,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Observed issues:
 
-- AI could still buy dominated/equivalent strategic resources in some eras (example: buying `BONUS_COPPER` in Medieval even though it is not needed there).
+- AI could still buy strategic resources dominated or made equivalent by another resource under current AdvCiv-SAS unit/era balance.
 - AI willing to buy copper when it has iron
 - AI willing to buy horse when it has camel or iron at classical, etc.
 
@@ -4440,6 +4442,7 @@ Fix:
 
 - Keep era/substitute evaluation rules, but enforce exclusion in `CvPlayerAI::AI_bonusTrade` (file: [CvPlayerAI.cpp](/CvGameCoreDLL/CvPlayerAI.cpp)) by returning `DENIAL_JOKING` for dominated/equivalent strategic buy cases; this is filtered from trade tables by explicit buy-denial rules in `AI_bonusTrade`.
 - Logic and bonus dependent (e.g., `BONUS_CAMEL` is not an equivalent of Horse anymore at Industrial+ Era (no Camel Dragoon))
+- These are explicit current-balance rules rather than relationships derived automatically from every XML unit. Modmods that substantially change strategic-resource prerequisites or their useful eras should review the rules or disable `SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS`; see KI#239 and KI#240 for the human-recipient, corporation-value and Medieval Copper corrections.
 
 ## 110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper
 
@@ -8327,6 +8330,22 @@ The fix detects an out-of-capacity player before mapping the index and calls `al
 Screenshot 0065 confirms a Standard Custom Game with nine players and 3 Players Per Line generated three populated lines with distinct player positions instead of duplicating the final custom slot. This test and the KI#242/KI#245 tests below all ran successively in the same Civ4 process; the refreshed `PythonErr.log` remained empty.
 
 This is an AdvCiv-SAS bug introduced with `SAS_Parallel_Lines` in practical 5486 (`0870e0adc8`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 239 - (Fixed AdvCiv-SAS bug) AI-buy strategic-resource denial leaked onto human recipients
+
+AdvCiv-SAS practical 5484 added a hard `AI_bonusTrade` denial for strategic resources considered dominated or equivalent for the recipient. The feature and its define are explicitly an AI-buy efficiency rule, but the gate also ran when the recipient was human. An AI seller could therefore return `DENIAL_JOKING` before reaching AdvCiv's existing human-recipient path, which intentionally lets a human decide whether an import is useful. Because human trade-table construction filters resources with that denial, a first-copy strategic import could disappear from diplomacy; the same gate also participated in cancellation checks for an existing AI-to-human export.
+
+The fix requires a non-human recipient for this hard dominated-resource gate. It still suppresses an inefficient purchase whenever the buyer is AI, including an AI buying from a human, while restoring the established human-recipient trade/value contract. The individual strategic-resource substitution rules, ordinary AI valuation, seller willingness, prices and all unrelated diplomacy logic remain unchanged. The DLL compiled successfully, and a general in-game smoke run completed with an empty refreshed `PythonErr.log`; the buyer-direction behavior is validated from the `kPlayer = GET_PLAYER(eToPlayer)` call path and trade-table/cancellation callers rather than a separately constructed diplomacy save.
+
+This is an AdvCiv-SAS regression introduced in practical 5484 (`923840f152`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 240 - (Fixed AdvCiv-SAS bug) Medieval Copper denial overrode live strategic and corporation value
+
+The same practical 5484 gate classified every Medieval-or-later Copper purchase as dominated even when the AI recipient had no Iron. Copper is not universally obsolete there: Base AdvCiv 1.14 and current AdvCiv-SAS both let the generic Privateer use Copper OR Iron, and current AdvCiv-SAS places it at Medieval `TECH_PROFESSIONAL_ARMY`. Corporation 4 and Corporation 5 also consume Copper, but the early hard return ran before ordinary recipient valuation and the pre-existing corporation-aware duplicate-resource safeguard.
+
+The fix treats Copper as dominated by Iron only when the recipient actually has Iron, rather than from era alone. It also bypasses the hard denial when `AI_corporationBonusVal(eBonus, true)` is positive, so a corporation-useful resource reaches the existing valuation path regardless of its military substitutes. Corporation valuation is queried only after a resource matches a dominated rule. The other explicit substitute and obsolescence rules remain unchanged, and the whole feature remains XML-toggleable. Because those rules encode current AdvCiv-SAS unit prerequisites and era balance rather than discovering every relationship automatically, a modmod that adds uses such as Ancient Copper-only units or late Industrial Copper units should review the C++ rules or disable `SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS`; the configured bonus identities remain XML-tunable. The DLL compiled successfully, and a general in-game smoke run completed with an empty refreshed `PythonErr.log`; the corrected Privateer/corporation cases are validated from current XML and source paths rather than a separately constructed diplomacy save.
+
+This is an AdvCiv-SAS AI trade-logic regression introduced in practical 5484 (`923840f152`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
 ## 242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games
 
