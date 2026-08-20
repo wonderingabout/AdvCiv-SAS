@@ -43,10 +43,10 @@ Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
 Confirmed defects tracked here: 31
   inherited/pre-SAS defects: 11
   SAS-specific regressions: 20
-Confirmed defects fixed: 29
+Confirmed defects fixed: 30
 Confirmed defects with fix prepared/staged, pending user commit validation: 0
 Confirmed defects with broader repair/refactor intentionally pending: 1 (KI#213)
-Confirmed defects with surgical repair identified, implementation/documentation deferred: 1 (KI#234 candidate)
+Confirmed defects with surgical repair identified, implementation/documentation deferred: 0
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Unfinished K-Mod final-block candidates to recheck before closure: 0
@@ -65,7 +65,7 @@ Runtime-source SHAs systematically reviewed: 486 / 1,317.
 Sweep order: newest -> oldest.
 Current certified SAS source cursor: practical 5568, SHA b4bf8dfadd.
 Next runtime-source SHA / current OPEN audit: practical 5567, SHA fc94bc27ff.
-New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 fixed in commit 962e912da; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 fixed in commit c8903d21a; KI#224 fixed in commit fa4a1468d; KI#225 fixed in SAS practical 6176 / b8a7805fe; KI#228 fixed/validated in SAS practical 6177 / c99ab79e5b; KI#229 and KI#230 fixed/validated in commit 0a96cdaa7; KI#231, KI#232 and KI#233 fixed/validated in the current implementation batch; and KI#234 is the stale Espionage target/city/mission state regression introduced by practical 5583 when the standalone screen was merged into the persistent Foreign Advisor object.
+New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 fixed in commit 962e912da; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 fixed in commit c8903d21a; KI#224 fixed in commit fa4a1468d; KI#225 fixed in SAS practical 6176 / b8a7805fe; KI#228 fixed/validated in SAS practical 6177 / c99ab79e5b; KI#229 and KI#230 fixed/validated in commit 0a96cdaa7; KI#231, KI#232 and KI#233 fixed/validated in commit 31becb027; and KI#234 is fixed/validated in the current implementation batch.
 
 SAS source checkpoints
 ----------------------
@@ -676,6 +676,13 @@ SAS-C062 - practical 5598 through 5590 TechChooser / Victory / Civics / Domestic
   Next runtime-source SHA: practical 5589 / c5b7209bf5.
 
 
+F031 - KI#234: persistent Foreign Advisor can retain an invalid Espionage target/city/mission - FIXED / VALIDATED
+  Classification: AdvCiv-SAS Foreign Advisor/Espionage state regression introduced by practical 5583 / e138ad4f82.
+  Before practical 5583, opening the standalone Espionage Advisor reset `iTargetPlayer`, `iActiveCityID` and `iSelectedMission` to -1 every time. The practical integrated Espionage into the persistent Foreign Advisor object and moved those fields to one-time `ESP_` object initialization. `drawEspionageContents()` rebuilds the current alive/met target list on each draw, but current descendants never validate a retained nonnegative target against that rebuilt list.
+  A rival that dies, becomes unmet under a changed debug perspective or otherwise leaves the eligible list can therefore remain selected despite having no target row, with stale city and mission state following it. Blindly restoring the old reset-on-every-open behavior would be safe but would discard useful selection persistence for still-valid rivals.
+  Fixed in the current implementation batch by validating the retained target after rebuilding the alive/met list. A still-valid target and its state remain unchanged; an invalid target clears target/city/mission together before the existing first-valid-target behavior selects a current rival. Runtime testing selected Lincoln, closed and reopened the advisor to confirm that the still-valid target persisted, then changed the debug perspective to Lincoln so he became ineligible as his own target. Lincoln disappeared from the rival list and Julius Caesar became the selected replacement with no stale selection; the refreshed `PythonErr.log` remained empty. Espionage spending, mission costs, target eligibility and gameplay state are unchanged.
+
+
 F030 - KI#233: default Domestic Advisor shell refactor removed the visible Free Colony / Liberate action - FIXED / VALIDATED
   Classification: AdvCiv-SAS default-Domestic-Advisor UI regression introduced by practical 5599 / b8253247d2; survives current practical 6177.
   Before practical 5599, normal `CvDomesticAdvisor.interfaceScreen()` checks whether any city can be liberated or whether the player can split the empire and, when applicable, creates `DomesticSplit` as a `WIDGET_ACTION` using `CONTROL_FREE_COLONY`'s action-info ID. Its click handler closes the advisor while the control opens the native free-colony/liberation popup. Base AdvCiv 1.14 still contains this path.
@@ -1088,7 +1095,7 @@ SAS-C065 - practical 5583 Espionage -> Foreign Advisor integration audit / KI#23
   Practical 5583 removes the standalone CvEspionageAdvisor object/screen and integrates its logic directly into CvForeignAdvisor as an Espionage tab. Screen/input routing is coherent: CvScreensInterface redirects Espionage opens/input to the Foreign object, Foreign update handles Espionage_Advisor_DIRTY_BIT while the Espionage tab is active, and the migrated helpers use a separate ESP_ state/widget namespace.
   A tempting fixed-widget collision suspect was disproved: Foreign getScreen() names each tab as ForeignAdvisor + iScreen and a tab change hides the old screen before switching iScreen, so legacy fixed Espionage names such as LeftPane/RightPane/CitiesTitle remain isolated on the Espionage tab screen rather than leaking onto other Foreign tabs.
   Confirmed surviving SAS-specific candidate / KI#234: the deleted standalone interfaceScreen reset iTargetPlayer, iActiveCityID and iSelectedMission to -1 on every open. The integrated persistent Foreign object instead initializes ESP_iTargetPlayer/ESP_iActiveCityID/ESP_iSelectedMission only once and drawEspionage resets city/mission only when the retained target is already -1. drawEspionageContents rebuilds the currently valid alive/met target list but never validates a non--1 retained target against it. Thus a previously selected rival can die/become invalid between opens and remain selected despite being absent from ESP_aiKnownPlayers; a retained city/mission can likewise outlive the target's valid cities, creating stale/invalid mission-display state. Current 6177 retains the same missing target-membership validation.
-  Surgical direction: on Espionage entry/rebuild, validate the retained target against the rebuilt alive/met target set. If invalid, reset target/city/mission to -1 and let the existing first-valid-target selection run. This preserves useful selection persistence for still-valid targets while restoring the old standalone screen's safety invariant.
+  Fixed and runtime-validated later in the current implementation batch by validating the retained target against the rebuilt alive/met target set, clearing target/city/mission only when invalid, and then using the existing first-valid-target selection. See F031 and KI#234.
   Certified cursor advances through practical 5583 / e138ad4f82. Next source commit: practical 5582 / ef8766cb5f.
 
 
