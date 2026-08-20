@@ -280,6 +280,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [218 - (Fixed inherited Base AdvCiv bug) PerfectMongoose meteor boundary points lost the pairing order required to rasterize complete crater rows](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#218---fixed-inherited-base-advciv-bug-perfectmongoose-meteor-boundary-points-lost-the-pairing-order-required-to-rasterize-complete-crater-rows)\
 [219 - (Fixed AdvCiv-SAS bug) Military Summary displayed support costs during anarchy even though the engine waived them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#219---fixed-advciv-sas-bug-military-summary-displayed-support-costs-during-anarchy-even-though-the-engine-waived-them)\
 [220 - (Fixed AdvCiv-SAS bug) Military Summary excluded free Great-General upgrades from minimum and average upgrade costs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#220---fixed-advciv-sas-bug-military-summary-excluded-free-great-general-upgrades-from-minimum-and-average-upgrade-costs)\
+[221 - (Fixed AdvCiv-SAS bug) Undefended city conquest could relabel an unrelated same-turn battle as a city capture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#221---fixed-advciv-sas-bug-undefended-city-conquest-could-relabel-an-unrelated-same-turn-battle-as-a-city-capture)\
+[222 - (Fixed AdvCiv-SAS bug) Battle history could not associate captured civilians with their preceding escort-clearing battle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#222---fixed-advciv-sas-bug-battle-history-could-not-associate-captured-civilians-with-their-preceding-escort-clearing-battle)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8096,5 +8098,25 @@ The Military Summary gathers each unit's cheapest available upgrade price to dis
 With one free upgrade and one 75-gold upgrade, the old sample was `[75]` and displayed minimum/average `75/75`; the correct Python-2 integer statistics from `[0,75]` are `0/37`. The total happened to remain 75 because adding zero changes nothing, and all-free samples happened to display zero through the empty-list defaults, masking the defect.
 
 The fix retains `-1` solely as the no-candidate sentinel and accepts/appends every nonnegative price. Free upgrades now contribute a real zero observation, while ordinary positive upgrade prices and units with no upgrade target retain their previous behavior.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 221 - (Fixed AdvCiv-SAS bug) Undefended city conquest could relabel an unrelated same-turn battle as a city capture
+
+AdvCiv-SAS battle history associates the `cityAcquired` event with the newest same-turn battle won by the new owner against the previous owner. The matcher did not require the battle coordinates to equal the captured city's coordinates and did not reject retreat rows. Capturing an undefended city produces no combat result, so an unrelated earlier battle between the same players on that turn could be selected, have its coordinates overwritten with the city's coordinates, and be displayed as the city-capture battle.
+
+The battle recorder already stores the defeated unit's plot for defended attacks, which is the captured city plot when a real city battle precedes acquisition. The fix therefore requires the same turn, winner/loser direction and exact city coordinates, and rejects the explicitly marked non-lethal retreat outcome. A defended conquest still enriches its actual battle row, while an undefended conquest correctly leaves unrelated rows unchanged.
+
+The regression was introduced by AdvCiv-SAS practical 5772 (`fc82d93007`) when city-capture context was added to battle history. No combat rules, city acquisition behavior, RNG or ordinary battle recording changes.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 222 - (Fixed AdvCiv-SAS bug) Battle history could not associate captured civilians with their preceding escort-clearing battle
+
+AdvCiv-SAS records a captured unit on the preceding battle row by scanning newest-first for a same-turn combat won by the capturing player against the old owner. The matcher additionally required the combat loser's unit type to equal the captured unit's old type. Current capturable Settler and Worker variants have zero combat strength and are captured only after their defending escort is defeated, so the combat loser is the escort rather than the civilian. The required type equality prevented the legitimate row from matching, leaving the battle's capture count and captured-unit type blank.
+
+The fix uses the captured unit created by the event to obtain the capture plot, then matches the newest same-turn lethal battle at those exact coordinates with the correct capturing-player/old-owner direction. It deliberately does not compare the defeated escort type with the captured civilian type, and it rejects retreat rows. The existing capture accumulator remains unchanged, so several Workers captured after the same battle still increase the count on that one row.
+
+The regression was introduced by AdvCiv-SAS practical 5765 (`254194766d`) when unit-capture details were added to battle history. No capture eligibility, unit conversion, combat result, RNG or battle-history tuple layout changes.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

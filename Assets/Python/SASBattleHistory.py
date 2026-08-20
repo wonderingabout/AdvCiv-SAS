@@ -151,30 +151,31 @@ def _getUnitEndCombatStr(pUnit, iMaxCombatStr):
 		return 0
 	return (iMaxCombatStr * pUnit.currHitPoints()) / pUnit.maxHitPoints()
 
-def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iOldUnitType):
+def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iX, iY):
 	if len(entry) < 7:
 		return False
-	# <!-- custom: don't require plot equality here; combatResult may record the winner's pre-advance plot, while unitCaptured fires after the captured unit is created on the loser's plot. Scan newest-first within the same turn instead. (GPT-5.5) -->
-	return (entry[0] == CyGame().getGameTurn() and entry[1] == iCapturingPlayer and entry[2] == iOldOwner and entry[4] == iOldUnitType)
+	# <!-- custom: Capturable civilian units do not fight, so their old unit type cannot equal the defeated escort type in the preceding combat row. Defended combat records the loser's plot; match the captured unit's plot plus player direction, and reject retreat rows so another same-turn battle cannot receive the capture. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return (entry[0] == CyGame().getGameTurn() and entry[1] == iCapturingPlayer and entry[2] == iOldOwner and entry[5] == iX and entry[6] == iY and not isRetreatEntry(entry))
 
-def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
+def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iX, iY, iCapturedUnitType):
 	iIndex = len(entries) - 1
 	while iIndex >= 0:
-		if _matchesCapturedBattle(entries[iIndex], iCapturingPlayer, iOldOwner, iOldUnitType):
+		if _matchesCapturedBattle(entries[iIndex], iCapturingPlayer, iOldOwner, iX, iY):
 			entries[iIndex] = _getEntryWithCapture(entries[iIndex], iCapturingPlayer, iCapturedUnitType)
 			return True
 		iIndex -= 1
 	return False
 
-def _matchesCityCapturedBattle(entry, iPreviousOwner, iNewOwner):
+def _matchesCityCapturedBattle(entry, iPreviousOwner, iNewOwner, iX, iY):
 	if len(entry) < 7:
 		return False
-	return (entry[0] == CyGame().getGameTurn() and entry[1] == iNewOwner and entry[2] == iPreviousOwner)
+	# <!-- custom: An undefended conquest fires cityAcquired without combat. Require a lethal battle at this city plot so an unrelated same-turn battle between the same players is not relabeled as the city capture. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return (entry[0] == CyGame().getGameTurn() and entry[1] == iNewOwner and entry[2] == iPreviousOwner and entry[5] == iX and entry[6] == iY and not isRetreatEntry(entry))
 
 def _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):
 	iIndex = len(entries) - 1
 	while iIndex >= 0:
-		if _matchesCityCapturedBattle(entries[iIndex], iPreviousOwner, iNewOwner):
+		if _matchesCityCapturedBattle(entries[iIndex], iPreviousOwner, iNewOwner, iX, iY):
 			entries[iIndex] = _setEntryCityContext(entries[iIndex], iX, iY, _PLOT_CONTEXT_CITY_CAPTURED)
 			return True
 		iIndex -= 1
@@ -266,17 +267,18 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, 
 	_saveEntriesByPlayer(entriesByPlayer)
 
 def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
-	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude code Opus 4.7) -->
+	# <!-- custom: cast the old-owner event arg to plain int; PlayerTypes arrives as an enum/SWIG wrapper from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude code Opus 4.7) -->
 	iOldOwner = int(iOldOwner)
-	iOldUnitType = int(iOldUnitType)
 	iCapturingPlayer = int(pNewUnit.getOwner())
 	iCapturedUnitType = int(pNewUnit.getUnitType())
+	iX = int(pNewUnit.getX())
+	iY = int(pNewUnit.getY())
 	entriesByPlayer = _getEntriesByPlayer()
 	bChanged = False
 	for iPlayer in (iCapturingPlayer, iOldOwner):
 		szPlayer = str(iPlayer)
 		entries = entriesByPlayer.get(szPlayer, [])
-		if _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
+		if _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iX, iY, iCapturedUnitType):
 			entriesByPlayer[szPlayer] = entries
 			bChanged = True
 	if bChanged:
