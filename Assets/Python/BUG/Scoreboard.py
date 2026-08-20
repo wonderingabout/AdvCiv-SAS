@@ -358,6 +358,13 @@ class Scoreboard:
 		if maxPlayers > 0 and len(self._playerScores) > maxPlayers:
 			self._playerScores = self._playerScores[len(self._playerScores) - maxPlayers:]
 
+	def prepare(self):
+		# <!-- custom: Expose the exact sorted and BUG Max Players-capped population before scroll controls calculate their range. This keeps active-player centering, button state and drawing on the same effective aligned-scoreboard order. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		self.assignRanks()
+		self.gatherVassals()
+		self.sort()
+		return [playerScore.getID() for playerScore in self._playerScores]
+
 	def hide(self, screen, bUnhide = False): # advc.085
 		# Hides the text from the screen before building the scoreboard.
 		#
@@ -411,14 +418,13 @@ class Scoreboard:
 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
 	# </advc.085>
 
-	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False):
+	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False, bPrepared=False):
 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
 		#
 		timer = BugUtil.Timer("scores")
 		self.hide(screen)
-		self.assignRanks()
-		self.gatherVassals()
-		self.sort()
+		if not bPrepared:
+			self.prepare()
 		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
 		if iMaxRows is not None:
 			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))

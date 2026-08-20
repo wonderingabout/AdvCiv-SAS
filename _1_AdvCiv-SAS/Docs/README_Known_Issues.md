@@ -8181,3 +8181,15 @@ The fix removes only the Requirements-side line and retains the existing Effects
 The regression was introduced by AdvCiv-SAS practical 5692 (`fb18bad9c4`) with the initial Vote Sevopedia page.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 228 - (Fixed AdvCiv-SAS bug) Aligned scoreboard scrolling conflicted with the inherited BUG mod's Max Players cap
+
+The aligned BUG scoreboard supports a positive `Max Players` option that sorts and caps its drawable player list. AdvCiv-SAS practical 5667 added vertical-overflow protection and scoreboard scrolling, but the new outer interface calculated its scroll range, active-player centering and +/- button states from every visible player before the inherited cap was applied. `Scoreboard.draw` then applied `Max Players` internally and could only clamp its local copy of the requested offset.
+
+For example, with 40 visible players, room for 30 rows and `Max Players = 10`, the outer interface exposed scrolling over 40 players while the renderer retained only 10. Pressing + changed the caller-owned offset and button states, but the renderer repeatedly clamped that offset to zero and continued showing the same ten players. The default `Max Players = 0` masked the regression. The non-aligned scoreboard path does not use this BUG sorting/capping machinery and is not part of KI#228.
+
+The prepared fix exposes the aligned scoreboard's exact player-ID order after rank assignment, vassal grouping and the positive `Max Players` cap. Total count, active-player centering, scroll clamping, +/- availability and drawing now consume that same effective population, and drawing reuses the already-prepared scoreboard before applying its visible-row slice. This also prevents centering from disagreeing with the renderer's vassal-grouped order. No player visibility rule, scoreboard option, non-aligned rendering or gameplay state changes.
+
+This is an AdvCiv-SAS regression interacting with an older inherited BUG option: the inherited `Max Players` cap itself remains correct, while practical 5667 (`af7f9f3532`) introduced the second uncapped interpretation. Quick new-game testing and a late-game load of save file 474 showed the aligned scoreboard, scroll-control layout and vassal ordering working normally after the fix; screenshot 0038 records the old-save result, and the refreshed `PythonErr.log` remained empty.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
