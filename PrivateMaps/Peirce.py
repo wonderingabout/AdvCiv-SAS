@@ -888,6 +888,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				iParallelOffset = iQuadW/4
 				iParallelHeight = iQuadW/2 - 6
 
+	# <!-- custom: The original Peirce script computed a distinct anchor for each portrait companion arm but passed the preceding landscape arm's anchor instead, shifting and overlapping the intended E-W continent pieces. Use each freshly computed second anchor. See KI#255. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	# Top Right North Continent
 				if iPrim != 0:
 					iRefX1 = iTRCentreX - 1
@@ -896,7 +897,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX + 1 + iParallelHeight
 					iRefY2 = iTRCentreY - iQuadW/4
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,-iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,-iParallelOffset,1)
 
 	# Bottom Left North Continent
 				if iPrim != 1:
@@ -906,7 +907,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX - 4
 					iRefY2 = iTRCentreY - 2 - iParallelLength
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,iParallelOffset,1)
 
 	# Top Left North Continent
 				if iPrim != 2:
@@ -916,7 +917,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX - 4
 					iRefY2 = iTRCentreY - 1
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,-iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,-iParallelOffset,1)
 
 	# Bottom Right North Continent
 				if iPrim != 3:
@@ -926,7 +927,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX + 2 + iParallelHeight
 					iRefY2 = iTRCentreY - 1 - iParallelLength
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,-iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,-iParallelOffset,1)
 
 	# Top Right South Continent
 				if iSec != 0:
@@ -1424,6 +1425,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				iParallelOffset = iQuadW/4
 				iParallelHeight = iQuadW/2 - 6
 
+	# <!-- custom: Apply the KI#255 second-anchor repair to the original script's duplicated E-W implementation for the other wrap mode too. See KI#255. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	# Top Right North Continent
 				if iPrim != 0:
 					iRefX1 = iTRCentreX - 1
@@ -1432,7 +1434,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX + 1 + iParallelHeight
 					iRefY2 = iTRCentreY - iQuadW/4
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,-iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,-iParallelOffset,1)
 
 	# Bottom Left North Continent
 				if iPrim != 1:
@@ -1442,7 +1444,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX - 4
 					iRefY2 = iTRCentreY - 2 - iParallelLength
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,iParallelOffset,1)
 
 	# Top Left North Continent
 				if iPrim != 2:
@@ -1452,7 +1454,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX - 4
 					iRefY2 = iTRCentreY - 1
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,-iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,-iParallelOffset,1)
 
 	# Bottom Right North Continent
 				if iPrim != 3:
@@ -1462,7 +1464,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 					iRefX2 = iTRCentreX + 2 + iParallelHeight
 					iRefY2 = iTRCentreY - 1 - iParallelLength
-					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX1,iRefY1,iParallelLength,iParallelHeight,-iParallelOffset,1)
+					self.generatePlotsParallelContinent(iBaseSeaLevel, iRefX2,iRefY2,iParallelLength,iParallelHeight,-iParallelOffset,1)
 
 	# Top Right South Continent
 				if iSec != 0:
@@ -2232,21 +2234,22 @@ def isPeirceCrease(iX, iY):
 
 	bPeirceCrease = 0
 
+	# <!-- custom: The original Peirce script used Python's bitwise XOR operator as if it squared each coordinate delta, so crease classification did not measure circular distance and materially changed map topology. Explicit multiplication fixed the four quadrant tests. See KI#254. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if iX < iTRCentreX and iY < iTRCentreY: # Bottom Left Quad
 		if (iX >= iLAX and iY <= iBBY) or (iX <= iLAX and iY >= iBBY):
-			if (((iX - iLAX)^2+(iY - iBBY)^2) >= iRadius2):
+			if ((iX - iLAX)*(iX - iLAX) + (iY - iBBY)*(iY - iBBY) >= iRadius2):
 				bPeirceCrease = 1
 	elif iX >= iTRCentreX and iY >= iTRCentreY: # Top Right Quad
 		if (iX <= iRAX and iY >= iTBY) or (iX >= iRAX and iY <= iTBY):
-			if (((iX - iRAX)^2+(iY - iTBY)^2) >= iRadius2):
+			if ((iX - iRAX)*(iX - iRAX) + (iY - iTBY)*(iY - iTBY) >= iRadius2):
 				bPeirceCrease = 1
 	elif iY >= iTRCentreY: # Top Left Quad
 		if (iX <= iLAX and iY <= iTBY) or (iX >= iLAX and iY >= iTBY):
-			if (((iX - iLAX)^2+(iY - iTBY)^2) >= iRadius2):
+			if ((iX - iLAX)*(iX - iLAX) + (iY - iTBY)*(iY - iTBY) >= iRadius2):
 				bPeirceCrease = 1
 	elif iX >= iTRCentreX: # Bottom Right Quad
 		if (iX <= iRAX and iY <= iBBY) or (iX >= iRAX and iY >= iBBY):
-			if (((iX - iRAX)^2+(iY - iBBY)^2) >= iRadius2):
+			if ((iX - iRAX)*(iX - iRAX) + (iY - iBBY)*(iY - iBBY) >= iRadius2):
 				bPeirceCrease = 1
 
 	return bPeirceCrease

@@ -304,6 +304,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [241 - (Fixed and beautified AdvCiv-SAS bug) Treaties rows hid resource terms while canceling their complete mixed deal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#241---fixed-and-beautified-advciv-sas-bug-treaties-rows-hid-resource-terms-while-canceling-their-complete-mixed-deal)\
 [242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#242---fixed-advciv-sas-bug-large-facing-islands-underprovided-islands-for-default-arena-and-small-games)\
 [245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
+[254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#254---fixed-inherited-third-party-peirce-bug-crease-distance-used-bitwise-xor-instead-of-squared-coordinates)\
+[255 - (Fixed inherited third-party Peirce bug) E-W companion arms discarded their intended second anchors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#255---fixed-inherited-third-party-peirce-bug-e-w-companion-arms-discarded-their-intended-second-anchors)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8375,3 +8377,19 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 The fix uses the next symmetric capacities supported by the spike primitive: Tiny increases from 1 to 2 spikes, producing 4 houses, and Small increases from 2 to 3 spikes, producing 6 houses. The single-street layout is retained, and the spare house is analogous to the existing Large profile's 12 houses for 11 default players. House size and separation, avenue/bridge construction, start assignment and all other world-size profiles remain unchanged. Screenshot 0068 confirms Tiny's four-house layout for three default players; screenshot 0069 confirms Small's six-house layout for five default players. Both generated successfully in the same Civ4 process as the other batch tests, with an empty refreshed `PythonErr.log`.
 
 This is an AdvCiv-SAS bug introduced with `SAS_Spiky_Avenues` in practical 5456 (`15aa086e93`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates
+
+All four circular-distance tests in `Peirce.py`'s `isPeirceCrease()` used `^2` as if it squared each coordinate delta. In Python, `^` is bitwise XOR, and its precedence also prevents the expression from behaving even like a sum of separately XORed deltas. The resulting predicate materially removed or misclassified the intended crease ocean used by plot, terrain and post-generation cleanup.
+
+The fix explicitly multiplies each X and Y delta by itself before comparing their sum with `iRadius2`. An independently downloaded original Peirce script contains the same four expressions, confirming that this was inherited rather than introduced during AdvCiv-SAS integration. E-W maps generated successfully under both toroidal and no-wrap layouts after the repair, with no visible issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed, compared with the original script, validated and documented with the help of GPT-5.6-Sol thanks.
+
+## 255 - (Fixed inherited third-party Peirce bug) E-W companion arms discarded their intended second anchors
+
+In each of four E-W northern-quadrant cases, Peirce generated a landscape continent arm from `iRefX1/iRefY1`, calculated a distinct `iRefX2/iRefY2` for its portrait companion, but passed the first anchor to the companion call too. The same block exists in both wrap-mode implementations, producing eight bad calls. Every E-W generation uses three of the four cases, so the intended orthogonal pieces were shifted onto or toward their preceding arms while the freshly calculated second anchors were discarded.
+
+The fix passes `iRefX2/iRefY2` to all eight portrait companion calls while preserving the first anchors for the landscape calls. The independently downloaded original Peirce script contains all eight mistakes, confirming inherited third-party provenance. E-W maps generated successfully under both toroidal and no-wrap layouts after the repair, with no visible issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed, compared with the original script, validated and documented with the help of GPT-5.6-Sol thanks.
