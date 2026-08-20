@@ -714,6 +714,9 @@ class CvForeignAdvisor:
 				return u"<img=%s size=%d></img> %s" % (gc.getCivicInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
 			elif tradeData.ItemType == TradeableItems.TRADE_RELIGION:
 				return u"<img=%s size=%d></img> %s" % (gc.getReligionInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
+			# <!-- custom: Resource entries are formatted only when a visible mixed deal must disclose its complete cancellation scope; resource-only deals remain filtered below. See KI#241. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			elif tradeData.ItemType == TradeableItems.TRADE_RESOURCES:
+				return u"<img=%s size=%d></img> %s" % (gc.getBonusInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
 			elif tradeData.ItemType == TradeableItems.TRADE_GOLD or tradeData.ItemType == TradeableItems.TRADE_GOLD_PER_TURN:
 				return u"%c %s" % (self.iGoldIcon, szTrade)
 			elif tradeData.ItemType == TradeableItems.TRADE_MAPS:
@@ -795,21 +798,54 @@ class CvForeignAdvisor:
 
 				if (deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader and not deal.isNone()) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader):
 					listDealEntries = []
+					listFirstDealEntries = []
+					listSecondDealEntries = []
+					bHasResource = False
 					for iTrade in range(deal.getLengthFirstTrades()):
 						tradeData = deal.getFirstTrade(iTrade)
-						if (tradeData and tradeData.ItemType != TradeableItems.TRADE_RESOURCES):
+						if tradeData:
 							szTrade = formatTreatyTrade(tradeData, deal.getFirstPlayer(), deal.getSecondPlayer())
-							if (szTrade and szTrade not in listDealEntries):
+							if szTrade:
+								listFirstDealEntries.append(szTrade)
+							if tradeData.ItemType == TradeableItems.TRADE_RESOURCES:
+								bHasResource = True
+							elif szTrade and szTrade not in listDealEntries:
 								listDealEntries.append(szTrade)
 					for iTrade in range(deal.getLengthSecondTrades()):
 						tradeData = deal.getSecondTrade(iTrade)
-						if (tradeData and tradeData.ItemType != TradeableItems.TRADE_RESOURCES):
+						if tradeData:
 							szTrade = formatTreatyTrade(tradeData, deal.getSecondPlayer(), deal.getFirstPlayer())
-							if (szTrade and szTrade not in listDealEntries):
+							if szTrade:
+								listSecondDealEntries.append(szTrade)
+							if tradeData.ItemType == TradeableItems.TRADE_RESOURCES:
+								bHasResource = True
+							elif szTrade and szTrade not in listDealEntries:
 								listDealEntries.append(szTrade)
 					if len(listDealEntries) == 0:
 						continue
-					szDealText = u", ".join(listDealEntries)
+					# <!-- custom: Treaties intentionally omits resource-only deals, but a visible mixed-deal row previously hid its resource terms while WIDGET_DEAL_KILL still canceled the complete deal.
+					# Format every term with its resource/gold/treaty icon and the engine's localized perspective grammar, so displayed and canceled terms match. See KI#241. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if bHasResource:
+						if deal.getFirstPlayer() == iLoopPlayer:
+							listOurDealEntries = listFirstDealEntries
+							listTheirDealEntries = listSecondDealEntries
+							iOtherPlayer = deal.getSecondPlayer()
+						else:
+							listOurDealEntries = listSecondDealEntries
+							listTheirDealEntries = listFirstDealEntries
+							iOtherPlayer = deal.getFirstPlayer()
+						objOtherPlayer = gc.getPlayer(iOtherPlayer)
+						szOtherPlayer = u"<img=%s size=%d></img> %s" % (gc.getLeaderHeadInfo(objOtherPlayer.getLeaderType()).getButton(), self.SAS_TREATY_ICON_SIZE, objOtherPlayer.getName())
+						szOurDeal = u", ".join(listOurDealEntries)
+						szTheirDeal = u", ".join(listTheirDealEntries)
+						if len(listOurDealEntries) > 0 and len(listTheirDealEntries) > 0:
+							szDealText = localText.getText("TXT_KEY_MISC_OUR_DEAL", (szOurDeal, szOtherPlayer, szTheirDeal))
+						elif len(listOurDealEntries) > 0:
+							szDealText = localText.getText("TXT_KEY_MISC_DEAL_ONESIDED_OURS", (szOurDeal, szOtherPlayer))
+						else:
+							szDealText = localText.getText("TXT_KEY_MISC_DEAL_ONESIDED_THEIRS", (szTheirDeal, szOtherPlayer))
+					else:
+						szDealText = u", ".join(listDealEntries)
 					# <advc.072>
 					iShowTurnsMode = AdvisorOpt.getShowDealTurns()
 					bShowTurns = False
