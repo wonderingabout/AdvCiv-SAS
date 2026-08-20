@@ -38,6 +38,8 @@ class CvDomesticAdvisor:
 		self.iLanguageLoaded = -1
 		self.iActivePlayer = CyGame().getActivePlayer()
 		self.DEBUG_DROPDOWN_ID = "DomesticAdvisorDropdownWidget"
+		self.FREE_COLONY_BUTTON_ID = "DomesticSplit"
+		self.FREE_COLONY_BUTTON_SIZE = 28
 		# <!-- custom: minimal shared-advisor widget plumbing only for placeAdvisorLegendLink; Domestic otherwise uses fixed widget IDs and finance-only dynamic widgets. (GPT-5.5) -->
 		self.WIDGET_ID = "DomesticAdvisorWidget"
 		self.nWidgetCount = 0
@@ -203,7 +205,9 @@ class CvDomesticAdvisor:
 		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
 
 	def updateRuntimeTabLinkWidths(self):
-		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_EXIT)
+		# <!-- custom: reserve a footer slot for the restored Free Colony/Liberate action so it cannot overlap the five Domestic Advisor tabs. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		self.X_FREE_COLONY_BUTTON = self.X_EXIT - CyInterface().determineWidth(self.TEXT_EXIT) - self.FREE_COLONY_BUTTON_SIZE - 20
+		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_FREE_COLONY_BUTTON - 10)
 
 	# Screen construction function
 	def interfaceScreen(self, argsList=None):
@@ -252,7 +256,27 @@ class CvDomesticAdvisor:
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		self.nWidgetCount = 0
 		drawAdvisorFooterTabs(screen, self.PAGE_TAB_IDS, self.PAGE_NAME_LIST, self.PAGE_LINK_WIDTH, self.iPage, self.Y_LINK, -0.1, self.COLOR_YELLOW)
+		self.drawFreeColonyButton(screen)
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND", self.nScreenWidth - 12, self.Y_TITLE)
+
+	def drawFreeColonyButton(self, screen):
+		screen.deleteWidget(self.FREE_COLONY_BUTTON_ID)
+		if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+			return
+		player = gc.getPlayer(self.iActivePlayer)
+		bCanLiberate = player.canSplitEmpire()
+		(loopCity, iter) = player.firstCity(false)
+		while loopCity and not bCanLiberate:
+			iLiberationPlayer = loopCity.getLiberationPlayer(false)
+			if iLiberationPlayer != -1 and not gc.getTeam(gc.getPlayer(iLiberationPlayer).getTeam()).isAtWar(CyGame().getActiveTeam()):
+				bCanLiberate = true
+			(loopCity, iter) = player.nextCity(iter, false)
+		if not bCanLiberate:
+			return
+		# <!-- custom: The SAS tabbed Domestic Advisor shell lost base AdvCiv's visible Free Colony/Liberate action even though the native control remained available. Restore its original WIDGET_ACTION and style for the real active-player perspective; the native action supplies the tooltip and popup. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iY = self.Y_BOTTOM_PANEL + (55 - self.FREE_COLONY_BUTTON_SIZE) / 2
+		screen.setImageButton(self.FREE_COLONY_BUTTON_ID, "", self.X_FREE_COLONY_BUTTON, iY, self.FREE_COLONY_BUTTON_SIZE, self.FREE_COLONY_BUTTON_SIZE, WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FREE_COLONY).getActionInfoIndex(), -1)
+		screen.setStyle(self.FREE_COLONY_BUTTON_ID, "Button_HUDAdvisorVictory_Style")
 
 	def getScreen(self):
 		return CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
@@ -1451,6 +1475,8 @@ class CvDomesticAdvisor:
 		if self.iPage == self.PAGE_FINANCE and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_CHANGE_PERCENT:
 			self.drawFinanceContents()
 			return 1
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.FREE_COLONY_BUTTON_ID:
+			self.getScreen().hideScreen()
 
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
 			if inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:

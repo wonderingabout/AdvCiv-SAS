@@ -290,6 +290,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [228 - (Fixed AdvCiv-SAS bug) Aligned scoreboard scrolling conflicted with the inherited BUG mod's Max Players cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#228---fixed-advciv-sas-bug-aligned-scoreboard-scrolling-conflicted-with-the-inherited-bug-mods-max-players-cap)\
 [229 - (Fixed AdvCiv-SAS bug) Hall of Fame Date-header sorting lost its date semantics during font upscaling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#229---fixed-advciv-sas-bug-hall-of-fame-date-header-sorting-lost-its-date-semantics-during-font-upscaling)\
 [230 - (Fixed AdvCiv-SAS bug) Nonpositive Leader item-width cutoff reversed its documented disable behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#230---fixed-advciv-sas-bug-nonpositive-leader-item-width-cutoff-reversed-its-documented-disable-behavior)\
+[231 - (Fixed AdvCiv-SAS bug) Policy Advisor displayed corporation hundredths as whole yield and commerce units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#231---fixed-advciv-sas-bug-policy-advisor-displayed-corporation-hundredths-as-whole-yield-and-commerce-units)\
+[232 - (Fixed AdvCiv-SAS bug) Policy Advisor vassal perspective could expose the vassal team's hidden Holy City and Headquarters knowledge](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---fixed-advciv-sas-bug-policy-advisor-vassal-perspective-could-expose-the-vassal-teams-hidden-holy-city-and-headquarters-knowledge)\
+[233 - (Fixed AdvCiv-SAS bug) Default Domestic Advisor lost its visible Free Colony and Liberate action](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#233---fixed-advciv-sas-bug-default-domestic-advisor-lost-its-visible-free-colony-and-liberate-action)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8214,5 +8217,39 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 The fix adds the same positive-cutoff guard already used by `SevoPediaLeader`: the base-width override applies only when the cutoff is greater than zero and the current resolution reaches it. The XML comment now also states the existing at-or-above (`>=`) threshold exactly. Per-font width selection, nonpositive per-font fallback values, panel expansion and ordinary positive cutoffs remain unchanged. With the cutoff set nonpositive and label font 3, runtime testing showed the Leader item list retained its 200px custom width and remained visibly narrower than the Civilization list's 230px base width, directly validating the documented disable behavior.
 
 The regression was introduced by AdvCiv-SAS practical 5632 (`6bc421f184`) with the configurable Leader item-width cutoff.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 231 - (Fixed AdvCiv-SAS bug) Policy Advisor displayed corporation hundredths as whole yield and commerce units
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1S24I_kNi0qUdTtAkxxXRaEQpd8Mhpm03?usp=sharing)
+
+The Policy Advisor Corporation tab displayed `CvCorporationInfo.getYieldProduced()` and `getCommerceProduced()` values directly as integers. Those XML-backed values are stored in hundredths, so the row showed `100` where the native corporation help and gameplay use `+1`, `50` where they use `+0.50`, and `150` where they use `+1.50`. It also omitted the current world size's corporation percentage and could therefore disagree further with the actual per-resource effect on non-100% world sizes.
+
+The fix applies the active map's `getCorporationMaintenancePercent()` using the same integer truncation semantics as `CvGameTextMgr`, then renders exact signed integer or two-decimal units before the existing yield/commerce symbol. Integer text assembly avoids floating-point approximation, values scaled to zero remain omitted, and corporation XML/gameplay calculations are unchanged.
+
+This is an AdvCiv-SAS regression introduced by practical 5614 (`516fdce425`) when the integrated Corporation tab added its generated-yield/commerce row. Screenshot 0043 directly confirms correct signed/fractional output such as `+0.50`, `+0.25`, `+0.75`, `+1`, `+1.50` and `+1.75` across the seven Corporation columns; the refreshed `PythonErr.log` remained empty.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 232 - (Fixed AdvCiv-SAS bug) Policy Advisor vassal perspective could expose the vassal team's hidden Holy City and Headquarters knowledge
+
+The Policy Advisor intentionally lets the human inspect an alive vassal's policy, religion, corporation and city state. Its global Holy City and Corporation Headquarters rows also intentionally hide cities that the observer has not revealed. After vassal perspectives were added, however, those two reveal gates used the selected vassal's team rather than the real active player's team. Because vassalage does not merge ordinary team map knowledge, selecting a better-explored vassal could disclose an unrelated foreign Holy City or Headquarters name and owner that the human had not revealed.
+
+The fix keeps the selected vassal as the advisor's subject while using the real active player's team as the map observer outside debug mode. Debug mode deliberately retains the selected player's reveal knowledge. The permitted vassal domestic/policy information, city lists and all unrelated map visibility rules remain unchanged.
+
+This is an AdvCiv-SAS regression introduced by practical 5755 (`1fabcaa557`) over the reveal-sensitive Religion and Corporation rows integrated in practicals 5610-5611. Screenshot 0043 confirms that the Corporation tab renders normally for a selected Hatshepsut vassal perspective after the change. That save does not provide a controlled human-hidden/vassal-revealed city contrast, so the information boundary is validated directly by the observer-team code path while runtime testing supplies the vassal-perspective smoke test; the refreshed `PythonErr.log` remained empty.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 233 - (Fixed AdvCiv-SAS bug) Default Domestic Advisor lost its visible Free Colony and Liberate action
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1k6f8eY6Oi1Z4iI18xy9vWMXtuszVxCy2?usp=sharing)
+
+Base AdvCiv's default Domestic Advisor conditionally displays a Free Colony/Liberate button when the active player can split the empire or has an eligible city to liberate. AdvCiv-SAS practical 5599 replaced the old screen shell with the current top/bottom-bar and tabbed layout, but removed that separate gameplay-action button and its close-screen handler together with the obsolete shell code. The native action remained available through Alt+F1, and the optional BUG Customizable Domestic Advisor retained its own button, but that advisor is disabled by default.
+
+The fix restores the original native `CONTROL_FREE_COLONY` `WIDGET_ACTION`, automatic tooltip and HUD advisor button style only when the real active-player perspective has an eligible action. It reserves a dedicated footer slot beside Exit so the button does not overlap the newer five-tab navigation, closes the advisor when clicked as before, and remains hidden in read-only vassal perspectives. Alt+F1, the optional Customizable Domestic Advisor and the modern shell layout remain unchanged.
+
+This is an AdvCiv-SAS regression introduced by practical 5599 (`b8253247d2`). Screenshot 0044 confirms that the restored icon and native Alt+F1 tooltip render cleanly beside Exit; screenshot 0045 confirms that clicking it closes the advisor and opens the correct native popup with Alexandria and Memphis as liberation choices. The refreshed `PythonErr.log` remained empty.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
