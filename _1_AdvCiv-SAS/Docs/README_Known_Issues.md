@@ -283,6 +283,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [221 - (Fixed AdvCiv-SAS bug) Undefended city conquest could relabel an unrelated same-turn battle as a city capture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#221---fixed-advciv-sas-bug-undefended-city-conquest-could-relabel-an-unrelated-same-turn-battle-as-a-city-capture)\
 [222 - (Fixed AdvCiv-SAS bug) Battle history could not associate captured civilians with their preceding escort-clearing battle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#222---fixed-advciv-sas-bug-battle-history-could-not-associate-captured-civilians-with-their-preceding-escort-clearing-battle)\
 [223 - (Fixed AdvCiv-SAS bug) Domestic Advisor sorted localized founding dates lexically instead of chronologically](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#223---fixed-advciv-sas-bug-domestic-advisor-sorted-localized-founding-dates-lexically-instead-of-chronologically)\
+[224 - (Fixed AdvCiv-SAS bug) World Advisor vassal perspective could expose the vassal team's hidden map and resource knowledge](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#224---fixed-advciv-sas-bug-world-advisor-vassal-perspective-could-expose-the-vassal-teams-hidden-map-and-resource-knowledge)\
 [226 - (Fixed AdvCiv-SAS bug) Event Sevopedia mislabeled improvement-pillage counts as gold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#226---fixed-advciv-sas-bug-event-sevopedia-mislabeled-improvement-pillage-counts-as-gold)\
 [227 - (Fixed AdvCiv-SAS bug) Vote Sevopedia duplicated a trade-route resolution effect as a requirement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixed-advciv-sas-bug-vote-sevopedia-duplicated-a-trade-route-resolution-effect-as-a-requirement)\
 
@@ -8135,6 +8136,16 @@ The Domestic Advisor Overview 4 table displayed each city's founding turn throug
 The fix follows the existing World Advisor convention: convert the founding turn through `CyGame().getTurnYear` and insert the raw signed year through the shared numeric-table helper. Dates such as `-4000` and `800` now sort numerically in actual founding order while retaining the shared configurable UI font. This deliberately favors a correct sortable signed-year display over the old localized BC/AD text because Civ4 tables expose no separate numeric sort key for a differently formatted display string.
 
 The regression was introduced by AdvCiv-SAS practical 5722 (`7de906fcdd`) when sorting and the Founded column were added to the new Overview tables; practical 5748 later moved the column without correcting its cell type. No city founding turn, calendar calculation or gameplay state changes.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 224 - (Fixed AdvCiv-SAS bug) World Advisor vassal perspective could expose the vassal team's hidden map and resource knowledge
+
+Outside debug mode, the advisor player-selection dropdown allows the active player to inspect its alive vassals. The World Advisor correctly used the selected vassal as the subject for cities and owned territory, but also used that vassal's team as the observer for plot revelation and resource visibility. Master and vassal teams do not share all map knowledge: vassal-owned plots and units can reveal territory to the vassal without revealing it to the master, and differing technologies can make a bonus identifiable to one team but not the other. The BFC 2 and Territory collectors additionally read current improvements and routes directly after their reveal check, bypassing the active observer's last-known state under fog.
+
+The fix separates subject from observer. The selected vassal remains the source of cities, ownership and World Advisor data, while normal map-revelation and bonus checks use the real active player's team. Improvements and routes use that observer team's revealed-state APIs, so the tables report only the active player's current or last-known information. Debug mode deliberately retains its existing reveal bypass and selected-team resource perspective. This restores the documented vassal-perspective contract that advisor access does not reveal hidden map data, without removing vassal views or changing gameplay visibility.
+
+The regression was introduced by AdvCiv-SAS practical 5755 (`1fabcaa557`) when non-debug vassal perspectives were added to the BFC and Territory collectors originally introduced in practicals 5712-5714. No map revelation, line of sight, bonus discovery, technology, ownership or vassal simulation changes.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 

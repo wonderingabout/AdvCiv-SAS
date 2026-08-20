@@ -77,6 +77,12 @@ class CvWorldAdvisorScreen:
 		self.iActiveTeam = self.pActivePlayer.getTeam()
 		self.pActiveTeam = gc.getTeam(self.iActiveTeam)
 
+	def getMapObserverTeam(self):
+		# <!-- custom: Vassal perspective changes the World Advisor's subject, but the active human remains the map observer. Using the vassal team for fog and resource knowledge exposed plots and bonuses the human had not discovered; debug player selection retains its reveal bypass and selected-team resource behavior. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if CyGame().isDebugMode():
+			return self.iActiveTeam
+		return gc.getPlayer(CyGame().getActivePlayer()).getTeam()
+
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
@@ -254,6 +260,7 @@ class CvWorldAdvisorScreen:
 	def collectBFC1Data(self):
 		player = gc.getPlayer(self.iActivePlayer)
 		bDebug = CyGame().isDebugMode()
+		iObserverTeam = self.getMapObserverTeam()
 		aszRows = []
 		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
 		aiPlotTotals = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -268,7 +275,7 @@ class CvWorldAdvisorScreen:
 
 			for iPlot in range(gc.getNUM_CITY_PLOTS()):
 				pPlot = pCity.getCityIndexPlot(iPlot)
-				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
+				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(iObserverTeam, False)):
 					aiPlotCounts[0] += 1
 					if pPlot.isWater():
 						aiPlotCounts[1] += 1
@@ -412,6 +419,7 @@ class CvWorldAdvisorScreen:
 	def collectBFC2Data(self):
 		player = gc.getPlayer(self.iActivePlayer)
 		bDebug = CyGame().isDebugMode()
+		iObserverTeam = self.getMapObserverTeam()
 		aszRows = []
 		aaiBonusCounts = []
 		aaiImprovementCounts = []
@@ -423,14 +431,14 @@ class CvWorldAdvisorScreen:
 			aiRouteCounts = [0] * gc.getNumRouteInfos()
 			for iPlot in range(gc.getNUM_CITY_PLOTS()):
 				pPlot = pCity.getCityIndexPlot(iPlot)
-				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
-					iBonus = pPlot.getBonusType(self.iActiveTeam)
+				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(iObserverTeam, False)):
+					iBonus = pPlot.getBonusType(iObserverTeam)
 					if iBonus >= 0:
 						aiBonusCounts[iBonus] += 1
-					iImprovement = pPlot.getImprovementType()
+					iImprovement = pPlot.getRevealedImprovementType(iObserverTeam, bDebug)
 					if iImprovement >= 0:
 						aiImprovementCounts[iImprovement] += 1
-					iRoute = pPlot.getRouteType()
+					iRoute = pPlot.getRevealedRouteType(iObserverTeam, bDebug)
 					if iRoute >= 0:
 						aiRouteCounts[iRoute] += 1
 			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID()])
@@ -532,9 +540,10 @@ class CvWorldAdvisorScreen:
 
 		cyMap = CyMap()
 		bDebug = CyGame().isDebugMode()
+		iObserverTeam = self.getMapObserverTeam()
 		for iPlot in range(cyMap.numPlots()):
 			pPlot = cyMap.plotByIndex(iPlot)
-			if pPlot and not pPlot.isNone() and pPlot.getOwner() == self.iActivePlayer and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
+			if pPlot and not pPlot.isNone() and pPlot.getOwner() == self.iActivePlayer and (bDebug or pPlot.isRevealed(iObserverTeam, False)):
 				iBucket = 1
 				if iPlot in aiBFCPlots:
 					iBucket = 0
@@ -561,13 +570,13 @@ class CvWorldAdvisorScreen:
 				iFeature = pPlot.getFeatureType()
 				if iFeature >= 0:
 					aaiFeatureCounts[iFeature][iBucket] += 1
-				iRoute = pPlot.getRouteType()
+				iRoute = pPlot.getRevealedRouteType(iObserverTeam, bDebug)
 				if iRoute >= 0:
 					aaiRouteCounts[iRoute][iBucket] += 1
-				iBonus = pPlot.getBonusType(self.iActiveTeam)
+				iBonus = pPlot.getBonusType(iObserverTeam)
 				if iBonus >= 0:
 					aaiBonusCounts[iBonus][iBucket] += 1
-				iImprovement = pPlot.getImprovementType()
+				iImprovement = pPlot.getRevealedImprovementType(iObserverTeam, bDebug)
 				if iImprovement >= 0:
 					aaiImprovementCounts[iImprovement][iBucket] += 1
 
