@@ -2662,7 +2662,7 @@ struct SASWorkerIrrigationSearchNode
 
 struct SASWorkerIrrigationSearchDiagnostics
 {
-	int iVisitedPlots;
+	int iVisitedStates;
 	int iDeepestRoute;
 	int iRouteLimitStops;
 	int iMapEdgeOrIgnoredRejects;
@@ -2676,7 +2676,7 @@ struct SASWorkerIrrigationSearchDiagnostics
 	int iBonusRejects;
 	int iAutomationSafeRejects;
 	int iCannotBuildFarmRejects;
-	SASWorkerIrrigationSearchDiagnostics() : iVisitedPlots(0), iDeepestRoute(0), iRouteLimitStops(0), iMapEdgeOrIgnoredRejects(0), iUnownedRejects(0), iForeignOwnedRejects(0), iDifferentAreaRejects(0), iWaterRejects(0), iHillRejects(0), iCityCarrierTraversals(0), iNoPotentialIrrigationRejects(0), iBonusRejects(0), iAutomationSafeRejects(0), iCannotBuildFarmRejects(0) {}
+	SASWorkerIrrigationSearchDiagnostics() : iVisitedStates(0), iDeepestRoute(0), iRouteLimitStops(0), iMapEdgeOrIgnoredRejects(0), iUnownedRejects(0), iForeignOwnedRejects(0), iDifferentAreaRejects(0), iWaterRejects(0), iHillRejects(0), iCityCarrierTraversals(0), iNoPotentialIrrigationRejects(0), iBonusRejects(0), iAutomationSafeRejects(0), iCannotBuildFarmRejects(0) {}
 };
 
 // <!-- custom: A no-route result is identical for every Worker evaluating the same city target during a turn. Keep the detailed diagnostic once per target instead of repeating thousands of rows without losing turn-by-turn state changes. (GPT-5.6-Sol) -->
@@ -2699,15 +2699,19 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 	pStepPlot = NULL;
 	iRoutePlots = 0;
 	iRouteOverwritePenalty = 0;
+	if (iMaxPlots <= 0)
+		return false;
 	CvMap const& kMap = GC.getMap();
-	// <!-- custom: Worker-city evaluation calls this repeatedly. Reuse map-sized cost storage and generation stamps so each short route search initializes only the plots it actually reaches. (GPT-5.6-Sol) -->
+	int const iStatesPerPlot = iMaxPlots + 1;
+	int const iSearchStateCount = kMap.numPlots() * iStatesPerPlot;
+	// <!-- custom: Cost and route length are independent constraints. A cheaper long route to one plot previously discarded a costlier short route that could be the only one able to reach irrigation within SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS. Keep one best cost per (plot, steps) state; the small route limit bounds memory, and generation stamps still initialize only reached states during repeated Worker-city evaluation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	static std::vector<int> aiBestCost;
 	static std::vector<unsigned int> aiCostGeneration;
 	static unsigned int iSearchGeneration = 0;
-	if ((int)aiBestCost.size() != kMap.numPlots())
+	if ((int)aiBestCost.size() != iSearchStateCount)
 	{
-		aiBestCost.assign(kMap.numPlots(), MAX_INT);
-		aiCostGeneration.assign(kMap.numPlots(), 0);
+		aiBestCost.assign(iSearchStateCount, MAX_INT);
+		aiCostGeneration.assign(iSearchStateCount, 0);
 		iSearchGeneration = 0;
 	}
 	iSearchGeneration++;
@@ -2717,21 +2721,23 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 		iSearchGeneration = 1;
 	}
 	std::priority_queue<SASWorkerIrrigationSearchNode> kOpen;
-	aiBestCost[kTargetPlot.plotNum()] = 0;
-	aiCostGeneration[kTargetPlot.plotNum()] = iSearchGeneration;
+	int const iTargetState = kTargetPlot.plotNum() * iStatesPerPlot;
+	aiBestCost[iTargetState] = 0;
+	aiCostGeneration[iTargetState] = iSearchGeneration;
 	kOpen.push(SASWorkerIrrigationSearchNode(0, 0, 0, kTargetPlot.plotNum()));
 	while (!kOpen.empty())
 	{
 		SASWorkerIrrigationSearchNode const kNode = kOpen.top();
 		kOpen.pop();
-		if (aiCostGeneration[kNode.ePlot] != iSearchGeneration || kNode.iCost != aiBestCost[kNode.ePlot])
+		int const iNodeState = kNode.ePlot * iStatesPerPlot + kNode.iSteps;
+		if (aiCostGeneration[iNodeState] != iSearchGeneration || kNode.iCost != aiBestCost[iNodeState])
 			continue;
 		CvPlot* pNodePlot = kMap.plotByIndex(kNode.ePlot);
 		if (pNodePlot == NULL)
 			continue;
 		if (pDiagnostics != NULL)
 		{
-			pDiagnostics->iVisitedPlots++;
+			pDiagnostics->iVisitedStates++;
 			pDiagnostics->iDeepestRoute = std::max(pDiagnostics->iDeepestRoute, kNode.iSteps);
 		}
 		if (kNode.iSteps > 0 && pNodePlot != pIgnorePlot && pNodePlot->getImprovementType() != eImprovementFarm && pNodePlot->isIrrigationAvailable(true) && kUnit.canBuild(*pNodePlot, eBuildFarm))
@@ -2826,10 +2832,11 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 			int const iNewSteps = kNode.iSteps + 1;
 			int const iNewCost = kNode.iCost + (kNode.iSteps <= 0 ? 0 : 350) + iPlotOverwritePenalty;
 			PlotNumTypes const eAdjacentPlot = pAdjacentPlot->plotNum();
-			if (aiCostGeneration[eAdjacentPlot] == iSearchGeneration && iNewCost >= aiBestCost[eAdjacentPlot])
+			int const iAdjacentState = eAdjacentPlot * iStatesPerPlot + iNewSteps;
+			if (aiCostGeneration[iAdjacentState] == iSearchGeneration && iNewCost >= aiBestCost[iAdjacentState])
 				continue;
-			aiBestCost[eAdjacentPlot] = iNewCost;
-			aiCostGeneration[eAdjacentPlot] = iSearchGeneration;
+			aiBestCost[iAdjacentState] = iNewCost;
+			aiCostGeneration[iAdjacentState] = iSearchGeneration;
 			kOpen.push(SASWorkerIrrigationSearchNode(iNewCost, iNewSteps, kNode.iOverwritePenalty + iPlotOverwritePenalty, eAdjacentPlot));
 		}
 	}
@@ -3059,9 +3066,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			}
 			else if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerIrrigationRouteFailure(kCity, kTargetPlot))
 			{
-				logBBAI("    IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) targetBonus=%S dryFarm=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visited=%d deepestRoute=%d routeLimitStops=%d rejects(edgeOrIgnored=%d unowned=%d foreign=%d area=%d water=%d hills=%d noPotential=%d bonuses=%d automationSafe=%d cannotBuildFarm=%d) cityCarrierTraversals=%d",
+				logBBAI("    IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) targetBonus=%S dryFarm=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visitedStates=%d deepestRoute=%d routeLimitStops=%d rejects(edgeOrIgnored=%d unowned=%d foreign=%d area=%d water=%d hills=%d noPotential=%d bonuses=%d automationSafe=%d cannotBuildFarm=%d) cityCarrierTraversals=%d",
 					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription(), bTargetDryFarm, bFoundChainStep, iRoutePlots, iRouteOverwritePenalty, iChainStepValue, iCityFoodSupportPressure, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS,
-					kRouteDiagnostics.iVisitedPlots, kRouteDiagnostics.iDeepestRoute, kRouteDiagnostics.iRouteLimitStops, kRouteDiagnostics.iMapEdgeOrIgnoredRejects, kRouteDiagnostics.iUnownedRejects, kRouteDiagnostics.iForeignOwnedRejects, kRouteDiagnostics.iDifferentAreaRejects, kRouteDiagnostics.iWaterRejects, kRouteDiagnostics.iHillRejects, kRouteDiagnostics.iNoPotentialIrrigationRejects, kRouteDiagnostics.iBonusRejects, kRouteDiagnostics.iAutomationSafeRejects, kRouteDiagnostics.iCannotBuildFarmRejects, kRouteDiagnostics.iCityCarrierTraversals);
+					kRouteDiagnostics.iVisitedStates, kRouteDiagnostics.iDeepestRoute, kRouteDiagnostics.iRouteLimitStops, kRouteDiagnostics.iMapEdgeOrIgnoredRejects, kRouteDiagnostics.iUnownedRejects, kRouteDiagnostics.iForeignOwnedRejects, kRouteDiagnostics.iDifferentAreaRejects, kRouteDiagnostics.iWaterRejects, kRouteDiagnostics.iHillRejects, kRouteDiagnostics.iNoPotentialIrrigationRejects, kRouteDiagnostics.iBonusRejects, kRouteDiagnostics.iAutomationSafeRejects, kRouteDiagnostics.iCannotBuildFarmRejects, kRouteDiagnostics.iCityCarrierTraversals);
 			}
 		}
 	}
