@@ -306,6 +306,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
 [254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#254---fixed-inherited-third-party-peirce-bug-crease-distance-used-bitwise-xor-instead-of-squared-coordinates)\
 [255 - (Fixed inherited third-party Peirce bug) E-W companion arms discarded their intended second anchors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#255---fixed-inherited-third-party-peirce-bug-e-w-companion-arms-discarded-their-intended-second-anchors)\
+[262 - (Fixed inherited map-script bug) Tiny-island Y positions reused longitude instead of latitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---fixed-inherited-map-script-bug-tiny-island-y-positions-reused-longitude-instead-of-latitude)\
+[263 - (Fixed inherited map-script bug) Medium and Small discarded its eastern continent-grain roll](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#263---fixed-inherited-map-script-bug-medium-and-small-discarded-its-eastern-continent-grain-roll)\
+[266 - (Fixed inherited map-script bug) Custom Continents six-continent template shifted an inner layer on the wrong axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#266---fixed-inherited-map-script-bug-custom-continents-six-continent-template-shifted-an-inner-layer-on-the-wrong-axis)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8393,3 +8396,27 @@ In each of four E-W northern-quadrant cases, Peirce generated a landscape contin
 The fix passes `iRefX2/iRefY2` to all eight portrait companion calls while preserving the first anchors for the landscape calls. The independently downloaded original Peirce script contains all eight mistakes, confirming inherited third-party provenance. E-W maps generated successfully under both toroidal and no-wrap layouts after the repair, with no visible issue found at a glance.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed, compared with the original script, validated and documented with the help of GPT-5.6-Sol thanks.
+
+## 262 - (Fixed inherited map-script bug) Tiny-island Y positions reused longitude instead of latitude
+
+`Big_and_Small`, `Medium_and_Small`, `Custom_Continents`, `Mixed_Continents` and `not_too_Big_or_Small` independently roll `tinyWestLon` and `tinySouthLat` for each tiny-island patch, but derived both X and Y from `tinyWestLon`. The latitude roll was discarded, forcing supposedly independent patch origins onto an X/Y-correlated diagonal band. Stock Firaxis scripts contain the same mistake, and Base AdvCiv descendants inherited it; `RandomScriptMap` supplies a clean local control that uses its latitude roll for Y.
+
+The fix derives `tinySouthY` from `tinySouthLat` in all five live scripts. Existing RNG calls and their order are unchanged, so only the unintended coordinate dependence changes. All five affected scripts successfully generated Huge maps and completed 10-turn autoplays after the repair, with no specific issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 263 - (Fixed inherited map-script bug) Medium and Small discarded its eastern continent-grain roll
+
+Medium and Small's Random continent-size path rolls `iContinentsGrainWest` and `iContinentsGrainEast` independently, but both continent-region calls consumed the western value. The eastern roll was never read, making the two halves share a grain whenever their independently rolled values would have differed, which occurs 75% of the time. The stock script contains the same copy/paste error, while `RandomScriptMap` correctly passes its east roll to the eastern region.
+
+The fix passes `iContinentsGrainEast` only to the eastern continent call. Western generation, island grains, shifts and RNG order remain unchanged. Medium and Small successfully generated a Huge map and completed a 10-turn autoplay after the repair, with no specific issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 266 - (Fixed inherited map-script bug) Custom Continents six-continent template shifted an inner layer on the wrong axis
+
+Custom Continents template `(6,3)` defines outer and inner layers for each of six continents. Continent 4's outer layer shifts horizontally by `-0.63`, but its inner layer uniquely stored that value as a vertical shift; the mirrored continent 0 pair and continent 5 pair use matching horizontal shifts. Three of four binary X/Y shift states therefore separated continent 4's intended nested layers. The exact field-placement typo is inherited from stock Firaxis Custom Continents.
+
+The fix moves `-0.63` from the inner layer's vertical-shift field to its horizontal-shift field, matching its outer layer and the surrounding mirrored template structure. No other template values change. Custom Continents successfully generated a Huge six-continent map and completed a 10-turn autoplay after the repair, with no specific issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
