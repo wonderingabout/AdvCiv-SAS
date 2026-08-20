@@ -293,6 +293,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [231 - (Fixed AdvCiv-SAS bug) Policy Advisor displayed corporation hundredths as whole yield and commerce units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#231---fixed-advciv-sas-bug-policy-advisor-displayed-corporation-hundredths-as-whole-yield-and-commerce-units)\
 [232 - (Fixed AdvCiv-SAS bug) Policy Advisor vassal perspective could expose the vassal team's hidden Holy City and Headquarters knowledge](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---fixed-advciv-sas-bug-policy-advisor-vassal-perspective-could-expose-the-vassal-teams-hidden-holy-city-and-headquarters-knowledge)\
 [233 - (Fixed AdvCiv-SAS bug) Default Domestic Advisor lost its visible Free Colony and Liberate action](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#233---fixed-advciv-sas-bug-default-domestic-advisor-lost-its-visible-free-colony-and-liberate-action)\
+[234 - (Fixed AdvCiv-SAS bug) Persistent Foreign Advisor could retain an invalid Espionage target, city and mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#234---fixed-advciv-sas-bug-persistent-foreign-advisor-could-retain-an-invalid-espionage-target-city-and-mission)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8251,5 +8252,15 @@ Base AdvCiv's default Domestic Advisor conditionally displays a Free Colony/Libe
 The fix restores the original native `CONTROL_FREE_COLONY` `WIDGET_ACTION`, automatic tooltip and HUD advisor button style only when the real active-player perspective has an eligible action. It reserves a dedicated footer slot beside Exit so the button does not overlap the newer five-tab navigation, closes the advisor when clicked as before, and remains hidden in read-only vassal perspectives. Alt+F1, the optional Customizable Domestic Advisor and the modern shell layout remain unchanged.
 
 This is an AdvCiv-SAS regression introduced by practical 5599 (`b8253247d2`). Screenshot 0044 confirms that the restored icon and native Alt+F1 tooltip render cleanly beside Exit; screenshot 0045 confirms that clicking it closes the advisor and opens the correct native popup with Alexandria and Memphis as liberation choices. The refreshed `PythonErr.log` remained empty.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 234 - (Fixed AdvCiv-SAS bug) Persistent Foreign Advisor could retain an invalid Espionage target, city and mission
+
+Before the Espionage Advisor became a Foreign Advisor tab, opening its standalone screen reset the selected target player, city and mission every time. AdvCiv-SAS practical 5583 integrated that code into the persistent Foreign Advisor object and moved the three fields to one-time object initialization. Reopening Espionage then preserved its target, while rebuilding the current alive/met rival list never checked whether that retained target was still eligible. A rival that died, became unmet under a changed debug perspective or otherwise left the valid list could remain selected together with stale city and mission state despite no longer appearing among the target rows.
+
+The fix preserves useful selection persistence when the target remains valid. After rebuilding the current alive/met rival list, it checks membership of the retained target; an invalid target clears the target, city and mission together, then the existing first-valid-target behavior selects a current rival when available. Target-list construction, still-valid selections, espionage spending, mission costs and gameplay state remain unchanged.
+
+This is an AdvCiv-SAS regression introduced by practical 5583 (`e138ad4f82`) when the standalone screen was merged into the Foreign Advisor. Runtime testing selected Lincoln, closed and reopened the advisor to confirm that a still-valid target persisted, then changed the debug perspective to Lincoln so he became ineligible as his own target. Lincoln disappeared from the rival list and Julius Caesar became the selected replacement with no stale selection; the refreshed `PythonErr.log` remained empty.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
