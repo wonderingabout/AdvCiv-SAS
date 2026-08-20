@@ -294,7 +294,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [232 - (Fixed AdvCiv-SAS bug) Policy Advisor vassal perspective could expose the vassal team's hidden Holy City and Headquarters knowledge](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---fixed-advciv-sas-bug-policy-advisor-vassal-perspective-could-expose-the-vassal-teams-hidden-holy-city-and-headquarters-knowledge)\
 [233 - (Fixed AdvCiv-SAS bug) Default Domestic Advisor lost its visible Free Colony and Liberate action](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#233---fixed-advciv-sas-bug-default-domestic-advisor-lost-its-visible-free-colony-and-liberate-action)\
 [234 - (Fixed AdvCiv-SAS bug) Persistent Foreign Advisor could retain an invalid Espionage target, city and mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#234---fixed-advciv-sas-bug-persistent-foreign-advisor-could-retain-an-invalid-espionage-target-city-and-mission)\
+[235 - (Fixed AdvCiv-SAS bug) Actual-unit hover omitted functional Bomber collateral information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#235---fixed-advciv-sas-bug-actual-unit-hover-omitted-functional-bomber-collateral-information)\
 [236 - (Fixed inherited Base AdvCiv bug) Executive Sevopedia pages omitted their required corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#236---fixed-inherited-base-advciv-bug-executive-sevopedia-pages-omitted-their-required-corporation)\
+[237 - (Pending inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepts one candidate beyond its width limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#237---pending-inherited-k-modbug-era-bug-maximum-types-great-person-progress-text-accepts-one-candidate-beyond-its-width-limit)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8266,6 +8268,18 @@ This is an AdvCiv-SAS regression introduced by practical 5583 (`e138ad4f82`) whe
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
+## 235 - (Fixed AdvCiv-SAS bug) Actual-unit hover omitted functional Bomber collateral information
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/158Dy8XcEW8LU2fywnbrr-jq194gSb5ve?usp=sharing).
+
+AdvCiv-SAS suppresses collateral-damage lines in actual-unit hover text for noncombat units so civilians do not display unusable collateral XML. The added gate used `CvUnit::canFight()`, which tests only base combat strength. Air units use `airBaseCombatStr()` instead: current Bomber and Stealth Bomber units have zero base combat, positive air combat and functional collateral damage, so they failed the gate and lost their real collateral values from the hover over an existing unit. Their Sevopedia/basic-unit help remained correct because the corresponding predicate already accepts either base or air combat, and gameplay collateral uses air combat for `DOMAIN_AIR`.
+
+The fix keeps the civilian suppression while accepting `canFight() || airBaseCombatStr() > 0`, matching the basic/unit-info help distinction. It deliberately does not use broader `canCombat()`, which also includes nuclear units. Collateral values, air-strike resolution, XML and all non-hover gameplay remain unchanged.
+
+The regression was introduced on the merged branch by practical 5506 (`c9be31986e`) and brought into the audited mainline by practical 5544 (`f1e860eb99`); the tracked history contains the same predicate addition under both SHAs. The DLL compiled successfully. Screenshot 0054 confirms that an actual Stealth Bomber hover now shows its base 100%, limit 200% collateral damage to 6 defenders; screenshot 0055 confirms that an actual Settler hover remains free of collateral noise.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
 ## 236 - (Fixed inherited Base AdvCiv bug) Executive Sevopedia pages omitted their required corporation
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1mMtCYMbvxgHS9Cr9lrjaq7HqGt9cF_Jh?usp=sharing).
@@ -8277,3 +8291,11 @@ The fix adds the exported corporation prerequisite to the existing Requires pane
 This omission is inherited from Base AdvCiv and affects `UNIT_EXECUTIVE_1` through `UNIT_EXECUTIVE_7`. Screenshot 0049 confirms that the AlumCo Executive now shows its technology and Aluminum Co as two separate Requires icons; screenshot 0047 confirms the new icon's correct Aluminum Co hover, and runtime testing confirmed that clicking it opens the Corporation page. The refreshed `PythonErr.log` remained empty.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 237 - (Pending inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepts one candidate beyond its width limit
+
+In `GPUtil.getGreatPeopleText()`, Maximum-types mode builds a candidate Great Person icon/percentage list as `szNewTypes`, but measures the previously accepted `szTypes` string against the progress-bar width before accepting the candidate. The check is therefore one candidate late: the first icon/percentage that makes the rendered text exceed `iGPBarWidth - 10` is still accepted and returned. Maximum types is the current default, mixed-Great-Person-point cities supply multiple candidates, and the top-bar form also includes the variable city name, so the path is reachable in ordinary play.
+
+The preferred surgical repair is to measure the text containing `szNewTypes` before assigning it to `szTypes`. This preserves the existing probability ordering and stop-on-first-nonfit behavior. The bug is inherited from the earliest available K-Mod BUG import, and Base AdvCiv 1.14 and current AdvCiv-SAS retain the same control flow. Implementation and runtime validation are pending.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks; reviewed and documented with the help of GPT-5.6-Sol thanks.
