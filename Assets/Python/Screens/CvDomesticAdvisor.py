@@ -205,7 +205,7 @@ class CvDomesticAdvisor:
 		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
 
 	def updateRuntimeTabLinkWidths(self):
-		# <!-- custom: reserve a footer slot for the restored Free Colony/Liberate action so it cannot overlap the five Domestic Advisor tabs. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: reserve a footer slot for the restored Free Colony/Liberate action so it cannot overlap the five Domestic Advisor tabs. See KI#233. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		self.X_FREE_COLONY_BUTTON = self.X_EXIT - CyInterface().determineWidth(self.TEXT_EXIT) - self.FREE_COLONY_BUTTON_SIZE - 20
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_FREE_COLONY_BUTTON - 10)
 
@@ -273,7 +273,7 @@ class CvDomesticAdvisor:
 			(loopCity, iter) = player.nextCity(iter, false)
 		if not bCanLiberate:
 			return
-		# <!-- custom: The SAS tabbed Domestic Advisor shell lost base AdvCiv's visible Free Colony/Liberate action even though the native control remained available. Restore its original WIDGET_ACTION and style for the real active-player perspective; the native action supplies the tooltip and popup. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: The SAS tabbed Domestic Advisor shell lost base AdvCiv's visible Free Colony/Liberate action even though the native control remained available. Restore its original WIDGET_ACTION and style for the real active-player perspective; the native action supplies the tooltip and popup. See KI#233. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iY = self.Y_BOTTOM_PANEL + (55 - self.FREE_COLONY_BUTTON_SIZE) / 2
 		screen.setImageButton(self.FREE_COLONY_BUTTON_ID, "", self.X_FREE_COLONY_BUTTON, iY, self.FREE_COLONY_BUTTON_SIZE, self.FREE_COLONY_BUTTON_SIZE, WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FREE_COLONY).getActionInfoIndex(), -1)
 		screen.setStyle(self.FREE_COLONY_BUTTON_ID, "Button_HUDAdvisorVictory_Style")
@@ -1367,7 +1367,7 @@ class CvDomesticAdvisor:
 
 		szCorps = self.getCityCorporationText(pLoopCity)
 		screen.setTableInt( self.TABLE_OVERVIEW4, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		# <!-- custom: Founded used localized BC/AD text in a lexical table cell, so sorting did not follow chronology across differently sized years or the BC/AD boundary. Match World Advisor by using the raw signed founding year in a numeric cell. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: Founded used localized BC/AD text in a lexical table cell, so sorting did not follow chronology across differently sized years or the BC/AD boundary. Match World Advisor by using the raw signed founding year in a numeric cell. See KI#223. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iFoundYear = CyGame().getTurnYear(pLoopCity.getGameTurnFounded())
 		SASTextScale.setTableIntLabel(screen, self.TABLE_OVERVIEW4, 3, i, iFoundYear, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.setTableInt( self.TABLE_OVERVIEW4, 4, i, szFontTagOpen + unicode(pLoopCity.getRealPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )

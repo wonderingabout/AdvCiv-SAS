@@ -95,7 +95,7 @@ def setTableIntLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, i
 	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 
 def setTableDateLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
-	# <!-- custom: preserve Civ4's date-typed table sorting while applying the shared label font. Generic setTableText made formatted BC/AD dates sort lexically. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: preserve Civ4's date-typed table sorting while applying the shared label font. Generic setTableText made formatted BC/AD dates sort lexically. See KI#229. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	setTableDateScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 
 def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):

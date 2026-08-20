@@ -154,7 +154,7 @@ def _getUnitEndCombatStr(pUnit, iMaxCombatStr):
 def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iX, iY):
 	if len(entry) < 7:
 		return False
-	# <!-- custom: Capturable civilian units do not fight, so their old unit type cannot equal the defeated escort type in the preceding combat row. Defended combat records the loser's plot; match the captured unit's plot plus player direction, and reject retreat rows so another same-turn battle cannot receive the capture. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: Capturable civilian units do not fight, so their old unit type cannot equal the defeated escort type in the preceding combat row. Defended combat records the loser's plot; match the captured unit's plot plus player direction, and reject retreat rows so another same-turn battle cannot receive the capture. See KI#222. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	return (entry[0] == CyGame().getGameTurn() and entry[1] == iCapturingPlayer and entry[2] == iOldOwner and entry[5] == iX and entry[6] == iY and not isRetreatEntry(entry))
 
 def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iX, iY, iCapturedUnitType):
@@ -169,7 +169,7 @@ def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iX, iY, iCapturedU
 def _matchesCityCapturedBattle(entry, iPreviousOwner, iNewOwner, iX, iY):
 	if len(entry) < 7:
 		return False
-	# <!-- custom: An undefended conquest fires cityAcquired without combat. Require a lethal battle at this city plot so an unrelated same-turn battle between the same players is not relabeled as the city capture. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: An undefended conquest fires cityAcquired without combat. Require a lethal battle at this city plot so an unrelated same-turn battle between the same players is not relabeled as the city capture. See KI#221. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	return (entry[0] == CyGame().getGameTurn() and entry[1] == iNewOwner and entry[2] == iPreviousOwner and entry[5] == iX and entry[6] == iY and not isRetreatEntry(entry))
 
 def _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):

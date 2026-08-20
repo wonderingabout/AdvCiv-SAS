@@ -347,6 +347,10 @@ def findStartingPlot(argsList):
 		return _sas_start_assignments[playerID]
 
 	iIndex = lPlayers.index(playerID)
+	# <!-- custom: The custom slot count follows the world-size default, but Custom Game can contain more alive players. Let the DLL find unique starts for extras instead of reusing the final custom slot. See KI#238. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if iIndex >= sum(layout["line_slots"]):
+		CyPythonMgr().allowDefaultImpl()
+		return
 	iRemaining = iIndex
 	iLine = 0
 	iPosInLine = 0

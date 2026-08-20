@@ -359,7 +359,7 @@ class Scoreboard:
 			self._playerScores = self._playerScores[len(self._playerScores) - maxPlayers:]
 
 	def prepare(self):
-		# <!-- custom: Expose the exact sorted and BUG Max Players-capped population before scroll controls calculate their range. This keeps active-player centering, button state and drawing on the same effective aligned-scoreboard order. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: Expose the exact sorted and BUG Max Players-capped population before scroll controls calculate their range. This keeps active-player centering, button state and drawing on the same effective aligned-scoreboard order. See KI#228. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		self.assignRanks()
 		self.gatherVassals()
 		self.sort()

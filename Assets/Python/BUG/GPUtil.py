@@ -274,7 +274,7 @@ def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypes
 				szTypes = ""
 				for iPercent, iUnit in lPercents:
 					szNewTypes = szTypes + u" %c%d%%" % (getUnitIcon(iUnit), iPercent)
-					# <!-- custom: Maximum-types measured the previously accepted list, so the first candidate exceeding the GP bar width was still appended. Measure the candidate list before accepting it. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					# <!-- custom: Maximum-types measured the previously accepted list, so the first candidate exceeding the GP bar width was still appended. Measure the candidate list before accepting it. See KI#237. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					szNewText = szText + u" -%s" % szNewTypes
 					if (CyInterface().determineWidth(szNewText) > iGPBarWidth - 10):
 						# Keep under width

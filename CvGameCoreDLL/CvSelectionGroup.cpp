@@ -1555,9 +1555,9 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 				mission plot, but, if route-to or move-to fails and the mission plot
 				isn't reached, then any improvement build needs to be canceled. */
 			CvPlot const* pMissionAIPlot = AI().AI_getMissionAIPlot();
-			// <!-- custom: Save file 446 exposed a stale AI worker mission queue where a target plot 58,24 Cottage build executed on the current plot 59,24 after route movement failed, overwriting an intended Mine. See KI#176.
+			// <!-- custom: Save file 446 exposed a stale AI worker mission queue where a target plot 58,24 Cottage build executed on the current plot 59,24 after route movement failed, overwriting an intended Mine.
 			// MISSION_BUILD has no stored plot coordinates, so require non-route builds to still be standing on the mission target before allowing groupBuild to act on the current plot. The AdvCiv 1.14 version of this SAS fix correctly exempts route builds, which may intentionally be constructed along the way.
-			// Validation: the save-file-446 t200 replay after this guard fired this cancel 7 times (T64 Japan 59,24->58,24; T71 Ottoman 50,34->51,33; T110 Greece 66,24->67,25; T127 Greece 66,25->67,26; T162 Native America 54,32->55,32; T178 Celts 27,45->31,48; T181 Native America 53,31->56,32), confirming this was a systemic stale-target safety issue rather than only the original Japan tile. (ChatGPT-5.5 + GPT-5.5; AdvCiv 1.14 merge reviewed by ChatGPT-5.6-Sol) -->
+			// Validation: the save-file-446 t200 replay after this guard fired this cancel 7 times (T64 Japan 59,24->58,24; T71 Ottoman 50,34->51,33; T110 Greece 66,24->67,25; T127 Greece 66,25->67,26; T162 Native America 54,32->55,32; T178 Celts 27,45->31,48; T181 Native America 53,31->56,32), confirming this was a systemic stale-target safety issue rather than only the original Japan tile. See KI#176. (ChatGPT-5.5 + GPT-5.5; AdvCiv 1.14 merge reviewed by ChatGPT-5.6-Sol) -->
 			bool bCancel = (pMissionAIPlot != NULL && eBuild != NO_BUILD &&
 					GC.getInfo(eBuild).getRoute() == NO_ROUTE && !atPlot(pMissionAIPlot));
 			if (bCancel) // </advc.001>

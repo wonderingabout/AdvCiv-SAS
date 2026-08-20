@@ -200,8 +200,9 @@ def _profile_for_world_size(eWorldSize):
 	profiles = {
 		WorldSizeTypes.WORLDSIZE_ARENA: (1, 1),
 		WorldSizeTypes.WORLDSIZE_DUEL: (1, 1),
-		WorldSizeTypes.WORLDSIZE_TINY: (1, 1),
-		WorldSizeTypes.WORLDSIZE_SMALL: (1, 2),
+		# <!-- custom: One player starts per house; Tiny and Small previously provided only 2/4 houses for their 3/5 default players. Symmetric spikes require the next even capacities, 4/6. See KI#245. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		WorldSizeTypes.WORLDSIZE_TINY: (1, 2),
+		WorldSizeTypes.WORLDSIZE_SMALL: (1, 3),
 		WorldSizeTypes.WORLDSIZE_STANDARD: (2, 2),
 		WorldSizeTypes.WORLDSIZE_LARGE: (2, 3), # 11 players -> 3 spikes * 2 streets = 12 houses
 		WorldSizeTypes.WORLDSIZE_HUGE: (2, 4), # 16 players -> 4 spikes * 2 streets = 16 houses

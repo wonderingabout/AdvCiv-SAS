@@ -2704,7 +2704,7 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 	CvMap const& kMap = GC.getMap();
 	int const iStatesPerPlot = iMaxPlots + 1;
 	int const iSearchStateCount = kMap.numPlots() * iStatesPerPlot;
-	// <!-- custom: Cost and route length are independent constraints. A cheaper long route to one plot previously discarded a costlier short route that could be the only one able to reach irrigation within SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS. Keep one best cost per (plot, steps) state; the small route limit bounds memory, and generation stamps still initialize only reached states during repeated Worker-city evaluation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Cost and route length are independent constraints. A cheaper long route to one plot previously discarded a costlier short route that could be the only one able to reach irrigation within SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS. Keep one best cost per (plot, steps) state; the small route limit bounds memory, and generation stamps still initialize only reached states during repeated Worker-city evaluation. See KI#214. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	static std::vector<int> aiBestCost;
 	static std::vector<unsigned int> aiCostGeneration;
 	static unsigned int iSearchGeneration = 0;

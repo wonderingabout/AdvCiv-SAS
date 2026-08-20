@@ -1458,7 +1458,7 @@ def _SAS_getUnitClassEra(iUnitClass):
 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
 
 def _SAS_getThresholdEra(aiEras, iRequiredCount):
-	# <!-- custom: Return the earliest era in which the requested number of distinct eligible types can exist. Keep -1 entries: a type without a tech prerequisite is available before any era gate and must win a one-of pool instead of letting a later alternative delay it. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: Return the earliest era in which the requested number of distinct eligible types can exist. Keep -1 entries: a type without a tech prerequisite is available before any era gate and must win a one-of pool instead of letting a later alternative delay it. See KI#225. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if iRequiredCount <= 0 or len(aiEras) <= 0:
 		return -1
 	aiSortedEras = aiEras[:]
@@ -1532,7 +1532,7 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 		if civicInfo:
 			_bumpIndirect(_SAS_getTechEra(civicInfo.getTechPrereq()))
 
-	# <!-- custom: The DLL sums copies across listed building classes and picks any one valid unit, so the earliest eligible class can satisfy these gates; maxing every listed alternative delayed triggers such as Experienced Captain until Modern. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: The DLL sums copies across listed building classes and picks any one valid unit, so the earliest eligible class can satisfy these gates; maxing every listed alternative delayed triggers such as Experienced Captain until Modern. See KI#225. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if info.getNumBuildings() > 0 or info.getNumBuildingsGlobal() > 0:
 		aiBuildingEras = []
 		for i in range(info.getNumBuildingsRequired()):
@@ -1548,7 +1548,7 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 				aiUnitEras.append(_SAS_getUnitClassEra(iUnitClass))
 		_bumpIndirect(_SAS_getThresholdEra(aiUnitEras, 1))
 
-	# <!-- custom: Player-level religion/corporation thresholds count distinct eligible types. City triggers instead require the total count in one city and, when a list is present, any one listed type; combine those two gates rather than treating every listed type as mandatory. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: Player-level religion/corporation thresholds count distinct eligible types. City triggers instead require the total count in one city and, when a list is present, any one listed type; combine those two gates rather than treating every listed type as mandatory. See KI#225. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if info.getNumReligions() > 0:
 		aiReligionEras = []
 		for i in range(info.getNumReligionsRequired()):

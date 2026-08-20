@@ -316,7 +316,7 @@ class SevoPediaVote:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_WAR", ()))
 			if voteInfo.isAssignCity():
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_ASSIGN_CITY", ()))
-			# <!-- custom: CvGame::processVote applies getTradeRoutes globally when the resolution passes; it is an effect, not a prerequisite. Keeping it only here prevents Single Currency from showing the same trade-route reward under both Requirements and Effects. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			# <!-- custom: CvGame::processVote applies getTradeRoutes globally when the resolution passes; it is an effect, not a prerequisite. Keeping it only here prevents Single Currency from showing the same trade-route reward under both Requirements and Effects. See KI#227. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			iTradeRoutesEffect = voteInfo.getTradeRoutes()
 			if iTradeRoutesEffect != 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES", ()) + u": %+d%s" % (iTradeRoutesEffect, self.TRADE_CHAR))

@@ -561,7 +561,7 @@ class SevoPediaEventTrigger:
 		if iMaxReligions >= 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS", ()) + u": %d" % iMaxReligions)
 
-		# <!-- custom: getMinPillage/getMaxPillage are the number of improvements destroyed by the event, not treasury gold. Show one count when equal or the possible count range, without a gold-commerce glyph. (Claude code Opus 4.7 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		# <!-- custom: getMinPillage/getMaxPillage are the number of improvements destroyed by the event, not treasury gold. Show one count when equal or the possible count range, without a gold-commerce glyph. See KI#226. (Claude code Opus 4.7 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iMinPillage = eventInfo.getMinPillage()
 		iMaxPillage = eventInfo.getMaxPillage()
 		if iMinPillage != 0 or iMaxPillage != 0:

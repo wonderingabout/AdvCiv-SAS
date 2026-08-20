@@ -8104,7 +8104,7 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDet
 						getAIBarbarianCombatModifier();
 				iModifier += iExtraModifier;
 				if (pCombatDetails != NULL)
-					// <!-- custom: Fix inherited AB/TB CombatDetails copy-paste; see KI#212. (ChatGPT-5.6-Sol) -->
+					// <!-- custom: Fix inherited AB/TB CombatDetails copy-paste. See KI#212. (ChatGPT-5.6-Sol) -->
 					pCombatDetails->iAIBarbarianCombatModifierAB = iExtraModifier;
 			}
 			// <advc.313>
@@ -8241,7 +8241,7 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDet
 		else
 		{
 			iExtraModifier = -pAttacker->terrainAttackModifier(pAttackedPlot->getTerrainType());
-			// <!-- custom: Keep terrain attack in the reversible attacker-modifier subtotal; see KI#211. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: Keep terrain attack in the reversible attacker-modifier subtotal. See KI#211. (ChatGPT-5.6-Sol) -->
 			iTempModifier += iExtraModifier;
 			if (pCombatDetails != NULL)
 				pCombatDetails->iTerrainAttackModifier = iExtraModifier;
