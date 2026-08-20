@@ -296,7 +296,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [234 - (Fixed AdvCiv-SAS bug) Persistent Foreign Advisor could retain an invalid Espionage target, city and mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#234---fixed-advciv-sas-bug-persistent-foreign-advisor-could-retain-an-invalid-espionage-target-city-and-mission)\
 [235 - (Fixed AdvCiv-SAS bug) Actual-unit hover omitted functional Bomber collateral information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#235---fixed-advciv-sas-bug-actual-unit-hover-omitted-functional-bomber-collateral-information)\
 [236 - (Fixed inherited Base AdvCiv bug) Executive Sevopedia pages omitted their required corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#236---fixed-inherited-base-advciv-bug-executive-sevopedia-pages-omitted-their-required-corporation)\
-[237 - (Pending inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepts one candidate beyond its width limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#237---pending-inherited-k-modbug-era-bug-maximum-types-great-person-progress-text-accepts-one-candidate-beyond-its-width-limit)\
+[237 - (Fixed inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepted one candidate beyond its width limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#237---fixed-inherited-k-modbug-era-bug-maximum-types-great-person-progress-text-accepted-one-candidate-beyond-its-width-limit)\
+[237.2 - (Fixed inherited Base AdvCiv bug) Runtime-sized city Great Person bar retained a fixed 230px text budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2372---fixed-inherited-base-advciv-bug-runtime-sized-city-great-person-bar-retained-a-fixed-230px-text-budget)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8292,10 +8293,22 @@ This omission is inherited from Base AdvCiv and affects `UNIT_EXECUTIVE_1` throu
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
-## 237 - (Pending inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepts one candidate beyond its width limit
+## 237 - (Fixed inherited K-Mod/BUG-era bug) Maximum-types Great Person progress text accepted one candidate beyond its width limit
+
+Screenshots/files for this issue: same google drive folder link as KI#237.2.
 
 In `GPUtil.getGreatPeopleText()`, Maximum-types mode builds a candidate Great Person icon/percentage list as `szNewTypes`, but measures the previously accepted `szTypes` string against the progress-bar width before accepting the candidate. The check is therefore one candidate late: the first icon/percentage that makes the rendered text exceed `iGPBarWidth - 10` is still accepted and returned. Maximum types is the current default, mixed-Great-Person-point cities supply multiple candidates, and the top-bar form also includes the variable city name, so the path is reachable in ordinary play.
 
-The preferred surgical repair is to measure the text containing `szNewTypes` before assigning it to `szTypes`. This preserves the existing probability ordering and stop-on-first-nonfit behavior. The bug is inherited from the earliest available K-Mod BUG import, and Base AdvCiv 1.14 and current AdvCiv-SAS retain the same control flow. Implementation and runtime validation are pending.
+The fix measures the text containing `szNewTypes` before assigning it to `szTypes`. A candidate that exceeds the width now stops the loop without being appended, preserving the existing probability ordering and stop-on-first-nonfit behavior. Great Person probabilities, city selection, turn estimates, the None/One display modes and bar geometry remain unchanged. The bug is inherited from the earliest available K-Mod BUG import, and Base AdvCiv 1.14 retains the same one-candidate-late control flow. A narrow regression fixture confirms that the old flow accepted an over-limit candidate while the corrected flow rejects it. Save file 478 screenshots 0062 and 0063 provide the post-fix in-game Maximum-types smoke test, with matching 53% / 42% / 5% data in both bars and an empty refreshed `PythonErr.log`. The separate fixed 230px city-caller mismatch exposed during testing is tracked as KI#237.2.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks; reviewed and documented with the help of GPT-5.6-Sol thanks.
+
+## 237.2 - (Fixed inherited Base AdvCiv bug) Runtime-sized city Great Person bar retained a fixed 230px text budget
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1te_1i-KhZRau79Okam3TYE5r8TlLXZ5c?usp=sharing).
+
+K-Mod/BUG passed a fixed 230px width to the city-screen `getGreatPeopleText()` caller. Base AdvCiv practical 3784 (`e491d6d576`) merged the scalable HUD into AdvCiv 1.06 and introduced a runtime-scaled `CityRightPanelContents` plus a full-width `GreatPeopleBar`, but retained the old 230px argument when relocating the caller. At wider resolutions the rendered bar therefore had room for more Great Person type/chance entries than the fitting helper was allowed to consider. Base AdvCiv 1.14 retains the same dynamic bar and fixed caller, so this mismatch is inherited from Base AdvCiv rather than introduced by AdvCiv-SAS.
+
+Save file 478 screenshots 0060 and 0061 show the mismatch in Poverty Point: the wider map GP bar displayed all 53% / 42% / 5% types, while the city GP bar prematurely omitted the fitting 5% Scientist. The fix passes `gRect("GreatPeopleBar").width()` to the city caller, matching the map caller and the actual runtime geometry. Great Person probabilities, ordering, bar geometry and the width-fitting policy remain unchanged. Post-fix screenshots 0062 and 0063 confirm that the map and city bars now both display 53% / 42% / 5%; the refreshed `PythonErr.log` remained empty.
+
+Found through runtime testing with the help of wonderingabout thanks; investigated, fixed and documented with the help of GPT-5.6-Sol thanks.
