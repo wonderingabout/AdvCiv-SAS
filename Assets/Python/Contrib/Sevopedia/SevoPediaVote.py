@@ -164,9 +164,6 @@ class SevoPediaVote:
 			iStateRelPct = voteInfo.getStateReligionVotePercent()
 			if iStateRelPct > 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_STATE_RELIGION_VOTE", ()) + u": %d%%" % iStateRelPct)
-			iTradeRoutes = voteInfo.getTradeRoutes()
-			if iTradeRoutes != 0:
-				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES", ()) + u": %d" % iTradeRoutes)
 
 		textName = self.top.getNextWidgetName()
 		if lines:
@@ -319,6 +316,7 @@ class SevoPediaVote:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_WAR", ()))
 			if voteInfo.isAssignCity():
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_ASSIGN_CITY", ()))
+			# <!-- custom: CvGame::processVote applies getTradeRoutes globally when the resolution passes; it is an effect, not a prerequisite. Keeping it only here prevents Single Currency from showing the same trade-route reward under both Requirements and Effects. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			iTradeRoutesEffect = voteInfo.getTradeRoutes()
 			if iTradeRoutesEffect != 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES", ()) + u": %+d%s" % (iTradeRoutesEffect, self.TRADE_CHAR))
