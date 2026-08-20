@@ -1409,16 +1409,18 @@ def SAS_getVotesGroupedByVoteSource(bSortLists):
 # <!-- custom: earliest era at which an event trigger can fire. The trigger's direct
 # <OrPreReqs>/<AndPreReqs> tech lists are only one of several era-gating fields — we also
 # check <OtherPlayerHasTech>, <CivicPrereq> (single civic), and <UnitsRequired> /
-# <BuildingsRequired> / <ReligionsRequired> / <CorporationsRequired> / <RoutesRequired>
+# <BuildingsRequired> / <ReligionsRequired> / <CorporationsRequired>
 # whose required assets each imply a tech-era through their own XML prereqs. Without these
 # indirect checks, events like Airliner Crash (gated only by <OtherPlayerHasTech>TECH_FLIGHT</>)
 # wrongly land in the "Any era" bucket.
 #
 # Algorithm: OR-techs allow any single member to satisfy the constraint, so the OR list
-# contributes min(eras) only if non-empty. Every other constraint (AND techs, civic,
-# required asset, OtherPlayerHasTech) must ALL be satisfied, so each contributes its own
-# era and the trigger cannot fire before the max of all those contributions. Returns -1
-# only when the trigger has zero era-gating fields of any kind. (Claude code Opus 4.7) -->
+# contributes min(eras) only if non-empty; true AND constraints contribute their maximum.
+# Required building/unit lists are eligibility pools, and multiple copies of the earliest
+# eligible class can satisfy their count, so they contribute the minimum. Religion and
+# corporation counts require distinct types at player level, so they contribute the Nth
+# earliest eligible type; city triggers require N total types plus any one listed type.
+# Returns -1 only when no constraint supplies an era gate. (Claude code Opus 4.7; corrected ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 def _SAS_getTechEra(iTech):
 	if iTech < 0:
 		return -1
@@ -1454,6 +1456,14 @@ def _SAS_getUnitClassEra(iUnitClass):
 	if not unitInfo:
 		return -1
 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
+
+def _SAS_getThresholdEra(aiEras, iRequiredCount):
+	# <!-- custom: Return the earliest era in which the requested number of distinct eligible types can exist. Keep -1 entries: a type without a tech prerequisite is available before any era gate and must win a one-of pool instead of letting a later alternative delay it. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if iRequiredCount <= 0 or len(aiEras) <= 0:
+		return -1
+	aiSortedEras = aiEras[:]
+	aiSortedEras.sort()
+	return aiSortedEras[iRequiredCount - 1]
 
 def _SAS_getEventTriggerForEvent(iEvent):
 	if iEvent < 0:
@@ -1503,9 +1513,9 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 			iAndMax = iEra
 	bHasDirectAnd = (iAndMax >= 0)
 
-	# Indirect constraints (OtherPlayerHasTech, prerequisite event chains, required
-	# civic/building/unit/religion/corporation) are all AND-ish — the trigger can't fire until the latest-era
-	# inference is satisfied. Collected separately so we can classify direct vs indirect.
+	# Indirect constraint families are aggregated according to their engine semantics,
+	# then combined as AND gates through the maximum. Collected separately so we can
+	# classify direct vs indirect.
 	iIndirectMax = -1
 	def _bumpIndirect(iEra):
 		if iEra < 0:
@@ -1522,22 +1532,62 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 		if civicInfo:
 			_bumpIndirect(_SAS_getTechEra(civicInfo.getTechPrereq()))
 
-	for i in range(info.getNumBuildingsRequired()):
-		_bumpIndirect(_SAS_getBuildingClassEra(info.getBuildingRequired(i)))
-	for i in range(info.getNumUnitsRequired()):
-		_bumpIndirect(_SAS_getUnitClassEra(info.getUnitRequired(i)))
-	for i in range(info.getNumReligionsRequired()):
-		iRel = info.getReligionRequired(i)
-		if iRel >= 0:
-			relInfo = gc.getReligionInfo(iRel)
-			if relInfo:
-				_bumpIndirect(_SAS_getTechEra(relInfo.getTechPrereq()))
-	for i in range(info.getNumCorporationsRequired()):
-		iCorp = info.getCorporationRequired(i)
-		if iCorp >= 0:
-			corpInfo = gc.getCorporationInfo(iCorp)
-			if corpInfo:
-				_bumpIndirect(_SAS_getTechEra(corpInfo.getTechPrereq()))
+	# <!-- custom: The DLL sums copies across listed building classes and picks any one valid unit, so the earliest eligible class can satisfy these gates; maxing every listed alternative delayed triggers such as Experienced Captain until Modern. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if info.getNumBuildings() > 0 or info.getNumBuildingsGlobal() > 0:
+		aiBuildingEras = []
+		for i in range(info.getNumBuildingsRequired()):
+			iBuildingClass = info.getBuildingRequired(i)
+			if iBuildingClass >= 0:
+				aiBuildingEras.append(_SAS_getBuildingClassEra(iBuildingClass))
+		_bumpIndirect(_SAS_getThresholdEra(aiBuildingEras, 1))
+	if info.getNumUnits() > 0 or info.getNumUnitsGlobal() > 0:
+		aiUnitEras = []
+		for i in range(info.getNumUnitsRequired()):
+			iUnitClass = info.getUnitRequired(i)
+			if iUnitClass >= 0:
+				aiUnitEras.append(_SAS_getUnitClassEra(iUnitClass))
+		_bumpIndirect(_SAS_getThresholdEra(aiUnitEras, 1))
+
+	# <!-- custom: Player-level religion/corporation thresholds count distinct eligible types. City triggers instead require the total count in one city and, when a list is present, any one listed type; combine those two gates rather than treating every listed type as mandatory. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if info.getNumReligions() > 0:
+		aiReligionEras = []
+		for i in range(info.getNumReligionsRequired()):
+			iReligion = info.getReligionRequired(i)
+			if iReligion >= 0:
+				religionInfo = gc.getReligionInfo(iReligion)
+				if religionInfo:
+					aiReligionEras.append(_SAS_getTechEra(religionInfo.getTechPrereq()))
+		if info.isPickCity() or len(aiReligionEras) <= 0:
+			aiAllReligionEras = []
+			for iReligion in range(gc.getNumReligionInfos()):
+				religionInfo = gc.getReligionInfo(iReligion)
+				if religionInfo:
+					aiAllReligionEras.append(_SAS_getTechEra(religionInfo.getTechPrereq()))
+			_bumpIndirect(_SAS_getThresholdEra(aiAllReligionEras, info.getNumReligions()))
+		if info.isPickCity():
+			_bumpIndirect(_SAS_getThresholdEra(aiReligionEras, 1))
+		elif len(aiReligionEras) > 0:
+			_bumpIndirect(_SAS_getThresholdEra(aiReligionEras, info.getNumReligions()))
+
+	if info.getNumCorporations() > 0:
+		aiCorporationEras = []
+		for i in range(info.getNumCorporationsRequired()):
+			iCorporation = info.getCorporationRequired(i)
+			if iCorporation >= 0:
+				corporationInfo = gc.getCorporationInfo(iCorporation)
+				if corporationInfo:
+					aiCorporationEras.append(_SAS_getTechEra(corporationInfo.getTechPrereq()))
+		if info.isPickCity() or len(aiCorporationEras) <= 0:
+			aiAllCorporationEras = []
+			for iCorporation in range(gc.getNumCorporationInfos()):
+				corporationInfo = gc.getCorporationInfo(iCorporation)
+				if corporationInfo:
+					aiAllCorporationEras.append(_SAS_getTechEra(corporationInfo.getTechPrereq()))
+			_bumpIndirect(_SAS_getThresholdEra(aiAllCorporationEras, info.getNumCorporations()))
+		if info.isPickCity():
+			_bumpIndirect(_SAS_getThresholdEra(aiCorporationEras, 1))
+		elif len(aiCorporationEras) > 0:
+			_bumpIndirect(_SAS_getThresholdEra(aiCorporationEras, info.getNumCorporations()))
 	# <!-- custom: prerequisite event chains inherit the prerequisite trigger's inferred era.
 	# This stays indirect because the current trigger does not declare the tech itself; it
 	# depends on a prior event outcome that may have its own tech or chain gate. (GPT-5.5) -->
