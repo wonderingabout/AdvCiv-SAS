@@ -716,16 +716,17 @@ static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes 
 	return (bForeignCapturedCity && bRemoteFromCore && bLargeStack);
 }
 
-// <!-- custom: Helper accepts CvUnit rather than CvUnitAI because FOR_EACH_UNIT_IN exposes base CvUnit pointers; pass the current attack-stack UnitAI separately so upgrade-wait logic can estimate best upgrade pressure for each unit in the group. (GPT-5.5) -->
+// <!-- custom: FOR_EACH_UNIT_IN exposes base CvUnit pointers, so accept CvUnit and obtain that iterated unit's own UnitAI through AI(). Using the attack-stack head's role for every member can miss valid upgrades in a mixed stack and incorrectly bypass waiting. See KI#217. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 // 1>..\CvUnitAI.cpp(6075): error C2664: 'SAS_getBestUpgradeForLog' : cannot convert parameter 1 from 'const CvUnit' to 'const CvUnitAI &'
 // 1>          Reason: cannot convert from 'const CvUnit' to 'const CvUnitAI'
 // 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
 // 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
 // 1>  Stop.
-static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnitAI)
+static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	CvArea* pArea = kUnit.area();
+	UnitAITypes const eUnitAI = kUnit.AI().AI_getUnitAIType();
 	int iBestValue = kOwner.AI_unitValue(kUnit.getUnitType(), eUnitAI, pArea) * 100;
 	UnitTypes eBestUnit = NO_UNIT;
 	CvCivilization const& kCiv = kOwner.getCivilization();
@@ -4512,7 +4513,10 @@ void CvUnitAI::AI_settleMove()
 		if (GC.getGame().getGameTurn() - getGameTurnCreated() > 20)
 		{
 			if (getTransportUnit() != NULL)
-				getTransportUnit()->unloadAll();
+			{
+				// <!-- custom: Unload only this no-site Settler; unloading the whole transport can eject unrelated cargo. See KI#215. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				unload();
+			}
 			if (getTransportUnit() == NULL)
 			{
 				// BETTER_BTS_AI_MOD, Unit AI, 11/30/08, jdog5000: guard added
@@ -7619,7 +7623,7 @@ void CvUnitAI::AI_attackCityMove()
 						{
 							if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
 								continue;
-							UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit, AI_getUnitAIType());
+							UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit);
 							if (eBestUpgradeForLog == NO_UNIT)
 								continue;
 							if (pUpgradeLogUnit->canUpgrade(eBestUpgradeForLog))
@@ -7641,7 +7645,7 @@ void CvUnitAI::AI_attackCityMove()
 							{
 								if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
 									continue;
-								UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit, AI_getUnitAIType());
+								UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit);
 								if (eBestUpgradeForLog == NO_UNIT)
 									continue;
 								int const iUpgradePrice = pUpgradeLogUnit->upgradePrice(eBestUpgradeForLog);

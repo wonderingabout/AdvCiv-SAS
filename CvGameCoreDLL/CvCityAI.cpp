@@ -10228,7 +10228,8 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 
 	CvArea* pPrimaryWaterArea = pWaterArea;
 	CvArea* pSecondWaterArea = secondWaterArea();
-	if (pSecondWaterArea != NULL)
+	// <!-- custom: waterArea(true) and secondWaterArea() can resolve to the same accessible sea when impassable Ice changes the primary-area calculation. Count that area's seafood demand only once, matching Work Boat availability accounting. See KI#216. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (pSecondWaterArea != NULL && pSecondWaterArea != pPrimaryWaterArea)
 	{
 		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pSecondWaterArea, plot(), iLookAhead); // advc.042
 	}
