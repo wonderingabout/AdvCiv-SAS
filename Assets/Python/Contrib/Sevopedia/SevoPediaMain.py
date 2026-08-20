@@ -2632,7 +2632,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.W_PEDIA_PAGE = self.R_PEDIA_PAGE - self.X_PEDIA_PAGE
 
 	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
-		if self.getScreen().getXResolution() >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH:
+		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH):
 			return self.SAS_W_ITEMS_BASE
 
 		iLabelFont = getSASUIFontLabel()

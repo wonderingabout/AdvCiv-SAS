@@ -75,6 +75,9 @@ def setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType,
 def setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
 	screen.setTableInt(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
 
+def setTableDateScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
+	screen.setTableDate(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
+
 def setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, szTag):
 	screen.setTableColumnHeader(szTable, iCol, applyFontTag(szText, szTag), iWidth)
 
@@ -90,6 +93,10 @@ def setTableTextLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, 
 def setTableIntLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
 	# <!-- custom: use this for sortable numeric table cells, even when display strings include signs or color tags (e.g. +8, -2, raw signed years like -4000). Do not use it for formatted date text such as 4000 BC / 800 AD; those are intentionally textual. Civ4 table sorting treats setTableInt cells numerically, while setTableText sorts lexically. (GPT-5.5) -->
 	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
+
+def setTableDateLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+	# <!-- custom: preserve Civ4's date-typed table sorting while applying the shared label font. Generic setTableText made formatted BC/AD dates sort lexically. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	setTableDateScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 
 def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):
 	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, sasFontTagLabel)

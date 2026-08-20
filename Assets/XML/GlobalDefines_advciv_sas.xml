@@ -117,7 +117,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is above this threshold (strictly >). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex). This is because at higher resolutions we have enough width to accommodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
+	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is at or above this threshold (>=). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex + ChatGPT-5.6-Sol + GPT-5.6-Sol). This is because at higher resolutions we have enough width to accommodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH</DefineName>
 		<iDefineIntVal>2560</iDefineIntVal>

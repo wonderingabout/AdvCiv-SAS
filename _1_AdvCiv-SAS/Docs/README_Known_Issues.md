@@ -287,6 +287,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [225 - (Fixed AdvCiv-SAS bug) Event Sevopedia earliest-era grouping treated alternative requirements as mandatory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#225---fixed-advciv-sas-bug-event-sevopedia-earliest-era-grouping-treated-alternative-requirements-as-mandatory)\
 [226 - (Fixed AdvCiv-SAS bug) Event Sevopedia mislabeled improvement-pillage counts as gold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#226---fixed-advciv-sas-bug-event-sevopedia-mislabeled-improvement-pillage-counts-as-gold)\
 [227 - (Fixed AdvCiv-SAS bug) Vote Sevopedia duplicated a trade-route resolution effect as a requirement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixed-advciv-sas-bug-vote-sevopedia-duplicated-a-trade-route-resolution-effect-as-a-requirement)\
+[228 - (Fixed AdvCiv-SAS bug) Aligned scoreboard scrolling conflicted with the inherited BUG mod's Max Players cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#228---fixed-advciv-sas-bug-aligned-scoreboard-scrolling-conflicted-with-the-inherited-bug-mods-max-players-cap)\
+[229 - (Fixed AdvCiv-SAS bug) Hall of Fame Date-header sorting lost its date semantics during font upscaling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#229---fixed-advciv-sas-bug-hall-of-fame-date-header-sorting-lost-its-date-semantics-during-font-upscaling)\
+[230 - (Fixed AdvCiv-SAS bug) Nonpositive Leader item-width cutoff reversed its documented disable behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#230---fixed-advciv-sas-bug-nonpositive-leader-item-width-cutoff-reversed-its-documented-disable-behavior)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8191,5 +8194,25 @@ For example, with 40 visible players, room for 30 rows and `Max Players = 10`, t
 The prepared fix exposes the aligned scoreboard's exact player-ID order after rank assignment, vassal grouping and the positive `Max Players` cap. Total count, active-player centering, scroll clamping, +/- availability and drawing now consume that same effective population, and drawing reuses the already-prepared scoreboard before applying its visible-row slice. This also prevents centering from disagreeing with the renderer's vassal-grouped order. No player visibility rule, scoreboard option, non-aligned rendering or gameplay state changes.
 
 This is an AdvCiv-SAS regression interacting with an older inherited BUG option: the inherited `Max Players` cap itself remains correct, while practical 5667 (`af7f9f3532`) introduced the second uncapped interpretation. Quick new-game testing and a late-game load of save file 474 showed the aligned scoreboard, scroll-control layout and vassal ordering working normally after the fix; screenshot 0038 records the old-save result, and the refreshed `PythonErr.log` remained empty.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 229 - (Fixed AdvCiv-SAS bug) Hall of Fame Date-header sorting lost its date semantics during font upscaling
+
+The Hall of Fame has two independent ways to sort by completion date. Its Sort-by-Date dropdown correctly orders replay rows through numeric `getFinalTurn()`, while its enabled table headers rely on the cell type supplied to Civ4. Before AdvCiv-SAS practical 5657, the Date column used the engine's dedicated `setTableDate` API. That practical's font-upscaling pass replaced it with generic `setTableText` through `SASTextScale.setTableTextLabel`, so clicking the Date header sorted the formatted BC/AD display as text rather than as a date. Base AdvCiv 1.14 retains the original date-typed cell.
+
+The fix adds `SASTextScale.setTableDateLabel`, which applies the shared configurable label font while preserving Civ4's `setTableDate` cell type, and uses it for the Hall of Fame Date column. The already-correct Sort-by-Date dropdown, replay metadata, calendar formatting and all other columns remain unchanged. Runtime testing confirmed that the Hall of Fame renders and the clickable Date header changes between ascending/descending sort states without an error. The available Hall of Fame contained only one entry, so multi-row chronological order could not be visually exercised in that test; the restored date-typed API is the engine contract that supplies those semantics.
+
+The regression was introduced by AdvCiv-SAS practical 5657 (`e51f6d39ad`) during Hall-of-Fame font upscaling.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 230 - (Fixed AdvCiv-SAS bug) Nonpositive Leader item-width cutoff reversed its documented disable behavior
+
+`SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH` defines the resolution at which Leader pages stop using the custom font-dependent item-list width and return to the base width. Its documented `<= 0` setting means never apply that high-resolution override. The Leader page's panel calculation implemented this correctly, but `SevoPediaMain.SAS_getLeaderItemsWidthByCurrentUIFont` compared the positive screen width directly with the configured value without first requiring the cutoff to be positive. A value of 0 or -1 therefore matched every normal resolution and forced the base width—the opposite of the documented behavior—and could make the two Leader-width consumers disagree.
+
+The fix adds the same positive-cutoff guard already used by `SevoPediaLeader`: the base-width override applies only when the cutoff is greater than zero and the current resolution reaches it. The XML comment now also states the existing at-or-above (`>=`) threshold exactly. Per-font width selection, nonpositive per-font fallback values, panel expansion and ordinary positive cutoffs remain unchanged. With the cutoff set nonpositive and label font 3, runtime testing showed the Leader item list retained its 200px custom width and remained visibly narrower than the Civilization list's 230px base width, directly validating the documented disable behavior.
+
+The regression was introduced by AdvCiv-SAS practical 5632 (`6bc421f184`) with the configurable Leader item-width cutoff.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
