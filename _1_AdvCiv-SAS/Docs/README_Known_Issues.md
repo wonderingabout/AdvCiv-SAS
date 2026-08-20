@@ -272,6 +272,11 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [210 - (Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#210---fixed-base-advciv-bug-vote-selection-iterator-refactor-could-pair-a-voting-team-with-itself-creating-bogus-self-first-contact-state)\
 [211 - (Fixed inherited K-Mod/Base AdvCiv bug) Terrain attack bonuses were reversed in AI attacker-strength estimates against unknown defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#211---fixed-inherited-k-modbase-advciv-bug-terrain-attack-bonuses-were-reversed-in-ai-attacker-strength-estimates-against-unknown-defenders)\
 [212 - (Fixed minor inherited K-Mod/Base AdvCiv bug) AI Barbarian attacker CombatDetails were written to the defender-barbarian field](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#212---fixed-minor-inherited-k-modbase-advciv-bug-ai-barbarian-attacker-combatdetails-were-written-to-the-defender-barbarian-field)\
+[213 - (Pending) Split city/Worker best-build policies can hide valid custom land jobs from Worker demand](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#213---pending-split-cityworker-best-build-policies-can-hide-valid-custom-land-jobs-from-worker-demand)\
+[214 - (Pending) Irrigation-chain constrained search can discard the only route that satisfies the plot limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#214---pending-irrigation-chain-constrained-search-can-discard-the-only-route-that-satisfies-the-plot-limit)\
+[215 - (Fixed inherited K-Mod/Base AdvCiv bug) No-site Settler cleanup could unload unrelated transport cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---fixed-inherited-k-modbase-advciv-bug-no-site-settler-cleanup-could-unload-unrelated-transport-cargo)\
+[216 - (Fixed inherited Better BTS AI/K-Mod bug) Work Boat demand could count the same accessible water area twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#216---fixed-inherited-better-bts-aik-mod-bug-work-boat-demand-could-count-the-same-accessible-water-area-twice)\
+[217 - (Fixed AdvCiv-SAS bug) Ready-attack upgrade counting used the stack head's UnitAI for every group member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#217---fixed-advciv-sas-bug-ready-attack-upgrade-counting-used-the-stack-heads-unitai-for-every-group-member)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -7985,7 +7990,7 @@ The historical boundary is clear but the pre-K-Mod authorship is not. The exact 
 
 The repair is deliberately one-line in behavior: after calculating the negative terrain attack modifier, accumulate it in `iTempModifier` just like city, hills and feature attack modifiers. A short SAS comment documents why this otherwise easy-to-miss accumulator choice matters. For an ordinary known defender, `iTempModifier` is still added and the result is unchanged. For an unknown defender, the existing subtraction now reverses the terrain term together with its sibling attack modifiers, restoring the intended positive contribution. No XML, combat rule, RNG, ordinary combat-odds formula or unit balance value is changed.
 
-The surrounding practical-3 audit was intentionally not declared complete merely because this defect was found. Before stopping at KI#211, the sweep had also re-proved the old `iIncome` divisor candidate safe, found several genuine historical K-Mod mistakes that were later repaired, and performed a brace-aware audit of 903 assertion/bounds checks that reduced an apparent cluster of mismatches to one already-superseded debug assertion. Practical 3 therefore remains an OPEN archaeology checkpoint after the KI#211 repair; once this source change is compiled/reviewed/committed, the systematic sweep should resume inside practical 3 before moving to practical 2.
+The surrounding practical-3 audit was intentionally not declared complete merely because this defect was found. Before stopping at KI#211, the sweep had also re-proved the old `iIncome` divisor candidate safe, found several genuine historical K-Mod mistakes that were later repaired, and performed a brace-aware audit of 903 assertion/bounds checks that reduced an apparent cluster of mismatches to one already-superseded debug assertion. Subsequent dedicated passes completed and certified practical 3 before the archaeology continued through practical 2 and 1.
 
 Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
 
@@ -8009,6 +8014,56 @@ The faulty assignment is already present in K-Mod practical 3 and was preserved 
 
 The repair changes only that reporting assignment to `iAIBarbarianCombatModifierAB`, with a short SAS comment identifying the inherited AB/TB copy/paste. No strength arithmetic, handicap value, RNG, combat rule, text key or balance parameter changes. The built-in combat log remains visually equivalent, while the exported `CombatDetails` fields now match their documented attacker/defender semantics.
 
-The systematic practical-3 audit remains OPEN after this minor defect is fixed. Finding KI#212 does not certify practical 3 or advance the historical commit counter; the audit resumes inside practical 3 before practical 2.
+Finding KI#212 did not by itself certify practical 3 or advance the historical commit counter. Subsequent dedicated reverse-fix, serialization and sibling-field passes completed the audit and certified practical 3 before the archaeology continued through practical 2 and 1.
 
 Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
+
+## 213 - (Pending) Split city/Worker best-build policies can hide valid custom land jobs from Worker demand
+
+The systematic AdvCiv-SAS archaeology found that Worker demand and actual Worker job selection can disagree because they consult different build policies. SAS deliberately disables ordinary land results in the legacy city-side `CvCityAI::AI_getBestBuild` cache and instead lets the extensively customized `CvUnitAI::AI_bestCityBuild` choose land improvements. `CvCityAI::AI_updateWorkersHaveAndNeeded`, however, still uses the legacy cache when deciding whether some plots represent valid Worker demand.
+
+A concrete surviving case is a worked, unimproved Flood Plains plot without a bonus. `AI_bestCityBuild` explicitly gives this plot a valid Cottage, or a Cottage/Farm choice under low-food pressure. Because Flood Plains are a Feature and the legacy best-build cache remains empty, `AI_updateWorkersHaveAndNeeded` classifies the plot as worked but unimprovable rather than as a current Worker job. The city can therefore understate Worker demand even though an actual Worker would recognize useful work there.
+
+The pending repair should address the architectural split rather than hardcode Flood Plains or add another approximate feature test. Extract the city/plot build-policy evaluation from `CvUnitAI::AI_bestCityBuild` into shared city/player-side logic, let both the city best-build cache/demand users and Worker selection consume that policy, and keep unit-specific legality, pathfinding, reservations, grouping and mission execution in `CvUnitAI`. This is intentionally deferred to its own implementation, compile and autoplay-validation commit because the customized Worker system is large and historically fragile.
+
+Found and documented through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; implementation remains pending.
+
+## 214 - (Pending) Irrigation-chain constrained search can discard the only route that satisfies the plot limit
+
+The deterministic SAS irrigation-chain search minimizes overwrite cost while imposing a separate maximum number of route plots. Its current state stores only one best cost for each plot. Cost and route length are independent dimensions, so a cheap longer route can overwrite and discard a more expensive shorter route to the same plot even when only the shorter state can reach irrigation within the configured plot limit.
+
+For example, one route can reach an intermediate plot in 2 steps with roughly 2550 overwrite cost while another reaches it in 7 empty-plot steps with roughly 2100 cost. The search retains only the cheaper 7-step state. If irrigation is another 6 plots away, that retained route needs 13 plots and is rejected by a 12-plot limit, while the discarded 2-step state would have completed the valid chain in 8 plots. The AI can therefore report no irrigation chain despite a valid one existing within the limit.
+
+The pending repair should include both plot and steps in the search state, for example by storing best cost for `(plot, steps)` up to the small configured maximum or by maintaining a Pareto frontier where a state is discarded only when another reaches the same plot with both no-greater cost and no-more steps. This deserves its own commit and targeted compile/autoplay/log validation rather than being combined with KI#213 or approximated through a special case.
+
+Found and documented through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; implementation remains pending.
+
+## 215 - (Fixed inherited K-Mod/Base AdvCiv bug) No-site Settler cleanup could unload unrelated transport cargo
+
+When an AI Settler older than 20 turns has no reachable valid city site, inherited cleanup code first tried to remove it from its transport through `getTransportUnit()->unloadAll()`. That operation belongs to the transport and unloads every passenger that can disembark, so cleaning up one obsolete no-site Settler could also eject unrelated Settlers or military cargo.
+
+The passenger-side `CvUnit::unload()` has exactly the required semantics. At sea or another invalid unloading location, `canUnload()` fails and this Settler remains aboard, preserving the existing `getTransportUnit() == NULL` gate that prevents it from being scrapped. At a valid unloading location, only this Settler detaches and the other cargo remains aboard.
+
+The exact `unloadAll()` behavior is present at the earliest available K-Mod source boundary and survived through Base AdvCiv into AdvCiv-SAS. The fix replaces it with this Settler's `unload()` and retains every subsequent cleanup and mission check. No transport-group policy, pathfinding, RNG or ordinary unloading behavior changes.
+
+Found through the systematic AdvCiv-SAS archaeology and investigated with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 216 - (Fixed inherited Better BTS AI/K-Mod bug) Work Boat demand could count the same accessible water area twice
+
+`CvCityAI::AI_neededSeaWorkers` obtains its primary demand area through `waterArea(true)`, which excludes adjacent impassable water, and then adds demand from `secondWaterArea()`. The latter determines which primary area to exclude through plain `waterArea()` while ignoring impassable adjacent plots when finding its replacement. With an adjacent impassable-Ice-side water area and another accessible sea, both `waterArea(true)` and `secondWaterArea()` can therefore resolve to the same accessible area.
+
+The old code passed both pointers to `AI_countUnimprovedBonuses` without checking their identity. One currently actionable seafood target could consequently produce demand of 2. Existing Work Boat availability code already deduplicates identical primary and second area pointers, so the mismatch could appear as 2 needed versus 1 available and cause an unnecessary additional Work Boat to be queued or built.
+
+The mismatch is already present in the initial Better BTS AI/K-Mod lineage and remains in updated Base AdvCiv 1.14. It is distinct from KI#157, which corrected and deduplicated availability but did not apply the same guard to demand. The surgical fix adds the matching pointer-identity guard before counting second-area demand; it does not redefine `secondWaterArea()` for unrelated callers or change demand when the two areas are genuinely different.
+
+Found through the systematic AdvCiv-SAS archaeology and investigated with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 217 - (Fixed AdvCiv-SAS bug) Ready-attack upgrade counting used the stack head's UnitAI for every group member
+
+AdvCiv-SAS can let an important, ready city-attack stack continue toward a suitable nearby target rather than waiting when no group member can actually upgrade now. The helper used for this behavioral decision iterates every group member but previously evaluated all of them using `AI_getUnitAIType()` from the attack-stack unit executing `AI_attackCityMove`, normally the group head.
+
+Mixed-role stacks can value different upgrade types for different members. A group member such as Counter-role SAM Infantry can validly upgrade to Mobile SAM under its own UnitAI while the same candidate fails the head's city-attack-role valuation. The old estimate could therefore count zero immediately available upgrades and activate the no-wait attack bypass even though that member's normal `AI_upgrade()` could upgrade it.
+
+The fix removes the externally supplied UnitAI parameter from `SAS_getBestUpgradeForLog` and derives the iterated unit's own role through `kUnit.AI().AI_getUnitAIType()`. Both the behavioral count and its matching diagnostic cost estimate now use the same per-member evaluation. The deterministic 90% upgrade estimate, affordability check, synchronized RNG behavior and all other wait/bypass gates remain unchanged.
+
+Found through the systematic AdvCiv-SAS archaeology and investigated with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
