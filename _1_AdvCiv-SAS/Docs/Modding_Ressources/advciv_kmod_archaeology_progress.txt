@@ -43,10 +43,10 @@ Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
 Confirmed defects tracked here: 24
   inherited/pre-SAS defects: 11
   SAS-specific regressions: 13
-Confirmed defects fixed: 18
+Confirmed defects fixed: 21
 Confirmed defects with fix prepared/staged, pending user commit validation: 0
 Confirmed defects with broader repair/refactor intentionally pending: 1 (KI#213)
-Confirmed defects with surgical repair identified, implementation/documentation deferred: 5 (KI#223 candidate, KI#224 candidate, KI#225 candidate, KI#226 candidate, KI#227 candidate)
+Confirmed defects with surgical repair identified, implementation/documentation deferred: 2 (KI#224 candidate, KI#225 candidate)
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Unfinished K-Mod final-block candidates to recheck before closure: 0
@@ -65,7 +65,7 @@ Runtime-source SHAs systematically reviewed: 365 / 1,317.
 Sweep order: newest -> oldest.
 Current certified SAS source cursor: practical 5692, SHA fb18bad9c4.
 Next runtime-source SHA / current OPEN audit: practical 5691, SHA f3d0345919.
-New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 is fixed in the current validated implementation batch; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; and 5 additional SAS-specific defects with surgical repair directions identified for later implementation/documentation (KI#223 candidate, KI#224 candidate, KI#225 candidate, KI#226 candidate, KI#227 candidate).
+New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 is fixed in the current validated implementation batch; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 are fixed in the current implementation batch; and 2 additional SAS-specific defects with surgical repair directions identified for later implementation/documentation (KI#224 candidate, KI#225 candidate).
 
 SAS source checkpoints
 ----------------------
@@ -477,17 +477,17 @@ SAS-C041 - practical 5697 through 5692 Event/Vote Sevopedia bindings/load/refact
   Certified cursor advances to practical 5692 / fb18bad9c4.
   Next: practical 5691 / f3d0345919.
 
-F024 - KI#227 candidate: Vote Sevopedia duplicates the trade-route resolution effect as a requirement - CONFIRMED / SURGICAL REPAIR IDENTIFIED
-  Classification: AdvCiv-SAS Sevopedia Vote-page correctness regression introduced by practical 5692 / fb18bad9c4; survives the current source snapshot.
+F024 - KI#227: Vote Sevopedia duplicated the trade-route resolution effect as a requirement - FIXED
+  Classification: AdvCiv-SAS Sevopedia Vote-page correctness regression introduced by practical 5692 / fb18bad9c4.
   The initial Vote page adds `voteInfo.getTradeRoutes()` to `placeRequirements()` as `TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES`, while the same page also adds the exact field to `placeSpecial()` as `TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES`. The latter is the correct semantic location. In the DLL, `CvGame::processVote` applies/removes `kVote.getTradeRoutes()` through the global `changeTradeRoutes(...)` only when processing the vote resolution; the field is not consulted by `canDoResolution` as a prerequisite.
   Current XML gives a direct visible case: `VOTE_SINGLE_CURRENCY` has `iTradeRoutes=1`. Its current Sevopedia page can therefore say `Trade Routes: 1` under Requirements and also `All Cities Trade Routes: +1` under Effects, falsely implying the reward must already exist before the resolution can be used.
-  Preferred repair: delete the Requirements-side `getTradeRoutes()` line and keep the existing Effects-side rendering. This is pedia/UI correctness only; vote simulation already interprets the field correctly. Code/KI implementation is intentionally deferred to the user's Codex pass.
+  Fixed in the current implementation batch by deleting the Requirements-side `getTradeRoutes()` line and keeping the existing Effects-side rendering, with a comment documenting `CvGame::processVote` semantics. Vote simulation remains unchanged.
 
-F023 - KI#226 candidate: EventTrigger effect summary mislabels improvement-pillage counts as gold - CONFIRMED / SURGICAL REPAIR IDENTIFIED
-  Classification: AdvCiv-SAS Sevopedia EventInfo correctness regression introduced by practical 5698 / 218460e3fb; survives the current source snapshot.
+F023 - KI#226: EventTrigger effect summary mislabeled improvement-pillage counts as gold - FIXED
+  Classification: AdvCiv-SAS Sevopedia EventInfo correctness regression introduced by practical 5698 / 218460e3fb.
   The practical adds a "pillage gold range" renderer that reads `eventInfo.getMinPillage()` / `getMaxPillage()` and displays `TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD` plus the gold-commerce symbol. Those fields do not represent gold. In `CvPlayer::applyEvent`, when `getMaxPillage() > 0`, the DLL computes `iPillage` from the min/max range, searches eligible owned improved plots and removes improvements until the requested count is reached. `CvCity::applyEvent` uses the same fields as a number of city-radius improvements to pillage. The native `CvGameTextMgr` event help likewise formats the values through the `TXT_KEY_EVENT_PILLAGE*` strings as counts, never as treasury gold.
   Current XML makes the error directly visible: `EVENT_LOOTERS_1` uses `iMinPillage=1`, `iMaxPillage=1`, and other live events use ranges such as 2-4 and 3-5. Their Sevopedia choice summaries can therefore show "Pillage Gold: 2-4" with a gold icon even though the actual effect is to destroy/pillage 2-4 improvements.
-  Preferred repair: display an improvement-pillage/destruction count, not gold; omit the gold-commerce glyph and handle equal min/max as a single count if desired. This is UI/documentation correctness only; the event simulation itself already uses the fields correctly. Code/KI implementation is intentionally deferred to the user's Codex pass.
+  Fixed in the current implementation batch by displaying `Improvements Pillaged` without a gold-commerce glyph, using one count for equal bounds and a range only when the bounds differ. Event simulation remains unchanged.
 
 F022 - KI#225 candidate: EventTrigger earliest-era grouping maxes alternative asset/religion requirements as if every option were mandatory - CONFIRMED / SURGICAL REPAIR IDENTIFIED
   Classification: AdvCiv-SAS Sevopedia correctness regression introduced by practical 5700 / db46a59ae5 in `_SAS_getEventTriggerEarliestEra`; later practicals 5702/5703 extend the presentation/chaining but preserve the same max-all-alternatives inference in current `_SAS_getEventTriggerEarliestEraAndSource`.
@@ -502,11 +502,11 @@ F021 - KI#224 candidate: World Advisor vassal perspective can use the vassal tea
   The intended contract is explicit in both the practical-5755 shared-helper comment and the current Main Changes Guide: vassal advisor perspective may expose the vassal's relevant domestic/world/policy state but "does not reveal unrelated players or hidden map data." Current World Advisor violates that contract.
   Preferred surgical repair: separate subject from observer. Continue using `self.iActivePlayer` for the selected vassal's cities/ownership/state, but outside debug derive the fog/resource observer team from `CyGame().getActivePlayer()`. Use that team for reveal and bonus checks and use its revealed improvement/route APIs where appropriate; preserve unrestricted/current-team behavior in debug mode. Code/KI implementation is intentionally deferred to the user's Codex pass.
 
-F020 - KI#223 candidate: Domestic Advisor Founded column sorts formatted BC/AD strings lexically instead of chronologically - CONFIRMED / SURGICAL REPAIR IDENTIFIED
-  Classification: AdvCiv-SAS Domestic Advisor UI correctness regression introduced by practical 5722 / 7de906fcdd; survives the current source snapshot.
+F020 - KI#223: Domestic Advisor Founded column sorted formatted BC/AD strings lexically instead of chronologically - FIXED
+  Classification: AdvCiv-SAS Domestic Advisor UI correctness regression introduced by practical 5722 / 7de906fcdd.
   Practical 5722 enables sorting on the new Overview tables and adds a Founded column whose cell is `CyGameTextMgr().getTimeStr(pLoopCity.getGameTurnFounded(), false)` written with `screen.setTableText`. The same practical explicitly documents in `SASTextScale.setTableIntLabel` that Civ4 sorts `setTableInt` cells numerically while `setTableText` cells sort lexically. Thus clicking Founded orders the human-readable strings, not founding time; e.g. strings spanning BC/AD cannot maintain chronological order.
   Current SAS still writes the Founded cell with `setTableText` in `updateTable4`; practical 5748 only moved the column from Overview 3 to Overview 4, and no later source commit supplies a numeric sort representation. This is not the mixed-content Info-screen Wonders case that practical 5722 deliberately makes textual: Domestic Founded always represents a real city founding date.
-  Preferred surgical repair: follow the already-existing World Advisor convention by deriving `CyGame().getTurnYear(pLoopCity.getGameTurnFounded())` and using a numeric table cell (signed years such as `-4000`, `800`) so the column's enabled sorting is chronological. If preserving BC/AD display is considered more important, another representation would need a separate numeric sort key; none exists in the current code. Code/KI implementation is intentionally deferred to the user's Codex pass.
+  Fixed in the current implementation batch by following the existing World Advisor convention: derive the raw signed founding year through `CyGame().getTurnYear` and render it with the shared numeric-table helper. The column now sorts chronologically; Civ4 exposes no separate numeric sort key that would preserve the localized BC/AD display.
 
 F019 - KI#222: Battle-history capture matcher could not associate current capturable civilians with their preceding battle - FIXED
   Classification: AdvCiv-SAS Military Advisor Battles regression introduced by practical 5765 / 254194766d; survives the current source snapshot.

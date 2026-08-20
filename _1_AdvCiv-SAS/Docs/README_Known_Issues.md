@@ -282,6 +282,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [220 - (Fixed AdvCiv-SAS bug) Military Summary excluded free Great-General upgrades from minimum and average upgrade costs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#220---fixed-advciv-sas-bug-military-summary-excluded-free-great-general-upgrades-from-minimum-and-average-upgrade-costs)\
 [221 - (Fixed AdvCiv-SAS bug) Undefended city conquest could relabel an unrelated same-turn battle as a city capture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#221---fixed-advciv-sas-bug-undefended-city-conquest-could-relabel-an-unrelated-same-turn-battle-as-a-city-capture)\
 [222 - (Fixed AdvCiv-SAS bug) Battle history could not associate captured civilians with their preceding escort-clearing battle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#222---fixed-advciv-sas-bug-battle-history-could-not-associate-captured-civilians-with-their-preceding-escort-clearing-battle)\
+[223 - (Fixed AdvCiv-SAS bug) Domestic Advisor sorted localized founding dates lexically instead of chronologically](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#223---fixed-advciv-sas-bug-domestic-advisor-sorted-localized-founding-dates-lexically-instead-of-chronologically)\
+[226 - (Fixed AdvCiv-SAS bug) Event Sevopedia mislabeled improvement-pillage counts as gold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#226---fixed-advciv-sas-bug-event-sevopedia-mislabeled-improvement-pillage-counts-as-gold)\
+[227 - (Fixed AdvCiv-SAS bug) Vote Sevopedia duplicated a trade-route resolution effect as a requirement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixed-advciv-sas-bug-vote-sevopedia-duplicated-a-trade-route-resolution-effect-as-a-requirement)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8122,5 +8125,35 @@ AdvCiv-SAS records a captured unit on the preceding battle row by scanning newes
 The fix uses the captured unit created by the event to obtain the capture plot, then matches the newest same-turn lethal battle at those exact coordinates with the correct capturing-player/old-owner direction. It deliberately does not compare the defeated escort type with the captured civilian type, and it rejects retreat rows. The existing capture accumulator remains unchanged, so several Workers captured after the same battle still increase the count on that one row.
 
 The regression was introduced by AdvCiv-SAS practical 5765 (`254194766d`) when unit-capture details were added to battle history. No capture eligibility, unit conversion, combat result, RNG or battle-history tuple layout changes.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 223 - (Fixed AdvCiv-SAS bug) Domestic Advisor sorted localized founding dates lexically instead of chronologically
+
+The Domestic Advisor Overview 4 table displayed each city's founding turn through `CyGameTextMgr().getTimeStr`, producing localized text such as `4000 BC` or `800 AD`, and inserted it with `setTableText`. Civ4 sorts those cells lexically rather than by historical value. Clicking the enabled Founded header could therefore order cities by the characters in the formatted date instead of chronology, especially across differently sized years or the BC/AD boundary.
+
+The fix follows the existing World Advisor convention: convert the founding turn through `CyGame().getTurnYear` and insert the raw signed year through the shared numeric-table helper. Dates such as `-4000` and `800` now sort numerically in actual founding order while retaining the shared configurable UI font. This deliberately favors a correct sortable signed-year display over the old localized BC/AD text because Civ4 tables expose no separate numeric sort key for a differently formatted display string.
+
+The regression was introduced by AdvCiv-SAS practical 5722 (`7de906fcdd`) when sorting and the Founded column were added to the new Overview tables; practical 5748 later moved the column without correcting its cell type. No city founding turn, calendar calculation or gameplay state changes.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 226 - (Fixed AdvCiv-SAS bug) Event Sevopedia mislabeled improvement-pillage counts as gold
+
+The Event Sevopedia effect summary rendered `CvEventInfo::getMinPillage` and `getMaxPillage` as a `Pillage Gold` range followed by the gold-commerce symbol. Those fields are not treasury gold: player- and city-level event application use them as the number of eligible improvements to remove. Native event help likewise describes them as improvement-pillage counts. Consequently, live events such as `EVENT_LOOTERS_1` could display `Pillage Gold: 1-1` even though their effect destroys one improvement, while other events falsely displayed values such as `2-4` or `3-5` as gold.
+
+The fix renames the dedicated text key to `Improvements Pillaged`, removes the gold glyph, displays equal minimum/maximum values as one exact count, and retains a range only when the possible counts differ. No random-event selection, eligible-plot search, improvement removal, RNG or treasury calculation changes.
+
+The regression was introduced by AdvCiv-SAS practical 5698 (`218460e3fb`) when the expanded EventInfo effect summary was added.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 227 - (Fixed AdvCiv-SAS bug) Vote Sevopedia duplicated a trade-route resolution effect as a requirement
+
+The Vote Sevopedia rendered `CvVoteInfo::getTradeRoutes` in both Requirements and Effects. The Effects placement is correct: `CvGame::processVote` applies or removes that value globally when the resolution passes. The resolution-eligibility logic does not require the listed number of trade routes beforehand. With current `VOTE_SINGLE_CURRENCY`, the page therefore displayed `Trade Routes: 1` as a supposed prerequisite and `All Cities Trade Routes: +1` as the effect, falsely presenting the same reward twice with different meanings.
+
+The fix removes only the Requirements-side line and retains the existing Effects rendering with its trade-route symbol and signed value. Population threshold, minimum voters, state-religion vote percentage, resolution simulation and all other vote fields remain unchanged.
+
+The regression was introduced by AdvCiv-SAS practical 5692 (`fb18bad9c4`) with the initial Vote Sevopedia page.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

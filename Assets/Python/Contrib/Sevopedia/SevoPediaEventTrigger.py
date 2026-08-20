@@ -561,11 +561,15 @@ class SevoPediaEventTrigger:
 		if iMaxReligions >= 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS", ()) + u": %d" % iMaxReligions)
 
-		# <!-- custom: pillage gold range — from raided caravans / pillaged improvements. Both fields populate together; show as a single range line. (Claude code Opus 4.7) -->
+		# <!-- custom: getMinPillage/getMaxPillage are the number of improvements destroyed by the event, not treasury gold. Show one count when equal or the possible count range, without a gold-commerce glyph. (Claude code Opus 4.7 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iMinPillage = eventInfo.getMinPillage()
 		iMaxPillage = eventInfo.getMaxPillage()
 		if iMinPillage != 0 or iMaxPillage != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD", ()) + u": %d-%d %c" % (iMinPillage, iMaxPillage, self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
+			if iMinPillage == iMaxPillage:
+				szPillageCount = unicode(iMinPillage)
+			else:
+				szPillageCount = u"%d-%d" % (iMinPillage, iMaxPillage)
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_IMPROVEMENTS", ()) + u": " + szPillageCount)
 
 		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot, indexed by Yield type. Same list-struct probe pattern as the per-BuildingClass extras. Useful for events like "The Volcano has fertilized this plot: +2 food". (Claude code Opus 4.7) -->
 		for iY in range(YieldTypes.NUM_YIELD_TYPES):

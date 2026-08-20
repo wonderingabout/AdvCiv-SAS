@@ -1343,8 +1343,9 @@ class CvDomesticAdvisor:
 
 		szCorps = self.getCityCorporationText(pLoopCity)
 		screen.setTableInt( self.TABLE_OVERVIEW4, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		szFounded = unicode(CyGameTextMgr().getTimeStr(pLoopCity.getGameTurnFounded(), false))
-		screen.setTableText( self.TABLE_OVERVIEW4, 3, i, szFontTagOpen + szFounded + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		# <!-- custom: Founded used localized BC/AD text in a lexical table cell, so sorting did not follow chronology across differently sized years or the BC/AD boundary. Match World Advisor by using the raw signed founding year in a numeric cell. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iFoundYear = CyGame().getTurnYear(pLoopCity.getGameTurnFounded())
+		SASTextScale.setTableIntLabel(screen, self.TABLE_OVERVIEW4, 3, i, iFoundYear, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.setTableInt( self.TABLE_OVERVIEW4, 4, i, szFontTagOpen + unicode(pLoopCity.getRealPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		screen.setTableText( self.TABLE_OVERVIEW4, 5, i, szFontTagOpen + szCorps + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		screen.setTableInt( self.TABLE_OVERVIEW4, 6, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )

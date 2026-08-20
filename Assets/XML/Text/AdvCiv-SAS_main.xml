@@ -969,10 +969,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>State Religion Vote</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES</Tag>
-		<English>Trade Routes</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CITY_VOTING</Tag>
 		<English>City-level voting</English>
 	</TEXT>
@@ -4757,8 +4753,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Max Religions in City</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD</Tag>
-		<English>Pillage Gold</English>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_IMPROVEMENTS</Tag>
+		<English>Improvements Pillaged</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD</Tag>
