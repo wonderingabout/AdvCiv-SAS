@@ -40,13 +40,13 @@ Counters
 --------
 Systematic historical commits reviewed: 4,343 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 31
-  inherited/pre-SAS defects: 11
-  SAS-specific regressions: 20
-Confirmed defects fixed: 30
+Confirmed defects tracked here: 33
+  inherited/pre-SAS defects: 12
+  SAS-specific regressions: 21
+Confirmed defects fixed: 31
 Confirmed defects with fix prepared/staged, pending user commit validation: 0
 Confirmed defects with broader repair/refactor intentionally pending: 1 (KI#213)
-Confirmed defects with surgical repair identified, implementation/documentation deferred: 0
+Confirmed defects with surgical repair identified, implementation/documentation deferred: 1 (KI#235 candidate)
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Unfinished K-Mod final-block candidates to recheck before closure: 0
@@ -65,7 +65,8 @@ Runtime-source SHAs systematically reviewed: 486 / 1,317.
 Sweep order: newest -> oldest.
 Current certified SAS source cursor: practical 5568, SHA b4bf8dfadd.
 Next runtime-source SHA / current OPEN audit: practical 5567, SHA fc94bc27ff.
-New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 fixed in commit 962e912da; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 fixed in commit c8903d21a; KI#224 fixed in commit fa4a1468d; KI#225 fixed in SAS practical 6176 / b8a7805fe; KI#228 fixed/validated in SAS practical 6177 / c99ab79e5b; KI#229 and KI#230 fixed/validated in commit 0a96cdaa7; KI#231, KI#232 and KI#233 fixed/validated in commit 31becb027; and KI#234 is fixed/validated in the current implementation batch.
+New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 fixed in commit 962e912da; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 fixed in commit c8903d21a; KI#224 fixed in commit fa4a1468d; KI#225 fixed in SAS practical 6176 / b8a7805fe; KI#228 fixed/validated in SAS practical 6177 / c99ab79e5b; KI#229 and KI#230 fixed/validated in commit 0a96cdaa7; KI#231, KI#232 and KI#233 fixed/validated in commit 31becb027; KI#234 fixed/validated in commit fbd121d7f; KI#235 is the SAS actual-unit-hover air-collateral display regression introduced on the merged branch in practical 5506 / c9be31986e; and KI#236 is fixed/validated in the current implementation batch.
+Unmerged external archaeology narrative: ChatGPT-5.6-Sol reports cumulative C077 at 536 / 1,317 through practical 5510 / 1f14da39a6, next practical 5509 / d613a8b096. Keep the certified cursor above at C070 until the cumulative checkpoint file is received and reconciled.
 
 SAS source checkpoints
 ----------------------
@@ -674,6 +675,18 @@ SAS-C062 - practical 5598 through 5590 TechChooser / Victory / Civics / Domestic
   Practical 5593 caches only Civics static/translated labels behind the existing current-language/final-initialization guard. Practical 5592 recomputes Civics geometry from runtime advisor bounds and expands civic panels proportionally; civic choice/revolution state remains runtime. Practical 5591 similarly caches Domestic static headers only per language. Practical 5590 moves Domestic screen dimensions to the shared runtime-bounds helpers while preserving its city-table contents, selection widgets and specialist calculations. No stale player/game state, table-cell semantic change, input-routing mismatch or surviving advisor correctness defect was established in this tranche.
   Certified cursor advances through practical 5590 / 09a4bc35a6.
   Next runtime-source SHA: practical 5589 / c5b7209bf5.
+
+
+F033 - KI#236: Executive Sevopedia pages omit the corporation required for city training - FIXED / VALIDATED
+  Classification: inherited Base AdvCiv Sevopedia requirement-display omission; current XML makes it visible for all seven Executive units.
+  `CvUnitInfo.getPrereqCorporation()` is exposed to Python, `CvPlot::canTrain` requires that corporation to be active in the city, and inherited BUG unit-build logic reads the same prerequisite. Base AdvCiv 1.14 and current SAS `SevoPediaUnit.placeRequires()` display unit tech, bonus, religion and building requirements but never read the corporation prerequisite. Each Executive page can therefore omit the corporation that actually enables its training.
+  Fixed in the current implementation batch by attaching the required corporation's button with `WIDGET_PEDIA_JUMP_TO_CORPORATION` and marking the Requires panel nonempty. Screenshot 0049 confirms that the AlumCo Executive now shows its technology and Aluminum Co as two separate Requires icons; screenshot 0047 confirms the new icon's correct Aluminum Co hover, and runtime testing confirmed that clicking it opens the Corporation page. The refreshed `PythonErr.log` remained empty. Unit XML, city training eligibility and corporation mechanics remain unchanged.
+
+
+F032 - KI#235: actual-unit hover suppresses functional Bomber collateral information - CONFIRMED / SURGICAL REPAIR IDENTIFIED
+  Classification: AdvCiv-SAS DLL unit-hover information regression introduced on the merged branch in practical 5506 / c9be31986e and brought into the audited mainline by practical 5544 / f1e860eb99. The tracked historical patches contain the exact predicate addition under both SHAs, resolving the transcript's apparent practical-number discrepancy.
+  Current `CvGameTextMgr` emits actual-unit collateral lines only when collateral damage/limit is positive and `pUnit->canFight()`. For units, `canFight()` tests base combat strength; air units instead use `airBaseCombatStr()`. Current Bomber XML has `iCombat=0`, `iAirCombat=16`, `iCollateralDamage=100`, limit 200 and maximum 5 units, so its functional air collateral is hidden from the actual-unit hover even though the corresponding basic/unit-info help accepts base or air combat and gameplay uses air combat for collateral.
+  Surgical direction: retain the civilian suppression but accept `pUnit->canFight() || pUnit->airBaseCombatStr() > 0`. Do not use broader `canCombat()`, which also accepts nukes and would diverge from the basic/unit-info help predicate. Implementation/compile/runtime hover validation is deferred to a separate commit after KI#236.
 
 
 F031 - KI#234: persistent Foreign Advisor can retain an invalid Espionage target/city/mission - FIXED / VALIDATED

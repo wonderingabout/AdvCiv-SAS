@@ -294,6 +294,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [232 - (Fixed AdvCiv-SAS bug) Policy Advisor vassal perspective could expose the vassal team's hidden Holy City and Headquarters knowledge](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---fixed-advciv-sas-bug-policy-advisor-vassal-perspective-could-expose-the-vassal-teams-hidden-holy-city-and-headquarters-knowledge)\
 [233 - (Fixed AdvCiv-SAS bug) Default Domestic Advisor lost its visible Free Colony and Liberate action](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#233---fixed-advciv-sas-bug-default-domestic-advisor-lost-its-visible-free-colony-and-liberate-action)\
 [234 - (Fixed AdvCiv-SAS bug) Persistent Foreign Advisor could retain an invalid Espionage target, city and mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#234---fixed-advciv-sas-bug-persistent-foreign-advisor-could-retain-an-invalid-espionage-target-city-and-mission)\
+[236 - (Fixed inherited Base AdvCiv bug) Executive Sevopedia pages omitted their required corporation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#236---fixed-inherited-base-advciv-bug-executive-sevopedia-pages-omitted-their-required-corporation)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8223,7 +8224,7 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 
 ## 231 - (Fixed AdvCiv-SAS bug) Policy Advisor displayed corporation hundredths as whole yield and commerce units
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1S24I_kNi0qUdTtAkxxXRaEQpd8Mhpm03?usp=sharing)
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1S24I_kNi0qUdTtAkxxXRaEQpd8Mhpm03?usp=sharing).
 
 The Policy Advisor Corporation tab displayed `CvCorporationInfo.getYieldProduced()` and `getCommerceProduced()` values directly as integers. Those XML-backed values are stored in hundredths, so the row showed `100` where the native corporation help and gameplay use `+1`, `50` where they use `+0.50`, and `150` where they use `+1.50`. It also omitted the current world size's corporation percentage and could therefore disagree further with the actual per-resource effect on non-100% world sizes.
 
@@ -8245,7 +8246,7 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 
 ## 233 - (Fixed AdvCiv-SAS bug) Default Domestic Advisor lost its visible Free Colony and Liberate action
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1k6f8eY6Oi1Z4iI18xy9vWMXtuszVxCy2?usp=sharing)
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1k6f8eY6Oi1Z4iI18xy9vWMXtuszVxCy2?usp=sharing).
 
 Base AdvCiv's default Domestic Advisor conditionally displays a Free Colony/Liberate button when the active player can split the empire or has an eligible city to liberate. AdvCiv-SAS practical 5599 replaced the old screen shell with the current top/bottom-bar and tabbed layout, but removed that separate gameplay-action button and its close-screen handler together with the obsolete shell code. The native action remained available through Alt+F1, and the optional BUG Customizable Domestic Advisor retained its own button, but that advisor is disabled by default.
 
@@ -8262,5 +8263,17 @@ Before the Espionage Advisor became a Foreign Advisor tab, opening its standalon
 The fix preserves useful selection persistence when the target remains valid. After rebuilding the current alive/met rival list, it checks membership of the retained target; an invalid target clears the target, city and mission together, then the existing first-valid-target behavior selects a current rival when available. Target-list construction, still-valid selections, espionage spending, mission costs and gameplay state remain unchanged.
 
 This is an AdvCiv-SAS regression introduced by practical 5583 (`e138ad4f82`) when the standalone screen was merged into the Foreign Advisor. Runtime testing selected Lincoln, closed and reopened the advisor to confirm that a still-valid target persisted, then changed the debug perspective to Lincoln so he became ineligible as his own target. Lincoln disappeared from the rival list and Julius Caesar became the selected replacement with no stale selection; the refreshed `PythonErr.log` remained empty.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 236 - (Fixed inherited Base AdvCiv bug) Executive Sevopedia pages omitted their required corporation
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1mMtCYMbvxgHS9Cr9lrjaq7HqGt9cF_Jh?usp=sharing).
+
+All seven current Executive units have a `PrereqCorporation`, and `CvPlot::canTrain` enforces that the corresponding corporation must be active in the city. The getter is exposed to Python and inherited BUG utility logic also uses it when evaluating whether a city can train a unit. Base AdvCiv 1.14's `SevoPediaUnit.placeRequires`, however, displays unit tech, bonus, religion and building requirements without reading `getPrereqCorporation()`. Executive pages could therefore show their technology requirement while omitting the corporation that actually enables city training.
+
+The fix adds the exported corporation prerequisite to the existing Requires panel with the corporation button and normal `WIDGET_PEDIA_JUMP_TO_CORPORATION` navigation. It also marks the panel as nonempty so the existing None fallback remains correct. Unit XML, city training eligibility, corporation mechanics and every other requirement remain unchanged.
+
+This omission is inherited from Base AdvCiv and affects `UNIT_EXECUTIVE_1` through `UNIT_EXECUTIVE_7`. Screenshot 0049 confirms that the AlumCo Executive now shows its technology and Aluminum Co as two separate Requires icons; screenshot 0047 confirms the new icon's correct Aluminum Co hover, and runtime testing confirmed that clicking it opens the Corporation page. The refreshed `PythonErr.log` remained empty.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

@@ -379,6 +379,13 @@ class SevoPediaUnit:
 			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 			isButtonFound = True
 
+		# <!-- custom: Base AdvCiv omits the unit corporation prerequisite from this panel even though CvPlot::canTrain enforces it and all seven Executive units use it.
+		# Show the required corporation with its normal Sevopedia jump so the page matches actual city training eligibility. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqCorporation()
+		if iPrereq >= 0:
+			screen.attachImageButton(panelName, "", gc.getCorporationInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iPrereq, -1, False)
+			isButtonFound = True
+
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqBuilding()
 		if iPrereq >= 0:
 			screen.attachImageButton(panelName, "", gc.getBuildingInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iPrereq, -1, False)
