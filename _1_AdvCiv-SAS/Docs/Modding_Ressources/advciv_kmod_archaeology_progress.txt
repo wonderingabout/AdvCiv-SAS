@@ -40,13 +40,13 @@ Counters
 --------
 Systematic historical commits reviewed: 4,343 / 4,343
 Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
-Confirmed defects tracked here: 24
+Confirmed defects tracked here: 27
   inherited/pre-SAS defects: 11
-  SAS-specific regressions: 13
+  SAS-specific regressions: 16
 Confirmed defects fixed: 23
 Confirmed defects with fix prepared/staged, pending user commit validation: 0
 Confirmed defects with broader repair/refactor intentionally pending: 1 (KI#213)
-Confirmed defects with surgical repair identified, implementation/documentation deferred: 0
+Confirmed defects with surgical repair identified, implementation/documentation deferred: 3 (KI#228, KI#229, KI#230 candidates)
 Resolved non-defect/currently-safe audit candidates: 2
 Open current-tree suspects awaiting archaeology/semantic decision: 0
 Unfinished K-Mod final-block candidates to recheck before closure: 0
@@ -61,11 +61,11 @@ SASBranch SHAs reachable in that snapshot: 1,825.
 Primary runtime-source SHAs (`CvGameCoreDLL` C++/headers, runtime `Assets/Python`, `PrivateMaps` and equivalent game-executed Python): 1,317.
 Additional SHAs touching only developer/CI/helper Python: 20; excluded from the primary denominator unless separately audited.
 SHAs with no runtime C++/Python change: 488; intentionally skipped by this source-focused phase.
-Runtime-source SHAs systematically reviewed: 388 / 1,317.
+Runtime-source SHAs systematically reviewed: 434 / 1,317.
 Sweep order: newest -> oldest.
-Current certified SAS source cursor: practical 5668, SHA 858784dc33.
-Next runtime-source SHA / current OPEN audit: practical 5667, SHA af7f9f3532.
-New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 fixed in commit 962e912da; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 fixed in commit c8903d21a; KI#224 fixed in commit fa4a1468d; and KI#225 is fixed in the current implementation batch.
+Current certified SAS source cursor: practical 5620, SHA bb7b7eb7d8.
+Next runtime-source SHA / current OPEN audit: practical 5619, SHA 862ba215e8.
+New surviving defects found by SAS source sweep so far: 1 confirmed SAS-specific defect with a broader refactor pending (KI#213); KI#214 fixed in commit 962e912da; KI#215, KI#216 and KI#217 fixed in SAS practical 6170 / 79410b2dba; KI#218, KI#219 and KI#220 fixed in SAS practical 6171 / 53ee909e99; KI#221 and KI#222 fixed in SAS practical 6172 / c36032deb5; KI#223, KI#226 and KI#227 fixed in commit c8903d21a; KI#224 fixed in commit fa4a1468d; KI#225 fixed in SAS practical 6176 / b8a7805fe; and KI#228, KI#229 and KI#230 remain confirmed surgical candidates.
 
 SAS source checkpoints
 ----------------------
@@ -517,6 +517,109 @@ SAS-C045 - practical 5668 merge/sibling scoreboard-layer audit - COMPLETE
   Certified cursor advances through the second practical-5668 runtime SHA / 858784dc33.
   Next: practical 5667 / af7f9f3532 (`avoid scoreboard vertical overflow, and add +/- scroll buttons`).
 
+SAS-C046 - practical 5667 aligned-scoreboard scroll / BUG Max Players interaction audit - COMPLETE / NEW SURVIVING DEFECT
+  Reviewed 1 runtime-source SHA: practical 5667 / af7f9f3532 (`avoid scoreboard vertical overflow, and add +/- scroll buttons`).
+  The new scroll implementation correctly prevents the scoreboard from running above the available HUD height in the ordinary/default `Max Players = 0` case and supplies independent aligned/non-aligned drawing paths. The surviving defect is narrower: in the aligned BUG path (default `Align Icons = True`), the outer interface computes/clamps `iScoreScrollOffset` and shows +/- buttons from the full visible-player count, then `Scoreboard.draw()` calls the pre-existing `Scoreboard.sort()`, whose `Max Players` option can truncate `_playerScores` before the new scroll slice is applied. `draw()` can only re-clamp its local copy of the offset; the caller retains the uncapped offset/count and uses them for button state.
+  The BUG option is live and supported in `Assets/Config/Advanced Scoreboard.xml`: `Align Icons` defaults true and `Max Players` supports 0 through 50 (default 0). A concrete case with 40 visible players, room for 30 scoreboard rows and `Max Players = 10` proves the mismatch: the caller sees 40 and exposes scrolling; `Scoreboard.sort()` reduces the drawable list to 10; `draw()` re-clamps every requested offset to 0 because 10 <= 30; therefore the same 10 players remain visible while the external offset and +/- button state change. The default zero cap masks the regression.
+  The non-aligned path is not classified as the same defect: it does not use the BUG `Scoreboard.sort()` / `Max Players` machinery and practical 5667 did not newly remove that cap there. KI#228 is specifically the new aligned-scoreboard scrolling feature consuming a different effective list length than the aligned BUG renderer.
+  Current practical 6176 retains the mismatch: `_scoreboardVisiblePlayers(scores)`/`iTotalCount` include all visible players, while `Scoreboard.sort()` still applies positive `ScoreOpt.getMaxPlayers()` before `Scoreboard.draw()` slices. Later active-player centering/button additions also consume the uncapped outer list, so the correct modern repair is to make count, centering, button state and drawing consume one shared post-sort/post-`Max Players` effective player list rather than adding another independent clamp.
+  Certified cursor advances to practical 5667 / af7f9f3532.
+  Next: practical 5666 / be1f2fad48.
+
+
+SAS-C047 - practical 5666 through 5657 UI-font-scaling / imported-screen audit - COMPLETE / NEW SURVIVING DEFECT
+  Reviewed 10 runtime-source SHAs: practical 5666 / be1f2fad48, 5665 / 3745247826, 5664 / 5977fad88c, 5663 / f4b3071f8e, 5662 / a344736ece, 5661 / d295469939, 5660 / a121ffba58, 5659 / e43ac9a5a3, 5658 / ffa01b3373 and 5657 / e51f6d39ad.
+  Practical 5666, 5663 and 5662 are font/button/geometry scaling changes in Wonder Movie, Tech Splash, Victory/SpaceShip and Sevopedia/Timeline UI; the changed values and wrapper calls preserve the existing screen/widget identities and information-selection paths. Practical 5665's Info Graph legend widens the legend region and runtime-fits row/icon height to crowded player sets without changing which graph series or players are selected.
+  Practical 5664 adds the legacy Wonder Movie screen and practicals 5659 -> 5660 form the analogous BtS Tech Splash import -> SAS expansion lineage. Current screen dispatch still reaches these screens through their established IDs/options; the subsequent sizing/font changes preserve callback and argument ordering. Practical 5661's era/media changes are presentation-only (including removing the literal ` Era` suffix from the already-localized era description), and its Tech Splash multiline collapse preserves the original call arguments.
+  Practical 5658 adds font scaling around event/combat messages. The DLL `addMessage` wrapper receives its `CvWString` by value and wraps that local display string only; the Python combat helper likewise scales log text without changing the event/combat state being reported. No simulation or event-routing regression was established.
+  Practical 5657, however, changes the Hall of Fame Date column from the dedicated sortable `screen.setTableDate(...)` cell to `SASTextScale.setTableTextLabel(...)` while retaining `screen.enableSort(self.TABLE_ID)`. It also converts the displayed replay date to a formatted `getDateStr(...)` string. Base AdvCiv 1.14 still uses `setTableDate` for this column, and the current SAS 6176 descendant still uses generic text. The separate Sort-by-Date dropdown remains chronological because it sorts replay rows by numeric `getFinalTurn()`, but clicking the table Date header now asks the engine to sort a text cell rather than a date cell. This is KI#229.
+  Certified cursor advances through practical 5657 / e51f6d39ad.
+  Next: practical 5656 / 7d69f98142 (`upscale most of diplomacy screen (when it was possible)`).
+
+
+SAS-C048 - practical 5656 through 5647 diplomacy / Score tab / Dawn-Replay / Timeline-rename audit - COMPLETE
+  Reviewed 10 runtime-source SHAs: practical 5656 / 7d69f98142, 5655 / 905a5090a8, 5654 / e987566be4, 5653 / 33f32dd81f, 5652 / c8726554aa, 5651 / e916c28266, 5650 / a689059534, 5649 / 727f3bc0a3, 5648 / 6218188952 and 5647 / d1fb5d675b.
+  Practical 5656's diplomacy scaling preserves the source contracts on both sides. Python diplomacy responses originate as XML text keys; the helper localizes once and clears the argument tuple only on successful localization, while unresolved key-shaped strings retain the original args for EXE fallback. The DLL wrapper mutates only the local display `CvWString` returned for trade rows; trade headings remain intentionally unwrapped because their EXE widget can display font markup literally. No trade-state, deal or diplomacy-decision mutation was introduced.
+  Practicals 5655 -> 5653 alter the Info Screen Score tab. The always-expanded layout changes geometry only. The new team technology count is a deliberate team-level reference field; sensitive live intelligence remains independently gated (research through `canSeeResearch`, power through demographics visibility, city count through revealed-city logic). Trait icons derive from the admitted scoreboard player rows. No established spoiler/visibility contract violation or sort regression was proved in this tranche.
+  Practicals 5652 -> 5648 are Dawn of Man / Replay / Dan Quayle / PLE presentation changes. The 5651 Dawn-of-Man rewrite collects all non-default unit/building overrides but renders only the first pair; current SAS XML was checked against class defaults and no civilization has more than one non-default unit override or more than one non-default building override, so this is future-fragile rather than a live omission. Replay/player metadata selection and widget identities remain intact through the fullscreen/font changes.
+  Practical 5647 consistently renames the Info Screen History tab/cache/define/text plumbing to Timeline. Current runtime Python contains no stale `iHistoryID`, `drawHistoryTab`, `buildHistoryCache`, `historyCacheEntries`, History table-coordinate or old History define/text-key references from this renamed system. No rename-induced dead path was established.
+  Certified cursor advances through practical 5647 / d1fb5d675b.
+  Next: practical 5646 / d01fbb4c76 (`cache in military advisor`).
+
+
+SAS-C049 - practical 5646 through 5640 Military Advisor cache/layout/icon and Foreign-tab repair audit - COMPLETE
+  Reviewed 6 runtime-source SHAs: practical 5646 / d01fbb4c76, 5645 / 88cda735b8, 5644 / b9bebfca30, 5643 / ad18001b54, 5642 / deba579c9d and 5640 / 3a0a232bd3. Practical 5641 / 4d872a762b changes art/font/XML/docs only and is intentionally outside the runtime-source denominator.
+  Practical 5646's advertised Military Advisor cache is pass-local hoisting: active player/team/debug/threshold and unit-info objects are stored only in local variables during the draw/refresh call, so there is no persistent cache to become stale when the player/perspective/game state changes.
+  Practical 5645 replaces a hardcoded 1920x1080 shell with shared runtime advisor bounds. `updateRuntimeLayout(screen)` runs on `interfaceScreen`, recomputes leader columns, map/text sizes, Great-General bar anchors and resolution-dependent inline-icon size before widgets are built. No old-resolution state is retained across opens. Practical 5644 makes the inline icon sizes XML-tunable by current vertical resolution without changing row data or selection semantics.
+  Practical 5643 fixes the older Military Advisor overlay-button approach by embedding each combat/unit/detail icon into the list-row text itself. The existing row widget/data1/data2 values are passed unchanged into the new row helper, preserving click-to-select/map behavior while making icon and text scroll together. Art-file renames alongside it are reflected in XML. Practical 5642 adds only an explanatory comment to runtime Python.
+  Practical 5640 is a correct historical Foreign Advisor navigation repair. An already-active tab label previously retained `WIDGET_FOREIGN_ADVISOR` with data `-1`, which could be routed by the shared shell machinery into the other F3/F4 advisor. The fix uses inert `WIDGET_GENERAL` only for the active label; inactive tabs keep their original routing widget/data. Current descendants retain that invariant.
+  Certified cursor advances through practical 5640 / 3a0a232bd3.
+  Next: practical 5639 / 2128dee8c7 (`refactor move shared safe font upscaling to label to helper file`).
+
+
+SAS-C050 - practical 5639 through 5632 shared text / Glance / Game Speed / Leader-AIP layout audit - COMPLETE / NEW SURVIVING DEFECT
+  Reviewed 8 runtime-source SHAs: practical 5639 / 2128dee8c7, 5638 / 7f14d9f875, 5637 / d272086f76, 5636 / 6c23de1a02, 5635 / 6ae1dc83d0, 5634 / 42dba7265e, 5633 / 04696f26f6 and 5632 / 6bc421f184.
+  Practical 5639 centralizes the existing safe label-font wrapping into `SASTextScale`; the helper retains the old no-double-wrap behavior when text already contains a font tag, and the migrated table/list/scoreboard callers preserve their original widget/data arguments and cell types. Practical 5638 is the already-documented KI#116 workaround: only Glance rows with a plain >=2-glyph trailing status-icon run keep that suffix at font 2; the numeric/head text retains the selected label font.
+  Practical 5637 correctly changes F3 opening to persisted-tab state and scales city building/trade table text with the label font; active-tab routing had already been fixed in practical 5640. Practical 5636 changes Game Speed chart label abbreviations/first-column widths and adds a legend; the font-specific widths are validated positive and the high-resolution override has an explicit positive threshold gate.
+  Practicals 5633 -> 5635 form one AI Personality category-layout lineage. Practical 5633 moves category definitions out of the predumped cache into UI-owned tuples; practical 5634 reorganizes them into named categories and restores the low-resolution compact ordering; practical 5635 fixes the remaining 1440p boundary by using `>= 1440`, moves `No War At` to the left at 1440p+, and skips category construction when the AIP is disabled. Current descendants retain one complete intended category assignment per column/resolution; the intermediate layout mistakes are already repaired.
+  Practical 5632 introduces `SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH`, documented so `<=0` keeps the custom leader item-list width always enabled. `SevoPediaLeader` implements that contract correctly with `(iNoReduceMinWidth > 0) and screenWidth >= threshold`, but `SevoPediaMain.SAS_getLeaderItemsWidthByCurrentUIFont()` immediately returns the base width whenever `screenWidth >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH` without checking that the threshold is positive. Therefore setting the define to 0 or -1 makes every ordinary positive resolution force the base width—the exact opposite of the documented disable semantics. Current practical 6176 retains this mismatch. This is KI#230.
+  Certified cursor advances through practical 5632 / 6bc421f184.
+  Next: practical 5631 / b2c5c93edd (`minor comment upscaling changes`).
+
+
+SAS-C051 - practical 5631 through 5630 comment/upscaled Domestic Advisor audit - COMPLETE
+  Reviewed 2 runtime-source SHAs: practical 5631 / b2c5c93edd and 5630 / e27ca537c7.
+  Practical 5631 adds explanatory comments only across Scoreboard/advisor runtime Python; no executable expression changes.
+  Practical 5630 upscales the Domestic and Customizable Domestic Advisors. CDA culture/Great-Person labels and table-row font sizes change presentation only. Base Domestic Advisor replaces init-time font-wrapped header constants with raw localized text/symbols plus a draw-time `getOverviewHeaderLabel` wrapper, so runtime label scaling is applied when the table is built rather than freezing a prewrapped body tag. Existing table column order, widths' proportional formulas, data getters, row widgets and cell-value semantics are otherwise preserved. No sorting, selection, perspective or city-state regression was established.
+  Certified cursor advances through practical 5630 / e27ca537c7.
+  Next: practical 5629 / b6a5681256 (`increase font from 2 to 3 or body to label in most places (to improve readability)`).
+
+
+SAS-C052 - practical 5629 broad BODY-to-LABEL readability pass - COMPLETE
+  Reviewed 1 runtime-source SHA: practical 5629 / b6a5681256.
+  This large-looking readability commit was checked by separating the repetitive font substitutions from every other changed token. Across Scoreboard, Foreign Advisor, Info Screen, Tech Chooser and Victory Screen runtime Python, the executable changes are the intended `SAS_FONT_TAG_BODY` -> `SAS_FONT_TAG_LABEL` substitutions (plus trailing-newline churn). Existing helper calls, table cell types, widget/data arguments, player/team visibility predicates, sorting inputs and control flow are unchanged.
+  The commit also retunes hover/billboard XML values, but those XML-only changes do not consume the runtime-source denominator and no hidden Python expression change was bundled with them. No surviving correctness defect was established.
+  Certified cursor advances through practical 5629 / b6a5681256.
+  Next: practical 5628 / 79b078dff6 (`increase base billboard from 100 to 120 percent, increase base hover text size from 2 to 3`).
+
+SAS-C053 - practical 5628 through 5623 billboard / main-interface readability lineage - COMPLETE
+  Reviewed 5 runtime-source SHAs: practical 5627 / 3f7bf6f5f8, 5626 / 71065af0f9, 5625 / b32e95eb5c, 5624 / e6c0ad69a8 and 5623 / b8f2aab775. Practical 5628 / 79b078dff6 changes XML/docs only and therefore advances the historical cursor without consuming the runtime-source denominator.
+  Practicals 5623 -> 5625 form one city-billboard implementation lineage rather than independent features. Practical 5623 removes the earlier DLL-side `CITY_BILLBOARDS` fScale mutation and billboard-name/production character trimming experiment. Practical 5624 replaces it with `SASBillboardScale.py`, which derives the `CITYBILLBOARD_SCALE` fader keys from the configured body-font multiplier and runs from BUG initialization; practical 5625 keeps the same generated values but avoids rewriting `CIV4DetailManager.xml` when the existing key block already matches. No current stale-DLL path or double-application survives.
+  A later real weakness in this Python design was traced rather than misclassified here: after archived XML comments were inserted between the fader `<Name>` and its `<Key>` lines, the original 5624 regex no longer matched. Practical 6117 / 91454e007c explicitly extends that regex over intervening comments; that repair was already certified in SAS-C002 and current 6176 retains it. Thus the lineage contains a historical later-fixed failure, not a new surviving defect from this range.
+  Practical 5626 changes the main interface's intended base text from BODY to LABEL and relocates the Specialists Breakdown above Culture while retaining the existing data getters, widget identities and bar/text update paths. Practical 5627 transfers top-bar width from Research to the GP bar and adjusts city food/production text insets using the same target rectangles; the changes are layout accommodations for the larger label font rather than changes to research/GP/yield state. Practical 5628 only retunes XML hover/billboard defaults.
+  Certified cursor advances through practical 5623 / b8f2aab775.
+  Next runtime-source SHA: practical 5622 / 527e44b2a3 (`add Inverted info in sevopedia ai personality panel legend, fix sevopedia media player text not being bold`).
+
+
+SAS-C054 - practical 5622 through 5620 Sevopedia polish / Foreign Advisor split lineage - COMPLETE
+  Reviewed 3 runtime-source SHAs: practical 5622 / 527e44b2a3, 5621 / 91467a1817 and 5620 / bb7b7eb7d8.
+  Practical 5622 changes one shortened AI Personality label and makes the currently selected Media Player queue row explicitly bold; it does not alter cached values, queue identity or playback routing.
+  Practicals 5620 -> 5621 form the Foreign Advisor split/control lineage. Practical 5620 creates a lightweight Foreign Diplomacy shell over the canonical Foreign Advisor implementation, partitions the trade and diplomacy/intel tab-key sets and routes known tab IDs to the appropriate shell. Practical 5621 replaces the old Finance-control slot with the explicit Foreign-Diplomacy F3 control and updates Python screen IDs, main-interface button control IDs, C++ control enums/dispatch and hotkey text consistently. Current descendants retain one canonical implementation with separate screen IDs/shell tab sets.
+  The initial split did contain a real historical navigation flaw, but it is already repaired: an active F3 tab label still dispatched `WIDGET_FOREIGN_ADVISOR` with data `-1`, which could route a repeat click into the positionally corresponding F4 tab. Practical 5640 / 3a0a232bd3 changes active labels to inert `WIDGET_GENERAL`; that repair was independently certified in SAS-C049. The later KI#123 advisor-object/input-routing rebuild repair is likewise already present in current descendants. No additional surviving defect from the 5620/5621 split was established.
+  Certified cursor advances through practical 5620 / bb7b7eb7d8.
+  Next: practical 5619 / 862ba215e8 (`move screen indepdendent geometry computation to init in foreign advisor`).
+
+
+F027 - KI#230 candidate: nonpositive Leader item-width cutoff reverses its documented disable behavior - CONFIRMED / SURGICAL REPAIR IDENTIFIED
+  Classification: AdvCiv-SAS Sevopedia Leader/UI configuration regression introduced by practical 5632 / 6bc421f184; survives current practical 6176.
+  `SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH` is documented in `GlobalDefines_advciv_sas.xml` as the screen-width threshold at/above which Leader pages stop reducing the item-list width, with `<=0` meaning the custom/font-dependent width stays enabled regardless of resolution. The Leader page's panel-width calculation follows that semantics: it applies the base-width override only when `iNoReduceMinWidth > 0` and the screen reaches the threshold.
+  The same practical adds a separate main-list helper, `SevoPediaMain.SAS_getLeaderItemsWidthByCurrentUIFont()`, but its first branch is simply `if screenWidth >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH: return self.SAS_W_ITEMS_BASE`. For a configured value of 0 or -1 every normal positive screen width satisfies the branch, so the main list is forced to the unreduced base width rather than keeping the custom width. The two consumers can therefore disagree and the documented hard-disable value behaves backwards.
+  Preferred surgical repair: mirror the already-correct Leader-side condition in `SevoPediaMain`, i.e. apply the high-resolution base-width override only when the threshold is `> 0` and the current resolution reaches it. Keep the existing fallback behavior of the per-font width defines unchanged. Code/KI implementation is intentionally deferred to the user's Codex pass.
+
+
+F026 - KI#229 candidate: Hall of Fame Date header lost date-typed sorting during font upscaling - CONFIRMED / SURGICAL REPAIR IDENTIFIED
+  Classification: AdvCiv-SAS Hall-of-Fame UI correctness regression introduced by practical 5657 / e51f6d39ad; survives current practical 6176.
+  Before practical 5657, the sortable Hall of Fame table writes the replay Date column with Civ4's dedicated `screen.setTableDate(...)`. The same screen independently provides a Sort-by-Date dropdown whose row ordering uses numeric `replayInfo.getFinalTurn()`. Practical 5657's text-upscaling pass replaces the Date cell with `SASTextScale.setTableTextLabel(...)` and stores a formatted `CyGameTextMgr().getDateStr(...)` display string, while leaving `screen.enableSort(self.TABLE_ID)` active. The table-header sort therefore no longer receives the date-typed cell that the original implementation intentionally supplied.
+  The distinction is not merely historical style. Base AdvCiv 1.14 still has `enableSort` plus `setTableDate` for the Date column, and Civ4 exposes separate `setTableDate`, `setTableInt` and `setTableText` table APIs; SAS's own text helpers document text cells as lexical and integer cells as numeric. Current practical 6176 still writes the Date column through `setTableTextLabel`. Thus the dropdown can remain chronologically correct while a user click on the Date column header sorts the formatted BC/AD/date strings as text rather than using date semantics.
+  Preferred surgical repair: restore a date-typed cell for the Hall of Fame Date column (correctness first). If scalable date-cell rendering is desired, add/test a dedicated date-preserving scaling path rather than routing the value through generic text. Do not alter the existing Sort-by-Date dropdown, which already uses `getFinalTurn()` correctly. Code/KI implementation is intentionally deferred to the user's Codex pass.
+
+
+F025 - KI#228 candidate: aligned scoreboard scrolling disagrees with BUG Max Players cap - CONFIRMED / SURGICAL REPAIR IDENTIFIED
+  Classification: AdvCiv-SAS main-interface/BUG scoreboard regression introduced by practical 5667 / af7f9f3532; survives current practical 6176.
+  Practical 5667 adds a caller-owned scoreboard scroll offset and screen-height row cap. In the default aligned BUG path, `CvMainInterface` computes `iTotalCount` from every currently visible player and clamps/shows the new scroll controls from that total, then calls `Scoreboard.draw(screen, offset, maxRows)`. Inside `draw`, the pre-existing `Scoreboard.sort()` still honors the configurable positive `ScoreOpt.getMaxPlayers()` by truncating `_playerScores`; only after that does the new code clamp its local `iScrollOffset` to the truncated length and slice the rows.
+  These two counts can disagree. With 40 visible players, 30 available rows and BUG `Max Players = 10`, the outer interface exposes scrolling over 40, while `Scoreboard.draw` has only 10 rows and locally forces every offset back to zero. The user can therefore change the external offset/button states without changing the displayed ten-player window. `Align Icons` defaults true; `Max Players` is a supported 0..50 option whose default 0 explains why the problem is normally hidden.
+  Current descendants retain the split and later scoreboard autocenter controls also use the uncapped outer list. Preferred repair: centralize the aligned scoreboard's effective sorted/capped player list (or expose its effective count/order) and derive scroll clamp, active-player centering, +/- availability and drawing from that same post-`Scoreboard.sort`/post-`Max Players` population. Do not paper over only the button condition with a separate min() that could leave centering and drawing on different orders.
+  This is UI correctness only; player/team visibility and game simulation are not changed. Code/KI implementation is intentionally deferred to the user's Codex pass.
 
 F024 - KI#227: Vote Sevopedia duplicated the trade-route resolution effect as a requirement - FIXED
   Classification: AdvCiv-SAS Sevopedia Vote-page correctness regression introduced by practical 5692 / fb18bad9c4.

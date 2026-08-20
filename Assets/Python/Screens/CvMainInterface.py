@@ -6248,6 +6248,9 @@ class CvMainInterface:
 		# (BUG - Power Rating)  advc: Moved into the loop
 		# <!-- custom: use one ranked visible-player traversal for scroll slicing, aligned BUG drawing, and active-player centering so those behaviors cannot drift apart. (GPT-5.3-Codex + ChatGPT-5.5) -->
 		aeVisiblePlayers = self._scoreboardVisiblePlayers(scores)
+		# <!-- custom: The aligned BUG scoreboard may sort vassals and apply its positive Max Players cap. Use that exact effective population for scrolling and centering; using the uncapped traversal made the buttons change while the same capped rows remained visible. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if bAlignIcons:
+			aeVisiblePlayers = scores.prepare()
 		iTotalCount = len(aeVisiblePlayers)
 		if self.bScoreScrollAutocenterActivePlayer:
 			self._centerScoreboardScrollOnActivePlayer(aeVisiblePlayers, iMaxRows)
@@ -6285,7 +6288,7 @@ class CvMainInterface:
 			else:
 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
 # BUG - Align Icons - start
-			scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand)
+			scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand, True)
 # BUG - Align Icons - end
 		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows more lower-ranked players, - (ScoreScrollDown) goes back toward rank 1. (Claude code Sonnet 4.6 + ChatGPT-5.5 + GPT-5.5) -->
 		if iTotalCount > iMaxRows:
