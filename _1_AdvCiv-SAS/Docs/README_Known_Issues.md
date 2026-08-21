@@ -337,6 +337,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [284 - (Fixed inherited Firaxis bug) Y seam guards compared strip size with width instead of height](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#284---fixed-inherited-firaxis-bug-y-seam-guards-compared-strip-size-with-width-instead-of-height)\
 [284.2 - (Fixed AdvCiv-SAS bug) Map-generator define checks required `self.gc` instead of using `CyGlobalContext()`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2842---fixed-advciv-sas-bug-map-generator-define-checks-required-selfgc-instead-of-using-cyglobalcontext)\
 [287 - (Fixed inherited Firaxis visual bug) Hub, Ring and Wheel lost east and north Evergreen transition bands](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#287---fixed-inherited-firaxis-visual-bug-hub-ring-and-wheel-lost-east-and-north-evergreen-transition-bands)\
+[288 - (Fixed AdvCiv-SAS bug) Team Battleground passed scalar geometry to the grid calibrator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#288---fixed-advciv-sas-bug-team-battleground-passed-scalar-geometry-to-the-grid-calibrator)\
+[289 - (Fixed inherited BTS/Ruff bug) Team Battleground Start Separated collapsed to Start Anywhere](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#289---fixed-inherited-btsruff-bug-team-battleground-start-separated-collapsed-to-start-anywhere)\
+[290 - (Fixed inherited BTS/Ruff bug) Team Battleground circular starts used truncated Python 2 angles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#290---fixed-inherited-btsruff-bug-team-battleground-circular-starts-used-truncated-python-2-angles)\
+[291 - (Fixed AdvCiv-SAS bug) Team Battleground small circles could duplicate high-player starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#291---fixed-advciv-sas-bug-team-battleground-small-circles-could-duplicate-high-player-starts)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8477,7 +8481,7 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 
 Several inherited map scripts mix compact alive-player positions with actual `PlayerTypes` IDs in supported sparse-slot games. Lagoon built a compact shuffled template list and later indexed it with the actual player ID; for alive slots 0 and 2, player 2 indexed beyond a two-entry list and lost Lagoon's custom region through the DLL fallback. Cross initially enumerated the correct alive IDs, but its Numerical and team-positioning branches replaced them with `assignLoop`; an open slot could receive a start while an actual player was omitted from Cross's successful global assignment. Team Battleground Round/Donut directly assign compact IDs and can lose the intended circular arrangement through generic fallback, while Ring's bounds guard avoids an exception but similarly rejects its custom region for a sparse high-ID player.
 
-The partial fix maps each actual ever-alive civilization player ID directly to a shuffled Lagoon template ID and preserves Cross's ordered actual-ID list in every non-shuffled assignment branch. Compact-ID games retain the same assignment order and shuffled modes retain their existing RNG behavior. Original BTG 2.43 contains the Lagoon/Cross defects, and archived BTS/Ruff plus Firaxis Ring contain the later-broadened surfaces. Huge Cross and Lagoon games both generated and completed 11-turn autoplays after the repair with an empty refreshed `PythonErr.log`; the sparse-ID branches were additionally validated through focused source/logic checks rather than a dedicated sparse-slot runtime setup. Team Battleground and Ring remain to be repaired, so KI#267 is not fully fixed yet.
+The partial fix maps each actual ever-alive civilization player ID directly to a shuffled Lagoon template ID and preserves Cross's ordered actual-ID list in every non-shuffled assignment branch. Compact-ID games retain the same assignment order and shuffled modes retain their existing RNG behavior. Original BTG 2.43 contains the Lagoon/Cross defects, and archived BTS/Ruff plus Firaxis Ring contain the later-broadened surfaces. Huge Cross and Lagoon games both generated and completed 11-turn autoplays after the repair with an empty refreshed `PythonErr.log`; the sparse-ID branches were additionally validated through focused source/logic checks rather than a dedicated sparse-slot runtime setup. The prepared Team Battleground follow-up now builds its circular shuffle from actual ever-alive player IDs and awaits runtime validation with KI#288-KI#291. Ring remains unrepaired, so KI#267 is not fully fixed yet.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
@@ -8678,3 +8682,35 @@ Hub, Ring and Wheel intend Snowy forest art inside their center rectangle, Everg
 The fix mirrors the west/south 70% distance calculation from the east and north far edges in all three scripts. This restores four-sided Evergreen transition bands without changing forest presence, yields or gameplay effects. Hub, Ring and Wheel all generated successfully under the suggested configurations without an observed issue at a glance.
 
 This visual bug is inherited from Firaxis Hub, Ring and Wheel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 288 - (Fixed AdvCiv-SAS bug) Team Battleground passed scalar geometry to the grid calibrator
+
+Team Battleground correctly uses `sas_lookup_world_size_with_calibrated_sas()` for tuple-valued square grids, but its SAS world-size adaptation also passed scalar Four Corners bridge offsets and Donut hole radii to that two-dimensional helper. Arena through Huge had explicit entries and bypassed calibration. SAS24 through SAS48 instead reached the missing-key path, which tried to unpack the Huge scalar as `(width, height)` and raised `TypeError`; Four Corners or Donut therefore lost its requested geometry through Python failure.
+
+The fix gives both scalar geometry settings complete Arena-through-SAS48 progressions and uses the ordinary scalar lookup. The Donut radius table is shared by plot and terrain generation, preventing those two passes from drifting. The explicit SAS values follow the corresponding calibrated square-grid growth rather than teaching the grid helper to silently accept unrelated scalar data. A default-player-count SAS24 Four Corners game generated successfully with its center X bridge connecting all four parts and no observed Python error.
+
+This is an AdvCiv-SAS regression introduced while adapting Team Battleground for SAS world sizes in practical 5423 / commit `9d01f7598c`. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 289 - (Fixed inherited BTS/Ruff bug) Team Battleground Start Separated collapsed to Start Anywhere
+
+For Round and Donut, only Start Together changed the randomized circular player order: Start Separated and Start Anywhere both retained the same random order and coordinates. The two options also behaved identically for every map shape with more than four teams because the start validator accepted every plot before consulting the selected setting and both paths suppressed normal rearrangement.
+
+The fix interleaves one randomized member from each team per Round/Donut circuit when Start Separated is selected, spreading teammates as evenly as their team sizes permit while leaving Start Anywhere random. For more than four teams on the other shapes, successive members of each team cycle through the four map quarters; Start Together retains its engine delegation and Start Anywhere remains unrestricted. A default-player-count SAS24 Donut with Start Separated generated successfully, with its players distributed around the outer edge and no observed Python error.
+
+This option-collapse bug is inherited from BTS/Ruff Team Battleground. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 290 - (Fixed inherited BTS/Ruff bug) Team Battleground circular starts used truncated Python 2 angles
+
+Round and Donut described their starts as uniformly spread but calculated both the angular step and randomized phase with Python 2 integer division. Whenever the player count did not divide 360, the first gaps used `floor(360 / players)` degrees and the closing gap absorbed the entire discarded remainder. Eleven players, for example, received ten 32-degree gaps and one 40-degree gap; the asymmetry grew at the AdvCiv-SAS 48-player limit.
+
+The fix calculates one floating-point `360.0 / players` step and derives every angle and the randomized phase from it. RNG call count and range remain unchanged; only the unintended truncation is removed. The default-player-count SAS24 Donut runtime test displayed the circular edge distribution without an observed issue at a glance.
+
+This arithmetic bug is inherited from BTS/Ruff Team Battleground. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 291 - (Fixed AdvCiv-SAS bug) Team Battleground small circles could duplicate high-player starts
+
+The original circular assignment was designed for BTS's 18-player limit. AdvCiv-SAS supports 48 players, but retained the same one-radius rounded-coordinate algorithm without a capacity or uniqueness check. Arena is only 12 x 12 plots: even with the repaired floating angles, some phases collide at 16 players and every phase collides by 19. Duel is 16 x 16, begins colliding at 25 players and collides in every phase by 31. `setStartingPlot()` does not reject an already-used plot, and AdvCiv's large-team start pipeline can leave those duplicate turn-0 starts intact.
+
+The fix computes and validates the complete circular assignment before setting any player's start. When every coordinate is unique, the handcrafted Round/Donut order remains in use. If any coordinate repeats, no partial starts are written and the complete assignment plus normalization are delegated to the engine, prioritizing valid distinct starts over an impossible small-map circle. An Arena Round game with 20 players exercises the guaranteed-fallback range and generated successfully without an observed Python error; the resulting map was crowded, as expected for that player count and grid.
+
+This is an AdvCiv-SAS high-player compatibility regression created by extending the player limit beyond the inherited script's design. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

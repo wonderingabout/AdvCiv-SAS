@@ -38,6 +38,36 @@ from SASUtils import getInfoTypeOrFail
 
 #import BugUtil
 
+# <!-- custom: The SAS world-size adaptation passed these scalar geometry tables to a two-dimensional grid calibrator, raising TypeError on every SAS24-SAS48 Four Corners or Donut generation.
+# Keep explicit scalar progressions aligned with Team Battleground's calibrated square grids; share the Donut table between plot and terrain generation. See KI#288. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+TEAM_BG_BRIDGE_SHIFT_BY_WORLD_SIZE = {
+	WorldSizeTypes.WORLDSIZE_ARENA: 3,
+	WorldSizeTypes.WORLDSIZE_DUEL: 3,
+	WorldSizeTypes.WORLDSIZE_TINY: 4,
+	WorldSizeTypes.WORLDSIZE_SMALL: 5,
+	WorldSizeTypes.WORLDSIZE_STANDARD: 6,
+	WorldSizeTypes.WORLDSIZE_LARGE: 8,
+	WorldSizeTypes.WORLDSIZE_HUGE: 10,
+	WorldSizeTypes.WORLDSIZE_SAS24: 12,
+	WorldSizeTypes.WORLDSIZE_SAS32: 14,
+	WorldSizeTypes.WORLDSIZE_SAS40: 16,
+	WorldSizeTypes.WORLDSIZE_SAS48: 18,
+}
+TEAM_BG_DONUT_HOLE_RADIUS_BY_WORLD_SIZE = {
+	WorldSizeTypes.WORLDSIZE_ARENA: 2,
+	WorldSizeTypes.WORLDSIZE_DUEL: 2,
+	WorldSizeTypes.WORLDSIZE_TINY: 3,
+	WorldSizeTypes.WORLDSIZE_SMALL: 4,
+	WorldSizeTypes.WORLDSIZE_STANDARD: 5,
+	WorldSizeTypes.WORLDSIZE_LARGE: 7,
+	WorldSizeTypes.WORLDSIZE_HUGE: 8,
+	WorldSizeTypes.WORLDSIZE_SAS24: 10,
+	WorldSizeTypes.WORLDSIZE_SAS32: 11,
+	WorldSizeTypes.WORLDSIZE_SAS40: 13,
+	WorldSizeTypes.WORLDSIZE_SAS48: 14,
+}
+bUseDefaultCircleStarts = False
+
 def getDescription():
 #	BugUtil.debug("Team_Battleground: getDescription")
 	return "TXT_KEY_MAP_SCRIPT_TEAM_BATTLEGROUND_DESCR"
@@ -264,16 +294,7 @@ def generatePlotTypes():
 					plotTypes[i] = PlotTypes.PLOT_OCEAN
 
 		# Now add the bridge across the center!
-		sizevalues = {
-			WorldSizeTypes.WORLDSIZE_ARENA: 3,
-			WorldSizeTypes.WORLDSIZE_DUEL: 3,
-			WorldSizeTypes.WORLDSIZE_TINY: 4,
-			WorldSizeTypes.WORLDSIZE_SMALL: 5,
-			WorldSizeTypes.WORLDSIZE_STANDARD: 6,
-			WorldSizeTypes.WORLDSIZE_LARGE: 8,
-			WorldSizeTypes.WORLDSIZE_HUGE: 10,
-		}
-		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+		shift = sas_lookup_world_size(map.getWorldSize(), TEAM_BG_BRIDGE_SHIFT_BY_WORLD_SIZE)
 		linewidth = 3
 		offsetstart = 0 - int(linewidth/2)
 		offsetrange = range(offsetstart, offsetstart + linewidth)
@@ -343,16 +364,7 @@ def generatePlotTypes():
 
 		if userInputPlots == 5: # donut
 			# get the size of the hole
-			sizevalues = {
-				WorldSizeTypes.WORLDSIZE_ARENA: 2,
-				WorldSizeTypes.WORLDSIZE_DUEL: 2,
-				WorldSizeTypes.WORLDSIZE_TINY: 3,
-				WorldSizeTypes.WORLDSIZE_SMALL: 4,
-				WorldSizeTypes.WORLDSIZE_STANDARD: 5,
-				WorldSizeTypes.WORLDSIZE_LARGE: 7,
-				WorldSizeTypes.WORLDSIZE_HUGE: 8,
-			}
-			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+			hole_radii = sas_lookup_world_size(map.getWorldSize(), TEAM_BG_DONUT_HOLE_RADIUS_BY_WORLD_SIZE)
 
 		# Set all blocks to ocean except the inner circle
 		for x in range(iNumPlotsX):
@@ -470,16 +482,7 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 
 			if userInputPlots == 5: # donut
 				# get the size of the hole
-				sizevalues = {
-					WorldSizeTypes.WORLDSIZE_ARENA: 2,
-					WorldSizeTypes.WORLDSIZE_DUEL: 2,
-					WorldSizeTypes.WORLDSIZE_TINY: 3,
-					WorldSizeTypes.WORLDSIZE_SMALL: 4,
-					WorldSizeTypes.WORLDSIZE_STANDARD: 5,
-					WorldSizeTypes.WORLDSIZE_LARGE: 7,
-					WorldSizeTypes.WORLDSIZE_HUGE: 8,
-				}
-				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+				hole_radii = sas_lookup_world_size(map.getWorldSize(), TEAM_BG_DONUT_HOLE_RADIUS_BY_WORLD_SIZE)
 			else:
 				hole_radii = -1
 
@@ -522,6 +525,9 @@ def assignStartingPlots():
 	global shuffle
 	global shuffledTeams
 	global assignedPlayers
+	# <!-- custom: Reset the circle-capacity fallback for each new assignment pass before checking the current player count and geometry. See KI#291. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	global bUseDefaultCircleStarts
+	bUseDefaultCircleStarts = False
 
 #	BugUtil.debug("Team_Battleground: assignStartingPlots2 %i %i %i %i", gc.getGame().countCivTeamsEverAlive(), gc.getGame().countCivTeamsAlive(), gc.getGame().countCivPlayersAlive(), gc.getGame().countCivPlayersEverAlive())
 
@@ -559,8 +565,10 @@ def assignStartingPlots():
 
 		shuffle_Array = []
 
-		# shuffle the players
-		for playerLoop in range(player_num):
+		# <!-- custom: A compact 0..alive-count player list omitted supported sparse/high-ID players and could assign dead slots. Enumerate actual ever-alive IDs before applying the same one-roll-per-player shuffle. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for playerLoop in range(gc.getMAX_CIV_PLAYERS()):
+			if not gc.getPlayer(playerLoop).isEverAlive():
+				continue
 			if shuffleTeams:
 				shuffle_Array.append([dice.get(10000, "Shuffling Players - TBG PYTHON"), playerLoop])  # why 10,000?  Why not?
 			else:
@@ -588,6 +596,24 @@ def assignStartingPlots():
 			shuffle_Array.sort()
 #			BugUtil.debug("Team_Battleground: assignStartingPlots shuffle array #4")
 #			print shuffle_Array
+		elif userInputProximity == 1: # team members start separated
+			# <!-- custom: Round/Donut previously treated Start Separated exactly like random Start Anywhere. Preserve the randomized player/team order, then interleave one member from each team per circuit so teammates are spread around the circle as evenly as their team sizes permit. See KI#289. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			teamOrder = []
+			playersByTeam = {}
+			for playerEntry in shuffle_Array:
+				player = playerEntry[1]
+				team = gc.getPlayer(player).getTeam()
+				if not playersByTeam.has_key(team):
+					teamOrder.append(team)
+					playersByTeam[team] = []
+				playersByTeam[team].append(playerEntry)
+			separatedPlayers = []
+			while len(separatedPlayers) < player_num:
+				for team in teamOrder:
+					if len(playersByTeam[team]) > 0:
+						separatedPlayers.append(playersByTeam[team][0])
+						del playersByTeam[team][0]
+			shuffle_Array = separatedPlayers
 
 		shuffledPlayers = []
 		for playerLoop in range(player_num):
@@ -605,15 +631,26 @@ def assignStartingPlots():
 		centerx = (iNumPlotsX - 1)//2
 		radii = centery - 2
 
-		base_theta = 360 / player_num * dice.get(1000, "Starting Plot - base theta") / 1000
-
+		# <!-- custom: Python 2 integer division made N-1 circle gaps floor(360/N) while the closing gap absorbed the remainder. Use one floating step and phase for uniform angular spacing. See KI#290. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		fAngleStep = 360.0 / float(player_num)
+		fBaseTheta = fAngleStep * float(dice.get(1000, "Starting Plot - base theta")) / 1000.0
+		startData = []
+		usedPlotNums = set()
 		for playerLoop in range(player_num):
 			pPlayer = shuffledPlayers[playerLoop]
-			theta = base_theta + playerLoop * 360 / player_num
+			theta = fBaseTheta + playerLoop * fAngleStep
 			x = int(centerx + round(radii * cos(radians(theta)),0))
 			y = int(centery + round(radii * sin(radians(theta)),0))
-			pPlot = map.plot(x, y)
-			CyGlobalContext().getPlayer(pPlayer).setStartingPlot(pPlot,True)
+			iPlot = map.plotNum(x, y)
+			if iPlot in usedPlotNums:
+				bUseDefaultCircleStarts = True
+				break
+			usedPlotNums.add(iPlot)
+			startData.append((pPlayer, iPlot))
+		# <!-- custom: SAS supports up to 48 players, but small Round/Donut circumferences cannot guarantee unique rounded coordinates. Validate the complete circle before assigning anyone; if any coordinate repeats, delegate the complete start assignment to the engine instead of creating duplicate or partial starts. See KI#291. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if not bUseDefaultCircleStarts:
+			for pPlayer, iPlot in startData:
+				gc.getPlayer(pPlayer).setStartingPlot(map.plotByIndex(iPlot), True)
 
 	else:
 #		BugUtil.debug("Team_Battleground: assignStartingPlots else %i", gc.getGame().countCivTeamsAlive())
@@ -639,6 +676,11 @@ def findStartingPlot(argsList):
 	userInputPlots = map.getCustomMapOption(0)
 	if (userInputPlots == 4   # round
 	or  userInputPlots == 5): # donut ... starting position already set - return plotnum
+		# <!-- custom: If complete-circle prevalidation found a duplicate coordinate, delegate every player's site to the engine instead of reading an unset handcrafted start. See KI#291. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		global bUseDefaultCircleStarts
+		if bUseDefaultCircleStarts:
+			CyPythonMgr().allowDefaultImpl()
+			return
 		pPlot = CyGlobalContext().getPlayer(playerID).getStartingPlot()
 		return map.plotNum(pPlot.getX(), pPlot.getY())
 
@@ -655,7 +697,8 @@ def findStartingPlot(argsList):
 #		BugUtil.debug("Team_Battleground: isValid")
 		map = CyMap()
 		numTeams = CyGlobalContext().getGame().countCivTeamsAlive()
-		if numTeams > 4 or numTeams < 2: # Put em anywhere, and let the normalizer sort em out.
+		# <!-- custom: Keep games with more than four teams in this validator so Start Separated can reach its explicit quarter-cycling branch; fewer than two teams still have no team-separation policy to apply. See KI#289. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if numTeams < 2: # Put em anywhere, and let the normalizer sort em out.
 			return true
 		userInputProximity = map.getCustomMapOption(1)
 		if userInputProximity == 2: # Start anywhere!
@@ -737,6 +780,18 @@ def findStartingPlot(argsList):
 			if corner == 3 and x >= iW * 0.6 and y >= iH * 0.6:
 				return true
 			return false
+		# <!-- custom: With more than four teams, Start Separated previously collapsed to Start Anywhere. Cycle successive members of each team across the four map quarters; Together still delegates to the engine and Anywhere remains unrestricted. See KI#289. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		elif numTeams > 4 and userInputProximity == 1:
+			corner = (teamID + assignedPlayers[teamID]) % 4
+			if corner == 0 and x <= iW * 0.4 and y <= iH * 0.4:
+				return true
+			if corner == 1 and x >= iW * 0.6 and y <= iH * 0.4:
+				return true
+			if corner == 2 and x <= iW * 0.4 and y >= iH * 0.6:
+				return true
+			if corner == 3 and x >= iW * 0.6 and y >= iH * 0.6:
+				return true
+			return false
 
 		# Two Teams, Start Separated
 		elif numTeams == 2 and userInputProximity == 1: # Two teams, Start Separated
@@ -787,6 +842,11 @@ def findStartingPlot(argsList):
 	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
 
 def normalizeStartingPlotLocations():
+	# <!-- custom: Complete-circle fallback must also restore engine normalization; otherwise Team Battleground would suppress it after delegating the individual start sites. See KI#291. (GPT-5.6-Sol) -->
+	global bUseDefaultCircleStarts
+	if bUseDefaultCircleStarts:
+		CyPythonMgr().allowDefaultImpl()
+		return
 	numTeams = CyGlobalContext().getGame().countCivTeamsAlive()
 	userInputProximity = CyMap().getCustomMapOption(1)
 	if (numTeams > 4 or numTeams < 2) and userInputProximity == 0:
