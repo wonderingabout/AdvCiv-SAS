@@ -980,10 +980,13 @@ class HubFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
+		# <!-- custom: Inherited east/north formulas mixed the center coordinate with the full far-edge coordinate, placing those transition boundaries inside the Snowy center and eliminating the Evergreen bands. Mirror the west/south 70% distance calculation from the far edges. See KI#287. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iMaxX = self.iGridW - 1
+		iMaxY = self.iGridH - 1
 		self.pineWestX = int(self.cenWestX * 0.7)
-		self.pineEastX = self.iGridW - int((self.cenEastX + self.iGridW - 1) * 0.35) - 1
+		self.pineEastX = iMaxX - int((iMaxX - self.cenEastX) * 0.7)
 		self.pineSouthY = int(self.cenSouthY * 0.7)
-		self.pineNorthY = self.iGridH - int((self.cenNorthY + self.iGridH - 1) * 0.35) - 1
+		self.pineNorthY = iMaxY - int((iMaxY - self.cenNorthY) * 0.7)
 
 		self.iJunglePercent = iJunglePercent
 		self.iForestPercent = iForestPercent
