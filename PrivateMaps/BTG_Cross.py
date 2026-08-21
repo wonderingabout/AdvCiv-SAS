@@ -834,6 +834,8 @@ def assignStartingPlots():
 				player_list.append(plrCheckLoop)
 
 	# Shuffle start points so that players are assigned regions at random.
+	# <!-- custom: Preserve the actual ordered player IDs before consuming the list for shuffling. BTG's Numerical/Together branches substituted compact loop positions, assigning dead open slots and omitting sparse alive IDs. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	orderedPlayers = player_list[:]
 	shuffledPlayers = []
 	for playerLoopTwo in range(gc.getGame().countCivPlayersEverAlive()):
 		iChoosePlayer = dice.get(len(player_list), "Shuffling Regions - Grid PYTHON")
@@ -858,10 +860,10 @@ def assignStartingPlots():
 
 			#2.10 I need global declare teams -- Akira
 			iNumTeams = gc.getGame().countCivTeamsEverAlive()
-			iTeam = gc.getPlayer(assignLoop).getTeam()
+			iTeam = gc.getPlayer(orderedPlayers[assignLoop]).getTeam()
 
 			if (CyMap().getCustomMapOption(7) == 0):#Numerical Order
-				playerID = assignLoop
+				playerID = orderedPlayers[assignLoop]
 				reg = assignLoop % iNumRegions
 
 			elif (CyMap().getCustomMapOption(7) == 1):#Full shuffle / normal
@@ -885,10 +887,10 @@ def assignStartingPlots():
 					if assignLoop == 3:
 						playerID = 3
 						reg = 2	'''	
-					playerID = assignLoop
+					playerID = orderedPlayers[assignLoop]
 					reg = assignLoop % iNumRegions						
 				else:
-					playerID = assignLoop
+					playerID = orderedPlayers[assignLoop]
 					reg = assignLoop % iNumRegions
 
 			if reg not in region_data:
@@ -1007,10 +1009,10 @@ def assignStartingPlots():
 
 			#2.10 I need global declare teams -- Akira
 			iNumTeams = gc.getGame().countCivTeamsEverAlive()
-			iTeam = gc.getPlayer(assignLoop).getTeam()
+			iTeam = gc.getPlayer(orderedPlayers[assignLoop]).getTeam()
 
 			if (CyMap().getCustomMapOption(7) == 0):#Numerical Order
-				playerID = assignLoop
+				playerID = orderedPlayers[assignLoop]
 				reg = assignLoop % iNumRegions
 
 			elif (CyMap().getCustomMapOption(7) == 1):#Full shuffle / normal
@@ -1034,10 +1036,10 @@ def assignStartingPlots():
 					if assignLoop == 3:
 						playerID = 3
 						reg = 2	'''	
-					playerID = assignLoop
+					playerID = orderedPlayers[assignLoop]
 					reg = assignLoop % iNumRegions						
 				else:
-					playerID = assignLoop
+					playerID = orderedPlayers[assignLoop]
 					reg = assignLoop % iNumRegions
 
 			if reg not in region_data:
