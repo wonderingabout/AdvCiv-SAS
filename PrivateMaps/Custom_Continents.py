@@ -209,13 +209,15 @@ def beforeGeneration():
                          17: [13, 30, 50, 70],
                          18: [10, 25, 45, 65]
 		}
-		if numContsRoll < byPlayerIndex[iPlayers][0]:
+		# <!-- custom: The stock weighting table ends at the original 18-civilization DLL limit, so SAS 19-48-player games raised KeyError and could fall through to an all-land map. Reuse the nearest defined profile outside 2..18, preserving the established table, RNG and six-continent limit. See KI#264. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		continentWeights = byPlayerIndex[max(2, min(iPlayers, 18))]
+		if numContsRoll < continentWeights[0]:
 			iNumConts = 2
-		elif numContsRoll < byPlayerIndex[iPlayers][1]:
+		elif numContsRoll < continentWeights[1]:
 			iNumConts = 3
-		elif numContsRoll < byPlayerIndex[iPlayers][2]:
+		elif numContsRoll < continentWeights[2]:
 			iNumConts = 4
-		elif numContsRoll < byPlayerIndex[iPlayers][3]:
+		elif numContsRoll < continentWeights[3]:
 			iNumConts = 5
 		else:
 			iNumConts = 6
@@ -1002,8 +1004,9 @@ def assignStartingPlots():
 
 	team_num = []
 	team_index = 0
-	for teamCheckLoop in range(18):
-		if CyGlobalContext().getTeam(teamCheckLoop).isEverAlive():
+	# <!-- custom: The stock script indexed only team IDs 0..17. SAS supports civ teams through the DLL maximum, so a sparse/high team ID lost One-Per-Team starting-continent assignment even when the supported team count remained <=6. See KI#265. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for teamCheckLoop in range(gc.getMAX_CIV_TEAMS()):
+		if gc.getTeam(teamCheckLoop).isEverAlive():
 			team_num.append(team_index)
 			team_index += 1
 		else:

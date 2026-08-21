@@ -85,7 +85,7 @@ too too, thanks,
 - Destiny, for assets like the Automobiles tech's button (TECH_AUTOMOBILE), thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too, thanks, thanks,
-- Beyond the Game mod: notably version 2.43 from which i took maps like [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) which i adjusted for AdvCiv-SAS with GPT-5.3-Codex's help thanks a lot.
+- Beyond the Game mod: notably version 2.43 from which i took maps like [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) which i adjusted for AdvCiv-SAS with GPT-5.3-Codex's help thanks a lot. They also include many copies of many mapscripts, making AdvCiv-SAS archaeology much easier, thanks a lot!
 - Civ Gold 5.2 mod, that has many leaderheads nifs! Notably i took Ireland flag's dds from there thanks :)
 - Sengoku mod, from which i took some art assets like as of now the Korean civ-specific building in our mod (as of now named Gyeongdang) and the Chinese civ-specific building (as of now named Changpingcang)
 - Pie's Ancient Europe, for example for the as of now celtic_la_tene_smithy's button thanks
