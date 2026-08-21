@@ -90,6 +90,7 @@ def getCustomMapOptionName(argsList):
 
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
+	# <!-- custom: SAS exposed BTG's dormant fourth Positioning label, but Crossed executed the same mapping as Together. Restore the original three selectable modes until a distinct Crossed policy exists. See KI#272. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	option_values = {
 		0:	3,
 		1:	4,
@@ -98,7 +99,7 @@ def getNumCustomMapOptionValues(argsList):
 		4:	2,
 		5:	2,
 		6:	2,
-		7:	4,
+		7:	3,
 		8:	4,
 		9:	4,
 		10: 3,
@@ -149,8 +150,7 @@ def getCustomMapOptionDescAt(argsList):
 		7:	{
 			0: "Numerical Order",
 			1: "Full position shuffle",
-			2: "Outside positions, together",
-			3: "Outside positions, crossed"
+			2: "Outside positions, together"
 			},
 		8:	{
 			0: "High - 60% (Game base)",
@@ -417,6 +417,8 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		thisRegion = remaining_regions[region_roll]
 		regions_in_use.append(thisRegion)
 		del remaining_regions[region_roll]
+		# <!-- custom: BTG's second region pool still contained the already-generated mirror source, so open maps generated that hub twice and all modes recorded it twice. Consume the source in both pools. See KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		remaining_regionsTwo.remove(thisRegion)
 
 		# Region dimensions
 		[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
@@ -462,7 +464,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
 
-			for region_loop in range(iNumRegions):#2.15
+			for region_loop in range(iNumRegions - 1):#2.15
 				# Choose an unused region
 				region_roll = self.dice.get(len(remaining_regionsTwo), "Region Roll - Grid PYTHON")
 				thisRegion = remaining_regionsTwo[region_roll]
@@ -561,20 +563,14 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			#duplicate land for other used regions
 			other_regions = []
-			#for region_loop in range(iPlayers - 1):#2.10 Out
-				# Choose an unused region
-				#region_roll = self.dice.get(len(remaining_regions), "Region Roll - Grid PYTHON")
-				#thisRegion = remaining_regions[region_roll]
-				#regions_in_use.append(thisRegion)
-				#del remaining_regions[region_roll]
+			# <!-- custom: Record each physical mirrored hub once, including the source once, then crop every copy to the largest common in-bounds footprint. BTG duplicated the source ID and assumed rounded source/target dimensions were equal, reading neighboring map data when they differed. See KI#273 and KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			for region_loop in range(len(region_coords)):
+				if len(regions_in_use) >= iNumRegions:
+					break
+				if region_loop not in regions_in_use:
+					regions_in_use.append(region_loop)
 
-			for region_loop in range(iNumRegions):
-				#region_roll = self.dice.get(len(remaining_regions), "Region Roll - Grid PYTHON")
-				thisRegion = region_loop
-				regions_in_use.append(thisRegion)
-				#del remaining_regions[region_roll]
-
-				# Region dimensions
+			for thisRegion in regions_in_use:
 				[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
 				iWestX = int(self.iW * fWestLon)
 				iEastX = int(self.iW * fEastLon) - 1
@@ -584,12 +580,15 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				iHeight = iNorthY - iSouthY + 1
 
 				other_regions.append([thisRegion, iWestX, iSouthY, iWidth, iHeight])
-				iD, iWestXD, iSouthYD, iWidthD, iHeightD = region_duplicated
 
-				for x in range(iWidth):
+			copyWidth = min([item[3] for item in other_regions])
+			copyHeight = min([item[4] for item in other_regions])
+			iD, iWestXD, iSouthYD, iWidthD, iHeightD = region_duplicated
+			for thisRegion, iWestX, iSouthY, iWidth, iHeight in other_regions:
+				for x in range(copyWidth):
 					wholeworldX = x + iWestX
 					wholeworldXD = x + iWestXD
-					for y in range(iHeight):
+					for y in range(copyHeight):
 						wholeworldY = y + iSouthY
 						iWorld = wholeworldY*self.iW + wholeworldX
 						wholeworldYD = y + iSouthYD
@@ -697,6 +696,10 @@ def assignStartingPlots():
 
 	# Error catching.
 	if iPlayers < 1 or iPlayers > gc.getMAX_CIV_PLAYERS():
+		CyPythonMgr().allowDefaultImpl()
+		return
+	# <!-- custom: SAS reused Cross's fixed 4/5/7/9 physical hubs with modulo assignment for larger player counts, producing duplicate regions and exact duplicate starts under positional mirroring. Fall back before assigning any custom start when unique hub capacity is insufficient. See KI#271. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if len(regions_in_use) < iPlayers:
 		CyPythonMgr().allowDefaultImpl()
 		return
 
@@ -807,7 +810,8 @@ def assignStartingPlots():
 
 	# Now sort the regions
 	best_regions = []
-	region_numbers = regions_in_use
+	# <!-- custom: BTG aliased and consumed the global region list while ranking; rank a copy of the now-unique physical IDs so later callbacks retain their bookkeeping. See KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	region_numbers = regions_in_use[:]
 	sorting_regions.sort()
 	sorting_regions.reverse()
 	for regionTestLoop in range(iNumRegions):
@@ -858,9 +862,7 @@ def assignStartingPlots():
 			#playerID = shuffledPlayers[assignLoop]#2.10test
 			#reg = best_regions[assignLoop]
 
-			#2.10 I need global declare teams -- Akira
 			iNumTeams = gc.getGame().countCivTeamsEverAlive()
-			iTeam = gc.getPlayer(orderedPlayers[assignLoop]).getTeam()
 
 			if (CyMap().getCustomMapOption(7) == 0):#Numerical Order
 				playerID = orderedPlayers[assignLoop]
@@ -879,19 +881,9 @@ def assignStartingPlots():
 				playerID = shuffledPlayers[assignLoop]
 				reg = assignLoop % iNumRegions			
 
-			else:
-				if (CyMap().getCustomMapOption(7) == 2):#Together
-					'''if assignLoop == 2:
-						playerID = 2
-						reg = 3
-					if assignLoop == 3:
-						playerID = 3
-						reg = 2	'''	
-					playerID = orderedPlayers[assignLoop]
-					reg = assignLoop % iNumRegions						
-				else:
-					playerID = orderedPlayers[assignLoop]
-					reg = assignLoop % iNumRegions
+			else:#Together
+				playerID = orderedPlayers[assignLoop]
+				reg = assignLoop % iNumRegions
 
 			if reg not in region_data:
 				if len(best_regions) > 0:
@@ -1007,9 +999,7 @@ def assignStartingPlots():
 			#playerID = shuffledPlayers[assignLoop]#2.10test
 			#reg = best_regions[assignLoop]
 
-			#2.10 I need global declare teams -- Akira
 			iNumTeams = gc.getGame().countCivTeamsEverAlive()
-			iTeam = gc.getPlayer(orderedPlayers[assignLoop]).getTeam()
 
 			if (CyMap().getCustomMapOption(7) == 0):#Numerical Order
 				playerID = orderedPlayers[assignLoop]
@@ -1028,19 +1018,9 @@ def assignStartingPlots():
 				playerID = shuffledPlayers[assignLoop]
 				reg = assignLoop % iNumRegions			
 
-			else:
-				if (CyMap().getCustomMapOption(7) == 2):#Together
-					'''if assignLoop == 2:
-						playerID = 2
-						reg = 3
-					if assignLoop == 3:
-						playerID = 3
-						reg = 2	'''	
-					playerID = orderedPlayers[assignLoop]
-					reg = assignLoop % iNumRegions						
-				else:
-					playerID = orderedPlayers[assignLoop]
-					reg = assignLoop % iNumRegions
+			else:#Together
+				playerID = orderedPlayers[assignLoop]
+				reg = assignLoop % iNumRegions
 
 			if reg not in region_data:
 				if len(best_regions) > 0:
@@ -1363,7 +1343,7 @@ def mirrorizeMap():
 	iH = map.getGridHeight()
 
 	region_duplicated_ID, iWestX, iSouthY, iWidth, iHeight = region_duplicated
-	#make sure larger duplicated land doesn't get extra bonuses/goodies
+	# <!-- custom: Mirror only the common source/target footprint chosen during plot generation. Rounded third-based Cross regions can differ by one row/column; the inherited full-target loops read outside the source hub. See KI#273. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	minW = min([item[3] for item in other_regions])
 	minH = min([item[4] for item in other_regions])
 
@@ -1382,8 +1362,8 @@ def mirrorizeMap():
 
 	#reflect plot types (addlake)
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setPlotType(rPlot.getPlotType(), True, True)
@@ -1392,8 +1372,8 @@ def mirrorizeMap():
 
 	#reflect terrain
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setTerrainType(rPlot.getTerrainType(), True, True)
@@ -1403,8 +1383,8 @@ def mirrorizeMap():
 	#rearrange river IDs
 	initRiverID = 0
 	riverID = {}
-	for dX in range(iWidth):
-		for dY in range(iHeight):
+	for dX in range(minW):
+		for dY in range(minH):
 			pPlot = map.plot(iWestX + dX, iSouthY + dY)
 			rID = pPlot.getRiverID()
 			if rID != -1 :
@@ -1421,8 +1401,8 @@ def mirrorizeMap():
 	#mirrorize rivers
 	for region_ID, wX, sY, rW, rH in other_regions:
 		incr += 1
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 
@@ -1439,8 +1419,8 @@ def mirrorizeMap():
 
 	# mirrorize features
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setFeatureType(rPlot.getFeatureType(), -1)
@@ -1449,8 +1429,8 @@ def mirrorizeMap():
 
 	# mirrorize bonuses
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setBonusType(rPlot.getBonusType(-1))
@@ -1459,8 +1439,8 @@ def mirrorizeMap():
 
 	# mirrorize goodies
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setImprovementType(rPlot.getImprovementType())

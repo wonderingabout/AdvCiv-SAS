@@ -304,6 +304,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [241 - (Fixed and beautified AdvCiv-SAS bug) Treaties rows hid resource terms while canceling their complete mixed deal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#241---fixed-and-beautified-advciv-sas-bug-treaties-rows-hid-resource-terms-while-canceling-their-complete-mixed-deal)\
 [242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#242---fixed-advciv-sas-bug-large-facing-islands-underprovided-islands-for-default-arena-and-small-games)\
 [245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
+[247 - (Fixed AdvCiv-SAS bug) Grid's duplicate source region defeated its capacity fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#247---fixed-advciv-sas-bug-grids-duplicate-source-region-defeated-its-capacity-fallback)\
 [254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#254---fixed-inherited-third-party-peirce-bug-crease-distance-used-bitwise-xor-instead-of-squared-coordinates)\
 [255 - (Fixed inherited third-party Peirce bug) E-W companion arms discarded their intended second anchors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#255---fixed-inherited-third-party-peirce-bug-e-w-companion-arms-discarded-their-intended-second-anchors)\
 [262 - (Fixed inherited map-script bug) Tiny-island Y positions reused longitude instead of latitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---fixed-inherited-map-script-bug-tiny-island-y-positions-reused-longitude-instead-of-latitude)\
@@ -315,6 +316,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [268 - (Fixed inherited third-party BTG bug) Lagoon Top v Bottom could retry forever with unequal teams](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#268---fixed-inherited-third-party-btg-bug-lagoon-top-v-bottom-could-retry-forever-with-unequal-teams)\
 [269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#269---fixed-advciv-sas-bug-lagoon-land-band-widths-used-stale-pre-arena-world-size-indices)\
 [270 - (Fixed inherited third-party BTG bug) Lagoon shifted wrapped geography without shifting fixed-coordinate follow-up logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#270---fixed-inherited-third-party-btg-bug-lagoon-shifted-wrapped-geography-without-shifting-fixed-coordinate-follow-up-logic)\
+[271 - (Fixed AdvCiv-SAS bug) Cross reused physical hubs and could duplicate starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#271---fixed-advciv-sas-bug-cross-reused-physical-hubs-and-could-duplicate-starts)\
+[272 - (Fixed AdvCiv-SAS bug) Cross exposed an unimplemented Crossed positioning choice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#272---fixed-advciv-sas-bug-cross-exposed-an-unimplemented-crossed-positioning-choice)\
+[273 - (Fixed AdvCiv-SAS bug) Cross mirrored outside unequal rounded source regions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#273---fixed-advciv-sas-bug-cross-mirrored-outside-unequal-rounded-source-regions)\
+[274 - (Fixed inherited third-party BTG bug) Grid and Cross generated and ranked their source region twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#274---fixed-inherited-third-party-btg-bug-grid-and-cross-generated-and-ranked-their-source-region-twice)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8387,6 +8392,14 @@ The fix uses the next symmetric capacities supported by the spike primitive: Tin
 
 This is an AdvCiv-SAS bug introduced with `SAS_Spiky_Avenues` in practical 5456 (`15aa086e93`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
+## 247 - (Fixed AdvCiv-SAS bug) Grid's duplicate source region defeated its capacity fallback
+
+BTG Grid generates one selected source hub first, but its inherited second region pool still contained that source. Every generation therefore recorded the source twice. AdvCiv-SAS later used `len(regions_in_use)` as its custom-start capacity guard, so the duplicate overstated distinct hub capacity by one. In an 11-player 1-Line game clamped to ten physical regions, for example, the guard saw eleven entries and allowed Python assignment to continue: one player could be omitted under Empty Land = Yes or redirected into a reused region under Empty Land = No.
+
+The fix removes the source from both region pools, records each physical region once and retains the existing pre-assignment fallback. The guard now measures real hub capacity and delegates the entire start assignment to the DLL before any player is assigned whenever distinct regions are insufficient. It therefore also benefits from the shared KI#274 bookkeeping repair below; ordinary in-capacity Grid layouts keep their custom regional starts. A Huge Grid map generated successfully without an observed issue.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
 ## 254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates
 
 All four circular-distance tests in `Peirce.py`'s `isPeirceCrease()` used `^2` as if it squared each coordinate delta. In Python, `^` is bitwise XOR, and its precedence also prevents the expression from behaving even like a sum of separately XORed deltas. The resulting predicate materially removed or misclassified the intended crease ocean used by plot, terrain and post-generation cleanup.
@@ -8474,3 +8487,35 @@ On Cylindrical or Toroidal wrapping, Lagoon shifted its completed handcrafted pl
 The fix keeps Lagoon's designed plot array fixed. The map already builds its wrapped boundary geography deliberately, so disabling the generic seam relocation preserves alignment without having to propagate hidden X/Y offsets through every later coordinate-dependent callback. Plot generation and every follow-up step now use the same center and starting-region coordinates. A Huge Lagoon game generated and completed an 11-turn autoplay with an empty refreshed `PythonErr.log`; wrapped alignment itself is validated from the removal of the only plot-array relocation rather than a separate wrapped screenshot comparison.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 271 - (Fixed AdvCiv-SAS bug) Cross reused physical hubs and could duplicate starts
+
+AdvCiv-SAS adapted Cross's fixed 4/5/7/9-region templates to higher player counts by assigning regions modulo the physical region count. Once player count exceeded that capacity, multiple players reused one hub. Under positional mirroring they also reused the same copied `(dX, dY)` offset, producing the exact same starting plot; `CvPlayer::setStartingPlot()` does not reject a plot already assigned to another player. Even when another start happened to be found, modulo reuse contradicted Cross's per-player-hub layout.
+
+The fix checks the unique generated region count before assigning any custom start. When players exceed physical hub capacity, Cross delegates the complete assignment to the DLL rather than partially assigning or wrapping back to an occupied hub. In-capacity custom assignments and map geometry remain unchanged. A Huge Cross map generated successfully without an observed issue.
+
+This is an AdvCiv-SAS regression introduced while adapting inherited BTG Cross for higher player counts. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 272 - (Fixed AdvCiv-SAS bug) Cross exposed an unimplemented Crossed positioning choice
+
+Original BTG contained a dormant fourth Positioning label, `Outside positions, crossed`, but reported only three selectable values. AdvCiv-SAS increased the count to four without implementing a distinct mapping: Crossed and `Outside positions, together` executed the same player/region assignment, while the computed team ID was unused.
+
+The fix restores the original three-value option surface and removes the unreachable duplicate label/branch. Numerical Order, Full position shuffle and Together retain their existing behavior. A future genuinely team-crossed mapping can reintroduce the fourth choice deliberately rather than exposing two identical settings.
+
+This is an AdvCiv-SAS option-exposure regression introduced when BTG Cross was imported/adapted. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 273 - (Fixed AdvCiv-SAS bug) Cross mirrored outside unequal rounded source regions
+
+Original BTG Cross used map dimensions aligned with its thirds/quarters templates, giving every source and target hub equal dimensions. AdvCiv-SAS replaced that sizing contract while retaining full-target copy loops. Fractional rounding can now produce, for example, a 10x9 source and 9x10 target; the target's tenth row then read beyond the selected source rectangle and copied unrelated neighboring map data. The same assumption affected plot types and later full mirroring of terrain, rivers, features, bonuses and improvements.
+
+The fix derives the minimum width and height shared by every selected source/target rectangle and uses that exact common footprint for plot generation and all later mirrored layers. Each copy remains within both rectangles, every hub receives the same source footprint and unequal trailing strips stay outside the mirrored hub rather than importing neighboring data. A geometry sweep confirms the common footprint remains positive and in bounds across Cross templates and representative map dimensions; a Huge Cross map also generated successfully without an observed issue.
+
+This is an AdvCiv-SAS regression caused by combining inherited fixed-template mirroring with the later grid-size adaptation. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 274 - (Fixed inherited third-party BTG bug) Grid and Cross generated and ranked their source region twice
+
+Both original BTG Grid and Cross first selected/generated a source hub, then iterated a second pool that still contained that same region. Open maps generated a second independent land/core fractal over the source, while mirrored modes recorded the source twice. Their regional ranking then aliased `regions_in_use`, scored the duplicate twice, considered only the expected physical-region count and destructively removed entries while sorting; one real hub could be omitted from ranking while later callbacks lost the original bookkeeping.
+
+The fix consumes the source in both region pools, builds mirrored region lists from unique physical IDs and ranks a copied list. Open maps now generate every selected hub exactly once; mirrored maps record/copy each selected hub once. Grid and Cross also mirror only their common source/target footprint, keeping every copied layer within the recorded rectangles. This shared correction makes Grid's KI#247 distinct-capacity fallback reliable as a direct consequence. Huge maps generated successfully with both scripts without an observed issue.
+
+The generation/ranking defect is inherited from BTG 2.43; KI#247 and the Cross high-player adaptation consequences are SAS-specific. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
