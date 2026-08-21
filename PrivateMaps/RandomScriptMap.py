@@ -207,7 +207,8 @@ def getCustomMapOptionDescAt(argsList):
 	genMethod_names = ["TXT_KEY_MAP_SCRIPT_RANDOM", "Fractal", "Terra", "Hemispheres", "Big_and_Small", "Medium_and_Small", "Archipelago", "Pangaea"]
 	exclude_names = ["TXT_KEY_MAIN_MENU_NONE", "Fractal", "Terra", "Hemispheres", "Big_and_Small", "Medium_and_Small", "Archipelago", "Pangaea"]
 	startAi_names = ["TXT_KEY_MAP_SCRIPT_NO_CONDITIONS", "TXT_KEY_MAP_SCRIPT_DEFAULT", "TXT_KEY_MAP_SCRIPT_ALL_IN_OLD_WORLD"]
-	startPl_names = ["TXT_KEY_MAP_SCRIPT_SAME_AS_AI", "TXT_KEY_MAP_SCRIPT_NEAR_COAST", "TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT", "TXT_KEY_MAP_SCRIPT_COASTAL_LARGEST_CONTINENT"]
+	# <!-- custom: The combined validator requires coastal land on the largest continent; use an SAS key instead of BTS's misleading "or" label. See KI#275.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	startPl_names = ["TXT_KEY_MAP_SCRIPT_SAME_AS_AI", "TXT_KEY_MAP_SCRIPT_NEAR_COAST", "TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT", "TXT_KEY_MAP_SCRIPT_SAS_COASTAL_LARGEST_CONTINENT"]
 	if (dummy == 0)  :
 		szName = genMethod_names[iSelection]
 	elif (dummy == 1):
@@ -509,7 +510,7 @@ def isValidCoast(playerID, x, y):
 # not sure if it will cause problems or overcrowding the coastal lines.
 #
 def isValidBoth(playerID, x, y):
-	gl_isValidCalls += 1
+	# <!-- custom: Coastal on Biggest Land raised UnboundLocalError before testing any plot because this function incremented an uninitialized, otherwise-unused local counter. Removing that obsolete increment restores the requested coastal/Old-World validator. See KI#275. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	map = CyMap()
 	pPlot = map.plot(x, y)
 	# Don't Start in Polar Regions.
@@ -1042,11 +1043,12 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         # The following regions are specific to Terra.py
         newworldWestLon = 0.02 + 0.01 * self.dice.get(6, "Rnd,Terra,Python")
-        newworldEastLon = 0.36 + 0.01 * self.dice.get(7, "Rnd,Terra,Python")
+        # <!-- custom: Refar's later quadrant shifts could move randomized regions outside the compositor: New World east reached 1.02 and Eurasia south reached -0.02. Keep the randomized margins but constrain their bases to 0.36-0.39 and 0.40-0.46, so +0.60 remains below 1 and -0.40 remains at or above 0. See KI#277. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+        newworldEastLon = 0.36 + 0.01 * self.dice.get(4, "Rnd,Terra,Python")
         eurasiaWestLon = 0.40 + 0.01 * self.dice.get(7, "Rnd,Terra,Python")  
         eurasiaEastLon = 0.93 + 0.01 * self.dice.get(6, "Rnd,Terra,Python")
         eurasiaNorthLat = 0.95
-        eurasiaSouthLat = 0.38 + 0.01 * self.dice.get(9, "Rnd,Terra,Python")
+        eurasiaSouthLat = 0.40 + 0.01 * self.dice.get(7, "Rnd,Terra,Python")
         thirdworldDimension = 0.125
         thirdworldNorthLat = 0.35 + 0.01 * self.dice.get(6, "Rnd,Terra,Python")
         thirdworldSouthLat = 0.03 + 0.01 * self.dice.get(5, "Rnd,Terra,Python")
@@ -1409,11 +1411,12 @@ class R_MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         global yShiftRoll2
         yShiftRoll1 = self.dice.get(2, "Python, RndMapUtil, Mns")
         yShiftRoll2 = self.dice.get(4, "Python, RndMapUtil, Mns")
+        # <!-- custom: Refar used comparison expressions where it meant to coerce rolls 2/3 to the opposite binary orientation. Assigning the intended value fixes the 25% case where both map halves shifted the same way. See KI#276. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
         if ( yShiftRoll2 > 1 ) :
             if ( yShiftRoll1 == 0 ) :
-                yShiftRoll2 == 1
+                yShiftRoll2 = 1
             else:
-                yShiftRoll2 == 0
+                yShiftRoll2 = 0
         iContinentsGrainWest = 1 + self.dice.get(2, "Python, RndMapUtil, Mns")
         iContinentsGrainEast = 1 + self.dice.get(2, "Python, RndMapUtil, Mns") 
         iIslandsGrainWest = 3 + self.dice.get(2, "Python, RndMapUtil, Mns") 

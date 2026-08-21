@@ -320,6 +320,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [272 - (Fixed AdvCiv-SAS bug) Cross exposed an unimplemented Crossed positioning choice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#272---fixed-advciv-sas-bug-cross-exposed-an-unimplemented-crossed-positioning-choice)\
 [273 - (Fixed AdvCiv-SAS bug) Cross mirrored outside unequal rounded source regions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#273---fixed-advciv-sas-bug-cross-mirrored-outside-unequal-rounded-source-regions)\
 [274 - (Fixed inherited third-party BTG bug) Grid and Cross generated and ranked their source region twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#274---fixed-inherited-third-party-btg-bug-grid-and-cross-generated-and-ranked-their-source-region-twice)\
+[275 - (Fixed inherited third-party Refar bug) Coastal-on-Biggest-Land validation raised before checking a plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#275---fixed-inherited-third-party-refar-bug-coastal-on-biggest-land-validation-raised-before-checking-a-plot)\
+[275.2 - (Fixed inherited BTS UI bug) Random Script Map said Coastal OR Largest Continent instead of ON](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2752---fixed-inherited-bts-ui-bug-random-script-map-said-coastal-or-largest-continent-instead-of-on)\
+[276 - (Fixed inherited third-party Refar bug) Medium-and-Small discarded its intended second vertical shift](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#276---fixed-inherited-third-party-refar-bug-medium-and-small-discarded-its-intended-second-vertical-shift)\
+[277 - (Fixed inherited third-party Refar bug) Terra quadrant randomization could exceed map bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#277---fixed-inherited-third-party-refar-bug-terra-quadrant-randomization-could-exceed-map-bounds)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8519,3 +8523,35 @@ Both original BTG Grid and Cross first selected/generated a source hub, then ite
 The fix consumes the source in both region pools, builds mirrored region lists from unique physical IDs and ranks a copied list. Open maps now generate every selected hub exactly once; mirrored maps record/copy each selected hub once. Grid and Cross also mirror only their common source/target footprint, keeping every copied layer within the recorded rectangles. This shared correction makes Grid's KI#247 distinct-capacity fallback reliable as a direct consequence. Huge maps generated successfully with both scripts without an observed issue.
 
 The generation/ranking defect is inherited from BTG 2.43; KI#247 and the Cross high-player adaptation consequences are SAS-specific. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 275 - (Fixed inherited third-party Refar bug) Coastal-on-Biggest-Land validation raised before checking a plot
+
+Random Script Chooser's combined coastal/Old-World validator began with `gl_isValidCalls += 1`, but that counter was never initialized or declared global and had no other live use. Python therefore treated it as an uninitialized local and raised `UnboundLocalError` before checking the candidate plot. Selecting `Coastal on Biggest Land` could consequently produce a Python exception and silently fall back from the requested custom starting rule.
+
+The fix removes the obsolete counter increment. The validator now reaches its intended polar, biggest-land-area, coast and non-lake tests without changing any of those placement rules. Several Huge Terra maps generated successfully with the option selected, including starts on the largest landmass and a coastal start. Repeated validation also produced noncoastal starts, including one not far from the coast: when no qualifying plot has a positive found value, the helper returns -1 and the engine uses generic placement. This is the inherited best-effort fallback rather than another Python exception; the refreshed `PythonErr.log` remained empty. KI#275.2 separately records the misleading inherited menu label found during this validation.
+
+This defect is inherited from Refar RandomScriptMap 1.25. Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 275.2 - (Fixed inherited BTS UI bug) Random Script Map said Coastal OR Largest Continent instead of ON
+
+Random Script Map's Players' Start option said `Coastal or Largest Continent`, but Refar's corresponding validator and source comments require both conditions: a coastal, non-lake plot on the largest landmass. The inherited BTS wording therefore described a different either/or rule. Screenshot 0085 confirmed the misleading label during KI#275 validation.
+
+The fix uses the SAS-specific label `Coastal on Largest Continent`, matching the intended combined validator without changing starting-plot logic. The condition remains best-effort because KI#275's existing no-qualifying-plot path delegates to generic placement and can therefore produce a noncoastal start. See KI#275 for the separate exception that previously prevented the validator from running.
+
+The incorrect label is inherited from BTS. Found during KI#275 validation with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 276 - (Fixed inherited third-party Refar bug) Medium-and-Small discarded its intended second vertical shift
+
+Refar's embedded Medium-and-Small generator rolls one binary vertical orientation and a second value from 0 through 3. Rolls 2/3 are meant to become the opposite binary orientation, but both intended assignments were written as standalone comparisons (`yShiftRoll2 == 1` and `yShiftRoll2 == 0`). They had no effect, so when the first roll was 1 and the second was 2/3, both map halves shifted in the same direction instead of opposite directions. Independent roll probabilities make this affect 25% of generations.
+
+The fix changes only those two comparison expressions to assignments. It preserves the same number and order of RNG calls and restores the existing opposite-orientation policy. A Huge embedded Medium-and-Small map generated successfully without an observed issue.
+
+This defect is inherited from Refar RandomScriptMap 1.25. Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 277 - (Fixed inherited third-party Refar bug) Terra quadrant randomization could exceed map bounds
+
+Refar randomized Terra's base margins but retained Firaxis' fixed quadrant shifts. The New World's randomized eastern longitude could reach 0.42 before a +0.60 shift, producing 1.02; Eurasia's randomized southern latitude could reach 0.38 before a -0.40 shift, producing -0.02. `MultilayeredFractal.generatePlotsInRegion()` does not normalize those coordinates: excessive X values spill into later flat-array rows and negative Y values address the array from its end, corrupting or misplacing regional geometry. The horizontal overflow occurred in 3/14 Terra generations, independently of world size.
+
+The fix retains randomized Terra margins while constraining the New World eastern base to 0.36-0.39 and Eurasia's southern base to 0.40-0.46. Their later fixed shifts therefore remain respectively below 1 and at or above 0, keeping every affected regional rectangle inside the map without removing quadrant randomization. An exhaustive boundary harness validated 12,108,096 affected and derived Terra rectangles across Arena-through-SAS48 dimensions and every relevant roll. Several Huge Terra maps also generated successfully without an observed issue, with an empty refreshed `PythonErr.log`.
+
+This defect is inherited from Refar RandomScriptMap 1.25. Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
