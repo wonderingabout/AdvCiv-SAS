@@ -552,8 +552,9 @@ def assignStartingPlots():
 
 	# Obtain player numbers. (Account for possibility of Open slots!)
 	player_list = []
-	for plrCheckLoop in range(18):
-		if CyGlobalContext().getPlayer(plrCheckLoop).isEverAlive():
+	# <!-- custom: The stock script checked only player IDs 0..17. SAS permits sparse/high IDs while this topology still supports <=18 actual players, so scan the DLL's full civilization-player range. See KI#265. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for plrCheckLoop in range(gc.getMAX_CIV_PLAYERS()):
+		if gc.getPlayer(plrCheckLoop).isEverAlive():
 			player_list.append(plrCheckLoop)
 
 	# Shuffle start points so that players are assigned regions at random.

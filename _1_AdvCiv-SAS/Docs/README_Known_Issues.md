@@ -308,6 +308,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [255 - (Fixed inherited third-party Peirce bug) E-W companion arms discarded their intended second anchors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#255---fixed-inherited-third-party-peirce-bug-e-w-companion-arms-discarded-their-intended-second-anchors)\
 [262 - (Fixed inherited map-script bug) Tiny-island Y positions reused longitude instead of latitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---fixed-inherited-map-script-bug-tiny-island-y-positions-reused-longitude-instead-of-latitude)\
 [263 - (Fixed inherited map-script bug) Medium and Small discarded its eastern continent-grain roll](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#263---fixed-inherited-map-script-bug-medium-and-small-discarded-its-eastern-continent-grain-roll)\
+[264 - (Fixed AdvCiv-SAS compatibility bug) Custom Continents Random failed with 19-48 players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#264---fixed-advciv-sas-compatibility-bug-custom-continents-random-failed-with-19-48-players)\
+[265 - (Fixed AdvCiv-SAS compatibility bug) Inherited map scripts ignored alive player and team IDs above 17](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#265---fixed-advciv-sas-compatibility-bug-inherited-map-scripts-ignored-alive-player-and-team-ids-above-17)\
 [266 - (Fixed inherited map-script bug) Custom Continents six-continent template shifted an inner layer on the wrong axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#266---fixed-inherited-map-script-bug-custom-continents-six-continent-template-shifted-an-inner-layer-on-the-wrong-axis)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -8410,6 +8412,22 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 Medium and Small's Random continent-size path rolls `iContinentsGrainWest` and `iContinentsGrainEast` independently, but both continent-region calls consumed the western value. The eastern roll was never read, making the two halves share a grain whenever their independently rolled values would have differed, which occurs 75% of the time. The stock script contains the same copy/paste error, while `RandomScriptMap` correctly passes its east roll to the eastern region.
 
 The fix passes `iContinentsGrainEast` only to the eastern continent call. Western generation, island grains, shifts and RNG order remain unchanged. Medium and Small successfully generated a Huge map and completed a 10-turn autoplay after the repair, with no specific issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 264 - (Fixed AdvCiv-SAS compatibility bug) Custom Continents Random failed with 19-48 players
+
+Custom Continents' default Random continent-count path indexes a stock weighting table defined only for 2-18 players. That matched the original DLL limit, but AdvCiv-SAS practical 5743 raised the civilization-player limit to 48 without extending or guarding the inherited table. A normal 19-48-player game therefore raised `KeyError` during `beforeGeneration`; `iNumConts` and `cont_data` were not initialized, so subsequent plot generation could fail into the DLL's all-land fallback or reuse stale Python state.
+
+The fix selects the nearest defined weighting profile: 2 for an unusual one-player setup and 18 for every 19-48-player setup. Existing 2-18-player probabilities, the continent templates, the maximum of six continents and RNG calls/order remain unchanged. The clamp also makes the table lookup total for every currently supported civilization-player count. A Huge Random game with more than 18 players generated normally and completed an 11-turn autoplay; `PythonErr.log` remained empty. The map appeared large relative to its player count at a glance, but this qualitative template-size observation did not reproduce the documented all-land/error failure and was not connected to this lookup-only repair.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 265 - (Fixed AdvCiv-SAS compatibility bug) Inherited map scripts ignored alive player and team IDs above 17
+
+Archipelago, Islands and Tectonics intentionally restrict their custom starting-placement topology to at most 18 actual players, but inherited loops also assumed those players occupied IDs 0-17. After AdvCiv-SAS raised the civilization-player limit to 48, a supported sparse Custom Game such as two alive players in slots 0 and 18 passed the player-count gate but enumerated only slot 0. Shuffling then exhausted the incomplete list, raised a Python error and discarded the intended custom starting placement. Custom Continents One Per Team had the analogous problem: its team-index array covered only IDs 0-17, so an alive team ID above 17 could not be mapped to its assigned continent even when there were at most six actual teams.
+
+The fix scans `getMAX_CIV_PLAYERS()` in Archipelago, Islands and Tectonics and `getMAX_CIV_TEAMS()` in Custom Continents. The existing at-most-18-player and at-most-six-team topology limits remain intact; ordinary compact-ID games build the same lists and preserve their RNG behavior, while supported sparse/high-ID games now include every alive civilization player or team. Huge sparse/high-ID games generated normally in all four affected scripts and completed 11-turn autoplays; `PythonErr.log` remained empty. One continent in the Custom Continents One Per Team test appeared small at a glance, but this qualitative template-size observation did not reproduce the documented start-assignment error and was not connected to this enumeration-only repair.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
