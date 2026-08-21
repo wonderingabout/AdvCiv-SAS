@@ -341,6 +341,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [289 - (Fixed inherited BTS/Ruff bug) Team Battleground Start Separated collapsed to Start Anywhere](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#289---fixed-inherited-btsruff-bug-team-battleground-start-separated-collapsed-to-start-anywhere)\
 [290 - (Fixed inherited BTS/Ruff bug) Team Battleground circular starts used truncated Python 2 angles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#290---fixed-inherited-btsruff-bug-team-battleground-circular-starts-used-truncated-python-2-angles)\
 [291 - (Fixed AdvCiv-SAS bug) Team Battleground small circles could duplicate high-player starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#291---fixed-advciv-sas-bug-team-battleground-small-circles-could-duplicate-high-player-starts)\
+[292 - (Fixed inherited Firaxis bug) Hub, Ring and Wheel nine-player regions overlapped their buffer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#292---fixed-inherited-firaxis-bug-hub-ring-and-wheel-nine-player-regions-overlapped-their-buffer)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8714,3 +8715,11 @@ The original circular assignment was designed for BTS's 18-player limit. AdvCiv-
 The fix computes and validates the complete circular assignment before setting any player's start. When every coordinate is unique, the handcrafted Round/Donut order remains in use. If any coordinate repeats, no partial starts are written and the complete assignment plus normalization are delegated to the engine, prioritizing valid distinct starts over an impossible small-map circle. An Arena Round game with 20 players exercises the guaranteed-fallback range and generated successfully without an observed Python error; the resulting map was crowded, as expected for that player count and grid.
 
 This is an AdvCiv-SAS high-player compatibility regression created by extending the player limit beyond the inherited script's design. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 292 - (Fixed inherited Firaxis bug) Hub, Ring and Wheel nine-player regions overlapped their buffer
+
+The Buffered nine-player template shared by Hub, Ring and Wheel defined its upper-middle player region as `[0.5, 0.677, 0.8, 1.0]`. Its symmetric lower region ends at `0.667`, and the adjacent neutral/buffer region also begins at `0.667`. The extra `0.01` therefore made the upper player region overlap and overwrite a vertical strip of its buffer instead of meeting it at the shared boundary. Depending on world size, this deterministic overlap ranged from one column by 11 plots on Large to one column by 23 plots on SAS48.
+
+The fix changes the inherited `0.677` typo to `0.667` in all three scripts. The upper region now matches its symmetric lower counterpart and meets the buffer without overlap; no other region dimensions, fractal settings or starting positions change. Nine-player Buffered Hub, Ring and Wheel maps generated successfully on Large or Huge without an observed gameplay issue at a glance. Their unified main landmass, central neutral/tundra geography and evenly distributed player regions are intended characteristics rather than symptoms of this boundary repair.
+
+This template bug is inherited from Firaxis Hub, Ring and Wheel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

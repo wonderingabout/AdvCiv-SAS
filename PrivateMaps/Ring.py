@@ -242,7 +242,8 @@ def beforeGeneration():
                          7: [0.0, 0.2, 0.2, 0.4]},
                      9: {0: [0.0, 0.167, 0.6, 0.8],
                          1: [0.167, 0.333, 0.8, 1.0],
-                         2: [0.5, 0.677, 0.8, 1.0],
+                         # <!-- custom: The inherited 0.677 east boundary overlapped the adjacent buffer beginning at 0.667; match the symmetric lower region and shared buffer boundary. See KI#292. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+                         2: [0.5, 0.667, 0.8, 1.0],
                          3: [0.833, 1.0, 0.8, 1.0],
                          4: [0.833, 1.0, 0.4, 0.6],
                          5: [0.833, 1.0, 0.0, 0.2],
