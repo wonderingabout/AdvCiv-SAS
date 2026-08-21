@@ -250,7 +250,8 @@ def minStartingDistanceModifier():
 	return -12
 
 class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
-	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
+	# <!-- custom: Wrapped Lagoon geography must stay at its handcrafted coordinates, so this override no longer accepts the inherited shift-plot-types switch. See KI#270. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	def generatePlotTypes(self, water_percent=78, grain_amount=3):
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
@@ -263,17 +264,26 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		iCenterX = int(self.iNumPlotsX / 2)
 		iCenterY = int(self.iNumPlotsY / 2)
 
-		#Default Value work well with Grid Size 10, 10, which is the value of large map, which is 4
-		iShiftBias = 4
-		iShift = iShiftBias - (int(CyMap().getWorldSize()))
-
 		iRadius = int(self.map.getGridHeight() / 4)
 		iHoleRadius = int(self.map.getGridHeight() / 4)
-		iWidthSize = max(7 - (iShift),4) + (CyMap().getCustomMapOption(0)) #This option is worth 1 if bridge activated
-		if int(CyMap().getWorldSize()) >= 2:#for Small and bigger
-			iSmallWidthSize = max(5 - (iShift),4) + (CyMap().getCustomMapOption(0)) #This option is worth 1 if bridge activated
-		if int(CyMap().getWorldSize()) < 2:#else
-			iSmallWidthSize = max(5 - (iShift),3) + (CyMap().getCustomMapOption(0)) #This option is worth 1 if bridge activated
+		# <!-- custom: The BTG formula used raw pre-Arena world-size indices, making every Tiny-Huge land band one tier too wide and drifting farther on SAS sizes. Preserve the original BTS widths through an explicit aligned Arena-SAS48 table. See KI#269. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		worldSizeWidths = {
+			WorldSizeTypes.WORLDSIZE_ARENA: (4, 3),
+			WorldSizeTypes.WORLDSIZE_DUEL: (4, 3),
+			WorldSizeTypes.WORLDSIZE_TINY: (4, 3),
+			WorldSizeTypes.WORLDSIZE_SMALL: (5, 4),
+			WorldSizeTypes.WORLDSIZE_STANDARD: (6, 4),
+			WorldSizeTypes.WORLDSIZE_LARGE: (7, 5),
+			WorldSizeTypes.WORLDSIZE_HUGE: (8, 6),
+			WorldSizeTypes.WORLDSIZE_SAS24: (9, 7),
+			WorldSizeTypes.WORLDSIZE_SAS32: (10, 8),
+			WorldSizeTypes.WORLDSIZE_SAS40: (11, 9),
+			WorldSizeTypes.WORLDSIZE_SAS48: (12, 10),
+		}
+		(iBaseWidthSize, iBaseSmallWidthSize) = worldSizeWidths[self.map.getWorldSize()]
+		iBridgeWidth = self.map.getCustomMapOption(0)
+		iWidthSize = iBaseWidthSize + iBridgeWidth
+		iSmallWidthSize = iBaseSmallWidthSize + iBridgeWidth
 
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
@@ -348,8 +358,7 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 							if (iProba < 95):
 								self.plotTypes[i] = PlotTypes.PLOT_HILLS					
 
-		if shift_plot_types:
-			self.shiftPlotTypes()
+		# <!-- custom: BTG shifted the handcrafted Lagoon plot array on wrapped maps but kept starting regions, center terrain/rivers and resources at unshifted coordinates. Keeping the designed array fixed makes every downstream coordinate refer to the same geography. See KI#270. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 		return self.plotTypes
 
@@ -472,7 +481,8 @@ def beforeGeneration():
 	#copy /inspired by inland			
 	"Set up global variables for start point templates"
 	global templates
-	global shuffledPlayers
+	# <!-- custom: Store shuffled template assignments by actual player ID because alive slots need not be compact. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	global playerTemplateByID
 	global iTemplateRoll
 	gc = CyGlobalContext()
 	dice = gc.getGame().getMapRand()
@@ -611,14 +621,17 @@ def beforeGeneration():
 	# End of Templates data.
 
 	# Shuffle start points so that players are assigned templateIDs at random.
-	player_list = []
-	for playerLoop in range(CyGlobalContext().getGame().countCivPlayersEverAlive()):
-		player_list.append(playerLoop)
-	shuffledPlayers = []
-	for playerLoopTwo in range(gc.getGame().countCivPlayersEverAlive()):
-		iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Inland Sea PYTHON")
-		shuffledPlayers.append(player_list[iChoosePlayer])
-		del player_list[iChoosePlayer]
+	# <!-- custom: BTG indexed a compact assignment list with real player IDs, so sparse alive slots lost Lagoon's custom starting region. Map every actual ever-alive civilization player ID directly to one shuffled template ID. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	playerIDs = []
+	for playerID in range(gc.getMAX_CIV_PLAYERS()):
+		if gc.getPlayer(playerID).isEverAlive():
+			playerIDs.append(playerID)
+	templateIDs = range(iPlayers)
+	playerTemplateByID = {}
+	for playerID in playerIDs:
+		iChooseTemplate = dice.get(len(templateIDs), "Shuffling Template IDs - Inland Sea PYTHON")
+		playerTemplateByID[playerID] = templateIDs[iChooseTemplate]
+		del templateIDs[iChooseTemplate]
 
 	return None		
 
@@ -644,9 +657,9 @@ def findStartingPlot(argsList):
 
 		# Use global data set up via beforeGeneration().
 		global templates
-		global shuffledPlayers
+		global playerTemplateByID
 		global iTemplateRoll
-		playerTemplateAssignment = shuffledPlayers[playerID]
+		playerTemplateAssignment = playerTemplateByID[playerID]
 		[fLat, fLon, varX, varY] = templates[(iPlayers, iTemplateRoll)][playerTemplateAssignment]
 
 		# Check to ensure the plot is on the main landmass.
@@ -735,44 +748,47 @@ def BTPTopBottomTwoTeams(isBTG):
 		teamTwo = listTeams[1]
 		###########################
 
-		listPlot = []
 		listPlayer = []
 		iH = CyMap().getGridHeight()
 		halfHeight = iH / 2
 		for iI in range(gc.getMAX_CIV_PLAYERS()):
 			if isBTG:
 				if (gc.getPlayer(iI).isAlive() and not gc.getPlayer(iI).isSpectator()):		
-					listPlot.append(gc.getPlayer(iI).getStartingPlot())
 					listPlayer.append(gc.getPlayer(iI).getID())
 			else:
 				if (gc.getPlayer(iI).isAlive()):		
-					listPlot.append(gc.getPlayer(iI).getStartingPlot())
 					listPlayer.append(gc.getPlayer(iI).getID())				
 
-		#only do team one it will be good 		
-		listCurrentPlayer = listPlayer
-		for iI in range(gc.getMAX_CIV_PLAYERS()):
-			bDoThis = False
-			if isBTG:
-				if (gc.getPlayer(iI).isAlive() and not gc.getPlayer(iI).isSpectator()):
-					bDoThis = True
-			else:
-				if (gc.getPlayer(iI).isAlive()):
-					bDoThis = True				
-			if bDoThis:
-				if (gc.getPlayer(iI).getTeam() == teamOne and gc.getPlayer(iI).getStartingPlot().getY() >= halfHeight):						
-					random.shuffle(listCurrentPlayer)
-					iRoll = listCurrentPlayer[0]
-					#while ((gc.getPlayer(iRoll).getStartingPlot().getY() >= halfHeight) or (iRoll == iI)):#I roll until it's a bottom tile
-					#2.23 - Problem is, on the last "fix" you can send a teammate back on top
-					while ((gc.getPlayer(iRoll).getStartingPlot().getY() >= halfHeight) or (iRoll == iI) or gc.getPlayer(iRoll).getTeam() == teamOne):#I roll until it's a bottom tile
-						random.shuffle(listCurrentPlayer)
-						iRoll = listCurrentPlayer[0]
+		# <!-- custom: BTG retried random candidates without a bound, hanging when unequal teams made full Top-v-Bottom separation impossible. Require equal teams and pair the finite misplaced-player lists; if the current starts cannot be paired completely, leave normalization unchanged. See KI#268. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		teamOnePlayers = []
+		teamTwoPlayers = []
+		for playerID in listPlayer:
+			if gc.getPlayer(playerID).getTeam() == teamOne:
+				teamOnePlayers.append(playerID)
+			elif gc.getPlayer(playerID).getTeam() == teamTwo:
+				teamTwoPlayers.append(playerID)
+		if len(teamOnePlayers) != len(teamTwoPlayers):
+			return None
 
-					spotA = gc.getPlayer(iI).getStartingPlot()
-					spotB = gc.getPlayer(iRoll).getStartingPlot()
-					gc.getPlayer(iI).setStartingPlot(spotB,True)
-					gc.getPlayer(iRoll).setStartingPlot(spotA,True)				
+		teamOneTop = []
+		teamTwoBottom = []
+		for playerID in teamOnePlayers:
+			if gc.getPlayer(playerID).getStartingPlot().getY() >= halfHeight:
+				teamOneTop.append(playerID)
+		for playerID in teamTwoPlayers:
+			if gc.getPlayer(playerID).getStartingPlot().getY() < halfHeight:
+				teamTwoBottom.append(playerID)
+		if len(teamOneTop) != len(teamTwoBottom):
+			return None
+		random.shuffle(teamOneTop)
+		random.shuffle(teamTwoBottom)
+		for swapIndex in range(len(teamOneTop)):
+			playerA = teamOneTop[swapIndex]
+			playerB = teamTwoBottom[swapIndex]
+			spotA = gc.getPlayer(playerA).getStartingPlot()
+			spotB = gc.getPlayer(playerB).getStartingPlot()
+			gc.getPlayer(playerA).setStartingPlot(spotB,True)
+			gc.getPlayer(playerB).setStartingPlot(spotA,True)
 
 def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bMakeHill,iForceTerrain):
 

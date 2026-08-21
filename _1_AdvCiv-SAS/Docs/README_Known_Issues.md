@@ -311,6 +311,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [264 - (Fixed AdvCiv-SAS compatibility bug) Custom Continents Random failed with 19-48 players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#264---fixed-advciv-sas-compatibility-bug-custom-continents-random-failed-with-19-48-players)\
 [265 - (Fixed AdvCiv-SAS compatibility bug) Inherited map scripts ignored alive player and team IDs above 17](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#265---fixed-advciv-sas-compatibility-bug-inherited-map-scripts-ignored-alive-player-and-team-ids-above-17)\
 [266 - (Fixed inherited map-script bug) Custom Continents six-continent template shifted an inner layer on the wrong axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#266---fixed-inherited-map-script-bug-custom-continents-six-continent-template-shifted-an-inner-layer-on-the-wrong-axis)\
+[267 - (Partially fixed inherited map-script bug) Sparse player IDs lost handcrafted starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#267---partially-fixed-inherited-map-script-bug-sparse-player-ids-lost-handcrafted-starts)\
+[268 - (Fixed inherited third-party BTG bug) Lagoon Top v Bottom could retry forever with unequal teams](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#268---fixed-inherited-third-party-btg-bug-lagoon-top-v-bottom-could-retry-forever-with-unequal-teams)\
+[269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#269---fixed-advciv-sas-bug-lagoon-land-band-widths-used-stale-pre-arena-world-size-indices)\
+[270 - (Fixed inherited third-party BTG bug) Lagoon shifted wrapped geography without shifting fixed-coordinate follow-up logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#270---fixed-inherited-third-party-btg-bug-lagoon-shifted-wrapped-geography-without-shifting-fixed-coordinate-follow-up-logic)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8436,5 +8440,37 @@ Found and investigated through the systematic AdvCiv-SAS archaeology with the he
 Custom Continents template `(6,3)` defines outer and inner layers for each of six continents. Continent 4's outer layer shifts horizontally by `-0.63`, but its inner layer uniquely stored that value as a vertical shift; the mirrored continent 0 pair and continent 5 pair use matching horizontal shifts. Three of four binary X/Y shift states therefore separated continent 4's intended nested layers. The exact field-placement typo is inherited from stock Firaxis Custom Continents.
 
 The fix moves `-0.63` from the inner layer's vertical-shift field to its horizontal-shift field, matching its outer layer and the surrounding mirrored template structure. No other template values change. Custom Continents successfully generated a Huge six-continent map and completed a 10-turn autoplay after the repair, with no specific issue found at a glance.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 267 - (Partially fixed inherited map-script bug) Sparse player IDs lost handcrafted starts
+
+Several inherited map scripts mix compact alive-player positions with actual `PlayerTypes` IDs in supported sparse-slot games. Lagoon built a compact shuffled template list and later indexed it with the actual player ID; for alive slots 0 and 2, player 2 indexed beyond a two-entry list and lost Lagoon's custom region through the DLL fallback. Cross initially enumerated the correct alive IDs, but its Numerical and team-positioning branches replaced them with `assignLoop`; an open slot could receive a start while an actual player was omitted from Cross's successful global assignment. Team Battleground Round/Donut directly assign compact IDs and can lose the intended circular arrangement through generic fallback, while Ring's bounds guard avoids an exception but similarly rejects its custom region for a sparse high-ID player.
+
+The partial fix maps each actual ever-alive civilization player ID directly to a shuffled Lagoon template ID and preserves Cross's ordered actual-ID list in every non-shuffled assignment branch. Compact-ID games retain the same assignment order and shuffled modes retain their existing RNG behavior. Original BTG 2.43 contains the Lagoon/Cross defects, and archived BTS/Ruff plus Firaxis Ring contain the later-broadened surfaces. Huge Cross and Lagoon games both generated and completed 11-turn autoplays after the repair with an empty refreshed `PythonErr.log`; the sparse-ID branches were additionally validated through focused source/logic checks rather than a dedicated sparse-slot runtime setup. Team Battleground and Ring remain to be repaired, so KI#267 is not fully fixed yet.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 268 - (Fixed inherited third-party BTG bug) Lagoon Top v Bottom could retry forever with unequal teams
+
+Lagoon's default Top v Bottom normalization accepted any even player count on exactly two teams, but then repeatedly shuffled all players until each misplaced member of one team found an opposite-team bottom start. In a valid four-player 3-vs-1 game, complete separation is impossible; depending on which team was selected and prior swaps, the unbounded `while` loop could run forever after no eligible candidate remained. The same logic exists in original BTG 2.43.
+
+The fix first requires equal team sizes, constructs the two finite lists of misplaced players, and swaps randomly paired entries only when the list sizes match. Unequal or otherwise incompatible arrangements now return safely without partially rewriting starts; valid equal-team Top v Bottom games retain randomized pairing and complete separation. Focused logic checks confirm finite behavior for unequal 3-vs-1 and correct pairing for equal 2-vs-2 inputs. A Huge Lagoon game also generated and completed an 11-turn autoplay with an empty refreshed `PythonErr.log`; the unequal-team edge case was not separately reproduced in-game.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 269 - (Fixed AdvCiv-SAS bug) Lagoon land-band widths used stale pre-Arena world-size indices
+
+BTG Lagoon's outer solid/partial land-band and bridge widths were derived by subtracting the raw world-size enum from a BTS-era bias. AdvCiv-SAS had already inserted Arena before Duel when Lagoon was imported, so Tiny through Huge consumed the next-larger legacy tuning and the four SAS sizes drifted still farther. For example, Large produced base widths 8/6 rather than BTG's intended Large tuning of 7/5. Earlier SAS work repaired Lagoon's separate grid-size lookup but left this internal arithmetic unchanged.
+
+The fix replaces the stale enum subtraction with an explicit aligned Arena-through-SAS48 table. Duel through Huge recover the original BTG widths, Arena uses the safe Duel/Tiny minimum, and each SAS tier continues the established progression by one. A focused table check confirms that every Duel-through-Huge pair exactly matches original BTG tuning. The bridge option remains a separate one-tile addition, and no grid dimensions, radius calculations or other generation settings change. A Huge Lagoon game generated and completed an 11-turn autoplay with an empty refreshed `PythonErr.log`.
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 270 - (Fixed inherited third-party BTG bug) Lagoon shifted wrapped geography without shifting fixed-coordinate follow-up logic
+
+On Cylindrical or Toroidal wrapping, Lagoon shifted its completed handcrafted plot array to choose a better seam. Its custom starting rectangles, central peak/desert terrain and rivers, and optional center-relative resources nevertheless remained anchored to their original coordinates. A nonzero shift therefore moved the lagoon/bridges/outer bands away from the coordinate system used by every later handcrafted step. Original BTG 2.43 contains the same mismatch; sibling fixed-layout BTG scripts do not depend on this shift.
+
+The fix keeps Lagoon's designed plot array fixed. The map already builds its wrapped boundary geography deliberately, so disabling the generic seam relocation preserves alignment without having to propagate hidden X/Y offsets through every later coordinate-dependent callback. Plot generation and every follow-up step now use the same center and starting-region coordinates. A Huge Lagoon game generated and completed an 11-turn autoplay with an empty refreshed `PythonErr.log`; wrapped alignment itself is validated from the removal of the only plot-array relocation rather than a separate wrapped screenshot comparison.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
