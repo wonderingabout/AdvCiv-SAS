@@ -600,6 +600,8 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		thisRegion = remaining_regions[region_roll]
 		regions_in_use.append(thisRegion)
 		del remaining_regions[region_roll]
+		# <!-- custom: BTG's second region pool still contained the already-generated mirror source, so open maps generated that hub twice and all modes recorded it twice. Consume the source in both pools. See KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		remaining_regionsTwo.remove(thisRegion)
 
 		# Region dimensions
 		[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
@@ -645,7 +647,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
 
-			for region_loop in range(iNumRegions):#2.15
+			for region_loop in range(iNumRegions - 1):#2.15
 				# Choose an unused region
 				region_roll = self.dice.get(len(remaining_regionsTwo), "Region Roll - Grid PYTHON")
 				thisRegion = remaining_regionsTwo[region_roll]
@@ -699,20 +701,14 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			#duplicate land for other used regions
 			other_regions = []
-			#for region_loop in range(iPlayers - 1):#2.10 Out
-				# Choose an unused region
-				#region_roll = self.dice.get(len(remaining_regions), "Region Roll - Grid PYTHON")
-				#thisRegion = remaining_regions[region_roll]
-				#regions_in_use.append(thisRegion)
-				#del remaining_regions[region_roll]
+			# <!-- custom: Record each physical mirrored hub once, including the source once, then crop every copy to the largest common in-bounds footprint. BTG duplicated the source ID and assumed rounded source/target dimensions were equal. See KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			for region_loop in range(len(region_coords)):
+				if len(regions_in_use) >= iNumRegions:
+					break
+				if region_loop not in regions_in_use:
+					regions_in_use.append(region_loop)
 
-			for region_loop in range(iNumRegions):
-				#region_roll = self.dice.get(len(remaining_regions), "Region Roll - Grid PYTHON")
-				thisRegion = region_loop
-				regions_in_use.append(thisRegion)
-				#del remaining_regions[region_roll]
-
-				# Region dimensions
+			for thisRegion in regions_in_use:
 				[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
 				iWestX = int(self.iW * fWestLon)
 				iEastX = int(self.iW * fEastLon) - 1
@@ -722,12 +718,15 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				iHeight = iNorthY - iSouthY + 1
 
 				other_regions.append([thisRegion, iWestX, iSouthY, iWidth, iHeight])
-				iD, iWestXD, iSouthYD, iWidthD, iHeightD = region_duplicated
 
-				for x in range(iWidth):
+			copyWidth = min([item[3] for item in other_regions])
+			copyHeight = min([item[4] for item in other_regions])
+			iD, iWestXD, iSouthYD, iWidthD, iHeightD = region_duplicated
+			for thisRegion, iWestX, iSouthY, iWidth, iHeight in other_regions:
+				for x in range(copyWidth):
 					wholeworldX = x + iWestX
 					wholeworldXD = x + iWestXD
-					for y in range(iHeight):
+					for y in range(copyHeight):
 						wholeworldY = y + iSouthY
 						iWorld = wholeworldY*self.iW + wholeworldX
 						wholeworldYD = y + iSouthYD
@@ -866,8 +865,9 @@ def assignStartingPlots():
 	if iPlayers < 1 or iPlayers > 18:
 		CyPythonMgr().allowDefaultImpl()
 		return
-	if len(regions_in_use) < iPlayers:
-		# <!-- custom: If active players exceed scripted region slots (e.g. high DLL player counts), fall back to default start placement instead of failing starts/defeat on turn 0. (GPT-5.3-Codex) -->
+	iActualPlayers = gc.getGame().countCivPlayersEverAlive()
+	if len(regions_in_use) < iActualPlayers:
+		# <!-- custom: If actual players exceed distinct scripted region slots, fall back before assigning any custom start. Removing BTG's duplicate source-region bookkeeping makes this guard detect one-over-template cases; compare the actual count because Grid's legacy iPlayers can instead mean rounded capacity for an intentionally empty hub. See KI#247 and KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		CyPythonMgr().allowDefaultImpl()
 		return
 
@@ -975,7 +975,8 @@ def assignStartingPlots():
 
 	# Now sort the regions
 	best_regions = []
-	region_numbers = regions_in_use
+	# <!-- custom: BTG aliased and consumed the global region list while ranking; rank a copy of the now-unique physical IDs so later callbacks retain their bookkeeping. See KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	region_numbers = regions_in_use[:]
 	sorting_regions.sort()
 	sorting_regions.reverse()
 	for regionTestLoop in range(iNumRegions):
@@ -1411,7 +1412,7 @@ def mirrorizeMap():
 	iH = map.getGridHeight()
 
 	region_duplicated_ID, iWestX, iSouthY, iWidth, iHeight = region_duplicated
-	#make sure larger duplicated land doesn't get extra bonuses/goodies
+	# <!-- custom: Use the same common source/target footprint chosen during plot generation so every later mirrored layer stays within both rectangles. See KI#274. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	minW = min([item[3] for item in other_regions])
 	minH = min([item[4] for item in other_regions])
 
@@ -1430,8 +1431,8 @@ def mirrorizeMap():
 
 	#reflect plot types (addlake)
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setPlotType(rPlot.getPlotType(), True, True)
@@ -1440,8 +1441,8 @@ def mirrorizeMap():
 
 	#reflect terrain
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setTerrainType(rPlot.getTerrainType(), True, True)
@@ -1451,8 +1452,8 @@ def mirrorizeMap():
 	#rearrange river IDs
 	initRiverID = 0
 	riverID = {}
-	for dX in range(iWidth):
-		for dY in range(iHeight):
+	for dX in range(minW):
+		for dY in range(minH):
 			pPlot = map.plot(iWestX + dX, iSouthY + dY)
 			rID = pPlot.getRiverID()
 			if rID != -1 :
@@ -1469,8 +1470,8 @@ def mirrorizeMap():
 	#mirrorize rivers
 	for region_ID, wX, sY, rW, rH in other_regions:
 		incr += 1
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 
@@ -1487,8 +1488,8 @@ def mirrorizeMap():
 
 	# mirrorize features
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setFeatureType(rPlot.getFeatureType(), -1)
@@ -1497,8 +1498,8 @@ def mirrorizeMap():
 
 	# mirrorize bonuses
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setBonusType(rPlot.getBonusType(-1))
@@ -1507,8 +1508,8 @@ def mirrorizeMap():
 
 	# mirrorize goodies
 	for region_ID, wX, sY, rW, rH in other_regions:
-		for dX in range(rW):
-			for dY in range(rH):
+		for dX in range(minW):
+			for dY in range(minH):
 				pPlot = map.plot(wX + dX, sY + dY)
 				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 				pPlot.setImprovementType(rPlot.getImprovementType())
