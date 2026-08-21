@@ -87,6 +87,8 @@ def getNumPlotsPercent(argsList):
 		return 100
 	sizeModifiers = {
 		# NB: The smallest two sizes have highly unpredictable land-sea ratios
+		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value. Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
+		WorldSizeTypes.WORLDSIZE_ARENA:		89,
 		WorldSizeTypes.WORLDSIZE_DUEL:		89,
 		WorldSizeTypes.WORLDSIZE_TINY:		87,
 		WorldSizeTypes.WORLDSIZE_SMALL:		85,

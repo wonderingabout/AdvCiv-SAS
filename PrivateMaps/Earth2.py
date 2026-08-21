@@ -59,7 +59,7 @@ def getGridSize(argsList):
     if (argsList[0] == -1): # (-1,) is passed to function on loads
         return []
     [eWorldSize] = argsList
-    # <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
+    # <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. Earth2's staged start distribution was designed to keep Huge and SAS24-48 at the same already-large grid, so use ordinary lookup and its intentional last-tier cap. See KI#281. (Claude code Opus 4.7; GPT-5.5; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
     grid_sizes = {
         WorldSizeTypes.WORLDSIZE_ARENA: (7,4),
         WorldSizeTypes.WORLDSIZE_DUEL: (10,6),
@@ -69,7 +69,7 @@ def getGridSize(argsList):
         WorldSizeTypes.WORLDSIZE_LARGE: (30,18),
         WorldSizeTypes.WORLDSIZE_HUGE: (40,24),
     }
-    return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+    return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def minStartingDistanceModifier():
     return -15
@@ -86,13 +86,10 @@ def findStartingPlot(argsList):
 	iAfricaMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_STARTS_POPULATE_AFRICA_MIN_PLAYERS")
 	iFullWorldMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_STARTS_POPULATE_FULL_WORLD_MIN_PLAYERS")
 
-	iAmericaEastX = int(map.getGridWidth() * 0.40)
 	iAfricaWestX = int(map.getGridWidth() * 0.50)
 	iAfricaEastX = int(map.getGridWidth() * 0.68)
 	iAfricaSouthY = int(map.getGridHeight() * 0.18)
 	iAfricaNorthY = int(map.getGridHeight() * 0.64)
-	iAustraliaWestX = int(map.getGridWidth() * 0.84)
-	iAustraliaNorthY = int(map.getGridHeight() * 0.32)
 
 	def isValid(playerID, x, y):
 		pPlot = map.plot(x, y)
@@ -101,14 +98,9 @@ def findStartingPlot(argsList):
 			return (pPlot.getArea() == iBiggestAreaID)
 
 		bInAfrica = (x >= iAfricaWestX and x <= iAfricaEastX and y >= iAfricaSouthY and y <= iAfricaNorthY)
-		bInAustralia = (x >= iAustraliaWestX and y <= iAustraliaNorthY)
-		bInAmericas = (x < iAmericaEastX)
-
-		if iNumPlayers < iAfricaMinPlayers and bInAfrica:
-			return False
-
-		if iNumPlayers < iFullWorldMinPlayers and (bInAustralia or bInAmericas):
-			return False
+		# <!-- custom: The 16-31-player stage was intended to add Africa to the classic biggest landmass, but its Africa condition was unreachable and the remaining exclusions admitted every other Old-World island. Apply the stated union directly; 32+ retains unrestricted full-world starts. See KI#280. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if iNumPlayers < iFullWorldMinPlayers:
+			return (pPlot.getArea() == iBiggestAreaID) or bInAfrica
 
 		return True
 
@@ -122,7 +114,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         #
         # The following grain matrix is specific to Earth2.py
         sizekey = self.map.getWorldSize()
+        # <!-- custom: Earth2's legacy grain table omitted Arena, so the smallest tier fell upward to Huge grain. Give Arena the intended Duel/Tiny tuple; SAS24-48 intentionally retain Huge grain alongside Earth2's fixed-Huge grid policy. See KI#282. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
         sizevalues = {
+            WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1),
             WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1),
             WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1),
             WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1),
