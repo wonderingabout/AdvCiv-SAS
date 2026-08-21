@@ -128,11 +128,21 @@ def getBottomLatitude():
 	return 0
 
 def getGridSize(argsList):
-	# <!-- custom: Oasis behaves like an almost-all-land layout in practice; use shared compact almost-all-land sizing for tighter spacing and consistent SAS scaling. (GPT-5.3-Codex) -->
+	# <!-- custom: The shared compact almost-all-land profile made Arena only 8x8 plots; two players nearly filled the entire Oasis map by turn 11 in runtime testing.
+	# Restore Oasis' inherited land-heavy base profile, add Arena below Duel and calibrate SAS tiers from Huge by expected player count. See KI#293.2. (GPT-5.6-Sol) -->
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
+	grid_sizes = {
+		WorldSizeTypes.WORLDSIZE_ARENA: (5, 3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (6, 4),
+		WorldSizeTypes.WORLDSIZE_TINY: (8, 5),
+		WorldSizeTypes.WORLDSIZE_SMALL: (10, 6),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (14, 9),
+		WorldSizeTypes.WORLDSIZE_LARGE: (18, 11),
+		WorldSizeTypes.WORLDSIZE_HUGE: (23, 14)
+		}
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 def findStartingPlot(argsList):
 	[playerID] = argsList
@@ -865,7 +875,7 @@ def addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, iDirectionOd
 	pRiverPlot = map.plot(iX, iY)
 	pRiverPlot.setWOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 	# Loop through addition of more segments until the river terminates.
-	while iY < iH:
+	while iY < iH - 1:
 		northPlotWest = map.plot(iX, iY+1)
 		northPlotEast = map.plot(iX+1, iY+1)
 		# Checking both plots for water.
@@ -876,7 +886,7 @@ def addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, iDirectionOd
 		segmentLength = 1 + dice.get(maxshift, "River Direction - Oasis PYTHON")
 		# WEST
 		if direction == 1: # Turn to the West, then North again.
-			if iY == iH:
+			if iY >= iH - 1:
 				break
 			iY += 1
 			pRiverPlot = map.plot(iX, iY)
@@ -896,7 +906,7 @@ def addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, iDirectionOd
 			pRiverPlot.setWOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 		# EAST
 		elif direction == 2: # Turn to the East, then North again.
-			if iY == iH:
+			if iY >= iH - 1:
 				break
 			if iX >= right:
 				continue
@@ -921,7 +931,7 @@ def addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, iDirectionOd
 		# NORTH
 		else: # Run straight North for a segment. Note: 60% chance of North.
 			for segment in range(segmentLength):
-				if iY == iH:
+				if iY >= iH - 1:
 					break
 				northPlotWest = map.plot(iX, iY+1)
 				northPlotEast = map.plot(iX+1, iY+1)
@@ -959,7 +969,7 @@ def addRivers():
 
 	# Rivers begin south of the Oasis.
 	startRangeBottom = 2 # May start nearly at the bottom edge of the map.
-	startRangeTop = iH / 6 # May start as far north as Latitude 0.17
+	startRangeTop = max(startRangeBottom + 1, iH / 6) # May start as far north as Latitude 0.17
 	firstQuadCenter = iW / 8
 	secondQuadCenter = iW / 8 + iW / 4
 	thirdQuadCenter = iW / 8 + 2 * (iW / 4)
@@ -969,13 +979,18 @@ def addRivers():
 
 	# Place rivers.
 	for center in quadrants:
-		left = center - maxshift
-		right = center + maxshift
-		horzRand = right - left
+		# <!-- custom: Compact SAS grids let the last fixed lane reach the east edge although the river helper probes x+1, and Arena/Duel could produce a negative vertical RNG range.
+		# Clamp each lane and both RNG ranges to the actual plot dimensions; the helper's north loop is likewise stopped before its y+1 probes leave the map. See KI#293.
+		# (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		center = min(max(0, center), iW - 2)
+		riverMaxShift = min(maxshift, center, iW - 2 - center)
+		left = center - riverMaxShift
+		right = center + riverMaxShift
+		horzRand = max(1, right - left)
 		vertRand = startRangeTop - startRangeBottom
 		startX = left + dice.get(horzRand, "River Start X - Oasis PYTHON")
 		startY = startRangeBottom + dice.get(vertRand, "River Start Y - Oasis PYTHON")
 		#
-		addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, 5)
+		addNileStyleRiverFlowingNorth(center, riverMaxShift, startX, startY, 5)
 
 	return 0
