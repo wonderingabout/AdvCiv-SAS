@@ -333,6 +333,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [282 - (Fixed AdvCiv-SAS bug) Earth2 Arena used Huge regional grain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#282---fixed-advciv-sas-bug-earth2-arena-used-huge-regional-grain)\
 [282.2 - (Fixed AdvCiv-SAS bug) Pangaea regional generation could raise KeyError on Arena](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2822---fixed-advciv-sas-bug-pangaea-regional-generation-could-raise-keyerror-on-arena)\
 [282.3 - (Fixed AdvCiv-SAS bug) Five map scripts could raise KeyError on Arena world-size percentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2823---fixed-advciv-sas-bug-five-map-scripts-could-raise-keyerror-on-arena-world-size-percentages)\
+[283 - (Fixed inherited Firaxis bug) Wrapped Donut shifting misaligned its center plots and terrain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#283---fixed-inherited-firaxis-bug-wrapped-donut-shifting-misaligned-its-center-plots-and-terrain)\
+[284 - (Fixed inherited Firaxis bug) Y seam guards compared strip size with width instead of height](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#284---fixed-inherited-firaxis-bug-y-seam-guards-compared-strip-size-with-width-instead-of-height)\
+[284.2 - (Fixed AdvCiv-SAS bug) Map-generator define checks required `self.gc` instead of using `CyGlobalContext()`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2842---fixed-advciv-sas-bug-map-generator-define-checks-required-selfgc-instead-of-using-cyglobalcontext)\
+[287 - (Fixed inherited Firaxis visual bug) Hub, Ring and Wheel lost east and north Evergreen transition bands](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#287---fixed-inherited-firaxis-visual-bug-hub-ring-and-wheel-lost-east-and-north-evergreen-transition-bands)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8642,3 +8646,35 @@ A repository-wide follow-up audit found the same incomplete direct-dictionary ad
 The fix adds Arena to each percentage dictionary using that script's established Duel value and adds Terra Arena regional grain matching Duel/Tiny. This makes the existing length guards include Huge again while preserving their explicit SAS-size fallback percentages and Terra's larger-size grain fallback. A static direct-index audit found no other playable map-script world-size dictionaries with this missing-Arena pattern; all five affected scripts then generated and ran successfully on Arena.
 
 This is an AdvCiv-SAS Arena world-size adaptation bug across inherited AdvCiv/Firaxis map code. Found through the repository-wide follow-up audit and fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 283 - (Fixed inherited Firaxis bug) Wrapped Donut shifting misaligned its center plots and terrain
+
+Donut constructs its circular plot geometry around fixed center coordinates, then inherited generic seam shifting could rotate the completed plot array by one tile on Cylindrical or Toroidal maps. The later terrain generator independently reused the original fixed center and received no shift offset, misaligning the selected center-region plots from their special terrain. Flat wrapping was unaffected.
+
+The fix explicitly disables generic plot shifting for Donut. Its handcrafted disk already leaves an ocean margin at the map boundaries, so shifting is unnecessary and fixed-coordinate plot and terrain generation remain aligned. Donut generated successfully under both proposed wrap settings without an observed issue at a glance.
+
+This bug is inherited from Firaxis BTS Donut. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 284 - (Fixed inherited Firaxis bug) Y seam guards compared strip size with width instead of height
+
+Both `CvMapGeneratorUtil.FractalWorld.findBestSplitY` and its regional counterpart score and wrap a Y strip over height, but their inherited early guards compared the strip size with width. On short rectangular maps or regions, an oversized Y kernel therefore wrapped repeatedly across the same rows instead of taking the intended zero-shift fallback. Current affected consumers include Boreal, Global Highlands, several compact land-heavy maps and regional Hub/Ring/Wheel generation.
+
+The fix changes the two guards to compare with map or region height. Their symmetric X routines, valid shifts and all scoring weights remain unchanged. Boreal generated successfully on Tiny and Small with Toroidal wrapping after the repair; Hub, Ring and Wheel also generated successfully under the suggested configurations without an observed issue at a glance.
+
+This shared utility bug is inherited from Firaxis and Base AdvCiv 1.14. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 284.2 - (Fixed AdvCiv-SAS bug) Map-generator define checks required `self.gc` instead of using `CyGlobalContext()`
+
+The August 14, 2026 shared map-generation XML-tunability change in SAS practical 6114 / commit `d2c310774e` made `TerrainGenerator.processCustomizations()` and `FeatureGenerator.addFeatures()` read new defines through `self.gc`. Their base constructors initialize that field, but inherited map scripts are explicitly allowed to replace `__init__` while retaining those base methods. Boreal replaces both constructors without setting `self.gc`, so a Tiny runtime test raised `AttributeError` first during terrain generation and again during feature generation. Other inherited generator subclasses share the same compatibility contract.
+
+The fix obtains the global context locally for these two once-per-generation define reads. This preserves the tunable behavior for ordinary generators and keeps inherited subclasses independent of base-constructor state. Boreal subsequently generated successfully on Tiny and Small with Toroidal wrapping, confirming both terrain and feature generation paths.
+
+This is an AdvCiv-SAS regression introduced by the map-generation XML-tunability change. Found through KI#284 runtime validation with the help of wonderingabout; traced, fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 287 - (Fixed inherited Firaxis visual bug) Hub, Ring and Wheel lost east and north Evergreen transition bands
+
+Hub, Ring and Wheel intend Snowy forest art inside their center rectangle, Evergreen in a surrounding transition band and Leafy farther outside. Their inherited west/south transition boundaries correctly scale the distance outward from the center. The east/north formulas instead mixed the center coordinate with the full far-edge coordinate, placing those boundaries inside the Snowy center and making the east/north Evergreen bands empty.
+
+The fix mirrors the west/south 70% distance calculation from the east and north far edges in all three scripts. This restores four-sided Evergreen transition bands without changing forest presence, yields or gameplay effects. Hub, Ring and Wheel all generated successfully under the suggested configurations without an observed issue at a glance.
+
+This visual bug is inherited from Firaxis Hub, Ring and Wheel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

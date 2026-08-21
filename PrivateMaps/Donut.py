@@ -214,7 +214,8 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Donut) ...")
 	fractal_world = DonutFractalWorld()
-	return fractal_world.generatePlotTypes()
+	# <!-- custom: Generic wrapped-map seam shifting rotated Donut's handcrafted plot disk while its later terrain pass remained centered on fixed coordinates, misaligning special center plots and terrain. Donut already guarantees ocean at its boundaries, so disabling the needless shift fixed the mismatch. See KI#283. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return fractal_world.generatePlotTypes(shift_plot_types=False)
 
 # subclass TerrainGenerator to create a lush grassland utopia.
 class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):

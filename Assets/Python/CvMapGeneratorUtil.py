@@ -187,7 +187,8 @@ class FractalWorld:
 
 	def findBestSplitY(self, stripRadius):
 		stripSize = 2*stripRadius
-		if stripSize > self.iNumPlotsX:
+		# <!-- custom: This Y seam kernel allocates, scores and wraps over map height, but the inherited width guard let oversized strips wrap and double-count short maps. Compare with height like the symmetric X routine compares with width. See KI#284. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if stripSize > self.iNumPlotsY:
 			return 0
 
 		numPlots = self.iNumPlotsX * self.iNumPlotsY
@@ -831,7 +832,8 @@ class MultilayeredFractal:
 
 	def findBestRegionSplitY(self, iRegionWidth, iRegionHeight, stripRadius):
 		stripSize = 2*stripRadius
-		if stripSize > iRegionWidth:
+		# <!-- custom: Regional Y seam scoring likewise wraps over region height; use that dimension for the too-large-strip fallback. See KI#284. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if stripSize > iRegionHeight:
 			return 0
 
 		numPlots = iRegionWidth * iRegionHeight
@@ -1387,7 +1389,8 @@ class TerrainGenerator:
 	def processCustomizations(self):
 		self.bEarthlike = False
 		global bEarthlike
-		if not bEarthlike or self.gc.getDefineINT("SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE") <= 0:
+		# <!-- custom: Map-script subclasses may replace __init__ without setting self.gc. Reading this once-per-generation define locally preserves that inherited compatibility contract. See KI#284.2. (GPT-5.6-Sol) -->
+		if not bEarthlike or CyGlobalContext().getDefineINT("SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE") <= 0:
 			return
 		self.bEarthlike = True
 		# Everything except getLatitudeAtPlot is essential
@@ -1464,7 +1467,8 @@ class FeatureGenerator:
 		# adds features to all plots as appropriate
 		#
 		# <!-- custom: AdvCiv randomizes standard feature traversal so bNoAdjacent features such as Oasis have no fixed scan-direction bias. Keep BTS coordinate-order traversal available independently. (GPT-5.6-Sol) -->
-		if self.gc.getDefineINT("SAS_MAP_ADVCIV_FEATURE_PLACEMENT_ORDER_ENABLE") <= 0:
+		# <!-- custom: Map-script subclasses may replace __init__ without setting self.gc. Reading this once-per-generation define locally preserves that inherited compatibility contract. See KI#284.2. (GPT-5.6-Sol) -->
+		if CyGlobalContext().getDefineINT("SAS_MAP_ADVCIV_FEATURE_PLACEMENT_ORDER_ENABLE") <= 0:
 			for iX in range(self.iGridW):
 				for iY in range(self.iGridH):
 					self.addFeaturesAtPlot(iX, iY)
