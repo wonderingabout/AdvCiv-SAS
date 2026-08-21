@@ -233,13 +233,19 @@ def generatePlotTypes():
 
 	# Varying grains for hills/peaks per map size and Mountain Ranges setting.
 	# [clustered_grain, ridgelines_grain, scattered_grain]
+	# <!-- custom: Global Highlands retained the legacy six-tier table, making Arena fall upward to Huge grain and leaving SAS24-48 one grain coarser than the established Highlands extension. Keep both sibling scripts aligned. See KI#279. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	worldsizes = {
+		WorldSizeTypes.WORLDSIZE_ARENA:     [3,4,5],
 		WorldSizeTypes.WORLDSIZE_DUEL:      [3,4,5],
 		WorldSizeTypes.WORLDSIZE_TINY:      [3,4,5],
 		WorldSizeTypes.WORLDSIZE_SMALL:     [4,5,6],
 		WorldSizeTypes.WORLDSIZE_STANDARD:  [4,5,6],
 		WorldSizeTypes.WORLDSIZE_LARGE:     [4,5,6],
-		WorldSizeTypes.WORLDSIZE_HUGE:      [4,5,6]
+		WorldSizeTypes.WORLDSIZE_HUGE:      [4,5,6],
+		WorldSizeTypes.WORLDSIZE_SAS24:     [5,6,7],
+		WorldSizeTypes.WORLDSIZE_SAS32:     [5,6,7],
+		WorldSizeTypes.WORLDSIZE_SAS40:     [5,6,7],
+		WorldSizeTypes.WORLDSIZE_SAS48:     [5,6,7]
 		}
 	grain_list = list(sas_lookup_world_size(map.getWorldSize(), worldsizes))
 	grain_list.reverse()

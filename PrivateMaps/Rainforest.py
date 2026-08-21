@@ -79,7 +79,23 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
+	# <!-- custom: The shared 2x2 Arena grid left too little viable land for two civilizations. Arena 5x3 produced viable starts. See KI#278.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	# <!-- custom: During the KI#278.2 repair, restoring BTS's whole original profile made Huge 21x13 almost as large as an empirically oversized SAS24 22x14 despite having only 16 expected players instead of 24.
+	# Keep the validated Arena correction, but tune Duel-Huge between the former shared profile and BTS sizes and set integer SAS tiers from the tuned Huge tiles-per-player anchor without generic rounding drift. See KI#278.3. (GPT-5.6-Sol) -->
+	grid_sizes = {
+		WorldSizeTypes.WORLDSIZE_ARENA: (5,3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (5,4),
+		WorldSizeTypes.WORLDSIZE_TINY: (7,4),
+		WorldSizeTypes.WORLDSIZE_SMALL: (9,5),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (11,7),
+		WorldSizeTypes.WORLDSIZE_LARGE: (14,9),
+		WorldSizeTypes.WORLDSIZE_HUGE: (18,11),
+		WorldSizeTypes.WORLDSIZE_SAS24: (22,14),
+		WorldSizeTypes.WORLDSIZE_SAS32: (25,16),
+		WorldSizeTypes.WORLDSIZE_SAS40: (29,17),
+		WorldSizeTypes.WORLDSIZE_SAS48: (31,19),
+	}
+	return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def minStartingDistanceModifier():
 	return -27
@@ -631,14 +647,8 @@ def addBonusType(argsList):
 		# determine number of bonuses to place (defined as count)
 		# size modifier is a fixed component based on world size
 		sizekey = map.getWorldSize()
-		sizevalues = {
-			WorldSizeTypes.WORLDSIZE_DUEL:		1,
-			WorldSizeTypes.WORLDSIZE_TINY:		1,
-			WorldSizeTypes.WORLDSIZE_SMALL:		1,
-			WorldSizeTypes.WORLDSIZE_STANDARD:	2,
-			WorldSizeTypes.WORLDSIZE_LARGE:		2,
-			WorldSizeTypes.WORLDSIZE_HUGE:		3
-			}
+		# <!-- custom: Rainforest retained only the legacy Duel-Huge fixed bonus-count table, so missing Arena fell upward to Huge while SAS24-48 stayed capped there. Use the shared complete 1-7 progression already used by sibling Sirian bonus systems. See KI#278. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		sizevalues = sas_default_sizevalues()
 		sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
 		# playermodifier involves two layers of randomnity.
 		players = gc.getGame().countCivPlayersEverAlive()

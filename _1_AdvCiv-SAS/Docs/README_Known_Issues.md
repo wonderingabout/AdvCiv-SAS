@@ -324,6 +324,15 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [275.2 - (Fixed inherited BTS UI bug) Random Script Map said Coastal OR Largest Continent instead of ON](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2752---fixed-inherited-bts-ui-bug-random-script-map-said-coastal-or-largest-continent-instead-of-on)\
 [276 - (Fixed inherited third-party Refar bug) Medium-and-Small discarded its intended second vertical shift](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#276---fixed-inherited-third-party-refar-bug-medium-and-small-discarded-its-intended-second-vertical-shift)\
 [277 - (Fixed inherited third-party Refar bug) Terra quadrant randomization could exceed map bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#277---fixed-inherited-third-party-refar-bug-terra-quadrant-randomization-could-exceed-map-bounds)\
+[278 - (Fixed AdvCiv-SAS bug) Rainforest forced bonuses used incomplete world-size scaling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#278---fixed-advciv-sas-bug-rainforest-forced-bonuses-used-incomplete-world-size-scaling)\
+[278.2 - (Fixed AdvCiv-SAS bug) Shared compact sizing made Arena Rainforest too small for two civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2782---fixed-advciv-sas-bug-shared-compact-sizing-made-arena-rainforest-too-small-for-two-civilizations)\
+[278.3 - (Resolved prepared-fix calibration follow-up) Restoring Rainforest's original Huge anchor oversized larger grids](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2783---resolved-prepared-fix-calibration-follow-up-restoring-rainforests-original-huge-anchor-oversized-larger-grids)\
+[279 - (Fixed AdvCiv-SAS bug) Global Highlands used the wrong Mountain Pattern grain on added world sizes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#279---fixed-advciv-sas-bug-global-highlands-used-the-wrong-mountain-pattern-grain-on-added-world-sizes)\
+[280 - (Fixed AdvCiv-SAS bug) Earth2's Africa start stage admitted unrelated landmasses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#280---fixed-advciv-sas-bug-earth2s-africa-start-stage-admitted-unrelated-landmasses)\
+[281 - (Fixed AdvCiv-SAS bug) Earth2 enlarged SAS grids despite its fixed-Huge distribution policy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#281---fixed-advciv-sas-bug-earth2-enlarged-sas-grids-despite-its-fixed-huge-distribution-policy)\
+[282 - (Fixed AdvCiv-SAS bug) Earth2 Arena used Huge regional grain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#282---fixed-advciv-sas-bug-earth2-arena-used-huge-regional-grain)\
+[282.2 - (Fixed AdvCiv-SAS bug) Pangaea regional generation could raise KeyError on Arena](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2822---fixed-advciv-sas-bug-pangaea-regional-generation-could-raise-keyerror-on-arena)\
+[282.3 - (Fixed AdvCiv-SAS bug) Five map scripts could raise KeyError on Arena world-size percentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2823---fixed-advciv-sas-bug-five-map-scripts-could-raise-keyerror-on-arena-world-size-percentages)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8526,6 +8535,8 @@ The generation/ranking defect is inherited from BTG 2.43; KI#247 and the Cross h
 
 ## 275 - (Fixed inherited third-party Refar bug) Coastal-on-Biggest-Land validation raised before checking a plot
 
+Screenshots/files for this issue: same as KI#275.2.
+
 Random Script Chooser's combined coastal/Old-World validator began with `gl_isValidCalls += 1`, but that counter was never initialized or declared global and had no other live use. Python therefore treated it as an uninitialized local and raised `UnboundLocalError` before checking the candidate plot. Selecting `Coastal on Biggest Land` could consequently produce a Python exception and silently fall back from the requested custom starting rule.
 
 The fix removes the obsolete counter increment. The validator now reaches its intended polar, biggest-land-area, coast and non-lake tests without changing any of those placement rules. Several Huge Terra maps generated successfully with the option selected, including starts on the largest landmass and a coastal start. Repeated validation also produced noncoastal starts, including one not far from the coast: when no qualifying plot has a positive found value, the helper returns -1 and the engine uses generic placement. This is the inherited best-effort fallback rather than another Python exception; the refreshed `PythonErr.log` remained empty. KI#275.2 separately records the misleading inherited menu label found during this validation.
@@ -8533,6 +8544,8 @@ The fix removes the obsolete counter increment. The validator now reaches its in
 This defect is inherited from Refar RandomScriptMap 1.25. Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
 ## 275.2 - (Fixed inherited BTS UI bug) Random Script Map said Coastal OR Largest Continent instead of ON
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ua6Log96Hz318YYVgwtrLyXw0WqaQ47V?usp=sharing).
 
 Random Script Map's Players' Start option said `Coastal or Largest Continent`, but Refar's corresponding validator and source comments require both conditions: a coastal, non-lake plot on the largest landmass. The inherited BTS wording therefore described a different either/or rule. Screenshot 0085 confirmed the misleading label during KI#275 validation.
 
@@ -8555,3 +8568,77 @@ Refar randomized Terra's base margins but retained Firaxis' fixed quadrant shift
 The fix retains randomized Terra margins while constraining the New World eastern base to 0.36-0.39 and Eurasia's southern base to 0.40-0.46. Their later fixed shifts therefore remain respectively below 1 and at or above 0, keeping every affected regional rectangle inside the map without removing quadrant randomization. An exhaustive boundary harness validated 12,108,096 affected and derived Terra rectangles across Arena-through-SAS48 dimensions and every relevant roll. Several Huge Terra maps also generated successfully without an observed issue, with an empty refreshed `PythonErr.log`.
 
 This defect is inherited from Refar RandomScriptMap 1.25. Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 278 - (Fixed AdvCiv-SAS bug) Rainforest forced bonuses used incomplete world-size scaling
+
+Rainforest's forced Fur/Silver/Deer count retained only its legacy Duel-through-Huge fixed world-size component. The shared lookup sends missing sizes to the largest present key, so Arena incorrectly received Huge's component 3 rather than 1, while SAS24-SAS48 all remained capped at 3. Sibling adapted Sirian bonus systems already use the complete shared progression.
+
+The fix replaces Rainforest's duplicated legacy subset with `sas_default_sizevalues()`: Arena through Small use 1, Standard/Large use 2, Huge uses 3 and SAS24/SAS32/SAS40/SAS48 use 4/5/6/7. The separate randomized player component and placement rules remain unchanged. Arena and SAS24 Rainforest both generated and ran successfully in runtime testing.
+
+This is an AdvCiv-SAS world-size adaptation bug. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 278.2 - (Fixed AdvCiv-SAS bug) Shared compact sizing made Arena Rainforest too small for two civilizations
+
+SAS replaced Rainforest's original map-specific land-heavy grid with the later shared almost-all-land profile. That shared profile had itself been reduced from Arena `(4,3)` to `(2,2)` grid units without validating Rainforest. In runtime testing the resulting Arena map had too little usable land for two civilizations: England could not found a city, was defeated, and the remaining player won Conquest on turn 10. Screenshots 0090-0092 also show the map was dramatically smaller than Arena Pangaea.
+
+The fix gives Arena its own `(5,3)` size rather than the shared `(2,2)` profile. Repeated Arena generation then produced successful games with two viable civilizations. KI#278.3 separately records the opposite larger-tier calibration issue exposed while restoring Rainforest's map-specific profile.
+
+This is an AdvCiv-SAS map-calibration regression introduced when Rainforest adopted the shared compact profile and exposed by later further reduction. Found during runtime validation with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 278.3 - (Resolved prepared-fix calibration follow-up) Restoring Rainforest's original Huge anchor oversized larger grids
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ok9IqK7Z8s3vPGxUJu69Z3ixRf25ho0z?usp=sharing).
+
+Before this batch, current SAS Rainforest used the shared compact profile through Huge `(15,11)`; only Arena `(2,2)` was demonstrated to be catastrophically too small. During the prepared KI#278.2 repair, restoring BTS Rainforest's entire original Duel-through-Huge profile `(6,4)` through `(21,13)` overcorrected in the other direction. The scaling helper then correctly extrapolated SAS sizes from that chosen Huge anchor and current expected player counts, but the anchor itself was unsuitable for current Rainforest balance. Repeated SAS24 generation showed large continuous jungle-heavy interiors still unoccupied through turn 101 in screenshots 0098 and 0108. Restored Huge `(21,13)` was also almost as large as the already-oversized SAS24 `(22,14)` despite having only 16 expected players instead of 24.
+
+The fix keeps KI#278.2's empirically validated Arena `(5,3)`, uses Duel-through-Huge `(5,4)` / `(7,4)` / `(9,5)` / `(11,7)` / `(14,9)` / `(18,11)`, then uses SAS24/SAS32/SAS40/SAS48 `(22,14)` / `(25,16)` / `(29,17)` / `(31,19)`. The SAS tiers remain near the tuned Huge tiles-per-expected-player density; explicit integer dimensions avoid generic two-dimensional rounding deviations. Screenshot 0110 at turn 101 confirmed substantially better SAS24 settlement spacing while retaining expansion room.
+
+This was a prepared-fix calibration issue caught before commit, not a surviving SAS regression or a failure in the player-count scaling formula. Found during runtime validation with the help of wonderingabout; resolved and documented with the help of GPT-5.6-Sol thanks.
+
+## 279 - (Fixed AdvCiv-SAS bug) Global Highlands used the wrong Mountain Pattern grain on added world sizes
+
+Global Highlands retained the stock six-tier Mountain Pattern grain table after Arena and SAS24-SAS48 were added. Arena therefore fell upward to Huge's `[4,5,6]` tuple instead of the small-tier `[3,4,5]`, while every SAS tier remained at `[4,5,6]` instead of the established larger-tier `[5,6,7]`. Current sibling `Highlands.py` already contains that complete intended mapping.
+
+The fix gives Global Highlands the same Arena-through-SAS48 Mountain Pattern table as Highlands. Its separate hill/peak density, landmass generation and other settings remain unchanged. Arena and SAS24 both generated and ran successfully in runtime testing.
+
+This is an AdvCiv-SAS world-size adaptation bug. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 280 - (Fixed AdvCiv-SAS bug) Earth2's Africa start stage admitted unrelated landmasses
+
+Earth2 intends three start stages: the biggest landmass below 16 players, that landmass plus Africa from 16 through 31, then the full world from 32. The only middle-stage Africa condition was unreachable after the low-count return. Its remaining code merely excluded the Americas and Australia, admitting every other landmass—including separate British Isles and Japan regions—instead of only the biggest landmass plus Africa.
+
+The fix applies the intended middle-stage union directly: a candidate must be on the biggest landmass or inside the Africa rectangle. The low-count biggest-area stage and 32-player unrestricted stage remain unchanged and define-driven. Runtime-tested SAS24 starts remained within the intended distribution.
+
+This is an AdvCiv-SAS staged-start implementation bug. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 281 - (Fixed AdvCiv-SAS bug) Earth2 enlarged SAS grids despite its fixed-Huge distribution policy
+
+Earth2's staged-start adaptation deliberately kept Huge and larger world sizes at the already-large `(40,24)` grid-unit geometry, handling more players by unlocking Africa and then the full world. Later generic calibration changed SAS24-SAS48 to progressively larger grids, reaching about `(70,42)` at SAS48—more than three times Huge's plot count after the engine's fourfold grid conversion—and contradicted both the source rationale and Main Changes Guide.
+
+The fix restores ordinary world-size lookup. Arena through Huge retain their explicit sizes, while missing SAS tiers intentionally reuse the largest entry, Huge `(40,24)`; the staged 16/32-player distribution handles the additional civilizations as designed. The Victory screen confirmed that Huge and SAS24 both generate at `160 x 96` plots.
+
+This is a later AdvCiv-SAS map-calibration regression. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 282 - (Fixed AdvCiv-SAS bug) Earth2 Arena used Huge regional grain
+
+Earth2's regional grain table retained only Duel-through-Huge entries. Because the shared lookup sends a missing size to the largest key, Arena used Huge's `(5,2,1)` tuple instead of the Duel/Tiny small-map tuple `(3,2,1)`, creating a bottom-tier discontinuity.
+
+The fix adds Arena explicitly as `(3,2,1)`. Duel-through-Huge retain their stock progression; SAS24-SAS48 intentionally continue using Huge grain alongside Earth2's restored fixed-Huge geometry. Arena Earth2 generated and ran successfully in runtime testing.
+
+This is an AdvCiv-SAS world-size adaptation bug. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 282.2 - (Fixed AdvCiv-SAS bug) Pangaea regional generation could raise KeyError on Arena
+
+Pangaea randomly chooses among several shoreline-generation families. Its multilayered regional branches indexed a legacy Duel-through-Huge grain dictionary directly; Arena was below the existing larger-size fallback and absent from the dictionary, producing `KeyError: WORLDSIZE_ARENA` in `generatePlotsByRegion`. Other random branches bypassed this table, explaining why Arena Pangaea sometimes generated normally and sometimes failed after the same setup.
+
+The fix adds Arena with grain 3, matching Duel and Tiny. Existing Duel-through-Huge values and AdvCiv's larger-size grain-5 fallback remain unchanged. Repeated Arena generation successfully exercised the formerly failing randomized path without another Python error.
+
+This is an AdvCiv-SAS incomplete Arena adaptation. Found from the refreshed `PythonErr.log` during KI#278.2 comparison testing with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 282.3 - (Fixed AdvCiv-SAS bug) Five map scripts could raise KeyError on Arena world-size percentages
+
+A repository-wide follow-up audit found the same incomplete direct-dictionary adaptation in `Hemispheres.py`, `Mixed_Continents.py`, `not_too_Big_or_Small.py`, `Tectonics.py` and `Terra.py`. Their `getNumPlotsPercent` dictionaries began at Duel, but Arena's enum value passed the old length guard and was indexed directly, raising `KeyError`. Inserting Arena before Duel had also shifted the length boundary: Huge took the generic larger-size fallback instead of its stored Huge percentage. Terra contained a second missing-Arena direct dictionary in regional grain generation.
+
+The fix adds Arena to each percentage dictionary using that script's established Duel value and adds Terra Arena regional grain matching Duel/Tiny. This makes the existing length guards include Huge again while preserving their explicit SAS-size fallback percentages and Terra's larger-size grain fallback. A static direct-index audit found no other playable map-script world-size dictionaries with this missing-Arena pattern; all five affected scripts then generated and ran successfully on Arena.
+
+This is an AdvCiv-SAS Arena world-size adaptation bug across inherited AdvCiv/Firaxis map code. Found through the repository-wide follow-up audit and fixed and documented with the help of GPT-5.6-Sol thanks.
