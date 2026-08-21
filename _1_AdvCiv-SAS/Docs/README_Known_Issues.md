@@ -342,6 +342,14 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [290 - (Fixed inherited BTS/Ruff bug) Team Battleground circular starts used truncated Python 2 angles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#290---fixed-inherited-btsruff-bug-team-battleground-circular-starts-used-truncated-python-2-angles)\
 [291 - (Fixed AdvCiv-SAS bug) Team Battleground small circles could duplicate high-player starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#291---fixed-advciv-sas-bug-team-battleground-small-circles-could-duplicate-high-player-starts)\
 [292 - (Fixed inherited Firaxis bug) Hub, Ring and Wheel nine-player regions overlapped their buffer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#292---fixed-inherited-firaxis-bug-hub-ring-and-wheel-nine-player-regions-overlapped-their-buffer)\
+[293 - (Fixed AdvCiv-SAS bug) Oasis compact grids could send fixed river lanes outside valid bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#293---fixed-advciv-sas-bug-oasis-compact-grids-could-send-fixed-river-lanes-outside-valid-bounds)\
+[293.2 - (Fixed AdvCiv-SAS bug) Oasis used an excessively small shared grid](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2932---fixed-advciv-sas-bug-oasis-used-an-excessively-small-shared-grid)\
+[294 - (Fixed inherited Firaxis/Warlords bug) Mirror assumed the two teams had IDs 0 and 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#294---fixed-inherited-firaxiswarlords-bug-mirror-assumed-the-two-teams-had-ids-0-and-1)\
+[294.2 - (Fixed AdvCiv-SAS bug) Mirror's compact Arena grid could produce NULL starts and immediate defeat](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2942---fixed-advciv-sas-bug-mirrors-compact-arena-grid-could-produce-null-starts-and-immediate-defeat)\
+[295 - (Fixed inherited Firaxis/Warlords bug) Inland Sea could form empty 17-player start regions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#295---fixed-inherited-firaxiswarlords-bug-inland-sea-could-form-empty-17-player-start-regions)\
+[297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#297---fixed-advciv-sas-bug-highlands-always-kept-its-north-cold-climate-orientation)\
+[298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
+[298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8723,3 +8731,67 @@ The Buffered nine-player template shared by Hub, Ring and Wheel defined its uppe
 The fix changes the inherited `0.677` typo to `0.667` in all three scripts. The upper region now matches its symmetric lower counterpart and meets the buffer without overlap; no other region dimensions, fractal settings or starting positions change. Nine-player Buffered Hub, Ring and Wheel maps generated successfully on Large or Huge without an observed gameplay issue at a glance. Their unified main landmass, central neutral/tundra geography and evenly distributed player regions are intended characteristics rather than symptoms of this boundary repair.
 
 This template bug is inherited from Firaxis Hub, Ring and Wheel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 293 - (Fixed AdvCiv-SAS bug) Oasis compact grids could send fixed river lanes outside valid bounds
+
+Oasis inherited four fixed Nile-style river lanes whose helpers probe one plot east and north of the current river coordinate. AdvCiv-SAS later gave Oasis substantially smaller shared grids without adapting those fixed lanes. On compact tiers the eastern lane could reach the final map column before probing `x+1`; Arena and Duel could also pass a negative vertical range to the map RNG.
+
+The fix clamps each lane center and lateral movement to leave valid east-probe headroom, makes both start RNG ranges positive and stops northward generation before a `y+1` probe would leave the map. The four-lane structure remains unchanged. Static checks keep every derived lane and probe inside the tested Arena-through-SAS dimensions; Arena Oasis generated and ran through turn 11 without a Python error.
+
+This is an AdvCiv-SAS compact-grid regression in inherited Warlords Oasis logic. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 293.2 - (Fixed AdvCiv-SAS bug) Oasis used an excessively small shared grid
+
+Runtime validation of KI#293 exposed a separate sizing regression: Arena Oasis used the shared almost-all-land 2x2 map-cell grid, only 8x8 actual plots. In screenshot 0134, its two civilizations nearly filled the whole map by turn 11. The inherited Oasis profile was already deliberately reduced for its land-heavy layout but still used 6x4 cells on Duel, twice the compact profile's width and height.
+
+The fix restores inherited Oasis sizes from Duel through Huge, adds a 5x3 Arena tier and calibrates SAS24-SAS48 from the Huge anchor using each tier's expected player count. This preserves Oasis-specific land-heavy sizing without enlarging the shared profile for unrelated maps. Arena then generated at 20x12 with good spacing through turn 11 in screenshot 0143.
+
+This is an AdvCiv-SAS map-size regression introduced by applying an excessively compact generic profile to Oasis. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 294 - (Fixed inherited Firaxis/Warlords bug) Mirror assumed the two teams had IDs 0 and 1
+
+Mirror correctly checked that exactly two teams were participating, but its special equal-team mirrored-start path then queried literal TeamTypes 0 and 1 and classified every player relative to those IDs. Two real teams using other slots could therefore be treated as empty or placed on the same side, leaving starts unassigned or raising while pairing mirrored opponents.
+
+The fix derives the two actual team IDs from the shuffled participating players, builds both player lists from those IDs and verifies equal membership before assigning any start. Other team counts and unequal two-team games retain their existing engine fallback. Arena Start Together generated correctly with both default teams and actual TeamTypes 2 and 3.
+
+This start-assignment bug is inherited from Firaxis/Warlords Mirror. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 294.2 - (Fixed AdvCiv-SAS bug) Mirror's compact Arena grid could produce NULL starts and immediate defeat
+
+With KI#294's actual-team-ID repair active, a two-player Arena test using TeamTypes 2 and 3 correctly entered Mirror's special equal-team path. The shared almost-all-land grid was only 8x8 plots, however, and supplied no valid plot in the required left-side search region. The inherited routine converted the resulting `-1` index to a NULL plot, mirrored invalid coordinates, returned Python success and suppressed DLL reassignment; both players were defeated immediately and the game opened Hall of Fame.
+
+The fix restores Mirror's inherited land-heavy Duel-through-Huge sizes, adds a 5x3 Arena tier and calibrates SAS tiers from Huge by expected player count. It also checks every special-path search before assignment; on failure it clears any provisional mirrored pairs and delegates the complete start assignment instead of returning success with NULL or partial starts. Arena then generated at 20x12 under both tested team-ID configurations, with both players spawning normally and the game continuing.
+
+This combines an AdvCiv-SAS map-size regression with a missing inherited failure guard exposed by the supported compact tier. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 295 - (Fixed inherited Firaxis/Warlords bug) Inland Sea could form empty 17-player start regions
+
+Inland Sea's inherited 17-player templates include centers at 5% and 95% of an axis. The script formed a variance window around that center and only then clamped each edge to a two-plot safety margin. On original Duel/Tiny grids and compact SAS Arena grids, the clamp could put the lower bound above the upper bound, making the intended start region empty and forcing that player into generic placement.
+
+The fix clamps each template center inside the safety envelope before constructing the variance window. Every resulting region therefore contains its own center; the template coordinates, variance values, landmass condition and start ranking remain unchanged. Focused checks confirm non-inverted bounds for the affected edge centers and compact dimensions. A 17-player Duel Inland Sea map then generated with its players distributed normally at a glance in screenshot 0140.
+
+This start-region bug is inherited from Firaxis/Warlords Inland Sea. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation
+
+Highlands is intended to randomize whether its cold region lies in the north or south. AdvCiv-SAS added a safe module-level default for `shiftMultiplier` but removed the `global` declaration from `beforeInit()`. The RNG roll was still consumed, but each assignment became function-local and was discarded; all later latitude callbacks continued reading the north-cold default.
+
+The fix restores the `global shiftMultiplier` declaration in the initialization callback. Both existing values, RNG behavior and latitude formulas remain unchanged, allowing the intended two orientations again. Repeated Arena generation visibly produced both a south-cold and a north-cold map.
+
+This is an AdvCiv-SAS Python-scope regression. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations
+
+Highlands inherited a direct start allocator that assumes `findStartingPlot()` returns a valid plot for every player. AdvCiv-SAS supports 48 civilizations but later reduced the shared almost-all-land Arena grid from 4x3 to 2x2 map-script cells, only 8x8 actual plots. A source-exact 1,000-seed replay produced just 23-47 non-water/non-Peak plots on that grid, always fewer than the 48 legal city sites required by the supported maximum setup. Once exhausted, the script could pass a NULL plot into its assignment path and still suppress complete DLL reassignment.
+
+The fix replaces the shared profile with Highlands' map-specific size progression, beginning at 6x4 cells on Arena and retaining inherited Duel-through-Huge sizes. This gives its mountain/lake generator a substantial capacity floor and addresses capacity during map generation instead of attempting a late fallback after an undersized map already exists. SAS tiers are calibrated from Huge by expected player count. A 48-player Arena map generated at 24x16 and completed an 11-turn autoplay with all starts appearing valid at a glance in screenshot 0147.
+
+This is an AdvCiv-SAS high-player Arena regression exposed by applying the shared compact profile to Highlands. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case
+
+Runtime testing showed that the shared compact profile's problem was broader than KI#298's proven 48-player Arena failure. Duel Highlands generated at only 12x8 plots in screenshot 0142, whereas inherited Highlands deliberately used 8x5 map cells, or 32x20 actual plots, to leave room around its lakes, Peaks and path-opening start logic.
+
+The KI#298 repair therefore restores Highlands' entire inherited Duel-through-Huge progression rather than special-casing Arena alone, adds a 6x4 Arena tier below Duel and calibrates SAS tiers from Huge by expected player count. The climate, mountain, lake and start-generation settings remain unchanged. Runtime validation confirmed 32x20 Duel and 24x16 Arena generation.
+
+This is an AdvCiv-SAS map-size regression introduced by applying an excessively compact shared profile to Highlands. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.

@@ -128,6 +128,8 @@ def isSeaLevelMap():
 
 def beforeInit():
 	# Roll a dice to determine if the cold region will be in north or south.
+	# <!-- custom: The SAS module default made shiftMultiplier safe before initialization, but removing this global declaration discarded every randomized assignment and permanently kept the north-cold orientation. See KI#297. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	global shiftMultiplier
 	gc = CyGlobalContext()
 	dice = gc.getGame().getMapRand()
 	shiftRoll = dice.get(2, "North or South climate shift - Highlands PYTHON")
@@ -174,14 +176,24 @@ def getBottomLatitude():
 		return -85
 
 def getGridSize(argsList):
-	"Use the shared compact almost-all-land grid profile."
-	# <!-- custom: Shared almost-all-land profile now calibrates SAS24/32/40/48 from the Huge XML default-player anchor so Highlands keeps closer Huge-relative scale without a separate helper. (GPT-5.3-Codex + GPT-5.5) -->
+	"Use Highlands' land-heavy base profile and calibrate SAS tiers from Huge."
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 
 	[eWorldSize] = argsList
-	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
+	# <!-- custom: Runtime testing also showed the shared compact profile made Duel only 12x8 plots, far below inherited Highlands' 32x20 Duel geometry.
+	# Restore the inherited base profile, add Arena below Duel and calibrate SAS tiers from Huge by expected player count. This also replaces the proven 8x8 Arena capacity failure. See KI#298 and KI#298.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	grid_sizes = {
+		WorldSizeTypes.WORLDSIZE_ARENA: (6, 4),
+		WorldSizeTypes.WORLDSIZE_DUEL: (8, 5),
+		WorldSizeTypes.WORLDSIZE_TINY: (10, 6),
+		WorldSizeTypes.WORLDSIZE_SMALL: (13, 8),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (16, 10),
+		WorldSizeTypes.WORLDSIZE_LARGE: (21, 13),
+		WorldSizeTypes.WORLDSIZE_HUGE: (26, 16)
+		}
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 def minStartingDistanceModifier():
 	return -35

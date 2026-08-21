@@ -533,8 +533,10 @@ def findStartingPlot(argsList):
 			return false
 
 		# Now check for eligibility according to the defintions found in the template.
-		iX = int(iW * fLat)
-		iY = int(iH * fLon)
+		# <!-- custom: Inherited 17-player templates place some centers at 0.05/0.95; on Duel/Tiny and compact Arena grids, clamping the completed window could invert its bounds.
+		# Clamp the center inside the two-plot safety envelope first so every configured window contains its own center. See KI#295. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iX = max(2, min(iW - 3, int(iW * fLat)))
+		iY = max(2, min(iH - 3, int(iH * fLon)))
 		westX = max(2, iX - varX)
 		eastX = min(iW - 3, iX + varX)
 		southY = max(2, iY - varY)

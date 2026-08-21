@@ -139,11 +139,21 @@ def beforeGeneration():
 	return None
 
 def getGridSize(argsList):
-	# <!-- custom: Mirror behaves close to almost-all-land in practice; use shared compact almost-all-land sizing for tighter early spacing and consistent SAS scaling. (GPT-5.3-Codex) -->
+	# <!-- custom: After repairing actual two-team IDs, a two-player Arena Start Together test reached Hall of Fame immediately because the shared 8x8 compact grid supplied no valid special-path start.
+	# Restore Mirror's inherited land-heavy base profile, add Arena below Duel and calibrate SAS tiers from Huge by expected player count. See KI#294.2. (GPT-5.6-Sol) -->
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
+	grid_sizes = {
+		WorldSizeTypes.WORLDSIZE_ARENA: (5, 3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (6, 4),
+		WorldSizeTypes.WORLDSIZE_TINY: (8, 5),
+		WorldSizeTypes.WORLDSIZE_SMALL: (10, 6),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (13, 8),
+		WorldSizeTypes.WORLDSIZE_LARGE: (16, 10),
+		WorldSizeTypes.WORLDSIZE_HUGE: (21, 13)
+		}
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 class MirrorMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	# Subclass. Only the controlling function overridden in this case.
@@ -617,41 +627,36 @@ def assignStartingPlots():
 	if iTeams != 2:
 		CyPythonMgr().allowDefaultImpl()
 		return
-	team_one = gc.getTeam(0)
-	team_two = gc.getTeam(1)
-	if team_one.getNumMembers() != team_two.getNumMembers():
-		CyPythonMgr().allowDefaultImpl()
-		return
-
 	# We are dealing with two teams who are evenly matched.
 	# Assign all start plots for the first team, then mirrorize the locations for the second team!
+	# <!-- custom: The inherited special path assumed that the two participating TeamTypes were literal IDs 0 and 1.
+	# Derive the actual two team IDs from the shuffled participating players, then verify equal membership before assigning either side. See KI#294. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	teamIDs = []
+	for thisPlayerID in shuffledPlayers:
+		teamID = gc.getPlayer(thisPlayerID).getTeam()
+		if teamID not in teamIDs:
+			teamIDs.append(teamID)
+	if len(teamIDs) != 2:
+		CyPythonMgr().allowDefaultImpl()
+		return
 	# Start by determining which players are on which teams.
 	for iLoop in range(iPlayers):
 		thisPlayerID = shuffledPlayers[iLoop]
 		this_player = gc.getPlayer(thisPlayerID)
-		teamID = gc.getPlayer(thisPlayerID).getTeam()
+		teamID = this_player.getTeam()
 		print("Player: ", thisPlayerID, " Team: ", teamID)
-		if teamID == 1:
+		if teamID == teamIDs[1]:
 			playersOnTeamTwo.append(shuffledPlayers[iLoop])
 		else:
 			playersOnTeamOne.append(shuffledPlayers[iLoop])
+	if len(playersOnTeamOne) != len(playersOnTeamTwo):
+		CyPythonMgr().allowDefaultImpl()
+		return
 
 	# Now we pick a team to assign to the left side and assign them there.
 	userInputPlots = map.getCustomMapOption(0)
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
-	if userInputPlots == 0: # Reflection
-		reflect_x = lambda x: iW - iX - 1
-		reflect_y = lambda y: iY
-	elif userInputPlots == 1: # Inversion
-		reflect_x = lambda x: iW - iX - 1
-		reflect_y = lambda y: iH - iY - 1
-	elif userInputPlots == 2: # Copy
-		reflect_x = lambda x: iX + (iW / 2)
-		reflect_y = lambda y: iY
-	else: # userInputPlots == 3: Opposite
-		reflect_x = lambda x: iX + (iW / 2)
-		reflect_y = lambda y: iH - iY - 1
 
 	def isValidForMirror(playerID, x, y):
 		global biggest_areas
@@ -681,36 +686,55 @@ def assignStartingPlots():
 		# if not true, then false! (Duh? Well, the program still has to be told.)
 		return false
 
-	if shuffle: # We will put team two on the left.
-		teamOneIndex = 0
-		for thisPlayer in playersOnTeamTwo:
-			player = gc.getPlayer(thisPlayer)
-			startPlot = CvMapGeneratorUtil.findStartingPlot(thisPlayer, isValidForMirror)
-			sPlot = map.plotByIndex(startPlot)
-			player.setStartingPlot(sPlot, true)
-			iX = sPlot.getX()
-			iY = sPlot.getY()
-			mirror_x = reflect_x(iX)
-			mirror_y = reflect_y(iY)
-			opposite_player = gc.getPlayer(playersOnTeamOne[teamOneIndex])
-			oppositePlot = map.plot(mirror_x, mirror_y)
-			opposite_player.setStartingPlot(oppositePlot, true)
-			teamOneIndex += 1
-	else: # will put team one on the left.
-		teamTwoIndex = 0
-		for thisPlayer in playersOnTeamOne:
-			player = gc.getPlayer(thisPlayer)
-			startPlot = CvMapGeneratorUtil.findStartingPlot(thisPlayer, isValidForMirror)
-			sPlot = map.plotByIndex(startPlot)
-			player.setStartingPlot(sPlot, true)
-			iX = sPlot.getX()
-			iY = sPlot.getY()
-			mirror_x = reflect_x(iX)
-			mirror_y = reflect_y(iY)
-			opposite_player = gc.getPlayer(playersOnTeamTwo[teamTwoIndex])
-			oppositePlot = map.plot(mirror_x, mirror_y)
-			opposite_player.setStartingPlot(oppositePlot, true)
-			teamTwoIndex += 1
+	# <!-- custom: The inherited code duplicated the complete assignment loop for each shuffled side and did not retain provisional pairs for rollback.
+	# Select primary/opposite lists once so both sides use the same validated path and every provisional start can be cleared before delegating a failed assignment. See KI#294.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if shuffle:
+		primaryPlayers = playersOnTeamTwo
+		oppositePlayers = playersOnTeamOne
+	else:
+		primaryPlayers = playersOnTeamOne
+		oppositePlayers = playersOnTeamTwo
+	assignedPlayerIDs = []
+	for playerIndex in range(len(primaryPlayers)):
+		thisPlayer = primaryPlayers[playerIndex]
+		player = gc.getPlayer(thisPlayer)
+		startPlot = CvMapGeneratorUtil.findStartingPlot(thisPlayer, isValidForMirror)
+		if startPlot < 0:
+			# <!-- custom: The special path previously converted a failed -1 search to a NULL plot, returned Python success and could eliminate every player immediately.
+			# Roll back any provisional mirrored pairs and delegate the complete assignment instead. See KI#294.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			nullPlot = map.plotByIndex(-1)
+			for assignedPlayerID in assignedPlayerIDs:
+				gc.getPlayer(assignedPlayerID).setStartingPlot(nullPlot, false)
+			CyPythonMgr().allowDefaultImpl()
+			return
+		sPlot = map.plotByIndex(startPlot)
+		iX = sPlot.getX()
+		iY = sPlot.getY()
+		# <!-- custom: Preserve the inherited option formulas (0 Reflection, 1 Inversion, 2 Copy, 3 Opposite), but calculate the counterpart directly from this validated primary plot instead of duplicated shuffle branches. See KI#294.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if userInputPlots == 0:
+			mirror_x = iW - iX - 1
+			mirror_y = iY
+		elif userInputPlots == 1:
+			mirror_x = iW - iX - 1
+			mirror_y = iH - iY - 1
+		elif userInputPlots == 2:
+			mirror_x = iX + (iW / 2)
+			mirror_y = iY
+		else:
+			mirror_x = iX + (iW / 2)
+			mirror_y = iH - iY - 1
+		# <!-- custom: Validate the computed counterpart before assignment. If it is outside the map, clear every provisional pair and delegate the complete assignment instead of returning Python success with invalid starts. See KI#294.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if not map.isPlot(mirror_x, mirror_y):
+			nullPlot = map.plotByIndex(-1)
+			for assignedPlayerID in assignedPlayerIDs:
+				gc.getPlayer(assignedPlayerID).setStartingPlot(nullPlot, false)
+			CyPythonMgr().allowDefaultImpl()
+			return
+		oppositePlayerID = oppositePlayers[playerIndex]
+		player.setStartingPlot(sPlot, true)
+		gc.getPlayer(oppositePlayerID).setStartingPlot(map.plot(mirror_x, mirror_y), true)
+		assignedPlayerIDs.append(thisPlayer)
+		assignedPlayerIDs.append(oppositePlayerID)
 
 	# All done.
 	return None
